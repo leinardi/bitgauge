@@ -144,6 +144,37 @@ describe('buildChart', () => {
     ])
   })
 
+  it('spans an upload with no confirmed request yet over its elapsed time, with its marks inside', () => {
+    // 20 s of download, then 25 s of upload whose requests have not confirmed (QA-98): no cell, no
+    // P_start and no sending line yet, only the phase's time and its Extended mark.
+    const download = live({ values: Array.from({ length: 200 }, () => 125_000), phaseMs: 20_003 })
+    const upload = live({ firstBucket: 0, values: [], start: null, phaseMs: 25_000 })
+    const model = buildChart({ order: ['download', 'upload'], live: { download, upload }, units: 'bits', events: { upload: [{ code: 'extended', atMs: 15_000 }] } })
+    expect(model.separators).toEqual([20])
+    expect(model.end).toBeCloseTo(45)
+    const [x, , received, sending] = model.data
+    expect(x.at(-1)).toBeCloseTo(45)
+    expect(received.every((value) => value === null)).toBe(true)
+    expect(sending.every((value) => value === null)).toBe(true)
+    expect(model.marks).toEqual([{ at: 35, code: 'extended' }])
+    expect(model.marks[0]?.at).toBeLessThanOrEqual(model.end)
+  })
+
+  it('leaves a download and a confirmed upload on their cells, whatever the client phase time', () => {
+    // The client's phase time runs past the last bucket boundary (a sample is sent just after a
+    // bucket closes) and, on upload, ahead of P_start; neither adds an empty tail.
+    const upload = live({ firstBucket: 9001, values: [10_000, 20_000], start: 9000.4, sendingTrace: [{ cell: 9003.7, bitsPerSecond: 3e6 }] })
+    const before = buildChart({ order: ['upload'], live: { download: null, upload }, units: 'bits' })
+    expect(buildChart({ order: ['upload'], live: { download: null, upload: { ...upload, phaseMs: 1250 } }, units: 'bits' })).toEqual(before)
+    const download = live({ values: [125_000, null, 250_000] })
+    const built = buildChart({ order: ['download'], live: { download, upload: null }, units: 'bits' })
+    expect(buildChart({ order: ['download'], live: { download: { ...download, phaseMs: 303 }, upload: null }, units: 'bits' })).toEqual(built)
+    // Before a finished download, an unconfirmed upload starts at its boundary, 0.3 s.
+    const both = buildChart({ order: ['download', 'upload'], live: { download: { ...download, phaseMs: 303 }, upload: live({ phaseMs: 1000 }) }, units: 'bits' })
+    expect(xs(both.separators)).toEqual([0.3])
+    expect(both.end).toBeCloseTo(1.3)
+  })
+
   it('is empty before the first sample', () => {
     const model = buildChart({ order: ['download', 'upload'], live: { download: null, upload: null }, units: 'bits' })
     expect(model.data).toEqual([[], [], [], []])
@@ -196,6 +227,11 @@ describe('buildChart over live rings that rolled over', () => {
     expect(x[0]).toBeCloseTo(7.1)
     expect(received[0]).toBe(8e5)
     expect(sending.filter((value) => value !== null).length).toBeLessThanOrEqual(CAPACITY + 1)
+    // The elapsed time, 121 cells from P_start's, floors the segment from the oldest cell held,
+    // not from P_start: the same axis.
+    const timed = buildChart({ order: ['upload'], live: { download: null, upload: { ...live, phaseMs: 12_100 } }, units: 'bits', loaded: { upload: loaded } })
+    expect(timed.data[0]).toEqual(x)
+    expect(timed.end).toBe(model.end)
   })
 
   it("keeps the upload's leading unknown cell one cell short of eviction", () => {

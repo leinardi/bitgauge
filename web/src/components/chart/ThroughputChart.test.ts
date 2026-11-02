@@ -97,6 +97,19 @@ describe('the throughput chart', () => {
     done.unmount()
   })
 
+  it('ends a finished run at its upload\'s elapsed time when no upload request confirmed', async () => {
+    const download = live({ values: Array.from({ length: 200 }, () => 1_176_250), warmupEnd: 1, phaseMs: 20_003 })
+    const upload = live({ firstBucket: 0, values: [], start: null, phaseMs: 25_000 })
+    const labels = (wrapper: ReturnType<typeof chart>) => wrapper.findAll('[aria-hidden="true"] > span').map((label) => label.text())
+    const done = chart({ order: ['download', 'upload'], live: { download, upload }, state: 'done' })
+    await flushPromises()
+    // The download separates at 20 s and the upload's 25 s follow: the axis runs to 45 s, its
+    // separator labeled (the separator's place is series.test.ts's).
+    expect(labels(done).filter((label) => /^\d+s$/u.test(label))).toEqual(['0s', '8s', '16s', '24s', '32s', '40s'])
+    expect(labels(done)).toContain('Upload')
+    done.unmount()
+  })
+
   it('keeps the empty value axis for a run that ended before its first value', async () => {
     const wrapper = chart({ order: ['download'], live: { download: live({ values: [null] }), upload: null }, state: 'done' })
     await flushPromises()

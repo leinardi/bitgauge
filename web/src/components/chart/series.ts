@@ -253,8 +253,13 @@ export function buildChart(input: ChartInput): ChartModel {
         put(sending, index, display(point.bitsPerSecond, input.units))
       }
     }
+    // An upload with no confirmed request yet has no cells, no P_start and no sending line: its
+    // segment spans the phase's elapsed time, so its time and event marks show (measurement.md
+    // section 7.4). Elsewhere the cells and the sending line already reach "now", and the client's
+    // phase time, which runs ahead of the bucket boundaries and of P_start, would add an empty tail.
     // One more bucket boundary closes the last bucket.
-    const length = Math.max(received.length, sending.length) + 1
+    const ran = direction === 'upload' && live.start === null ? Math.ceil(live.phaseMs / (BUCKET_S * 1000)) + (origin - first) : 0
+    const length = Math.max(received.length, sending.length, ran) + 1
     hold(received, length)
     hold(sending, length)
     const own = direction === 'download' ? [received, [], []] : [[], received, sending]
