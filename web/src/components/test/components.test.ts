@@ -35,11 +35,12 @@ import PhaseIndicator from '@/components/test/PhaseIndicator.vue'
 import StartButton from '@/components/test/StartButton.vue'
 import { browserRow, directionTile } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
-import type { Notice, NoticeCode } from '@/engine/messages'
+import type { DirectionResult, Notice, NoticeCode } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
 import notices from '@/i18n/locales/en/notices.json'
 import { links } from '@/lib/links'
-import { resultFixture } from '@/test/fixtures'
+import { settingsFromDefaults } from '@/lib/defaults'
+import { infoFixture, resultFixture } from '@/test/fixtures'
 
 const i18n = () => createAppI18n('', ['en'])
 const context: Wording = { t: i18n().global.t as unknown as Wording['t'], locale: 'en' }
@@ -183,6 +184,23 @@ describe('the notices', () => {
     expect(after).toHaveLength(3)
     expect(after[1]).toBe(before[0])
     expect(after[2]).toBe(before[1])
+  })
+
+  it('keeps the insufficient-data body the same while running, between phases and after the run', async () => {
+    const settings = settingsFromDefaults(infoFixture().defaults)
+    const ended: DirectionResult = { status: 'insufficient-data', streams: 1, bytes: 50_000, events: [] }
+    const body = (wrapper: ReturnType<typeof mountWith>) => wrapper.get('[data-testid="notice"]').text()
+    const notices = [EVERY['insufficient-data']]
+    // The download has ended while the upload runs; then between phases; then the result.
+    const wrapper = mountWith(NoticeList, { notices, settings, directions: { download: ended } })
+    const running = body(wrapper)
+    expect(running.replaceAll(NB, ' ')).toContain('50 kB used. Extended allows up to 40 s per direction.')
+    const box = wrapper.get('[data-testid="notice"]').element
+    await wrapper.setProps({ directions: { download: ended, upload: { ...ended, status: 'measured' } } })
+    expect(body(wrapper)).toBe(running)
+    await wrapper.setProps({ result: resultFixture({ download: ended }) })
+    expect(body(wrapper)).toBe(running)
+    expect(wrapper.get('[data-testid="notice"]').element).toBe(box)
   })
 
   it('renders nothing without notices', () => {

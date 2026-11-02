@@ -26,7 +26,7 @@ import AppLink from '@/components/actions/AppLink.vue'
 import NoticeBox from '@/components/test/NoticeBox.vue'
 import { latencyStopView, noticeViews } from '@/components/test/notices'
 import { useTheme } from '@/composables/useTheme'
-import type { Direction, DirectionResult, Notice, PhaseName, Preset, Result, TestSettings } from '@/engine/messages'
+import type { Direction, DirectionResult, Notice, Preset, Result, TestSettings } from '@/engine/messages'
 
 // The notices area (ui/screens.md section 7): each notice an icon and text, never color alone,
 // in its tone, with up to two actions. Danger notices are alerts; the others are status messages.
@@ -37,13 +37,12 @@ const props = withDefaults(
     notices: Notice[]
     result?: Result | null
     settings?: TestSettings | null
-    /** Each direction that has ended, and the phase running now (null once the run has ended). */
+    /** Each direction that has ended. */
     directions?: Partial<Record<Direction, DirectionResult | undefined>>
-    current?: PhaseName | null
     /** The run's last idle progress, for the stop notice of a stop during idle latency. */
     idle?: { pings: number; count: number } | null
   }>(),
-  { result: null, settings: null, directions: () => ({}), current: null, idle: null },
+  { result: null, settings: null, directions: () => ({}), idle: null },
 )
 defineEmits<{ retry: []; preset: [preset: Preset]; dismiss: [parameter: string] }>()
 
@@ -51,7 +50,7 @@ const { t, locale } = useI18n()
 const { choice } = useTheme()
 
 const views = computed(() => {
-  const context = { t, locale: locale.value, result: props.result, settings: props.settings, theme: choice.value, directions: props.directions, current: props.current }
+  const context = { t, locale: locale.value, result: props.result, settings: props.settings, theme: choice.value, directions: props.directions }
   const stop = latencyStopView(props.result, props.idle, context)
   // Keyed by what each notice says, never by its place: a notice that moves when the result's list
   // replaces the run's keeps its box, so its status region is not rewritten and announced again.

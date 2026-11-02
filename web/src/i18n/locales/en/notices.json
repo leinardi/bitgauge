@@ -55,7 +55,6 @@
       "downloadCap": "Download stopped at the data cap before a confirmed steady window long enough for a number.",
       "uploadCap": "Upload stopped at the data cap before a confirmed steady window long enough for a number.",
       "used": "{data} used.",
-      "continues": "{direction} continues",
       "offer": {
         "standard": "Standard allows up to 20 s for download and 25 s for upload.",
         "extended": "Extended allows up to 40 s per direction."

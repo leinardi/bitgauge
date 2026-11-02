@@ -17,25 +17,24 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { Direction, DirectionResult, Notice, PhaseName, Result, TestSettings } from '@/engine/messages'
+import type { Direction, DirectionResult, Notice, Result, TestSettings } from '@/engine/messages'
 import { formatBytes, formatLimit } from '@/lib/format'
 
 import type { Wording } from '@/components/test/wording'
 
 // The insufficient-data notice (ui/screens.md section 7): titled by its direction, its body names
-// the maximum the direction reached, or the data cap that ended it, the data it used, the direction
-// still running while the run goes on, and what the offered preset allows.
+// the maximum the direction reached, or the data cap that ended it, the data it used and what the
+// offered preset allows. Nothing in it depends on the phase running now, so it is fixed once shown
+// and announced once.
 
 type InsufficientData = Extract<Notice, { code: 'insufficient-data' }>
 
-/** What the notice reads besides the result: the run's settings and, while it runs, its progress. */
+/** What the notice reads besides the result: the run's settings and, while it runs, the directions that ended. */
 export interface InsufficientContext {
   settings?: TestSettings | null
   result?: Result | null
   /** Each direction that has ended, as its phase event carried it. */
   directions?: Partial<Record<Direction, DirectionResult | undefined>>
-  /** The phase running now; null once the run has ended. */
-  current?: PhaseName | null
 }
 
 /** A configured maximum, in whole seconds as the presets state them: 20 s. */
@@ -50,8 +49,6 @@ export function insufficientWording(notice: InsufficientData, context: Wording &
   const maxMs = context.settings?.[direction].maxMs
   const ended = context.result?.[direction] ?? context.directions?.[direction]
   const bytes = ended?.bytes
-  const current = context.current ?? null
-  const continuing = current === 'download' || current === 'upload' ? (current === direction ? null : current) : null
   // A direction the data cap ended reached no maximum (measurement.md section 8.6).
   const capped = ended?.events.some((event) => event.code === 'data-cap') === true
   const sentences = [
@@ -63,10 +60,7 @@ export function insufficientWording(notice: InsufficientData, context: Wording &
     ...(bytes === undefined ? [] : [t('notices.insufficientData.used', { data: formatBytes(bytes, locale) })]),
   ]
   const offer = notice.offer === null ? null : notice.offer === 'extended' ? t('notices.insufficientData.offer.extended') : t('notices.insufficientData.offer.standard')
-  if (continuing !== null) {
-    const goesOn = t('notices.insufficientData.continues', { direction: name(continuing, context) })
-    sentences.push(offer === null ? `${goesOn}.` : `${goesOn}; ${offer}`)
-  } else if (offer !== null) {
+  if (offer !== null) {
     sentences.push(offer)
   }
   return { title: t('notices.insufficientData.title', { direction: name(direction, context) }), body: sentences.join(' ') }
