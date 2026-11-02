@@ -432,6 +432,9 @@ The only place client time meets server time is the live chart, where the faint 
 median over confirmed requests of `t_done − (startMs + durationMs)`, over the last 100 of them in
 a Continuous upload (§15). This offset is cosmetic, its error under load is unbounded, and it never
 feeds a number.
+Before the first request is confirmed no offset exists: the upload's segment of the live chart
+still spans the phase's elapsed time and shows its event marks, and the `sending` line and the
+loaded latency start once the offset exists.
 
 ### 7.5 Phase Start, Measurement End and the Confirmed Watermark
 
@@ -1465,7 +1468,11 @@ Fixed-size rings keep memory constant however long the run lasts.
 
 `cpu-bound` takes precedence over the other two levels: `reasons` still lists the warm-up's
 reasons, and the direction has no `low-confidence` notice. A direction whose warm-up never ended
-has no steady window and no confidence.
+has no steady window, no confidence and no `low-confidence` notice. Every direction whose final
+confidence is `low` carries the `low-confidence` notice with its final reasons, whatever its
+status (`measured`, `partial` or `insufficient-data`): a reason the steady window alone sets, such
+as `unstable`, counts as much as one from the warm-up, and a `partial` direction carries the notice
+beside the run's `stopped-early`.
 
 The Worker's **busy fraction** is the time it spends executing its own tasks (reader callbacks,
 timers, message handling), measured with `performance.now()` around each task, divided by the

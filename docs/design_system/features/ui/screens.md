@@ -49,7 +49,10 @@ from the design export; this page fixes content and behavior only. Terms follow 
   ping's round-trip time in milliseconds on a linear axis, over the phase's time, a lost ping a gap
   and the warm-up ping not drawn, with the "now" line and the phase time against its estimate
   ("1.4 s / ~2 s"). A run that stops or fails during idle latency keeps it, marked "Cancelled" or
-  "Connection lost", with the time it stopped at.
+  "Connection lost", with the time it stopped at. Before an upload's first request is confirmed,
+  the chart draws the upload's axis over the phase's elapsed time and its event marks only; the
+  `sending` line and the loaded-latency points appear once the display offset exists
+  ([../measurement.md §7.4](../measurement.md#74-common-timeline-and-aggregation)).
 - **Result metrics** (§6), each with its qualifiers. While a direction runs, its tile shows
   "warming up" until warm-up ends, then the steady-window average and peak so far. A direction's
   HTTP loaded responsiveness is settled when the direction ends
@@ -71,7 +74,9 @@ from the design export; this page fixes content and behavior only. Terms follow 
   ([flows.md §8](flows.md#8-sharing)).
 - **Keep in history** for a `partial` or `error` result with at least one finished phase, or with
   the partial idle latency a stop during it keeps: such results are not saved unless the user
-  keeps them ([flows.md §4](flows.md#4-cancel-mid-test)).
+  keeps them ([flows.md §4](flows.md#4-cancel-mid-test)). Its line names the result as §2's
+  not-saved state does: "Partial results are not saved", or for an `error` result "Results of a
+  failed test are not saved".
 - Link "Details" to the Result detail of the finished run.
 - **Download JSON** of the finished result: the single result object in the JSON export format
   of [../technical-stack/frontend.md §5](../technical-stack/frontend.md#5-history-module-idb)
@@ -83,7 +88,9 @@ from the design export; this page fixes content and behavior only. Terms follow 
   local time, as the design export's kit names it, and its `exportedAt` is the moment of the
   download as an ISO 8601 timestamp.
 - **Last result line** in the idle state: when, headline numbers and label of the latest saved
-  result, linking to its detail.
+  result, linking to its detail. Each headline number carries its qualifiers (§6) in History's
+  words, right after the number and its unit ("↓ 12.7 Gbit/s partial · ↑ insufficient data");
+  the two numbers share one unit only when neither carries a qualifier.
 - **Continuous live view**, in place of the direction's tile while a Continuous run runs
   ([flows.md §7](flows.md#7-continuous-mode)): the run-wide minimum, average and maximum; the
   "p90, last hour"; the loaded latency of the last minute; data used with its rate; and the elapsed
@@ -108,6 +115,7 @@ from the design export; this page fixes content and behavior only. Terms follow 
 | Done: Continuous | With at least 3 fully known 1 s cells since the steady start, `complete`: the Done state, saved automatically, the direction's run-wide numbers and its "p90, last hour", with no `partial — stopped early`. With fewer, a stop right after warm-up included, `partial` with the direction `insufficient-data`: the Cancelled state's Keep in history and Download JSON ([../measurement.md §15](../measurement.md#15-continuous-mode)). |
 | Cancelled | Partial result with `partial — stopped early` and what was covered ([../measurement.md §7.8](../measurement.md#78-worked-example-b--cancellation-mid-request)); an interrupted direction shows a number only when its confirmed steady window meets the minimum ([../measurement.md §7.6](../measurement.md#76-headline-peak-and-minimum-window)), otherwise "insufficient data". Not saved; Keep in history and Download JSON offered. |
 | Error | What failed and in which phase, completed phases kept, the failed direction with status `error` and no number, Retry. Not saved; Keep in history and Download JSON offered. |
+| Back from an unsaved result's Details | The Cancelled or Error state the run ended in, as it was: gauge, chart, metrics, notices, Keep in history, Details and Download JSON, until a new run starts or the page reloads ([flows.md §4](flows.md#4-cancel-mid-test)). |
 | Offline / retry | `GET /info` fails, or every idle-latency ping is lost ([../measurement.md §10](../measurement.md#10-idle-latency)): "Server unreachable" with Retry and the time to the next automatic check ([flows.md §1](flows.md#1-first-run)); Start disabled until `/info` succeeds; the phases and the metrics stay, pending and empty; no settings summary. A WebSocket that cannot be opened is **not** offline: the test runs with the HTTP latency fallback and the notice `WebSocket unavailable — HTTP latency fallback`. |
 | Auto-start countdown | When `run` is set, or the stored Auto-start is on: a cancellable countdown (3 s, or the Auto-start setting's length) before the test starts ([flows.md §2](flows.md#2-auto-run-from-url)). |
 
@@ -169,10 +177,12 @@ portrait on a phone without horizontal scrolling.
 **States:** loaded; deleted, until the undo toast's Undo; not saved (the id is not in history but
 matches the result of the run just finished, which the Test screen still holds in memory: a
 `partial` or `error` result not kept, or any result while history is unavailable; it is shown with a
-"not saved" badge, Download JSON and Share work, and editing and deleting are disabled with the
-reason; while history is available it offers **Keep in history** with the same undo toast as the
-Test screen ([flows.md §4](flows.md#4-cancel-mid-test)): keeping it shows the loaded state, and
-the toast's Undo removes it again and brings the not-saved state back with Keep); not found (any
+"not saved" badge and a line that names the result as it is: "Partial results are not saved" for a
+`partial` result, "Results of a failed test are not saved" for an `error` result, never "partial"
+for an error; Download JSON and Share work, and editing and deleting are disabled with the reason;
+while history is available it offers **Keep in history** with the same undo toast as the Test
+screen ([flows.md §4](flows.md#4-cancel-mid-test)): keeping it shows the loaded state, and the
+toast's Undo removes it again and brings the not-saved state back with Keep); not found (any
 other id, or history unavailable after a reload) with a link to History; history unavailable (as not
 saved for the current in-memory result).
 

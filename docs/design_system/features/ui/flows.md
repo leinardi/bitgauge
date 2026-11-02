@@ -98,7 +98,9 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    answered (its loaded latency is `no-probe-path`), the body says so before where it stopped: "The
    WebSocket closed and its reopening was never answered, so no latency probe could be sent during
    the upload." The upload's times are on its phase timeline from P_start, as its chart and events
-   are. A stop during idle
+   are. The steps, the stop notice and the Result detail read where a direction stopped on that
+   direction's timeline; the live chart's "stopped at" mark reads the run's timeline, since the
+   live chart spans the whole run. A stop during idle
    latency that keeps its samples gets the stop notice too, though no direction stopped and the
    result carries no `stopped-early` notice for it: titled "Test cancelled during latency", its
    body counts the pings sent and the warm-up ping and names the phases that did not run:
@@ -108,8 +110,11 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    saves it with status `partial` (with an undo toast), and Download JSON. Its Result detail,
    while it is not saved, offers the same Keep in history and undo
    ([screens.md §2](screens.md#2-result-detail--resultid)), so viewing the details does not
-   discard it.
-   - **Branch: the user leaves or runs again without keeping it.** The result is discarded.
+   discard it. Back from those Details restores the Test screen's end state as it was, the
+   Cancelled or Error state with Keep in history, Details and Download JSON, until a new run starts
+   or the page reloads; a result kept from the Details reads as kept there.
+   - **Branch: the user leaves the app or runs again without keeping it.** The result is
+     discarded; Run again from the Details starts the new run at once and restores nothing.
    - **Branch: nothing was measured yet** (stopped during info, or during idle latency with
      fewer than 5 successful samples). No result exists to keep; the screen returns to exactly
      the first run's Idle, every step and the bufferbloat card pending with nothing left of the
@@ -155,7 +160,8 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    the test stopped after 3 consecutive request failures." and "Basement NAS was busy and refused a
    request during download; the test stopped after 3 consecutive request failures."
 4. If any phase completed, the screen offers **Keep in history**, which saves the result with
-   status `error`, and Download JSON; nothing is saved unless the user keeps it. If no phase
+   status `error`, and Download JSON; nothing is saved unless the user keeps it. Its Details and
+   Back from them behave as for a cancelled run (flow 4, step 5). If no phase
    completed, there is nothing to keep.
 5. Retry starts a new run with the same settings (flow 1, step 3).
 
