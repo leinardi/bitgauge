@@ -142,17 +142,22 @@ export type UngradedReason = 'no-idle' | 'no-loaded' | 'no-gradable' | 'incomple
 
 /**
  * The one reason a result has no grade, from what it holds: no idle latency, or a measured loaded
- * latency without its increase over it; else no direction with a loaded latency, which is an
- * incomplete test when an error ended the run; else none of them gradable (measurement.md section
- * 11.3).
+ * latency without its increase over it; else, when an error ended the run before any direction
+ * measured its loaded latency, an incomplete test; else no direction with a loaded latency; else
+ * none of them gradable (measurement.md section 11.3, ui/screens.md section 6).
  */
 export function ungradedReason(result: Result): UngradedReason {
   if (result.idle?.medianMs === undefined) {
     return 'no-idle'
   }
   const loaded = (['download', 'upload'] as const).flatMap((direction) => result[direction]?.loadedLatency ?? [])
+  // An error before any direction measured its loaded latency is an incomplete test: an unavailable
+  // block is no measured loaded latency. Without an error, an unavailable one is not gradable.
+  if (result.status === 'error' && loaded.every((value) => 'status' in value)) {
+    return 'incomplete'
+  }
   if (loaded.length === 0) {
-    return result.status === 'error' ? 'incomplete' : 'no-loaded'
+    return 'no-loaded'
   }
   // A measured loaded latency without its increase had no idle median to compare with.
   return loaded.some((value) => !('status' in value) && value.increaseMs === undefined) ? 'no-idle' : 'no-gradable'

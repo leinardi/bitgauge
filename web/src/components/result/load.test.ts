@@ -88,9 +88,13 @@ describe('gradeView', () => {
   it('says the one reason there is no grade, as the Test screen does', () => {
     expect(gradeView(result(undefined, undefined), wording)).toEqual({ grade: null, words: 'Not graded', basis: 'No loaded latency' })
     const unavailable: LoadedLatency = { status: 'unavailable', reason: 'no-steady-window', source: 'websocket', samples: 0, skippedTicks: 0, lost: 0 }
-    // An error after idle latency was measured, with the download's loaded latency not gradable.
+    // An error before any direction measured its loaded latency, an unavailable one included, is
+    // an incomplete test; without the error, the unavailable one is not gradable.
     const failed = { ...result(unavailable, undefined), status: 'error' as const }
-    expect(gradeView(failed, wording).basis).toBe('No gradable direction')
+    expect(gradeView(failed, wording).basis).toBe('Test incomplete')
+    expect(gradeView(result(unavailable, unavailable), wording).basis).toBe('No gradable direction')
+    // An error after a direction measured its loaded latency is not incomplete.
+    expect(gradeView({ ...result(measured({ increaseMs: 400 }), unavailable), status: 'error' }, wording).basis).toBe('No gradable direction')
     expect(gradeView({ ...result(undefined, undefined), status: 'error' }, wording).basis).toBe('Test incomplete')
     const { idle: _idle, ...withoutIdle } = result(measured({ increaseMs: undefined }), undefined)
     expect(gradeView(withoutIdle, wording).basis).toBe('No idle latency')

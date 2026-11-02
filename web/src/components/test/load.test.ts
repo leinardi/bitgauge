@@ -165,8 +165,9 @@ describe('the load card of the Test screen', () => {
     const base = resultFixture()
     const failed = { ...graded(unavailable, measured(), undefined), status: 'error' as const, download: { ...base.download!, status: 'error' as const, loadedLatency: unavailable }, upload: undefined }
     const error = loadView(input({ status: 'ended', states, result: failed }), context)
-    // The download began and has a loaded latency, though not a gradable one: the error is no reason of its own.
-    expect(error?.grade).toEqual({ grade: null, words: 'Not graded — no gradable direction', basis: '' })
+    // The download began, but its loaded latency is unavailable: the error ended the run before any
+    // direction measured one, so the test is incomplete (ui/screens.md section 6).
+    expect(error?.grade).toEqual({ grade: null, words: 'Not graded — test incomplete', basis: '' })
     expect(rows(error)?.[0]).toEqual(['During download · WebSocket', 'no steady window · download failed', null, false])
     const early = { ...failed, download: { ...base.download!, status: 'error' as const, loadedLatency: undefined } }
     expect(loadView(input({ status: 'ended', states, result: early }), context)?.grade?.words).toBe('Not graded — test incomplete')
