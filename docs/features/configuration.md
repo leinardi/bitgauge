@@ -94,7 +94,7 @@ Only variables containing `__` are read as configuration; other `BITGAUGE_*` var
 
 | Key | Env var | Default | Values / description |
 | --- | --- | --- | --- |
-| `server.listen` | `BITGAUGE_SERVER__LISTEN` | `:8080` | `host:port`; port 1–65535. BitGauge speaks plain HTTP; TLS terminates at the proxy. |
+| `server.listen` | `BITGAUGE_SERVER__LISTEN` | `:8080` | `host:port`; the host is empty or an IP literal, never a name, and the port is 1–65535. BitGauge speaks plain HTTP; TLS terminates at the proxy. |
 | `server.base_path` | `BITGAUGE_SERVER__BASE_PATH` | `/` | Absolute path; every route, the SPA and `/metrics` are mounted under it. |
 | `server.display_name` | `BITGAUGE_SERVER__DISPLAY_NAME` | `BitGauge` | 1–64 printable characters; shown in the UI, `GET /info` and the LibreSpeed server list. |
 | `server.public_url` | `BITGAUGE_SERVER__PUBLIC_URL` | empty | Origin clients use (`https://speed.example.lan`). Used for absolute URLs in the networkQuality config and the LibreSpeed server list ([compatibility.md](compatibility.md)). |
@@ -199,12 +199,12 @@ text to stderr. Nothing is ever silently corrected or defaulted.
 | --- | --- |
 | **Unknown keys** in the file, and unknown keys in `BITGAUGE_*` variables that contain `__`, are errors (typo protection). A `BITGAUGE_*` variable **without** `__` is not a config key and is ignored (logged at `debug`): every key is nested, and orchestrators inject such variables, e.g. Kubernetes service links `BITGAUGE_PORT` and `BITGAUGE_SERVICE_HOST` for a Service named `bitgauge`. | `server.lisen`, `BITGAUGE_SERVER__LISTN` |
 | Values must parse as their type (size, duration, integer, boolean, enum). | `limits.max_upload_bytes: 256 megs` |
-| **Invalid CIDR** in `server.trusted_proxies`. | `10.0.0.0/33`, `proxy.lan` |
+| **Invalid CIDR** in `server.trusted_proxies`: each entry is a valid CIDR, not an IPv4-mapped IPv6 prefix (write it as IPv4). Problems name the entry: `server.trusted_proxies[0]`. | `10.0.0.0/33`, `proxy.lan`, `::ffff:127.0.0.2/128` |
 | **`server.labels` entries**: each `cidr` is a valid CIDR with no host bits set, not an IPv4-mapped IPv6 prefix (write it as IPv4), and unique in the list; each `label` is 1–64 printable characters; in the environment each item is `cidr=label`, and an item without `=` is a problem, never dropped. Problems name the entry: `server.labels[1].cidr`. | `10.0.0.1/8` (host bits set), `::ffff:10.8.0.0/120`, `10.8.0.0/24` twice, `BITGAUGE_SERVER__LABELS=10.8.0.0/24` (no `=`), a 65-character label |
-| **Port range**: `server.listen` must be `host:port` with port 1–65535. | `:0`, `:70000` |
-| **Base path shape**: starts with `/`, no trailing `/` (except `/` itself), no `.` or `..` segments, no query or fragment, only `A–Z a–z 0–9 - . _ ~ /`. | `speed`, `/speed/`, `/a/../b` |
-| `server.public_url` is an absolute `http` or `https` origin with no path, query or fragment. | `speed.example.lan`, `https://x/speed` |
-| `server.cors.allowed_origins` entries are exact origins; `*` is rejected. | `*`, `https://x/path` |
+| **Listen address**: `server.listen` must be `host:port`, where the host is empty or an IP literal and the port is 1–65535. | `:0`, `:70000`, `localhost:8080` |
+| **Base path shape**: starts with `/`, no trailing `/` (except `/` itself), no empty segment (`//`), no `.` or `..` segments, no query or fragment, only `A–Z a–z 0–9 - . _ ~ /`. `metrics.path` follows the same rule. | `speed`, `/speed/`, `/a/../b`, `//speed`, `/a//b` |
+| `server.public_url` is an absolute `http` or `https` origin with no path, query or fragment; the port, if present, is 1–65535, and the host is an IP literal or a name made only of letters, digits, `-` and `.`. | `speed.example.lan`, `https://x/speed`, `https://x:99999` |
+| `server.cors.allowed_origins` entries are exact origins, under the same rule as `server.public_url`: the port, if present, is 1–65535, and the host is an IP literal or a name made only of letters, digits, `-` and `.`; `*` is rejected. | `*`, `https://x/path`, `https://*.x.com` |
 | **Cap below the engine minimum**: `limits.max_download_bytes` and `limits.max_upload_bytes` must be at least 64 KiB, the engine's initial request size ([measurement.md §3](measurement.md#3-adaptive-request-size)). | `32KiB` |
 | Ranges in §2 are enforced, including `test_defaults.streams.max ≤ limits.max_streams_per_client`. | `streams.max: 8` with `max_streams_per_client: 4` |
 | `test_defaults.phases` rules (non-empty, no duplicates, `idle` first). | `[download, idle]` |
