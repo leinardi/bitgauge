@@ -192,6 +192,15 @@ describe('a Continuous run', () => {
     const gauge = gaugeInput(view, { ...context, units: 'bits', server: 'NAS' })
     expect([gauge.label, gauge.value, gauge.note, gauge.basis]).toEqual(['Average', 9.21e8, 'peak 936 · p90, last hour', 'session average'])
   })
+
+  it('reads a run stopped in its warm-up, without a number, cancelled where it stopped', () => {
+    const fixture = resultFixture()
+    const { bitsPerSecond: _rate, peakBitsPerSecond: _peak, ...bare } = fixture.download!
+    const download = { ...bare, status: 'insufficient-data' as const, events: [{ code: 'cancelled' as const, atMs: 4_200 }] }
+    const result: Result = { ...fixture, status: 'partial', settings: continuousSettings('download'), download }
+    const view = run({ status: 'ended', phases: phases({ idle: 'finished', download: 'finished' }), live: { download: figures(4_200), upload: null }, result })
+    expect(phaseSteps(view, continuousSettings('download'), 'en')[1]).toEqual({ phase: 'download', state: 'cancelled', progress: 1, stoppedAtMs: 4_200 })
+  })
 })
 
 describe('a stop during idle latency that kept its samples', () => {
