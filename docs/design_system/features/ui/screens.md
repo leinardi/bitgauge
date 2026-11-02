@@ -170,8 +170,11 @@ portrait on a phone without horizontal scrolling.
 matches the result of the run just finished, which the Test screen still holds in memory: a
 `partial` or `error` result not kept, or any result while history is unavailable; it is shown with a
 "not saved" badge, Download JSON and Share work, and editing and deleting are disabled with the
-reason); not found (any other id, or history unavailable after a reload) with a link to History;
-history unavailable (as not saved for the current in-memory result).
+reason; while history is available it offers **Keep in history** with the same undo toast as the
+Test screen ([flows.md §4](flows.md#4-cancel-mid-test)): keeping it shows the loaded state, and
+the toast's Undo removes it again and brings the not-saved state back with Keep); not found (any
+other id, or history unavailable after a reload) with a link to History; history unavailable (as not
+saved for the current in-memory result).
 
 **Responsive notes.** One column; charts stack vertically; the share panel follows the charts;
 parameters collapse into a disclosure.
@@ -188,8 +191,11 @@ parameters collapse into a disclosure.
   available, the storage this origin uses. There is no retention limit: a result stays until it is
   deleted.
 - **List** of results: date and time, label, context label, download, upload, idle latency,
-  jitter, grade, protocol, status; every column sortable, newest first (`startedAt` descending) by
-  default, the sorted column header carrying `aria-sort`; a row action menu (open, delete). On a
+  jitter, grade, protocol, status, each download and upload with its qualifiers (§6: partial, low
+  confidence, limited by this device's CPU, overhead compensation) as a muted caption under the
+  speed, in rows and in narrow cards alike; every column sortable, newest first (`startedAt`
+  descending) by default, the sorted column header carrying `aria-sort`; a row action menu (open,
+  delete). On a
   focused row, Space toggles its selection and Enter opens it. The list shows the first 100
   results of the filtered, sorted set, then "Showing 100 of 2,140" with a **Show 100 more**
   button (fewer when fewer are left), which adds the next ones below and moves the focus to the
@@ -215,14 +221,19 @@ parameters collapse into a disclosure.
 - **Selection bar** once rows are selected: the selection count, Compare (exactly two), Delete
   selected (with an undo toast), Clear selection.
 - **Compare two results**, in a focus-trapped dialog: side-by-side metrics with the change per
-  metric, worded as better or worse with an icon, and both parameter sets including the browser; a
-  warning when they differ in preset, protocol or label, naming the difference; Copy comparison.
+  metric, worded as better or worse with an icon, and both parameter sets including the browser
+  and the overhead compensation; a warning when they differ in preset, protocol, label or
+  overhead compensation, naming the difference; Copy comparison. Each speed cell carries its
+  qualifiers as in History, so insufficient data, partial, an error and low or CPU-bound
+  confidence read as such, never as a bare "—".
   The older result (by start time) is A and the newer B, and each change is B's against A. A rate
   (download, upload, peak) within ±2 % of A's and a latency (idle median, jitter, loaded latency)
   within 1 ms of A's read "same"; grades compare by their order, A+ best; any other difference in
   those metrics is better or worse. A metric absent on either side (a direction without a number,
-  no grade) reads "not comparable". The other rows (probe timeouts, data used, duration) show both
-  values without a judgment. The comparison also has:
+  no grade) reads "not comparable", and so do the speed rows (download, upload, peak) when the two
+  results differ in overhead compensation, since their difference would be the compensation's.
+  The other rows (probe timeouts, data used, duration) show both values without a judgment. The
+  comparison also has:
   - one HTTP loaded responsiveness row per direction: the RPM is compared, higher being better and
     within ±2 % "same", only when both sides are `measured`; otherwise the row shows both states and
     reads "not comparable";
@@ -384,13 +395,17 @@ detail, each with a short explanation and, where useful, a link to the docs. The
   the notice shown for the download grows to name the upload when that extends too);
   `insufficient data` with an "Try Standard/Extended" action, titled by its direction
   ("Download: insufficient data"), its body naming the maximum the direction reached, the data it
-  used, the direction still running while the run goes on, and what the offered preset allows:
-  "Download reached its 20 s maximum without a confirmed steady window long enough for a number.
-  50 kB used. Upload continues; Extended allows up to 40 s per direction." The action follows only
+  used, and what the offered preset allows: "Download reached its 20 s maximum without a
+  confirmed steady window long enough for a number. 50 kB used. Extended allows up to 40 s per
+  direction." Its body is fixed once shown, whatever phase runs next, so it is announced once;
+  the `test extended` notice still grows to name the second direction, and the Continuous `data
+  used` notice keeps its live wording until the result, since those updates carry new
+  information. The action follows only
   a direction that reached its maximum: one the data cap ended says so and offers no larger preset
   ([../measurement.md §8.6](../measurement.md#86-shortfall)), and a stopped one reads as stopped.
-- **Confidence:** `low confidence` with reasons; `cpu-bound` ("limited by this device's CPU");
-  `browser upload limit` with a "Known browser limits" link to the docs.
+- **Confidence:** `low confidence` with reasons; `browser upload limit` with a "Known browser
+  limits" link to the docs. `cpu-bound` is not a notice: it is a confidence qualifier shown with
+  the speed ([../measurement.md §16](../measurement.md#16-confidence-and-notices), §6 above).
 - **Limits:** `data cap reached`; `server stream limit — N streams`; `server rate limit` or
   `server busy`, its body saying whether the direction waited and continued; `data used: N GB`
   (Continuous: live, only the latest, naming the next threshold; in the result, every one);
@@ -401,8 +416,12 @@ detail, each with a short explanation and, where useful, a link to the docs. The
   included); `upload interrupted by a failed request`;
   `server restarted`; `network changed`; `page was hidden during the test`.
 - **Connectivity:** `server unreachable` with Retry; `WebSocket reopened`;
-  `WebSocket unavailable — HTTP latency fallback`; `HTTP/1.1 probe reservation active — 5 streams`.
-- **Deployment:** `proxy buffering suspected`; `response compression detected`;
+  `WebSocket unavailable — HTTP latency fallback`, whose body says the server or a reverse proxy
+  did not accept a WebSocket and that other tabs on this address may be using the server's 4, so
+  latency is measured with HTTP requests; `HTTP/1.1 probe reservation active — 5 streams`.
+- **Deployment:** `upload buffering suspected` (code `proxy-buffering-suspected`), whose body says
+  a proxy or the browser buffers request bodies, with the deployment guide link;
+  `response compression detected`;
   `timer throttling detected`; `base path mismatch` (full-screen error,
   [../edge-cases.md §20](../edge-cases.md#20-base-path-mismatches)).
 
@@ -410,8 +429,8 @@ Notices are text with an icon, never color alone, and are announced to screen re
 appear during a run ([i18n-a11y.md](i18n-a11y.md)). Their tones: **info** for test extended,
 server stream limit, server rate limit and server busy, overhead compensation, browser upload
 limit, WebSocket reopened, WebSocket unavailable, HTTP/1.1 probe reservation and data used;
-**warn** for low confidence, cpu-bound, data cap reached, insufficient data, URL parameter
-ignored, proxy buffering suspected, response compression detected and timer throttling detected;
+**warn** for low confidence, data cap reached, insufficient data, URL parameter
+ignored, upload buffering suspected, response compression detected and timer throttling detected;
 **danger**, with `role="alert"`, for server unreachable, upload interrupted and base path mismatch;
 **neutral** for partial — stopped early, server restarted, network changed and page was hidden.
 The Error state's message (what failed and in which phase) is not a notice, but takes the same

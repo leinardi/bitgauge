@@ -66,8 +66,11 @@ series becomes bursts and gaps and fails the stability test. When a request's se
 below 10 % of its client duration (requests of at least 1 s), the engine flags it
 ([measurement.md §7.3](measurement.md#73-server-telemetry-per-request)).
 
-**User sees.** `proxy buffering suspected` with a link to the proxy requirements in
-[deployment-example.md](deployment-example.md); usually `confidence: low` with reason `unstable`.
+**User sees.** `upload buffering suspected` (`proxy-buffering-suspected`), saying that a proxy or
+the browser buffers request bodies, since the rule cannot tell the two apart (a browser can hold
+the body back before sending it, with no proxy on the path), with a link to the proxy
+requirements in [deployment-example.md](deployment-example.md); usually `confidence: low` with
+reason `unstable`.
 
 ## 5. Tab Hidden Mid-Test
 
@@ -134,12 +137,14 @@ own throughput and RTT estimates, and the test itself moves them.
   5. `GET /info` succeeds with the **same epoch** but the reopen **fails** (upgrade refused, or a
      `429` while the old slot is released): path A switches to the HTTP fallback for the rest of
      the test with the notice `WebSocket unavailable — HTTP latency fallback`
-     ([measurement.md §11.2](measurement.md#112-path-a-fallback--http-probe)). On HTTP/1.1 the
-     5-stream reservation starts with the next direction: the current direction keeps its stream
-     count and its loaded latency is `unavailable` with reason `reservation-broken`, because its
-     reservation did not hold for the whole phase, and the grade's basis names the next direction
-     alone. On HTTP/2 or HTTP/3 the current direction goes on with the fallback, and only its
-     fallback samples count ([measurement.md §11.4](measurement.md#114-loaded-latency-statistics-and-availability)).
+     ([measurement.md §11.2](measurement.md#112-path-a-fallback--http-probe)). The browser does
+     not expose why a handshake failed, so the notice names both causes: the server or a reverse
+     proxy did not accept a WebSocket, and other tabs on this address may be using the server's 4.
+     On HTTP/1.1 the 5-stream reservation starts with the next direction: the current direction
+     keeps its stream count and its loaded latency is `unavailable` with reason
+     `reservation-broken`, because its reservation did not hold for the whole phase, and the
+     grade's basis names the next direction alone. On HTTP/2 or HTTP/3 the current direction goes
+     on with the fallback, and only its fallback samples count ([measurement.md §11.4](measurement.md#114-loaded-latency-statistics-and-availability)).
 
 Request failures are handled by the phase rules (three consecutive failures end a phase, and on
 HTTP/1.1 upload the first one does; [measurement.md §5](measurement.md#5-adaptive-duration)).
@@ -304,8 +309,9 @@ fails within 10 s (the ceiling of the idle-latency timeout), path A uses the HTT
 the load connection. Idle latency uses `GET /api/v1/ping`.
 
 **User sees.** The latency source (`websocket`, `http-h1-reserved`, `http-h2`, `http-h3`) in the
-result detail;
-`HTTP/1.1 probe reservation active — 5 streams` when it applies.
+result detail; `WebSocket unavailable — HTTP latency fallback`, naming both causes as in §6 step 5
+(the server or a reverse proxy did not accept a WebSocket; other tabs on this address may be using
+the server's 4); `HTTP/1.1 probe reservation active — 5 streams` when it applies.
 
 ## 16. IPv6 vs IPv4 and the LAN/VPN Label
 

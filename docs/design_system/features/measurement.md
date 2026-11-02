@@ -409,7 +409,10 @@ aborted with the `server restarted` notice ([edge-cases.md](edge-cases.md)).
 after the client finished sending. The counts are still exact for what the server saw, but the
 series turns into bursts and gaps and fails the stability test (§8). When a request's `durationMs`
 is below 10 % of its client duration (counted as for the issue gap, §3) for requests of at least
-1 s, the result carries a `proxy buffering suspected` notice ([deployment-example.md](deployment-example.md)).
+1 s, the result carries an `upload buffering suspected` notice (`proxy-buffering-suspected`;
+[deployment-example.md](deployment-example.md)). The rule cannot tell a proxy that buffers the
+body from a browser that holds it back before sending, so it applies in every browser and the
+notice says that a proxy or the browser buffers request bodies.
 
 ### 7.4 Common Timeline and Aggregation
 
@@ -1510,7 +1513,8 @@ engine emits the code with the raw values the notice names, and the UI words it.
   carries ([ui/flows.md §4](ui/flows.md#4-cancel-mid-test));
 - `server restarted` (`server-restarted`; epoch change, test aborted; §7.3);
 - `server unreachable` with retry (`server-unreachable`; §10);
-- `proxy buffering suspected` (`proxy-buffering-suspected`; §7.3);
+- `upload buffering suspected`: a proxy or the browser buffers request bodies
+  (`proxy-buffering-suspected`; §7.3);
 - `browser upload limit` (`browser-upload-limit`, with the browser's name): the browser's own
   upload path, not the link, may be the limit. Carried when the upload's largest idle share (§8.2)
   exceeded **20 %**, in any browser: the engine saw a stream sit idle between requests far longer

@@ -105,10 +105,16 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    "Stopped after 12 of 20 pings. The first is a warm-up sample, so idle latency and jitter come
    from the other 11; download and upload did not run."
 5. The partial result is **not** saved automatically. The screen offers **Keep in history**, which
-   saves it with status `partial` (with an undo toast), and Download JSON.
+   saves it with status `partial` (with an undo toast), and Download JSON. Its Result detail,
+   while it is not saved, offers the same Keep in history and undo
+   ([screens.md §2](screens.md#2-result-detail--resultid)), so viewing the details does not
+   discard it.
    - **Branch: the user leaves or runs again without keeping it.** The result is discarded.
    - **Branch: nothing was measured yet** (stopped during info, or during idle latency with
-     fewer than 5 successful samples). No result exists to keep; the screen returns to Idle.
+     fewer than 5 successful samples). No result exists to keep; the screen returns to exactly
+     the first run's Idle, with no bufferbloat card and every step pending, and the polite live
+     region says "Test stopped; nothing was measured."
+     ([i18n-a11y.md §2.1](i18n-a11y.md#21-live-region-for-the-gauge)).
 
 ## 5. Error Mid-Test
 
