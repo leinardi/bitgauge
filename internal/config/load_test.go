@@ -658,6 +658,23 @@ func TestValueSyntax(t *testing.T) {
 			"BITGAUGE_SERVER__LISTEN=[::1]:8080",
 			func(cfg Config) bool { return cfg.Server.Listen == Listen{Host: "::1", Port: 8080} },
 		},
+		{"listen on every address", "BITGAUGE_SERVER__LISTEN=:8080", func(cfg Config) bool {
+			return cfg.Server.Listen == Listen{Port: 8080}
+		}},
+		{"listen on IPv4 any", "BITGAUGE_SERVER__LISTEN=0.0.0.0:8080", func(cfg Config) bool {
+			return cfg.Server.Listen == Listen{Host: "0.0.0.0", Port: 8080}
+		}},
+		{"listen on IPv6 any", "BITGAUGE_SERVER__LISTEN=[::]:8080", func(cfg Config) bool {
+			return cfg.Server.Listen == Listen{Host: "::", Port: 8080}
+		}},
+		{"listen on loopback", "BITGAUGE_SERVER__LISTEN=127.0.0.1:8080", func(cfg Config) bool {
+			return cfg.Server.Listen == Listen{Host: "127.0.0.1", Port: 8080}
+		}},
+		{
+			"listen with a zone",
+			"BITGAUGE_SERVER__LISTEN=[fe80::1%eth0]:8080",
+			func(cfg Config) bool { return cfg.Server.Listen == Listen{Host: "fe80::1%eth0", Port: 8080} },
+		},
 		{
 			"boolean false",
 			"BITGAUGE_METRICS__ENABLED=false",
@@ -771,6 +788,8 @@ func TestInvalidValues(t *testing.T) {
 		{name: "empty warm-up", env: "BITGAUGE_TEST_DEFAULTS__WARMUP="},
 		{name: "listen without a colon", env: "BITGAUGE_SERVER__LISTEN=8080"},
 		{name: "listen with a named port", env: "BITGAUGE_SERVER__LISTEN=:http"},
+		{name: "listen on a host name", env: "BITGAUGE_SERVER__LISTEN=localhost:8080"},
+		{name: "listen on a domain name", env: "BITGAUGE_SERVER__LISTEN=speed.lan:80"},
 		{name: "integer with a fraction", env: "BITGAUGE_LIMITS__MAX_STREAMS_PER_CLIENT=8.5"},
 		{
 			name: "integer with a fraction in the file",

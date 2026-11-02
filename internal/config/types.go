@@ -25,6 +25,7 @@ import (
 	"math"
 	"math/big"
 	"net"
+	"net/netip"
 	"net/url"
 	"strconv"
 	"strings"
@@ -49,7 +50,8 @@ var (
 	ErrSize = errors.New("invalid size")
 	// ErrDuration is wrapped by every duration that does not parse.
 	ErrDuration = errors.New("invalid duration")
-	// ErrListen is wrapped by a server.listen value that is not host:port with a numeric port.
+	// ErrListen is wrapped by a server.listen value that is not host:port with an empty or IP
+	// literal host and a numeric port.
 	ErrListen = errors.New("invalid listen address")
 	// ErrOrigin is wrapped by an origin that does not parse as a URL.
 	ErrOrigin = errors.New("invalid origin")
@@ -198,11 +200,19 @@ type Listen struct {
 	Port int
 }
 
-// UnmarshalText parses host:port, the host possibly empty or a bracketed IPv6 address.
+// UnmarshalText parses host:port, the host empty or an IP literal (an IPv6 one bracketed).
 func (l *Listen) UnmarshalText(text []byte) error {
 	host, port, err := net.SplitHostPort(string(text))
 	if err != nil {
 		return fmt.Errorf("%w: %q: %w", ErrListen, text, err)
+	}
+
+	// Only an IP literal, so neither serve nor the health check ever looks a name up.
+	if host != "" {
+		_, err = netip.ParseAddr(host)
+		if err != nil {
+			return fmt.Errorf("%w: %q: the host must be an IP literal or empty", ErrListen, text)
+		}
 	}
 
 	if !isDecimal(port, false) {
