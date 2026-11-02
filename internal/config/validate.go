@@ -24,6 +24,7 @@ import (
 	"net/netip"
 	"net/url"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 	"unicode"
@@ -287,22 +288,57 @@ func isPrintable(text string) bool {
 // origin requires an absolute http or https origin: scheme, host and optional port, nothing
 // else. "*" is not an origin and is rejected like any other non-origin.
 func (c *checker) origin(key string, origin Origin) {
-	const rule = "must be an http or https origin (scheme, host and optional port) with no path, " +
-		"query, fragment or user information; * is not allowed"
+	const rule = "must be an http or https origin (scheme, host and optional port 1-65535) with " +
+		"no path, query, fragment or user information; the host is an IP literal or a name " +
+		"of letters, digits, - and . only, so * is not allowed"
 
 	parsed, err := url.Parse(string(origin))
-	if err != nil || (parsed.Scheme != schemeHTTP && parsed.Scheme != schemeHTTPS) ||
-		parsed.Host == "" ||
-		parsed.Hostname() == "" ||
-		parsed.Opaque != "" ||
-		parsed.User != nil ||
-		parsed.Path != "" ||
-		parsed.RawQuery != "" ||
-		parsed.ForceQuery ||
-		parsed.Fragment != "" ||
-		strings.HasSuffix(string(origin), "#") {
+	if err != nil || !originShape(string(origin), parsed) || !originHost(parsed) {
 		c.add(key, origin, rule)
 	}
+}
+
+// originShape reports whether a parsed URL is a scheme and a host with nothing after them.
+func originShape(origin string, parsed *url.URL) bool {
+	return (parsed.Scheme == schemeHTTP || parsed.Scheme == schemeHTTPS) &&
+		parsed.Host != "" &&
+		parsed.Opaque == "" &&
+		parsed.User == nil &&
+		parsed.Path == "" &&
+		parsed.RawQuery == "" &&
+		!parsed.ForceQuery &&
+		parsed.Fragment == "" &&
+		!strings.HasSuffix(origin, "#")
+}
+
+// originHost reports whether an origin's host is an IP literal or a plain name, and its port,
+// when present, is 1 to 65535. A host ending in ":" has an empty port and is rejected.
+func originHost(parsed *url.URL) bool {
+	if strings.HasSuffix(parsed.Host, ":") {
+		return false
+	}
+
+	if port := parsed.Port(); port != "" {
+		number, err := strconv.Atoi(port)
+		if err != nil || number < minPort || number > maxPort {
+			return false
+		}
+	}
+
+	hostname := parsed.Hostname()
+	if hostname == "" {
+		return false
+	}
+
+	_, err := netip.ParseAddr(hostname)
+	if err == nil {
+		return true
+	}
+
+	return !strings.ContainsFunc(hostname, func(char rune) bool {
+		return (char < 'a' || char > 'z') && (char < 'A' || char > 'Z') &&
+			(char < '0' || char > '9') && char != '-' && char != '.'
+	})
 }
 
 func (c *checker) limits(limits Limits) {

@@ -178,7 +178,47 @@ func TestRulesOfSection4(t *testing.T) {
 			file:     "server:\n  public_url: ftp://x\n",
 			wantKeys: []string{"server.public_url"},
 		},
+		{
+			name:     "public url with a port out of range",
+			file:     "server:\n  public_url: https://x:99999\n",
+			wantKeys: []string{"server.public_url"},
+		},
+		{
+			name:     "public url with port 0",
+			file:     "server:\n  public_url: https://x:0\n",
+			wantKeys: []string{"server.public_url"},
+		},
+		{
+			name:     "public url with an empty port",
+			file:     "server:\n  public_url: \"https://x:\"\n",
+			wantKeys: []string{"server.public_url"},
+		},
+		{
+			name:     "public url with a wildcard host",
+			file:     "server:\n  public_url: \"https://*.x.com\"\n",
+			wantKeys: []string{"server.public_url"},
+		},
+		{
+			name:     "public url with an underscore host",
+			file:     "server:\n  public_url: https://a_b.lan\n",
+			wantKeys: []string{"server.public_url"},
+		},
 		// CORS origins.
+		{
+			name:     "CORS origin with a port out of range",
+			file:     "server:\n  cors:\n    allowed_origins: [https://x:99999]\n",
+			wantKeys: []string{"server.cors.allowed_origins[0]"},
+		},
+		{
+			name:     "CORS origin with an empty port",
+			file:     "server:\n  cors:\n    allowed_origins: [\"https://x:\"]\n",
+			wantKeys: []string{"server.cors.allowed_origins[0]"},
+		},
+		{
+			name:     "CORS origin with a wildcard host",
+			file:     "server:\n  cors:\n    allowed_origins: [\"https://*.x.com\"]\n",
+			wantKeys: []string{"server.cors.allowed_origins[0]"},
+		},
 		{
 			name:     "CORS star",
 			file:     "server:\n  cors:\n    allowed_origins: [\"*\"]\n",
@@ -604,7 +644,7 @@ server:
     - {cidr: 10.0.0.0/8, label: LAN}
     - {cidr: 10.8.0.0/24, label: ` + strings.Repeat("é", 64) + `}
     - {cidr: "fd7a:115c:a1e0::/48", label: Tailscale}
-  cors: {allowed_origins: ["https://a.lan", "http://[::1]:5173"]}
+  cors: {allowed_origins: ["https://a.lan", "http://[::1]:5173", "http://10.0.0.1:1", "https://A-b.lan:65535"]}
 limits:
   max_download_bytes: 4GiB
   max_upload_bytes: 4GiB
