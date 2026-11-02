@@ -74,6 +74,27 @@ export interface RunError {
 const MEASURING: readonly MeasuringPhase[] = ['idle', 'download', 'upload']
 const ENDED: readonly PhaseState[] = ['finished', 'failed', 'skipped']
 
+/**
+ * The whole view of an ended run, every view ref of the run state but `configured` (which belongs
+ * to the Worker, not the run): what Back from an unsaved result's Details restores (ui/flows.md
+ * section 4). `CompleteSnapshot` below fails to compile while a view ref is missing from it.
+ */
+export interface RunSnapshot {
+  status: RunStatus
+  phase: PhaseName | null
+  phases: Record<PhaseName, PhaseView>
+  live: Record<Direction, DirectionLive | null>
+  idle: IdleLive | null
+  latency: LatencyPoint[]
+  runSettings: TestSettings | null
+  direction: Direction | null
+  protocol: string | null
+  dataUsedBytes: number
+  notices: Notice[]
+  result: Result | null
+  error: RunError | null
+}
+
 function pendingPhases(): Record<PhaseName, PhaseView> {
   return { info: { state: 'pending' }, idle: { state: 'pending' }, download: { state: 'pending' }, upload: { state: 'pending' } }
 }
@@ -218,6 +239,49 @@ export function createRunState() {
       return true
     },
 
+    /** The run's whole view, to restore on a later Test screen. */
+    snapshot(): RunSnapshot {
+      return {
+        status: status.value,
+        phase: phase.value,
+        phases: phases.value,
+        live: live.value,
+        idle: idle.value,
+        latency: latency.value,
+        runSettings: runSettings.value,
+        direction: direction.value,
+        protocol: protocol.value,
+        dataUsedBytes: dataUsedBytes.value,
+        notices: notices.value,
+        result: result.value,
+        error: error.value,
+      }
+    },
+
+    /**
+     * Shows an ended run's view again, ended: no event of the new Worker applies to it until the
+     * next run begins, which clears it.
+     */
+    restore(view: RunSnapshot): void {
+      phase.value = view.phase
+      phases.value = view.phases
+      live.value = view.live
+      rings = {}
+      idle.value = view.idle
+      latency.value = view.latency
+      runSettings.value = view.runSettings
+      direction.value = view.direction
+      protocol.value = view.protocol
+      dataUsedBytes.value = view.dataUsedBytes
+      notices.value = view.notices
+      result.value = view.result
+      error.value = view.error
+      stopSent = false
+      seenPhase = true
+      lingering = false
+      status.value = 'ended'
+    },
+
     /** A new configure is on its way; the Worker answers only when it refuses it. */
     configuring(): void {
       configureRefused = false
@@ -290,3 +354,11 @@ export function createRunState() {
     },
   }
 }
+
+type RunState = ReturnType<typeof createRunState>
+/** The run state's view refs: every member that is a ref rather than a method. */
+type ViewRef = { [K in keyof RunState]: RunState[K] extends Readonly<ShallowRef<unknown>> ? K : never }[keyof RunState]
+type Unlisted = Exclude<ViewRef, 'configured' | keyof RunSnapshot>
+
+/** The snapshot, once it lists every view ref but `configured`; a missing one names itself instead. */
+export type CompleteSnapshot = [Unlisted] extends [never] ? RunSnapshot : { unlisted: Unlisted }

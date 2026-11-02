@@ -50,6 +50,14 @@ export type AnsweredPings = Record<Direction, readonly { ms: number }[]>
 
 const empty = (): LoadedSeries => ({ download: [], upload: [] })
 
+/** The pings of an ended run, as they stood, to show again on a later Test screen. */
+export interface LoadedSnapshot {
+  series: LoadedSeries
+  waiting: readonly LoadedPing[]
+  settings: TestSettings | null
+  rings: Partial<Record<Direction, FixedRing<LoadedPoint>>>
+}
+
 /** `onPoint` hears each ping as it is placed, as a Continuous run's overlay rings take it. */
 export function useLoadedSeries(onPoint?: (direction: Direction, point: LoadedPoint) => void) {
   const series = shallowRef<LoadedSeries>(empty())
@@ -82,6 +90,19 @@ export function useLoadedSeries(onPoint?: (direction: Direction, point: LoadedPo
       waiting.value = []
       settings = null
       rings = {}
+    },
+
+    /** The pings as they stand. */
+    snapshot(): LoadedSnapshot {
+      return { series: series.value, waiting: waiting.value, settings, rings }
+    },
+
+    /** Shows an ended run's pings again. */
+    restore(saved: LoadedSnapshot): void {
+      series.value = saved.series
+      waiting.value = saved.waiting
+      settings = saved.settings
+      rings = saved.rings
     },
 
     /** Takes a sample's pings, allocating a direction's ring at its phase start; other events are ignored. */

@@ -30,10 +30,14 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { getInfo } from '@/api/info'
 import { useHistory } from '@/composables/useHistory'
 import { useInfo } from '@/composables/useInfo'
-import { lastRunResult } from '@/composables/useRun'
-import type { EngineEvent } from '@/engine/messages'
+import { lastRunResult, takeEndedRun } from '@/composables/useRun'
+import { requestRunAgain } from '@/composables/useRunAgain'
+import type { EngineEvent, Result } from '@/engine/messages'
 import { openHistoryDB } from '@/history/db'
+import { settingsFromDefaults } from '@/lib/defaults'
+import ResultDetailPage from '@/pages/ResultDetailPage.vue'
 import TestPage from '@/pages/TestPage.vue'
+import { continuousResultSettings, continuousStream } from '@/test/continuous'
 import { infoFixture, resultFixture } from '@/test/fixtures'
 import { freshIndexedDB } from '@/test/idb'
 import { mountApp } from '@/test/mount'
@@ -84,6 +88,8 @@ beforeAll(async () => {
 afterEach(() => {
   StubWorker.started = []
   vi.unstubAllGlobals()
+  // A run a test left ended Cancelled or Error would show again on the next test's screen.
+  takeEndedRun()
 })
 
 describe('history on the Test screen', () => {
@@ -233,5 +239,192 @@ describe('history on the Test screen', () => {
     await settle()
     expect(page.findAll('[data-testid="load-row"]')[0]?.text()).toContain('p90 18 · no idle latency')
     page.unmount()
+  })
+})
+
+describe('Back from the Details of a run that ended Cancelled or Error (ui/flows.md section 4)', () => {
+  const IDLE = resultFixture().idle!
+  const SKIPPED_UP = { status: 'skipped' as const, streams: 0, bytes: 0, events: [], confirmedRequests: 0 }
+  const EMPTY_CHART = 'Throughput over time appears here while the test runs.'
+
+  /** The Test screen with a run started on its Worker. */
+  async function startRun() {
+    vi.stubGlobal('Worker', StubWorker)
+    const page = await mountApp(TestPage)
+    await settle()
+    await page.get('[data-testid="start-button"]').trigger('click')
+    const worker = StubWorker.started.at(-1) as StubWorker
+    const emit = async (...events: EngineEvent[]) => {
+      worker.emit(...events)
+      await settle()
+    }
+    return { page, worker, emit }
+  }
+
+  /** Everything the screen shows: its text, and each chart's summary of its series and marks. */
+  function shown(page: Awaited<ReturnType<typeof mountApp>>) {
+    const label = (id: string) => (page.find(`[data-testid="${id}"]`).exists() ? (page.get(`[data-testid="${id}"]`).attributes('aria-label') ?? null) : null)
+    return { text: page.get('main').text(), throughput: label('throughput-chart'), latency: label('latency-chart') }
+  }
+
+  /** Past the gauge's 280 ms scale tween, so the screen is compared as it settled, not mid-shift. */
+  const still = () => new Promise((resolve) => setTimeout(resolve, 400))
+
+  /** Details, then Back: the screen leaves and a new one opens on a new Worker. */
+  async function back(page: Awaited<ReturnType<typeof mountApp>>) {
+    page.unmount()
+    const again = await mountApp(TestPage)
+    await settle()
+    return again
+  }
+
+  const downloadStarted: EngineEvent[] = [
+    { type: 'phase', phase: 'info', state: 'finished', notices: [] },
+    { type: 'phase', phase: 'idle', state: 'started', notices: [] },
+    { type: 'phase', phase: 'idle', state: 'finished', idle: IDLE, notices: [] },
+    { type: 'phase', phase: 'download', state: 'started', notices: [] },
+    { type: 'sample', direction: 'download', fromBucket: 0, values: [1_176_250, 1_176_250, 1_176_250], gauge: 9.41e7, streams: 2, phaseMs: 300, dataUsedBytes: 3_528_750, loadedLatency: [{ atMs: 100, rttMs: 18 }] },
+  ]
+
+  it('shows a stop mid-download again as it was: gauge, chart, tiles, notices, Keep, Details and Download JSON', async () => {
+    const { page, emit } = await startRun()
+    await emit(...downloadStarted)
+    await page.get('[data-testid="start-button"]').trigger('click')
+    const base = resultFixture()
+    const { bitsPerSecond: _b, peakBitsPerSecond: _p, windowMs: _w, series: _s, ...bare } = base.download!
+    const download = { ...bare, status: 'insufficient-data' as const, events: [{ code: 'cancelled' as const, atMs: 300 }] }
+    const result: Result = { ...base, id: 'a1b2c3d4-0000-4000-8000-0000000000d1', status: 'partial', download, upload: SKIPPED_UP, notices: [{ code: 'stopped-early', direction: 'download', coveredMs: 0 }] }
+    await emit({ type: 'phase', phase: 'download', state: 'finished', result: download, notices: result.notices }, { type: 'phase', phase: 'upload', state: 'skipped', notices: result.notices }, { type: 'result', result })
+    await still()
+    const before = shown(page)
+    expect(before.text).toContain('Cancelled')
+    expect(before.text).toContain('Test cancelled during download')
+    expect(before.text).not.toContain(EMPTY_CHART)
+    expect(before.throughput).toContain('stopped at 0.3')
+    expect(before.throughput).toContain('marked: Cancelled')
+    const again = await back(page)
+    expect(shown(again)).toEqual(before)
+    expect(again.find('[data-testid="keep-in-history"]').exists()).toBe(true)
+    expect(again.get('[data-testid="result-details"]').attributes('href')).toBe(`/result/${result.id}`)
+    expect(again.findAll('button').filter((button) => button.text() === 'Download JSON')).toHaveLength(1)
+    again.unmount()
+  })
+
+  it('shows an error mid-upload again: the Error state, its gauge on the last live sample, and the chart', async () => {
+    const { page, emit } = await startRun()
+    const base = resultFixture()
+    await emit(
+      ...downloadStarted,
+      { type: 'phase', phase: 'download', state: 'finished', result: base.download!, notices: [] },
+      { type: 'phase', phase: 'upload', state: 'started', notices: [] },
+      { type: 'sample', direction: 'upload', fromBucket: 0, values: [], gauge: 3e7, streams: 1, phaseMs: 400, sending: 3e7, dataUsedBytes: 4_000_000 },
+    )
+    const upload = { status: 'error' as const, streams: 1, bytes: 1, events: [{ code: 'error' as const, atMs: 400, notice: 'requests-failed' as const }], confirmedRequests: 0 }
+    const result: Result = { ...base, id: 'a1b2c3d4-0000-4000-8000-0000000000d2', status: 'error', upload }
+    await emit({ type: 'error', code: 'requests-failed', messageKey: 'errors.requests-failed', phase: 'upload', partial: true }, { type: 'phase', phase: 'upload', state: 'failed', ranMs: 400, notices: [] }, { type: 'result', result })
+    await still()
+    const before = shown(page)
+    expect(before.text).toContain('Connection lost')
+    expect(before.text).toContain('last sample')
+    expect(before.throughput).toContain('Connection lost')
+    const again = await back(page)
+    expect(shown(again)).toEqual(before)
+    expect(again.find('[data-testid="keep-in-history"]').exists()).toBe(true)
+    again.unmount()
+  })
+
+  it('shows a stop during idle latency again: the latency chart and the gauge in milliseconds', async () => {
+    const { page, emit } = await startRun()
+    const pings = [3, 4, 5, 6].map((n): EngineEvent => ({ type: 'idle', path: 'websocket', phaseMs: n * 40, pings: n, count: 20, rttMs: 3 + n / 10, medianMs: 3.2, minMs: 2.4, p90Ms: 4.1, jitterMs: 0.8, lossPercent: 0 }))
+    await emit({ type: 'phase', phase: 'info', state: 'finished', notices: [] }, { type: 'phase', phase: 'idle', state: 'started', notices: [] }, ...pings)
+    await page.get('[data-testid="start-button"]').trigger('click')
+    const result: Result = { ...resultFixture(), id: 'a1b2c3d4-0000-4000-8000-0000000000d3', status: 'partial', download: undefined, upload: undefined, notices: [] }
+    await emit({ type: 'phase', phase: 'idle', state: 'finished', idle: IDLE, notices: [] }, { type: 'phase', phase: 'download', state: 'skipped', notices: [] }, { type: 'phase', phase: 'upload', state: 'skipped', notices: [] }, { type: 'result', result })
+    await still()
+    const before = shown(page)
+    expect(before.latency).toContain('Cancelled')
+    expect(before.throughput).toBeNull()
+    expect(page.get('[data-testid="gauge-text"]').text()).toContain('Cancelled')
+    const again = await back(page)
+    expect(shown(again)).toEqual(before)
+    again.unmount()
+  })
+
+  it('shows a Continuous stop in warm-up again: its live view, chart and loaded latency', async () => {
+    const { page, worker, emit } = await startRun()
+    await emit({ type: 'phase', phase: 'info', state: 'finished', notices: [] }, { type: 'phase', phase: 'idle', state: 'started', notices: [] }, { type: 'phase', phase: 'idle', state: 'finished', idle: IDLE, notices: [] })
+    continuousStream({ direction: 'download', seconds: 5, stepS: 1, pingS: 1, warmupBuckets: 60 }, (event) => worker.emit(event))
+    await settle()
+    await page.get('[data-testid="start-button"]').trigger('click')
+    const base = resultFixture()
+    const download = { status: 'insufficient-data' as const, streams: 4, bytes: 6e6, events: [{ code: 'cancelled' as const, atMs: 5000 }] }
+    const result: Result = { ...base, id: 'a1b2c3d4-0000-4000-8000-0000000000d4', settings: continuousResultSettings('download'), status: 'partial', download, upload: SKIPPED_UP, notices: [{ code: 'stopped-early', direction: 'download', coveredMs: 0 }] }
+    await emit({ type: 'phase', phase: 'download', state: 'finished', result: download, notices: result.notices }, { type: 'result', result })
+    await still()
+    const before = shown(page)
+    expect(page.find('[data-testid="continuous-view"]').exists()).toBe(true)
+    expect(before.text).toContain('Latency under load')
+    expect(before.throughput).not.toBeNull()
+    const loadRows = page.findAll('[data-testid="load-row"]').map((row) => row.text())
+    const again = await back(page)
+    expect(shown(again)).toEqual(before)
+    expect(again.findAll('[data-testid="load-row"]').map((row) => row.text())).toEqual(loadRows)
+    again.unmount()
+  })
+
+  it('keeps the restored result once, and reads it as kept on the next Back', async () => {
+    const { page, emit } = await startRun()
+    const result = resultFixture({ id: 'a1b2c3d4-0000-4000-8000-0000000000d5', status: 'partial', notices: [{ code: 'stopped-early', direction: 'upload', coveredMs: 3000 }] })
+    await emit({ type: 'result', result })
+    const again = await back(page)
+    const save = vi.spyOn(useHistory(), 'save')
+    await again.get('[data-testid="keep-in-history"]').trigger('click')
+    await settle()
+    expect(save).toHaveBeenCalledTimes(1)
+    expect(save).toHaveBeenCalledWith(result)
+    save.mockRestore()
+    const third = await back(again)
+    expect(third.get('[data-testid="result-bar"] [role="status"]').text()).toBe('Saved as partial')
+    expect(third.find('[data-testid="keep-in-history"]').exists()).toBe(false)
+    third.unmount()
+  })
+
+  it('starts Run again from the Details at once with the recorded settings, restoring nothing', async () => {
+    const { page, emit } = await startRun()
+    const result = resultFixture({ id: 'a1b2c3d4-0000-4000-8000-0000000000d6', status: 'error', label: 'Attic', notices: [] })
+    await emit({ type: 'result', result })
+    requestRunAgain(result)
+    page.unmount()
+    vi.stubGlobal('Worker', StubWorker)
+    const again = await mountApp(TestPage)
+    const worker = StubWorker.started.at(-1) as StubWorker
+    expect(again.find('[data-testid="keep-in-history"]').exists()).toBe(false)
+    // The held run was dropped as the screen opened, not kept for a later one.
+    expect(takeEndedRun()).toBeNull()
+    worker.posted.length = 0
+    worker.emit({ type: 'settings', scope: 'configured', settings: settingsFromDefaults(infoFixture().defaults) })
+    await settle()
+    expect(worker.posted).toContainEqual(expect.objectContaining({ type: 'start', override: expect.objectContaining({ label: 'Attic', preset: result.settings.preset }) }))
+    expect(again.get('[data-testid="start-button"]').text()).toContain('Stop')
+    again.unmount()
+  })
+
+  it('shows the idle state after a complete run whose saving failed, its Details from memory', async () => {
+    const save = vi.spyOn(useHistory(), 'save').mockResolvedValue(false)
+    const { page, emit } = await startRun()
+    const result = resultFixture({ id: 'a1b2c3d4-0000-4000-8000-0000000000d7' })
+    await emit({ type: 'result', result })
+    save.mockRestore()
+    expect(lastRunResult.value?.id).toBe(result.id)
+    page.unmount()
+    const details = await mountApp(ResultDetailPage, `/result/${result.id}`)
+    await settle()
+    expect(details.get('[data-testid="not-saved"]').text()).toBe('Not saved')
+    details.unmount()
+    const again = await mountApp(TestPage)
+    await settle()
+    expect(again.find('[data-testid="result-bar"]').exists()).toBe(false)
+    expect(again.get('[data-testid="start-button"]').text()).toContain('Start')
+    again.unmount()
   })
 })

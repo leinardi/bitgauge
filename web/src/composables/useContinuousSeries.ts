@@ -134,6 +134,12 @@ function allocate(direction: Direction): { series: ContinuousSeries; bins: Recor
   return { series: { direction, elapsedMs: 0, tier: 'native', base: null, cells, overlay }, bins }
 }
 
+/** A Continuous run's rings as they stood, to show again on a later Test screen. */
+export interface ContinuousSnapshot {
+  settings: TestSettings | null
+  own: ReturnType<typeof allocate> | null
+}
+
 export function useContinuousSeries() {
   const series = shallowRef<ContinuousSeries | null>(null)
   let settings: TestSettings | null = null
@@ -172,6 +178,18 @@ export function useContinuousSeries() {
       settings = null
       own = null
       series.value = null
+    },
+
+    /** The rings as they stand. */
+    snapshot(): ContinuousSnapshot {
+      return { settings, own }
+    },
+
+    /** Shows an ended run's rings again. */
+    restore(saved: ContinuousSnapshot): void {
+      settings = saved.settings
+      own = saved.own
+      publish()
     },
 
     /** Allocates the rings at the Continuous direction's phase start and feeds them its samples; other events are ignored. */

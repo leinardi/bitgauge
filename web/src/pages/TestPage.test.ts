@@ -31,6 +31,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { getInfo, type Info } from '@/api/info'
 import { useInfo } from '@/composables/useInfo'
+import { takeEndedRun } from '@/composables/useRun'
 import type { EngineEvent, Notice, PhaseName, PhaseState, Result } from '@/engine/messages'
 import { settingsFromDefaults } from '@/lib/defaults'
 import TestPage from '@/pages/TestPage.vue'
@@ -115,6 +116,8 @@ beforeAll(() => {
 })
 
 afterEach(() => {
+  // A run a test left ended Cancelled or Error would show again on the next test's screen.
+  takeEndedRun()
   StubWorker.started = []
   vi.unstubAllGlobals()
 })

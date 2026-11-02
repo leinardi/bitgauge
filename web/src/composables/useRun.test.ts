@@ -28,7 +28,7 @@ import { effectScope, nextTick, ref } from 'vue'
 
 import { getInfo } from '@/api/info'
 import { useInfo } from '@/composables/useInfo'
-import { useRun } from '@/composables/useRun'
+import { holdEndedRun, takeEndedRun, useRun } from '@/composables/useRun'
 import type { DirectionResult, EngineEvent, MeasuringPhase, Notice, PhaseName, PhaseState, Preset, Result } from '@/engine/messages'
 import { settingsFromDefaults } from '@/lib/defaults'
 import { infoFixture } from '@/test/fixtures'
@@ -517,5 +517,64 @@ describe('useRun', () => {
     expect(again.worker.posted).toContainEqual({ type: 'start', visible: true })
     expect(worker.terminated).toBe(true)
     again.scope.stop()
+  })
+})
+
+describe('an ended run held for a later Test screen', () => {
+  beforeAll(async () => {
+    vi.mocked(getInfo).mockResolvedValue(INFO)
+    await useInfo().refresh()
+  })
+
+  afterEach(() => {
+    takeEndedRun()
+  })
+
+  /** A run stopped mid-download, with a sample, a loaded ping and its partial result. */
+  function stoppedRun() {
+    const first = started()
+    first.run.start()
+    first.worker.emit(
+      phase('info', 'finished'),
+      phase('idle', 'finished'),
+      phase('download', 'started'),
+      { type: 'sample', direction: 'download', fromBucket: 0, values: [1000, 2000], gauge: 1e6, streams: 1, phaseMs: 250, dataUsedBytes: 3000, loadedLatency: [{ atMs: 100, rttMs: 18 }] },
+    )
+    first.run.stop()
+    first.worker.emit(phase('download', 'finished', { result: { ...MEASURED, status: 'partial' } }), phase('upload', 'skipped'), { type: 'result', result: result('partial') })
+    return first
+  }
+
+  it('restores the whole view on a new run state, ended, and a configure leaves it as it is', () => {
+    const first = stoppedRun()
+    const held = first.run.snapshot()
+    first.scope.stop()
+    const second = started()
+    second.run.restore(held)
+    expect(second.run.status.value).toBe('ended')
+    expect(second.run.snapshot().view).toEqual(held.view)
+    expect(second.run.loaded.value).toBe(held.loaded.series)
+    const refs = [second.run.phases.value, second.run.live.value, second.run.notices.value, second.run.result.value, second.run.latency.value]
+    // A configure to the new Worker clears only its own refusal; the view refs stay the same objects.
+    second.run.configuring()
+    expect([second.run.phases.value, second.run.live.value, second.run.notices.value, second.run.result.value, second.run.latency.value]).toEqual(refs)
+    refs.forEach((value, index) => expect([second.run.phases.value, second.run.live.value, second.run.notices.value, second.run.result.value, second.run.latency.value][index]).toBe(value))
+    expect(second.run.snapshot().view).toEqual(held.view)
+    // The new Worker's events do not apply to the ended view.
+    second.worker.emit({ type: 'sample', direction: 'download', fromBucket: 2, values: [5000], gauge: 2e6, streams: 1, phaseMs: 350, dataUsedBytes: 8000 })
+    expect(second.run.dataUsedBytes.value).toBe(held.view.dataUsedBytes)
+    second.scope.stop()
+  })
+
+  it('is cleared by a new start and by a complete run', async () => {
+    const first = stoppedRun()
+    holdEndedRun(first.run.snapshot())
+    first.run.start()
+    expect(takeEndedRun()).toBeNull()
+    holdEndedRun(first.run.snapshot())
+    first.worker.emit({ type: 'result', result: result('complete') })
+    await nextTick()
+    expect(takeEndedRun()).toBeNull()
+    first.scope.stop()
   })
 })

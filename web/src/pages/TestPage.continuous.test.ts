@@ -34,6 +34,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { getInfo } from '@/api/info'
 import { useHistory } from '@/composables/useHistory'
 import { useInfo } from '@/composables/useInfo'
+import { takeEndedRun } from '@/composables/useRun'
 import type { EngineEvent, Result } from '@/engine/messages'
 import TestPage from '@/pages/TestPage.vue'
 import { continuousResultSettings, continuousSettings, continuousStream } from '@/test/continuous'
@@ -80,6 +81,8 @@ beforeAll(async () => {
 })
 
 afterEach(() => {
+  // A run a test left ended Cancelled or Error would show again on the next test's screen.
+  takeEndedRun()
   StubWorker.started = []
   vi.unstubAllGlobals()
 })

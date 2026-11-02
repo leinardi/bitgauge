@@ -20,9 +20,9 @@
 import { computed, onScopeDispose, type ShallowRef, shallowReadonly, shallowRef, watch } from 'vue'
 
 import { useInfo } from '@/composables/useInfo'
-import { useContinuousSeries } from '@/composables/useContinuousSeries'
-import { useLoadedSeries } from '@/composables/useLoadedSeries'
-import { createRunState } from '@/composables/useRunState'
+import { type ContinuousSnapshot, useContinuousSeries } from '@/composables/useContinuousSeries'
+import { type LoadedSnapshot, useLoadedSeries } from '@/composables/useLoadedSeries'
+import { type CompleteSnapshot, createRunState } from '@/composables/useRunState'
 import { useWorker } from '@/composables/useWorker'
 import type { ConfigureOverride, IgnoredParameter, Preset, Result, SettingsOverride, TestSettings } from '@/engine/messages'
 import { settingsFromDefaults } from '@/lib/defaults'
@@ -66,6 +66,34 @@ const last = shallowRef<Result | null>(null)
  */
 export const lastRunResult: Readonly<ShallowRef<Result | null>> = shallowReadonly(last)
 
+/**
+ * An ended run's whole view: the run state's view and the per-instance series derived from its
+ * events, the loaded latency and a Continuous run's rings.
+ */
+export interface EndedRun {
+  view: CompleteSnapshot
+  loaded: LoadedSnapshot
+  continuous: ContinuousSnapshot
+}
+
+const ended = shallowRef<EndedRun | null>(null)
+
+/**
+ * The run that ended Cancelled or Error, unsaved or kept, held for the page's life apart from
+ * `lastRunResult`, so Back from its Details shows its end state again (ui/flows.md section 4); a new
+ * start and a complete run clear it, and a reload by itself.
+ */
+export function holdEndedRun(run: EndedRun | null): void {
+  ended.value = run
+}
+
+/** The held ended run, taken once. */
+export function takeEndedRun(): EndedRun | null {
+  const run = ended.value
+  ended.value = null
+  return run
+}
+
 function ignore(): void {
   // A wake lock release that fails leaves nothing to undo.
 }
@@ -103,6 +131,9 @@ export function useRun(options: RunOptions = {}) {
   watch(state.result, (result) => {
     if (result !== null) {
       last.value = result
+    }
+    if (result?.status === 'complete') {
+      ended.value = null
     }
   })
 
@@ -205,6 +236,7 @@ export function useRun(options: RunOptions = {}) {
       if (state.status.value === 'running' || defaults.value === null) {
         return
       }
+      ended.value = null
       loaded.reset()
       continuous.reset()
       if (!state.begin()) {
@@ -226,6 +258,18 @@ export function useRun(options: RunOptions = {}) {
       const visible = document.visibilityState === 'visible'
       bridge.post(Object.keys(startOverride).length === 0 ? { type: 'start', visible } : { type: 'start', override: startOverride, visible })
       void holdWakeLock()
+    },
+
+    /** The ended run's whole view, to restore on a later Test screen. */
+    snapshot(): EndedRun {
+      return { view: state.snapshot(), loaded: loaded.snapshot(), continuous: continuous.snapshot() }
+    },
+
+    /** Shows an ended run's whole view again, ended. */
+    restore(run: EndedRun): void {
+      state.restore(run.view)
+      loaded.restore(run.loaded)
+      continuous.restore(run.continuous)
     },
 
     /** Stops the run as a user stop: the engine keeps what is complete. */

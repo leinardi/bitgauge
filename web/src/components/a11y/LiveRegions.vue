@@ -45,7 +45,9 @@ const { t, locale } = useI18n()
 const wording = computed(() => ({ t, locale: locale.value }))
 
 const live = shallowRef('')
-const summary = shallowRef('')
+// A screen that opens on an ended run, Back from its Details (ui/flows.md section 4), holds its
+// summary from the start: present at mount, it is not a change the region announces again.
+const summary = shallowRef(props.run.result === null ? '' : resultSummary(props.run.result, props.units, wording.value, props.run.idle))
 
 // Announcements of one change are read as one message, so a later one cannot cut off an earlier:
 // each queued message restarts the window, and the region is written once it has passed.

@@ -41,6 +41,7 @@ import { useCountdown } from '@/composables/useCountdown'
 import { useElapsed } from '@/composables/useElapsed'
 import { useHistory } from '@/composables/useHistory'
 import { useInfo } from '@/composables/useInfo'
+import { useEndedRun } from '@/composables/useEndedRun'
 import { useResultSave } from '@/composables/useResultSave'
 import { type StartOptions, useRun } from '@/composables/useRun'
 import { takeRunAgain } from '@/composables/useRunAgain'
@@ -93,6 +94,13 @@ const units = computed(() => shownSettings.value?.units ?? 'bits')
 const steps = computed(() => (shownSettings.value === null ? PENDING_STEPS : phaseSteps(view.value, shownSettings.value, locale.value)))
 // The ended result kept in history by the user (Keep in history), which then reads "saved as".
 const kept = shallowRef(false)
+/** The gauge's window, carried between directions and started afresh with each run. */
+const gaugeWindow = shallowRef(startK(units.value))
+// Before the watches on the result and the units, which would reset what a restored run shows.
+useEndedRun({ run, state, kept, gaugeWindow })
+watch(units, (value) => {
+  gaugeWindow.value = startK(value)
+})
 const gaugeContext = computed(() => ({ ...wording.value, units: units.value, server: info.value?.server.name ?? host, kept: kept.value, waiting: info.value === null && reachability.value !== 'unreachable' }))
 const offline = computed(() => state.value === 'idle' && reachability.value === 'unreachable')
 const gauge = computed(() => (offline.value ? offlineGauge(gaugeContext.value, nextCheckS.value) : gaugeInput(view.value, gaugeContext.value)))
@@ -168,12 +176,6 @@ const { state: saveState } = useResultSave(run.result)
 const history = useHistory()
 // The latest saved result, in the idle state while no countdown runs (kit TestScreen.jsx).
 const lastResult = computed(() => (state.value === 'idle' && !counting.value ? (history.results.value[0] ?? null) : null))
-
-/** The gauge's window, carried between directions and started afresh with each run. */
-const gaugeWindow = shallowRef(startK(units.value))
-watch(units, (value) => {
-  gaugeWindow.value = startK(value)
-})
 
 const streams = computed(() => {
   const direction = run.direction.value

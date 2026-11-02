@@ -49,6 +49,11 @@ export function requestRunAgain(result: Result): void {
   pending = runAgainOptions(result)
 }
 
+/** Whether a run-again request is pending, without taking it. */
+export function peekRunAgain(): boolean {
+  return pending !== null
+}
+
 /** The pending run-again request, taken once. */
 export function takeRunAgain(): StartOptions | null {
   const request = pending
