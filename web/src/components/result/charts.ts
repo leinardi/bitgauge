@@ -21,6 +21,7 @@ import { Activity, ArrowDown, ArrowUp } from '@lucide/vue'
 import type { Component } from 'vue'
 
 import { markLabel } from '@/components/chart/text'
+import { stoppedAt } from '@/components/result/parameters'
 import { cutSeries, directionModel, idleModel, type PhaseModel } from '@/components/result/phase'
 import { pingGroups, windowTable } from '@/components/result/windowTable'
 import type { Wording } from '@/components/test/wording'
@@ -97,7 +98,10 @@ function directionCard(direction: Direction, part: DirectionResult, result: Resu
   const table = windowTable(series, loaded !== undefined && 'series' in loaded ? loaded.series : [])
   // A Continuous run's cells are minutes or longer, their spans on its clock.
   const size = table.cellMs === null ? null : continuous ? formatSpan(table.cellMs, locale) : formatLimit(table.cellMs, locale)
-  const meta = continuous ? continuousMeta(part, series.endMs, size, wording) : t('result.charts.meta', { duration: formatDuration(series.endMs, locale), n: part.streams }, part.streams)
+  // A bounded direction the user stopped ran to its stop, the instant the Test screen and the
+  // parameters name; a Continuous stop is its normal end, which its series ends at.
+  const duration = stoppedAt(result, direction) ?? series.endMs
+  const meta = continuous ? continuousMeta(part, series.endMs, size, wording) : t('result.charts.meta', { duration: formatDuration(duration, locale), n: part.streams }, part.streams)
   const resolution = result.client.timerResolutionMs
   const span = (fromMs: number, toMs: number) =>
     continuous && table.cellMs !== null ? t('result.charts.clockSpan', { from: clockTime(fromMs, locale), to: clockTime(toMs, locale) }) : t('result.charts.span', { from: secondsNumber(fromMs, locale), to: secondsNumber(toMs, locale) })

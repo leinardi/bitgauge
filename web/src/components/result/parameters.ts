@@ -88,7 +88,7 @@ function streams(result: Result, wording: Wording): string {
 }
 
 /** When the user stopped the direction, on its phase timeline; undefined when it was not stopped. */
-function stoppedAt(result: Result, direction: Direction): number | undefined {
+export function stoppedAt(result: Result, direction: Direction): number | undefined {
   const stop = result[direction]?.events.find((event) => event.code === 'cancelled')
   return stop?.code === 'cancelled' ? stop.atMs : undefined
 }

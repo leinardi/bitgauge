@@ -49,4 +49,15 @@ describe('the result chart cards', () => {
     expect(summary).toContain('Stopped')
     expect(summary).not.toContain('Cancelled')
   })
+
+  it('give a bounded direction stopped after its window its stop instant, not its window end', () => {
+    const base = resultFixture()
+    const upload = base.upload
+    if (upload?.series === undefined) {
+      throw new Error('the fixture has an upload series')
+    }
+    const late = resultFixture({ status: 'partial', upload: { ...upload, status: 'partial', series: { ...upload.series, endMs: 13_000 }, events: [{ code: 'cancelled', atMs: 14_000 }] } })
+    const card = chartCards(late, 'bits', wording).find((shown) => shown.key === 'upload')
+    expect(card?.meta.replace(/\u00a0/gu, ' ')).toBe(`14.0 s · ${upload.streams} streams`)
+  })
 })
