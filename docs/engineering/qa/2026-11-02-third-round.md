@@ -105,7 +105,7 @@ each such change is listed for Claude Design.
   `row.upload.value`; the `qualifiers` that 9453f8a gave `rowView` are dropped.
 - **Evidence:** verified on an imported record and a real kept partial run (IndexedDB), and in
   the code.
-- **Status:** Open.
+- **Status:** Fixed in 580ad10 (spec a75c133).
 
 ## Medium
 
@@ -129,7 +129,7 @@ each such change is listed for Claude Design.
   one.
 - **Evidence:** verified on two Download JSONs, against Chromium and Firefox Standard runs whose
   warm-ups ended low, and in the code.
-- **Status:** Open. Decided by D-19.
+- **Status:** Fixed in 311978a. Decided by D-19 (spec a75c133).
 
 ### QA-98: An upload with no confirmed request disappears from the live chart
 
@@ -149,7 +149,7 @@ each such change is listed for Claude Design.
   `live.phaseMs` is ignored. The marks (`series.ts:286-288`) and latency points (`:292`) then fall
   beyond the axis.
 - **Evidence:** verified on screenshots, the run's JSON and the code.
-- **Status:** Open.
+- **Status:** Fixed in 6cd9588 (spec a75c133).
 
 ### QA-99: The "WebSocket unavailable" notice uses the refusal wording during a run whose socket closed after idle latency, then rewrites itself at the end
 
@@ -167,7 +167,7 @@ each such change is listed for Claude Design.
   `context.result?.idle?.path`, which is null while the run goes on; the run's idle phase already
   knows its path.
 - **Evidence:** verified by recording the regions in three scenarios, and in the code.
-- **Status:** Open.
+- **Status:** Fixed in 242d051.
 
 ### QA-100: A Continuous stop's notice first reads "stopped at 0.0 s" with no completed phase, then rewrites itself
 
@@ -183,7 +183,7 @@ each such change is listed for Claude Design.
   `run.result` arrives; `web/src/components/test/stop.ts:57` then takes the run order to be the
   stopped direction alone, and `stop.ts:62` falls back to `?? 0` for the stop instant.
 - **Evidence:** verified by the recording and the code.
-- **Status:** Open.
+- **Status:** Fixed in 204f5bb.
 
 ### QA-101: `server.base_path: //speed` passes validation and turns every SPA asset URL into a protocol-relative URL
 
@@ -244,15 +244,15 @@ each such change is listed for Claude Design.
 
 | ID | Finding | Location | Status |
 | --- | --- | --- | --- |
-| QA-104 | `cancelled-late` Result detail: the Upload chart heading reads "13.0 s · 6 streams" (the series end) above Test parameters "Upload 14.0 s · stopped by you". QA-75 holds for the parameters. | `web/src/components/result/charts.ts:100` (`series.endMs`) | Open |
-| QA-105 | An ignored-parameter notice (`?cap=1MB`) changes its body 25 ms after mount, from "stays on its default" to "The data cap stays on none", in a `role=status` element, and is mounted again, so announced again, when the run starts. Near QA-88. | `web/src/components/test/ignored.ts`, `NoticeList.vue` keying | Open |
-| QA-106 | A finished latency-only run (`?test=latency`) shows "DOWNLOAD —" on the gauge; no direction ran. QA-70's kind. | `web/src/components/test/screen/view.ts:230-238` | Open |
-| QA-107 | A Continuous upload before its first sample reads "Current · sending — kbit/s" and "Data used — kB"; the download view shows "—" alone. | `web/src/components/test/continuous/` | Open |
-| QA-108 | After Stop → Details → Back the Test screen is plain Idle with no Keep, Details or last-result line, though Forward still reopens the unsaved result with Keep. | `web/src/pages/TestPage.vue` | Open. Decided by D-20 |
+| QA-104 | `cancelled-late` Result detail: the Upload chart heading reads "13.0 s · 6 streams" (the series end) above Test parameters "Upload 14.0 s · stopped by you". QA-75 holds for the parameters. | `web/src/components/result/charts.ts:100` (`series.endMs`) | Fixed in 56c93e6 |
+| QA-105 | An ignored-parameter notice (`?cap=1MB`) changes its body 25 ms after mount, from "stays on its default" to "The data cap stays on none", in a `role=status` element, and is mounted again, so announced again, when the run starts. Near QA-88. | `web/src/components/test/ignored.ts`, `NoticeList.vue` keying | Fixed in 1882d7d |
+| QA-106 | A finished latency-only run (`?test=latency`) shows "DOWNLOAD —" on the gauge; no direction ran. QA-70's kind. | `web/src/components/test/screen/view.ts:230-238` | Fixed in c3f5320 |
+| QA-107 | A Continuous upload before its first sample reads "Current · sending — kbit/s" and "Data used — kB"; the download view shows "—" alone. | `web/src/components/test/continuous/` | Fixed in bf1b231 |
+| QA-108 | After Stop → Details → Back the Test screen is plain Idle with no Keep, Details or last-result line, though Forward still reopens the unsaved result with Keep. | `web/src/pages/TestPage.vue` | Fixed in 26850ed. Decided by D-20 (spec a75c133) |
 | QA-109 | Compare rounds a latency change for display but judges the raw value: 10 → 11 ms reads "+1.0 ms, same" in one pair and "+1.0 ms, worse" in another (11.01 ms); jitter the same. | `web/src/components/history/compare.ts:72-76,243` | Open |
 | QA-110 | Download JSON within 300 ms of typing a note exports the previous note, and a reload in that window loses the last keystrokes (the `pagehide` flush is an IndexedDB write the unload cancels). | `web/src/composables/useDebouncedSave.ts:28,52`; `components/result/NoteField.vue:48` | Open |
 | QA-111 | A result without a grade shows a bare "—" in History's Grade column and in Compare; screens.md §6 has "Not graded" with its reason the same on every screen. | `web/src/components/history/rows.ts:96`; `compare.ts:247-251` | Open |
-| QA-112 | The not-saved Result detail of an `error` result says "Partial results are not saved" under "Test failed". | `web/src/pages/ResultDetailPage.vue` (`notSaved`), `i18n/locales/en/test.json:268` | Open |
+| QA-112 | The not-saved Result detail of an `error` result says "Partial results are not saved" under "Test failed". | `web/src/pages/ResultDetailPage.vue` (`notSaved`), `i18n/locales/en/test.json:268` | Fixed in 0fad631 (spec a75c133) |
 | QA-113 | Requests rejected by net/http before routing get its plain text with no envelope, and wire-protocol.md §7 names only the malformed `Content-Length` 400: also `431` for large headers, `400` for a malformed `Host` or duplicate `Content-Length`, `501` for `Transfer-Encoding: gzip`, `505` for `HTTP/2.0` on the request line. Document them as a class, as QA-30 was. | `docs/features/wire-protocol.md` §7 | Open |
 | QA-114 | `server.trusted_proxies` accepts an IPv4-mapped IPv6 prefix (`::ffff:127.0.0.2/128`) that never matches, since peers are unmapped first; the proxy is silently untrusted, and the entry still satisfies networkQuality's `trusted_proxies` rule, so that layer answers 503. `server.labels` rejects the same form. | `internal/config/load.go:508`; `internal/clientip/clientip.go:105,120-126`; compare `internal/config/validate.go:225` | Open |
 | QA-115 | Opening a Select (Overhead compensation, Language) logs a CSP `style-src-elem` violation: reka-ui's `SelectViewport` inserts an inline `<style>` that `style-src 'self'` blocks; the scrollbar rule is not applied. | `web/node_modules/reka-ui/dist/Select/SelectViewport.js:83`, via `web/src/components/ui/select` | Open |
@@ -290,7 +290,8 @@ To investigate:
   only after "network changed" or "unreachable"; on loopback the WebSocket closes first and the
   run ends as "network changed", with the header turning Unreachable.
 - **Compare's parameter set:** decided by D-18.
-- **The last direction's headline is never spoken** and **two times for one stop:** decided by D-21.
+- **The last direction's headline is never spoken** and **two times for one stop:** decided by D-21
+  (spec a75c133).
 
 ## Previous round's fixes re-checked
 
