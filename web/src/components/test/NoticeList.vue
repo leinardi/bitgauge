@@ -41,10 +41,10 @@ const props = withDefaults(
     directions?: Partial<Record<Direction, DirectionResult | undefined>>
     /** The run's last idle progress, for the stop notice of a stop during idle latency. */
     idle?: { pings: number; count: number } | null
-    /** The finished idle latency's path, before the result carries it. */
-    idlePath?: IdleResult['path'] | null
+    /** The finished idle latency, before the result carries it. */
+    finishedIdle?: IdleResult | null
   }>(),
-  { result: null, settings: null, directions: () => ({}), idle: null, idlePath: null },
+  { result: null, settings: null, directions: () => ({}), idle: null, finishedIdle: null },
 )
 defineEmits<{ retry: []; preset: [preset: Preset]; dismiss: [parameter: string] }>()
 
@@ -52,7 +52,7 @@ const { t, locale } = useI18n()
 const { choice } = useTheme()
 
 const views = computed(() => {
-  const context = { t, locale: locale.value, result: props.result, settings: props.settings, theme: choice.value, directions: props.directions, idlePath: props.idlePath }
+  const context = { t, locale: locale.value, result: props.result, settings: props.settings, theme: choice.value, directions: props.directions, finishedIdle: props.finishedIdle }
   const stop = latencyStopView(props.result, props.idle, context)
   // Keyed by what each notice says, never by its place: a notice that moves when the result's list
   // replaces the run's keeps its box, so its status region is not rewritten and announced again.

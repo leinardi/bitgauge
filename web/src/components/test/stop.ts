@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { DirectionEvent, MeasuringPhase, Notice, Result } from '@/engine/messages'
+import type { Direction, DirectionEvent, DirectionResult, IdleResult, MeasuringPhase, Notice, Result, TestSettings } from '@/engine/messages'
 import { runPhases } from '@/lib/continuous'
 import { formatDuration } from '@/lib/format'
 
@@ -46,36 +46,74 @@ function phaseList(phases: readonly MeasuringPhase[], wording: Wording): string 
   return list.charAt(0).toLocaleUpperCase(locale) + list.slice(1)
 }
 
-export function stopWording(notice: StoppedEarly, result: Result | null, wording: Wording): { title: string; body: string } {
-  const { t, locale } = wording
+/**
+ * What the notice reads besides the result: before a Continuous run's result arrives, the stop
+ * notice is worded from the directions that ended and the finished idle latency, as their phase
+ * events carried them, and the run's settings.
+ */
+export interface StopContext {
+  result?: Result | null
+  /** The run's settings, for the order of its phases. */
+  settings?: Pick<TestSettings, 'preset' | 'phases' | 'continuousDirection'> | null
+  /** Each direction that has ended, as its phase event carried it. */
+  directions?: Partial<Record<Direction, DirectionResult | undefined>>
+  /** The idle latency, once it finished. */
+  finishedIdle?: IdleResult | null
+}
+
+/** Where the upload stopped, with the stop instant only when its cancelled event gives one. */
+function uploadStop(part: DirectionResult | undefined, measured: boolean, { t, locale }: Wording): string {
+  const atMs = part?.events.find(isStop)?.atMs
+  const at = atMs === undefined ? undefined : formatDuration(atMs, locale)
+  const endMs = part?.series?.endMs
+  // The live direction is typed as any direction's; an upload's carries its confirmed requests.
+  const n = part !== undefined && 'confirmedRequests' in part && typeof part.confirmedRequests === 'number' ? part.confirmedRequests : undefined
+  if (measured && n !== undefined) {
+    return at === undefined || endMs === undefined ? t('notices.stoppedEarly.uploadPartialUntimed', { n }) : t('notices.stoppedEarly.uploadPartial', { at, n, end: formatDuration(endMs, locale) })
+  }
+  const warmup = part?.windowMs === undefined
+  if (at === undefined) {
+    return warmup ? t('notices.stoppedEarly.uploadNoneWarmupUntimed') : t('notices.stoppedEarly.uploadNoneUntimed')
+  }
+  return warmup ? t('notices.stoppedEarly.uploadNoneWarmup', { at }) : t('notices.stoppedEarly.uploadNone', { at })
+}
+
+export function stopWording(notice: StoppedEarly, context: Wording & StopContext): { title: string; body: string } {
+  const { t, locale } = context
   const { direction } = notice
-  const part = result?.[direction]
+  const result = context.result ?? null
+  // The result's direction once it exists; before it, the direction its phase event ended.
+  const part = result?.[direction] ?? context.directions?.[direction]
   const covered = formatDuration(notice.coveredMs, locale)
   const measured = part?.bitsPerSecond !== undefined
-  const title = direction === 'upload' && measured ? t('notices.stoppedEarly.partialUpload', { covered }) : t('notices.stoppedEarly.title', { phase: phaseName(direction, wording) })
+  const title = direction === 'upload' && measured ? t('notices.stoppedEarly.partialUpload', { covered }) : t('notices.stoppedEarly.title', { phase: phaseName(direction, context) })
 
-  const order = result === null ? [direction] : runPhases(result.settings)
+  const settings = result?.settings ?? context.settings ?? null
+  const order = settings === null ? [direction] : runPhases(settings)
   const index = order.indexOf(direction)
-  const completed = order.slice(0, index).filter((phase) => (phase === 'idle' ? result?.idle !== undefined : result?.[phase] !== undefined && result[phase].status !== 'skipped'))
+  const ended = (phase: MeasuringPhase): boolean => {
+    if (phase === 'idle') {
+      return (result?.idle ?? context.finishedIdle ?? undefined) !== undefined
+    }
+    const block = result?.[phase] ?? context.directions?.[phase]
+    return block !== undefined && block.status !== 'skipped'
+  }
+  const completed = order.slice(0, index).filter(ended)
   const notRun = order.slice(index + 1)
-  // A stopped direction always carries its cancelled event, at the stop instant.
-  const at = formatDuration(part?.events.find(isStop)?.atMs ?? 0, locale)
   let stop: string
   if (direction === 'download') {
     stop = measured ? t('notices.stoppedEarly.downloadPartial', { covered }) : t('notices.stoppedEarly.downloadNone')
-  } else if (measured && result?.upload !== undefined) {
-    stop = t('notices.stoppedEarly.uploadPartial', { at, n: result.upload.confirmedRequests, end: formatDuration(result.upload.series?.endMs ?? 0, locale) })
   } else {
-    stop = part?.windowMs === undefined ? t('notices.stoppedEarly.uploadNoneWarmup', { at }) : t('notices.stoppedEarly.uploadNone', { at })
+    stop = uploadStop(part, measured, context)
   }
   // Without a probe path the stopped direction has no loaded latency, and the notice says why.
   const loaded = part?.loadedLatency
   const noProbe = loaded !== undefined && 'reason' in loaded && loaded.reason === 'no-probe-path'
   const sentences = [
-    ...(completed.length === 0 ? [] : [t('notices.stoppedEarly.completed', { phases: phaseList(completed, wording) })]),
-    ...(noProbe ? [t('notices.stoppedEarly.noProbe', { phase: phaseName(direction, wording) })] : []),
+    ...(completed.length === 0 ? [] : [t('notices.stoppedEarly.completed', { phases: phaseList(completed, context) })]),
+    ...(noProbe ? [t('notices.stoppedEarly.noProbe', { phase: phaseName(direction, context) })] : []),
     stop,
-    ...(notRun.length === 0 ? [] : [t('notices.stoppedEarly.notRun', { phases: phaseList(notRun, wording) })]),
+    ...(notRun.length === 0 ? [] : [t('notices.stoppedEarly.notRun', { phases: phaseList(notRun, context) })]),
   ]
   return { title, body: sentences.join(' ') }
 }

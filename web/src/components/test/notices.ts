@@ -20,13 +20,13 @@
 import { CircleAlert, CircleMinus, Database, EyeOff, Gauge, Hourglass, Info, Layers, Link, Percent, RefreshCw, ServerOff, Timer, TriangleAlert, Wifi } from '@lucide/vue'
 import type { Component } from 'vue'
 
-import type { IdleResult, Notice, Preset, Result } from '@/engine/messages'
+import type { Notice, Preset, Result } from '@/engine/messages'
 import { formatBytes, formatPercent } from '@/lib/format'
 import { links } from '@/lib/links'
 
 import { type IgnoredContext, ignoredBody } from '@/components/test/ignored'
 import { type InsufficientContext, insufficientWording } from '@/components/test/insufficient'
-import { latencyStopWording, stopWording } from '@/components/test/stop'
+import { latencyStopWording, type StopContext, stopWording } from '@/components/test/stop'
 import { confidenceReasons } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 
@@ -56,13 +56,7 @@ export interface NoticeView {
  * The wording, the result the notices belong to, which the stop notice is worded from, and the
  * settings and theme an ignored URL parameter stays on.
  */
-export type NoticeContext = Wording &
-  IgnoredContext &
-  InsufficientContext & {
-    result?: Result | null
-    /** The idle latency's path once it finished, before the result carries it. */
-    idlePath?: IdleResult['path'] | null
-  }
+export type NoticeContext = Wording & IgnoredContext & InsufficientContext & StopContext
 
 function preset(value: Preset, t: Wording['t']): string {
   return value === 'quick' ? t('test.summary.quick') : value === 'standard' ? t('test.summary.standard') : t('test.summary.extended')
@@ -144,7 +138,7 @@ export function noticeView(notice: Notice, context: NoticeContext): NoticeView {
     case 'url-parameter-ignored':
       return { tone: 'warn', icon: Link, title: t('notices.urlParameterIgnored.title'), body: ignoredBody(notice, context), actions: [{ kind: 'dismiss', parameter: notice.parameter, label: t('notices.actions.dismiss') }] }
     case 'stopped-early':
-      return { tone: 'neutral', icon: CircleMinus, ...stopWording(notice, context.result ?? null, context), actions: [] }
+      return { tone: 'neutral', icon: CircleMinus, ...stopWording(notice, context), actions: [] }
     case 'server-restarted':
       return { tone: 'neutral', icon: RefreshCw, title: t('notices.serverRestarted.title'), body: t('notices.serverRestarted.body'), actions: [] }
     case 'server-unreachable':
@@ -175,7 +169,7 @@ export function noticeView(notice: Notice, context: NoticeContext): NoticeView {
         tone: 'info',
         icon: Info,
         title: t('notices.websocketUnavailable.title'),
-        body: (context.result?.idle?.path ?? context.idlePath) === 'websocket' ? t('notices.websocketUnavailable.closed') : t('notices.websocketUnavailable.body'),
+        body: (context.result?.idle ?? context.finishedIdle)?.path === 'websocket' ? t('notices.websocketUnavailable.closed') : t('notices.websocketUnavailable.body'),
         actions: [],
       }
     case 'probe-reservation':

@@ -217,8 +217,17 @@ describe('a Continuous run on the Test screen', () => {
       download: { status: 'insufficient-data', streams: 4, bytes: 6e6, events: [{ code: 'cancelled', atMs: 5000 }] },
       notices: [{ code: 'stopped-early', direction: 'download', coveredMs: 0 }],
     })
-    worker.emit({ type: 'phase', phase: 'download', state: 'finished', result: result.download, notices: [] }, { type: 'result', result })
+    // As the engine does, the direction's finished event already carries its stopped-early notice,
+    // and the stop notice reads the same before the result arrives and after it (QA-100).
+    const stopNotice = () => page.findAll('[data-testid="notice"]').map((notice) => notice.text().replace(/\u00a0/gu, ' ')).filter((text) => text.includes('Test cancelled during download'))
+    worker.emit({ type: 'phase', phase: 'download', state: 'finished', result: result.download, notices: result.notices })
     await settle()
+    const live = stopNotice()
+    expect(live).toEqual([expect.stringContaining('Latency completed. Download stopped before a 3 s steady window, so it has no value.')])
+    expect(live[0]).not.toContain('did not run')
+    worker.emit({ type: 'result', result })
+    await settle()
+    expect(stopNotice()).toEqual(live)
     expect(page.get('[data-testid="result-bar"]').text()).toContain('Partial results are not saved')
     expect(page.find('[data-testid="keep-in-history"]').exists()).toBe(true)
     expect(page.findAll('button').some((button) => button.text().includes('Download JSON'))).toBe(true)

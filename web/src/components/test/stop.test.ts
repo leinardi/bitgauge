@@ -39,7 +39,7 @@ const upload = base.upload!
 const SKIPPED = { status: 'skipped' as const, streams: 0, bytes: 0, events: [] }
 
 function words(direction: Direction, coveredMs: number, result: Partial<Result>): { title: string; body: string } {
-  const shown = stopWording({ code: 'stopped-early', direction, coveredMs }, { ...base, status: 'partial', ...result }, wording)
+  const shown = stopWording({ code: 'stopped-early', direction, coveredMs }, { ...wording, result: { ...base, status: 'partial', ...result } })
   return { title: shown.title.replace(/\u00a0/gu, ' '), body: shown.body.replace(/\u00a0/gu, ' ') }
 }
 
@@ -84,8 +84,7 @@ describe('the stop notice', () => {
     const { idle: _i, ...withoutIdle } = base
     const shown = stopWording(
       { code: 'stopped-early', direction: 'upload', coveredMs: 0 },
-      { ...withoutIdle, status: 'partial', settings: { ...base.settings, phases: ['upload', 'download'] }, upload: { ...cut, status: 'partial', windowMs: 1000, events: [{ code: 'cancelled', atMs: 4200 }] }, download: SKIPPED },
-      wording,
+      { ...wording, result: { ...withoutIdle, status: 'partial', settings: { ...base.settings, phases: ['upload', 'download'] }, upload: { ...cut, status: 'partial', windowMs: 1000, events: [{ code: 'cancelled', atMs: 4200 }] }, download: SKIPPED } },
     )
     expect(shown.body.replace(/\u00a0/gu, ' ')).toBe('Upload stopped at 4.2 s, before a 3 s confirmed steady window, so it has no value. Download did not run.')
   })
@@ -97,6 +96,25 @@ describe('the stop notice', () => {
       upload: { ...SKIPPED, confirmedRequests: 0 },
     })
     expect(shown.body).toBe('Latency completed. Download stopped before a 3 s steady window, so it has no value.')
+  })
+
+  it('words a Continuous upload stopped in warm-up the same before its result arrives and after', () => {
+    const settings = continuousResultSettings('upload')
+    const stopped = { status: 'insufficient-data' as const, streams: 2, bytes: 4e5, events: [{ code: 'cancelled' as const, atMs: 1500 }], confirmedRequests: 0 }
+    const notice = { code: 'stopped-early' as const, direction: 'upload' as const, coveredMs: 0 }
+    const expected = 'Latency completed. Upload stopped at 1.5 s, before a 3 s confirmed steady window (still in warm-up), so it has no value.'
+    // Live: the upload's finished event, the finished idle latency and the run's settings.
+    const live = stopWording(notice, { ...wording, settings, directions: { upload: stopped }, finishedIdle: base.idle ?? null })
+    expect(live.body.replace(/\u00a0/gu, ' ')).toBe(expected)
+    const ended = stopWording(notice, { ...wording, result: { ...base, status: 'partial', settings, download: SKIPPED, upload: stopped } })
+    expect(ended).toEqual(live)
+  })
+
+  it('gives no stop instant when the stopped direction has no cancelled event yet', () => {
+    const settings = continuousResultSettings('upload')
+    const shown = stopWording({ code: 'stopped-early', direction: 'upload', coveredMs: 0 }, { ...wording, settings })
+    expect(shown.body).toBe('Upload stopped before a 3 s confirmed steady window (still in warm-up), so it has no value.')
+    expect(shown.body).not.toContain('0.0')
   })
 
   it('words a stop during idle latency from the pings sent, with no stopped-early notice in the result', () => {
