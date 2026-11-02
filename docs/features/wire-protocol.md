@@ -258,11 +258,18 @@ codes), and every error status of an enabled compatibility layer's routes
 `message` is English, for logs and debugging; the SPA maps `code` to localized text. Error responses
 never echo request bodies or headers.
 
-One `400` has no envelope: a request whose framing Go's `net/http` rejects before routing, such as
-a malformed `Content-Length` (`abc`, `-5`), gets `net/http`'s own plain-text `400 Bad Request` with
-`Connection: close`. It never reaches `/api/v1` or any handler, so nothing can attach the envelope,
-and a browser's `fetch` or `XMLHttpRequest` cannot send such a request
-([technical-stack/backend.md §3](technical-stack/backend.md#3-middleware-chain-order)).
+Two kinds of response have no envelope:
+
+- **Rejected by `net/http` before routing:** plain text with `Connection: close`. This is `400`
+  for a malformed `Content-Length` (`abc`, `-5`), conflicting `Content-Length` headers (identical
+  duplicates are accepted) or a malformed `Host`; `431` for headers over `net/http`'s enforced
+  limit (which adds a read-buffer allowance on top of the configured maximum, so it is not a fixed
+  number); `501` for an unsupported `Transfer-Encoding`; and `505` for an unsupported HTTP
+  version. No handler sees these requests, so nothing can attach the envelope, and a browser's
+  `fetch` or `XMLHttpRequest` cannot send them
+  ([technical-stack/backend.md §3](technical-stack/backend.md#3-middleware-chain-order)).
+- **WebSocket handshake with a foreign `Origin`:** a plain `403` with no body. A browser's
+  WebSocket API cannot read the handshake status, so an envelope would tell nobody anything.
 
 ## 8. Caching, CORS and Compression
 

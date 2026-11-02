@@ -136,7 +136,7 @@ func (s *WebSockets) CloseAll(ctx context.Context) error {
 // is held until the connection closes.
 func (s *WebSockets) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	if !s.originAllowed(request) {
-		// wire-protocol.md section 7 names no code for this 403, so it has no envelope.
+		// wire-protocol.md section 7 lists this plain 403 among the responses with no envelope.
 		writer.Header()["Cache-Control"] = NoStore
 		writer.WriteHeader(http.StatusForbidden)
 
