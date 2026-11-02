@@ -111,10 +111,8 @@ describe('section 19.2, 500 kbit/s and 300 ms RTT', () => {
       streams: 6,
       plateau: 'no-gain',
       protocol: 'h2',
-      notices: [
-        { code: 'slow-link-extended', direction: 'download' },
-        { code: 'low-confidence', direction: 'download', reasons: ['ramp-unsettled'] },
-      ],
+      // The low-confidence notice comes from the direction's final confidence, not the outcome.
+      notices: [{ code: 'slow-link-extended', direction: 'download' }],
       events: [{ code: 'extended', atMs: 10_000 }],
       dataCapReached: false,
     })

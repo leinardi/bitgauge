@@ -23,8 +23,8 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { type Result, validateResult } from '@/engine/messages'
-import { downsample } from '@/engine/result/direction'
+import { type DirectionResult, type EngineEvent, type Notice, type Result, validateResult } from '@/engine/messages'
+import { directionNotices, downsample } from '@/engine/result/direction'
 import { Run } from '@/engine/run'
 import type { RunSettings } from '@/engine/settings'
 import { FakeClock } from '@/engine/test/fakeClock'
@@ -63,6 +63,8 @@ interface Options {
   resolutionMs?: number
   /** Acts on the run once, `atMs` into it. */
   at?: { atMs: number; act: (run: Run) => void }
+  /** Receives every event the run emits. */
+  events?: EngineEvent[]
 }
 
 /** Runs to the end and returns the one result the run emitted. */
@@ -77,7 +79,12 @@ async function result(options: Options = {}): Promise<Result> {
     transport,
     settings: { ...STANDARD, label: 'office', ...options.settings },
     visible: true,
-    emit: (event) => (event.type === 'result' ? results.push(event.result) : undefined),
+    emit: (event) => {
+      options.events?.push(event)
+      if (event.type === 'result') {
+        results.push(event.result)
+      }
+    },
   })
   void run.start()
   if (options.at !== undefined) {
@@ -256,13 +263,34 @@ describe('confidence', () => {
     expect(emitted.notices).toContainEqual({ code: 'low-confidence', direction: 'download', reasons: ['unstable'] })
   })
 
-  it('sets unstable from the steady window alone, after a warm-up that saw a steady link', async () => {
+  it('sets unstable from the steady window alone, after a warm-up that saw a steady link, with its notice', async () => {
     /** 1 MB/s that starts stepping only once the warm-up has ended. */
     const late: Scenario = { ...LINK, rate: (_direction, atMs) => (atMs < 6000 ? 1_000_000 : Math.floor(atMs / 1000) % 2 === 0 ? 600_000 : 1_400_000) }
-    const emitted = await result({ scenario: late })
-    expect(emitted.download?.series?.warmupEndMs).toBeLessThan(6000)
+    // The download alone, so the steps start 700 ms after a warm-up that ended normal at 5.3 s: the
+    // outcome carries no low-confidence notice, and the direction's final confidence adds it, after
+    // the extension the unstable window caused (measurement.md section 16).
+    const events: EngineEvent[] = []
+    const emitted = await result({ scenario: late, settings: { phases: ['download'] }, events })
+    expect(emitted.download?.series?.warmupEndMs).toBe(5300)
+    expect(emitted.download?.status).toBe('measured')
     expect(emitted.download?.confidence).toEqual({ level: 'low', reasons: ['unstable'] })
-    expect(emitted.notices).toContainEqual({ code: 'low-confidence', direction: 'download', reasons: ['unstable'] })
+    const notices = [
+      { code: 'slow-link-extended', direction: 'download' },
+      { code: 'low-confidence', direction: 'download', reasons: ['unstable'] },
+    ]
+    expect(emitted.notices).toEqual(notices)
+    // Live too: the download's finished event already lists it.
+    const finished = events.find((event) => event.type === 'phase' && event.phase === 'download' && event.state === 'finished')
+    expect(finished).toMatchObject({ notices })
+  })
+
+  it('gives a stopped partial direction with low confidence its notice beside stopped-early', async () => {
+    const emitted = await result({ scenario: stepping(7400), settings: { download: { minMs: 15_000, maxMs: 20_000 } }, at: { atMs: 14_000, act: (run) => run.stop() } })
+    expect(emitted.download).toMatchObject({ status: 'partial', confidence: { level: 'low', reasons: ['unstable'] } })
+    expect(emitted.notices).toEqual([
+      { code: 'low-confidence', direction: 'download', reasons: ['unstable'] },
+      { code: 'stopped-early', direction: 'download', coveredMs: emitted.download?.windowMs },
+    ])
   })
 
   it('is cpu-bound when the Worker is busy over 90 % of the steady window', async () => {
@@ -276,6 +304,35 @@ describe('confidence', () => {
     const emitted = await result({ scenario: VPN, busy: 0.95 })
     expect(emitted.upload?.confidence).toEqual({ level: 'cpu-bound', reasons: ['insufficient-samples'] })
     expect(emitted.notices.filter((notice) => notice.code === 'low-confidence')).toEqual([])
+  })
+})
+
+describe('the direction notices', () => {
+  const low: DirectionResult = { status: 'insufficient-data', streams: 1, bytes: 1, events: [], confidence: { level: 'low', reasons: ['insufficient-samples'] } }
+
+  it('adds low-confidence after the duration rule notices, whatever the status', () => {
+    const notices: Notice[] = [
+      { code: 'slow-link-extended', direction: 'upload' },
+      { code: 'insufficient-data', direction: 'upload', offer: 'extended' },
+      { code: 'rate-limited', direction: 'upload', reason: 'rate', retried: true },
+    ]
+    expect(directionNotices('upload', notices, low)).toEqual([...notices.slice(0, 2), { code: 'low-confidence', direction: 'upload', reasons: ['insufficient-samples'] }, notices[2]])
+  })
+
+  it('adds none for a cpu-bound or normal direction, or one with no confidence', () => {
+    const { confidence: _, ...none } = low
+    expect(directionNotices('upload', [], { ...low, confidence: { level: 'cpu-bound', reasons: ['insufficient-samples'] } })).toEqual([])
+    expect(directionNotices('upload', [], { ...low, confidence: { level: 'normal', reasons: [] } })).toEqual([])
+    expect(directionNotices('upload', undefined, none)).toEqual([])
+  })
+
+  it('adds none for a failed direction', () => {
+    expect(directionNotices('upload', [], { ...low, status: 'error' })).toEqual([])
+  })
+
+  it('keeps one notice, with the final reasons, when the outcome already gave one', () => {
+    const given: Notice = { code: 'low-confidence', direction: 'upload', reasons: ['ramp-unsettled'] }
+    expect(directionNotices('upload', [given], low)).toEqual([{ ...given, reasons: ['insufficient-samples'] }])
   })
 })
 

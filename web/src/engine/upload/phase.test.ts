@@ -142,10 +142,8 @@ describe('section 19.1, 300 kbit/s and 300 ms RTT', () => {
     expect(endedAt).toBeLessThanOrEqual(18_400)
     expect(outcome.status).toBe('measured')
     expect(outcome.window).toMatchObject({ sufficient: true })
-    expect(outcome.notices).toEqual([
-      { code: 'slow-link-extended', direction: 'upload' },
-      { code: 'low-confidence', direction: 'upload', reasons: ['insufficient-samples'] },
-    ])
+    // The low-confidence notice comes from the direction's final confidence, not the outcome.
+    expect(outcome.notices).toEqual([{ code: 'slow-link-extended', direction: 'upload' }])
     // Extended at the 15 s minimum, placed on the server timeline: 15 s less the 150 ms offset,
     // from P_start at 150 ms.
     expect(outcome.events).toEqual([{ code: 'extended', atMs: 14_700 }])

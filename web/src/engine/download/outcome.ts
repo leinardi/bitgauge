@@ -77,7 +77,7 @@ export interface DownloadRecord {
 
 /** The direction's status, with the events and notices of its ending. */
 function ending(record: DownloadRecord, events: DirectionEvent[], notices: Notice[]): DownloadOutcome['status'] {
-  const { reason, endMs, retention, warmup } = record
+  const { reason, endMs, retention } = record
   if (reason === 'failures') {
     return 'error'
   }
@@ -98,9 +98,6 @@ function ending(record: DownloadRecord, events: DirectionEvent[], notices: Notic
     const outcome = record.rule.outcome(record.window?.holds ?? false, reason === 'data-cap')
     status = outcome.status
     notices.push(...outcome.notices)
-  }
-  if (status === 'measured' && warmup?.confidence.level === 'low') {
-    notices.push({ code: 'low-confidence', direction: 'download', reasons: warmup.confidence.reasons })
   }
   return status
 }

@@ -129,6 +129,6 @@ export function buildResult(context: ResultContext): Result {
     ...(bufferbloat === undefined ? {} : { bufferbloat }),
     scores: scores({ idle, bufferbloat, download }),
     dataUsedBytes: report.dataUsedBytes,
-    notices: resultNotices([directionNotices(report.download?.notices, download), directionNotices(report.upload?.notices, upload), report.notices, browserUploadLimit(report.browser, report.upload, upload)], percent),
+    notices: resultNotices([directionNotices('download', report.download?.notices, download), directionNotices('upload', report.upload?.notices, upload), report.notices, browserUploadLimit(report.browser, report.upload, upload)], percent),
   }
 }

@@ -97,9 +97,6 @@ function continuousStatus(record: PhaseRecord, retention: Retention, notices: No
     }
     return 'insufficient-data'
   }
-  if (record.warmup?.confidence.level === 'low') {
-    notices.push({ code: 'low-confidence', direction: 'upload', reasons: record.warmup.confidence.reasons })
-  }
   return 'measured'
 }
 
@@ -126,9 +123,6 @@ export function uploadOutcome(record: PhaseRecord): UploadOutcome {
     const outcome = record.rule.outcome(window?.sufficient ?? false, halts.has('data-cap'))
     status = outcome.status
     notices.push(...outcome.notices)
-    if (status === 'measured' && warmup?.confidence.level === 'low') {
-      notices.push({ code: 'low-confidence', direction: 'upload', reasons: warmup.confidence.reasons })
-    }
   }
   if (halts.has('interrupted')) {
     notices.push({ code: 'upload-interrupted' })

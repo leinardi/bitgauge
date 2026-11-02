@@ -314,7 +314,7 @@ export class Run {
     this.kept ||= settled.status !== 'error'
     const tiled = tile(settled)
     const block = { ...tiled, responsiveness: this.responsiveness.settle(direction, tiled, this.clock.resolutionMs) }
-    this.measured.push(...directionNotices(settled.notices, block))
+    this.measured.push(...directionNotices(direction, settled.notices, block))
     this.event(direction, settled.status === 'error' ? 'failed' : 'finished', { streams: settled.streams, result: block })
     return settled
   }

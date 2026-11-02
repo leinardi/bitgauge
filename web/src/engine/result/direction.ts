@@ -20,7 +20,7 @@
 import type { Retention } from '@/engine/continuous/retention'
 import { savedSeries } from '@/engine/continuous/series'
 import type { DownloadOutcome } from '@/engine/download/phase'
-import type { Confidence, ConfidenceReason, DirectionResult, Notice, ResultSeries, UploadResult } from '@/engine/messages'
+import type { Confidence, ConfidenceReason, Direction, DirectionResult, Notice, ResultSeries, UploadResult } from '@/engine/messages'
 import { MAX_VARIATION, type WarmupEnd } from '@/engine/phases/warmup'
 import { windowConditionHolds, windowVariation } from '@/engine/phases/window'
 import { type Cell, percentile } from '@/engine/stats/buckets'
@@ -197,18 +197,26 @@ export function uploadResult(outcome: UploadOutcome, context: DirectionContext):
 }
 
 /**
- * The low-confidence notice follows the direction's final confidence: dropped when the level is
- * normal (the steady window dropped `unstable`, section 8.3) or cpu-bound (that level takes
- * precedence, section 16), and carrying the remaining reasons otherwise.
+ * The low-confidence notice follows the direction's final confidence (measurement.md section 16):
+ * dropped when the level is normal (the steady window dropped `unstable`, section 8.3) or cpu-bound
+ * (that level takes precedence), carrying the remaining reasons otherwise, and added to a measured,
+ * partial or insufficient-data direction, never a failed one, when the final level is low and the
+ * outcome gave none (a reason the steady window alone set, or a stopped direction). An added notice follows the outcome's notices of the duration rule,
+ * where the outcome itself would have put it.
  */
-export function directionNotices(notices: readonly Notice[] | undefined, block: DirectionResult): readonly Notice[] {
+export function directionNotices(direction: Direction, notices: readonly Notice[] | undefined, block: DirectionResult): readonly Notice[] {
   const confidence = block.confidence
-  return (notices ?? []).flatMap((notice): Notice[] => {
+  const kept = (notices ?? []).flatMap((notice): Notice[] => {
     if (notice.code !== 'low-confidence') {
       return [notice]
     }
     return confidence?.level === 'low' ? [{ ...notice, reasons: confidence.reasons }] : []
   })
+  if (block.status === 'error' || confidence?.level !== 'low' || kept.some((notice) => notice.code === 'low-confidence')) {
+    return kept
+  }
+  const after = kept.reduce((index, notice, at) => (notice.code === 'slow-link-extended' || notice.code === 'insufficient-data' ? at + 1 : index), 0)
+  return [...kept.slice(0, after), { code: 'low-confidence', direction, reasons: confidence.reasons }, ...kept.slice(after)]
 }
 
 /** Every direction's notices, then the run's, without repeats, and the compensation notice last. */
