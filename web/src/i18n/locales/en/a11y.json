@@ -61,6 +61,13 @@
       "idleJitter": "Idle latency {median}, jitter {jitter}.",
       "idleUnavailable": "Idle latency unavailable.",
       "grade": "Bufferbloat grade {grade}, {words}, plus {increase} under load.",
+      "notGraded": "Bufferbloat not graded: {reason}.",
+      "notGradedReasons": {
+        "noIdle": "no idle latency",
+        "noLoaded": "no loaded latency",
+        "noGradable": "no gradable direction",
+        "incomplete": "test incomplete"
+      },
       "grades": {
         "aPlus": "minimal bufferbloat",
         "a": "low bufferbloat",

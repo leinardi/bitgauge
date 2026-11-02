@@ -179,7 +179,7 @@ describe('the live regions', () => {
     state.apply({ type: 'result', result: resultFixture() })
     await flushPromises()
     expect(summary()).toBe(
-      'Test complete. Download 612 megabits per second. Upload 438 megabits per second. Idle latency 3.1 milliseconds, jitter 0.4 milliseconds. Data used 1.3 gigabytes.',
+      'Test complete. Download 612 megabits per second. Upload 438 megabits per second. Idle latency 3.1 milliseconds, jitter 0.4 milliseconds. Bufferbloat not graded: no loaded latency. Data used 1.3 gigabytes.',
     )
     state.begin()
     await flushPromises()

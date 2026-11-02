@@ -17,14 +17,15 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { type UngradedReason, ungradedReason } from '@/components/result/load'
 import { EXPERIENCES, type ExperienceName, experienceText, scoreBasis } from '@/components/result/qualityList'
-import { latencyStopView, noticeView } from '@/components/test/notices'
+import { latencyStopView, noticeViews } from '@/components/test/notices'
 import type { RunView } from '@/components/test/screen/states'
 import { confidenceReasons } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 import type { PhaseView } from '@/composables/useRunState'
 import type { Bufferbloat, Direction, DirectionResult, Experience, PhaseName, Responsiveness, Result, ScoreBand } from '@/engine/messages'
-import { continuousDirection } from '@/lib/continuous'
+import { continuousDirection, runPhases } from '@/lib/continuous'
 import { rpmNumber, spokenBytes, spokenLatency, spokenRate } from '@/lib/format'
 import { protocolLabel } from '@/lib/protocol'
 
@@ -214,11 +215,32 @@ function spokenGradeWords(grade: Bufferbloat['grade'], { t }: Wording): string {
   }
 }
 
-/** The grade in letter and words with the increase it rests on; null without a grade. */
+function ungradedWords(reason: UngradedReason, { t }: Wording): string {
+  switch (reason) {
+    case 'no-idle':
+      return t('a11y.summary.notGradedReasons.noIdle')
+    case 'no-loaded':
+      return t('a11y.summary.notGradedReasons.noLoaded')
+    case 'no-gradable':
+      return t('a11y.summary.notGradedReasons.noGradable')
+    case 'incomplete':
+      return t('a11y.summary.notGradedReasons.incomplete')
+  }
+}
+
+/**
+ * The grade in letter and words with the increase it rests on; without one, why, as the screen's
+ * "Not graded" says, unless the settings left out idle latency or both directions, where the screen
+ * shows no grade at all.
+ */
 function gradeSentence(result: Result, context: Wording): string | null {
   const bufferbloat = result.bufferbloat
   if (bufferbloat === undefined) {
-    return null
+    const phases = runPhases(result.settings)
+    if (!phases.includes('idle') || phases.every((phase) => phase === 'idle')) {
+      return null
+    }
+    return context.t('a11y.summary.notGraded', { reason: ungradedWords(ungradedReason(result), context) })
   }
   const increase = latency(bufferbloat.increaseMs, result.client.timerResolutionMs, context)
   return context.t('a11y.summary.grade', { grade: bufferbloat.grade, words: spokenGradeWords(bufferbloat.grade, context), increase })
@@ -304,7 +326,8 @@ function qualitySentence(result: Result, context: Wording): string | null {
 
 /**
  * The result summary of section 2.7: the status, download and upload with their qualifiers, idle
- * latency and jitter, the grade with the loaded-latency increase it rests on, the HTTP loaded
+ * latency and jitter, the grade with the loaded-latency increase it rests on (or why there is
+ * none, as the screen's "Not graded" says), the HTTP loaded
  * responsiveness and the quality scores of every ended run, data used, and the notices by
  * title. A direction the settings left out is not mentioned; a Continuous result says its one
  * direction with its run-wide minimum, maximum and "p90, last hour", and the other as not run.
@@ -314,7 +337,8 @@ function qualitySentence(result: Result, context: Wording): string | null {
 export function resultSummary(result: Result, units: Units, context: Wording, idle: { pings: number; count: number } | null = null): string {
   const { t, locale } = context
   const stop = latencyStopView(result, idle, context)
-  const titles = [...(stop === null ? [] : [stop.title]), ...result.notices.map((notice) => noticeView(notice, { ...context, result }).title)]
+  // By title as the screen shows them: a notice the screen merges, both directions' test extended, once.
+  const titles = [...(stop === null ? [] : [stop.title]), ...noticeViews(result.notices, { ...context, result }).map((view) => view.title)]
   const sentences = [
     statusSentence(result, context),
     ...directionSentences(result, units, context),

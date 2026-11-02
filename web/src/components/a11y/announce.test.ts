@@ -50,7 +50,7 @@ describe('the result summary', () => {
       'Partial result: the test was stopped early. ' +
         'Download 76.5 megabytes per second, low confidence: unstable and insufficient samples. ' +
         'Upload 54.8 megabytes per second, partial, stopped early, limited by this device\'s CPU. ' +
-        'Idle latency unavailable. Data used 512 bytes. ' +
+        'Idle latency unavailable. Bufferbloat not graded: no idle latency. Data used 512 bytes. ' +
         'Notices: Partial — stopped early · upload based on a 4.0\u00a0s steady window and Server stream limit — 1 stream.',
     )
   })
@@ -91,6 +91,32 @@ describe('the result summary', () => {
       'Test complete. Download 612 megabits per second. Upload 438 megabits per second. Idle latency 3.1 milliseconds, jitter 0.4 milliseconds. ' +
         'Bufferbloat grade C, moderate bufferbloat, plus 81 milliseconds under load. Data used 1.3 gigabytes.',
     )
+  })
+
+  it('says why there is no grade, as the screen does, and not for a run that left out idle latency', () => {
+    const base = resultFixture()
+    const { loadedLatency: _down, ...download } = base.download!
+    const { loadedLatency: _up, ...upload } = base.upload!
+    const failed = resultFixture({ status: 'error', download: { ...download, status: 'error' }, upload: { ...upload, status: 'skipped' } })
+    expect(resultSummary(failed, 'bits', wording)).toContain('Bufferbloat not graded: test incomplete.')
+    // An unavailable loaded latency on both sides leaves nothing gradable.
+    const unavailable = { status: 'unavailable', reason: 'no-steady-window', samples: 0, skippedTicks: 0, lost: 0 } as const
+    expect(resultSummary(resultFixture({ download: { ...download, loadedLatency: unavailable }, upload: { ...upload, loadedLatency: unavailable } }), 'bits', wording)).toContain(
+      'Bufferbloat not graded: no gradable direction.',
+    )
+    expect(resultSummary(resultFixture({ settings: { ...base.settings, phases: ['download', 'upload'] }, idle: undefined }), 'bits', wording)).not.toContain('graded')
+  })
+
+  it('reads the notices once each as the screen shows them, test extended once for both directions', () => {
+    const result = resultFixture({
+      bufferbloat: { grade: 'A', basis: 'download+upload', increaseMs: 3 },
+      notices: [
+        { code: 'slow-link-extended', direction: 'download' },
+        { code: 'low-confidence', direction: 'download', reasons: ['unstable'] },
+        { code: 'slow-link-extended', direction: 'upload' },
+      ],
+    })
+    expect(resultSummary(result, 'bits', wording)).toMatch(/Notices: Test extended and Low confidence\.$/u)
   })
 
   it('says less than the timer resolution for a latency below it', () => {
