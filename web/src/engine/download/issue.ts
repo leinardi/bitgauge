@@ -72,6 +72,13 @@ export async function downloadLoop(host: DownloadIssueHost, stream: number): Pro
     }
     const size = host.streams.nextSize(stream, host.options.limits.maxDownloadBytes, budget(host))
     if (size === null) {
+      // The requests in flight may hold what the cap still allows: the phase ends once they have
+      // moved it (measurement.md section 5), or the stream issues again if one failed and left some.
+      const pending = [...host.inFlight.keys()].flatMap((request) => settlement.get(request) ?? [])
+      if (pending.length > 0) {
+        await Promise.race(pending)
+        continue
+      }
       host.capped()
       return
     }
@@ -97,10 +104,15 @@ function budget(host: DownloadIssueHost): number | null {
   return dataBudget(host.options, host.read(), pending)
 }
 
+/** Each request in flight's end, after its phase has heard of it, which a capped stream waits for. */
+const settlement = new WeakMap<DownloadRequest, Promise<void>>()
+
 /** `firstChunk` is told the instant of the first chunk, which the early issue of the next watches. */
 async function request(host: DownloadIssueHost, stream: number, size: number, issuedAt: number, firstChunk: (at: number) => void): Promise<void> {
   const issued = host.streams.issue(stream, size, issuedAt)
   const controller = new AbortController()
+  const settled = deferred<void>()
+  settlement.set(issued, settled.promise)
   host.inFlight.set(issued, controller)
   const timeout = host.clock.setTimer(TIMEOUT_MS, () => controller.abort())
   let status = 0
@@ -133,4 +145,5 @@ async function request(host: DownloadIssueHost, stream: number, size: number, is
     }
   }
   host.settled(issued, complete, status, refusal)
+  settled.resolve()
 }

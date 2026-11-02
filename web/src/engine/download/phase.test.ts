@@ -495,6 +495,18 @@ describe('the data cap', () => {
     expect(outcome.notices).toContainEqual({ code: 'insufficient-data', direction: 'download', offer: null })
   })
 
+  it('moves what requests in flight hold of the budget before it ends the phase', async () => {
+    // Three streams on a fast link: the budget is soon held by requests in flight, and a stream
+    // that finds it so issues no more; the phase ends once the last of them completes.
+    const cap = 8 * MIB
+    const { outcome, transport } = await run(FAST, { dataCapBytes: cap, streams: { mode: 'fixed', fixed: 3, max: 6 } })
+    expect(outcome.dataCapReached).toBe(true)
+    expect(outcome.bytes).toBe(transport.requested.download.reduce((sum, size) => sum + size, 0))
+    expect(outcome.bytes).toBeGreaterThan(cap - SIZE_FLOOR)
+    expect(outcome.bytes).toBeLessThanOrEqual(cap)
+    expect(outcome.events).toContainEqual({ code: 'data-cap', atMs: outcome.endMs })
+  })
+
   it('shrinks a request to the budget', async () => {
     const { transport } = await run(VPN, { dataCapBytes: 100_000 })
     expect(transport.requested.download[0]).toBe(FIRST_SIZE)
