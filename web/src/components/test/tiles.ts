@@ -139,6 +139,18 @@ function insufficientReason(result: DirectionResult, input: DirectionInput, { t,
   return input.maxMs === undefined ? t('test.tiles.insufficient') : t('test.tiles.insufficientMax', { max: formatLimit(input.maxMs, locale) })
 }
 
+/** A number's confidence other than normal: CPU-bound, or low with its reasons. */
+function confidenceLines(result: DirectionResult, context: Wording): TileLine[] {
+  const { t } = context
+  if (result.confidence?.level === 'cpu-bound') {
+    return [{ text: t('test.tiles.cpuBound'), tone: 'warn' }]
+  }
+  if (result.confidence?.level === 'low') {
+    return [{ text: t('test.tiles.lowConfidence', { reasons: confidenceReasons(result.confidence.reasons, context) }), tone: 'warn' }]
+  }
+  return []
+}
+
 export function directionTile(input: DirectionInput, context: Wording): TileView {
   const { t, locale } = context
   const tile = blank(input.direction === 'download' ? t('test.tiles.download') : t('test.tiles.upload'), input.direction === 'download' ? ArrowDown : ArrowUp, SERIES[input.direction])
@@ -174,7 +186,8 @@ export function directionTile(input: DirectionInput, context: Wording): TileView
     const window = formatDuration(result.windowMs ?? 0, locale)
     const requests = 'confirmedRequests' in result && typeof result.confirmedRequests === 'number' ? result.confirmedRequests : null
     const covered = requests === null ? t('test.tiles.basedOn', { window }) : t('test.tiles.basedOnRequests', { window, n: requests })
-    return { ...tile, pill: pills.partial(t), number, unit, lines: [{ text: covered }, ...overhead] }
+    // The partial pill stands; its confidence still reads below the number (ui/screens.md section 6).
+    return { ...tile, pill: pills.partial(t), number, unit, lines: [{ text: covered }, ...confidenceLines(result, context), ...overhead] }
   }
   const failed = result.events.find((event) => event.code === 'error' && event.notice === 'upload-interrupted')
   const parts: string[] = []
@@ -185,15 +198,8 @@ export function directionTile(input: DirectionInput, context: Wording): TileView
     parts.push(t('test.tiles.streams', { n: result.streams }, result.streams))
     if (result.plateau !== undefined) parts.push(t('test.tiles.plateau', { reason: result.plateau }))
   }
-  const lines: TileLine[] = [{ text: parts.join(' · ') }]
-  let pill: TilePill | null = null
-  if (result.confidence?.level === 'cpu-bound') {
-    lines.push({ text: t('test.tiles.cpuBound'), tone: 'warn' })
-  } else if (result.confidence?.level === 'low') {
-    pill = pills.low(t)
-    lines.push({ text: t('test.tiles.lowConfidence', { reasons: confidenceReasons(result.confidence.reasons, context) }), tone: 'warn' })
-  }
-  return { ...tile, pill, number, unit, lines: [...lines, ...overhead] }
+  const pill: TilePill | null = result.confidence?.level === 'low' ? pills.low(t) : null
+  return { ...tile, pill, number, unit, lines: [{ text: parts.join(' · ') }, ...confidenceLines(result, context), ...overhead] }
 }
 
 /** Idle latency as far as it went: live while it runs, then its part of the result. */

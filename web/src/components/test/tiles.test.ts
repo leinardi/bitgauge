@@ -84,6 +84,16 @@ describe('a direction tile', () => {
     expect(text(directionTile({ direction: 'download', units: 'bits', result: result({ status: 'partial', windowMs: 3500 }) }, context))).toEqual(['based on a 3.5 s steady window'])
   })
 
+  it('keeps a stopped direction’s low or CPU-bound confidence under its partial pill', () => {
+    const low = directionTile({ direction: 'download', units: 'bits', result: result({ status: 'partial', windowMs: 3500, confidence: { level: 'low', reasons: ['unstable'] } }) }, context)
+    expect(low.pill).toEqual({ text: 'Partial — stopped early', tone: 'warn' })
+    expect(text(low)).toEqual(['based on a 3.5 s steady window', 'low confidence · unstable'])
+    expect(low.lines[1]?.tone).toBe('warn')
+    const cpu = directionTile({ direction: 'download', units: 'bits', overheadPercent: 5, result: result({ status: 'partial', windowMs: 3500, confidence: { level: 'cpu-bound', reasons: [] } }) }, context)
+    expect(cpu.pill).toEqual({ text: 'Partial — stopped early', tone: 'warn' })
+    expect(text(cpu)).toEqual(['based on a 3.5 s steady window', "limited by this device's CPU", 'includes +5.0 % overhead compensation'])
+  })
+
   it('shows no number and the reason with the bytes used for insufficient data, stopped or at its maximum', () => {
     const none = (overrides: Partial<DirectionResult>): DirectionResult => {
       const { bitsPerSecond: _rate, peakBitsPerSecond: _peak, windowMs: _window, ...rest } = result({ bytes: 142_000_000, ...overrides })
