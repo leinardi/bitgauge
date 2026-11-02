@@ -258,6 +258,14 @@ describe('the other states', () => {
     page.unmount()
   })
 
+  it('names an error result just finished as a failed test\'s, not a partial one', async () => {
+    const failed = resultFixture({ id: 'a1b2c3d4-0000-4000-8000-0000000000ab', status: 'error', label: 'Lost' })
+    const page = await open(failed.id, RESULTS, failed)
+    expect(text(page, 'not-saved')).toBe('Not saved')
+    expect(text(page, 'not-saved-reason')).toBe('Results of a failed test are not saved')
+    page.unmount()
+  })
+
   it('shows the partial result just finished as not saved, editing and Delete disabled with the reason', async () => {
     const partial = resultFixture({ id: 'a1b2c3d4-0000-4000-8000-0000000000aa', status: 'partial', label: 'Stopped' })
     const page = await open(partial.id, RESULTS, partial)

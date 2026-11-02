@@ -46,7 +46,7 @@ const unavailable = computed(() => props.save === 'unavailable')
 const keepable = computed(() => !unavailable.value && canKeep(props.result))
 const title = computed(() => {
   if (!kept.value) {
-    return t('test.bar.unsaved')
+    return props.result.status === 'error' ? t('test.bar.unsavedError') : t('test.bar.unsaved')
   }
   return t('test.bar.kept', { kind: props.result.status === 'error' ? t('test.bar.kinds.error') : t('test.bar.kinds.partial') })
 })

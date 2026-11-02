@@ -194,7 +194,8 @@ describe('the status bar of a partial or error result', () => {
 
   it.each(['partial', 'error'] as const)('says a %s result is not saved, and offers Keep in history, its JSON and Details', (status) => {
     const wrapper = mountBar({ result: { ...partial(), status }, save: null })
-    expect(wrapper.get('[role="status"]').text()).toBe('Partial results are not saved')
+    // An error result names itself, never "partial" (QA-112).
+    expect(wrapper.get('[role="status"]').text()).toBe(status === 'error' ? 'Results of a failed test are not saved' : 'Partial results are not saved')
     expect(wrapper.find('[data-testid="result-bar-time"]').exists()).toBe(false)
     expect(wrapper.find('[data-testid="result-bar-body"]').exists()).toBe(false)
     expect(wrapper.findAll('button').map((button) => button.text())).toEqual(['Keep in history', 'Download JSON'])
@@ -225,7 +226,7 @@ describe('the status bar of a partial or error result', () => {
     await flushPromises()
     expect(history.remove).toHaveBeenCalledWith([result.id])
     expect(notify).toHaveBeenLastCalledWith(expect.objectContaining({ tone: 'info', title: 'Removed from history.' }))
-    expect(wrapper.get('[role="status"]').text()).toBe('Partial results are not saved')
+    expect(wrapper.get('[role="status"]').text()).toBe(status === 'error' ? 'Results of a failed test are not saved' : 'Partial results are not saved')
     expect(wrapper.find('[data-testid="keep-in-history"]').exists()).toBe(true)
   })
 

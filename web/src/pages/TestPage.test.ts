@@ -394,7 +394,7 @@ describe('the Test screen', () => {
     expect(failure.text()).toContain('Download stopped at 6.4\u00a0s. Latency finished before the error.')
     expect(tiles(page)[0]).toContain('error · 3 requests in a row failed')
     expect(tiles(page)[2]).toContain('3.1')
-    expect(page.get('[data-testid="result-bar"]').text()).toContain('Partial results are not saved')
+    expect(page.get('[data-testid="result-bar"]').text()).toContain('Results of a failed test are not saved')
     expect(page.findAll('button').filter((button) => button.text() === 'Download JSON')).toHaveLength(1)
     const retry = page.get('[data-testid="start-button"]')
     expect(retry.text()).toContain('Retry test')

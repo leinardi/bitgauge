@@ -86,7 +86,10 @@ const notSaved = computed(() => {
   if (unavailable.value) {
     return t('result.notSaved.unavailable')
   }
-  return shown.status === 'complete' ? t('result.notSaved.failed') : t('result.notSaved.partial')
+  if (shown.status === 'complete') {
+    return t('result.notSaved.failed')
+  }
+  return shown.status === 'error' ? t('result.notSaved.error') : t('result.notSaved.partial')
 })
 
 // Keep in history's eligibility does not depend on the saved state, so the component stays mounted

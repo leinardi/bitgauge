@@ -13,6 +13,7 @@
     "notSaved": {
       "unavailable": "History unavailable · nothing is saved in this window",
       "partial": "Partial results are not saved",
+      "error": "Results of a failed test are not saved",
       "failed": "This result isn't in this browser's history"
     },
     "unavailable": {
