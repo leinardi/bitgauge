@@ -269,6 +269,24 @@ describe('gaugeInput', () => {
     expect(gaugeInput(run({ status: 'ended', result: early, live: { download: live({ gauge: 5e5 }), upload: null } }), gaugeContext)).toMatchObject({ value: 5e5, inner: null })
   })
 
+  it('reads the direction that ran when it has no number: an upload-only run stopped, or ended by the cap', () => {
+    const base = resultFixture()
+    const { bitsPerSecond: _rate, peakBitsPerSecond: _peak, ...bare } = present(base.upload)
+    const uploadOnly: Result['settings'] = { ...base.settings, phases: ['idle', 'upload'] }
+    const stopped = resultFixture({ status: 'partial', settings: uploadOnly, download: undefined, upload: { ...bare, status: 'insufficient-data', events: [{ code: 'cancelled', atMs: 900 }] } })
+    expect(gaugeInput(run({ status: 'ended', result: stopped, live: { download: null, upload: live({ gauge: 2e6 }) } }), gaugeContext)).toMatchObject({ direction: 'upload', value: 2e6, inner: null, text: { title: 'Cancelled' } })
+    const capped = resultFixture({ settings: uploadOnly, download: undefined, upload: { ...bare, status: 'insufficient-data', events: [{ code: 'data-cap', atMs: 900 }] } })
+    expect(gaugeInput(run({ status: 'ended', result: capped }), gaugeContext)).toMatchObject({ direction: 'upload', value: null, label: 'Upload', text: null })
+    // A stop during the upload after a download with insufficient data: the upload, not the
+    // download's last sample.
+    const { bitsPerSecond: _d, peakBitsPerSecond: _dp, ...downNone } = present(base.download)
+    const afterDownload = resultFixture({ status: 'partial', download: { ...downNone, status: 'insufficient-data' }, upload: { ...bare, status: 'insufficient-data', events: [{ code: 'cancelled', atMs: 900 }] } })
+    expect(gaugeInput(run({ status: 'ended', result: afterDownload, live: { download: live({ gauge: 9e7 }), upload: live({ gauge: 3e6 }) } }), gaugeContext)).toMatchObject({ direction: 'upload', value: 3e6, inner: null })
+    // Both directions ran without a number: the last of the order.
+    const neither = resultFixture({ download: { ...downNone, status: 'insufficient-data' }, upload: { ...bare, status: 'insufficient-data' } })
+    expect(gaugeInput(run({ status: 'ended', result: neither }), gaugeContext)).toMatchObject({ direction: 'upload', value: null, label: 'Upload' })
+  })
+
   it('reads Connection lost after an error, with the phase and the last thing measured', () => {
     const download = live({ gauge: 5.75e8 })
     const lost = run({ status: 'ended', live: { download, upload: null }, error: { code: 'requests-failed', phase: 'download', partial: false } })

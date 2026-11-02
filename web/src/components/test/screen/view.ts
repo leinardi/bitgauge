@@ -21,7 +21,8 @@ import { idleStopped, type RunView, screenState } from '@/components/test/screen
 import type { Wording } from '@/components/test/wording'
 import type { DirectionLive } from '@/composables/runLive'
 import type { IdleLive } from '@/composables/useRunState'
-import type { Direction, MeasuringPhase, PhaseName } from '@/engine/messages'
+import type { Direction, MeasuringPhase, PhaseName, Result } from '@/engine/messages'
+import { runPhases } from '@/lib/continuous'
 import { formatRate, latencyNumber, rateParts } from '@/lib/format'
 
 // The Test screen's gauge (ui/screens.md section 1, design_system/components/gauge.md), derived
@@ -144,6 +145,18 @@ export function offlineGauge({ t, server }: GaugeContext, nextCheckS: number | n
   return { ...NO_READING, text: { title: t('test.gauge.offline'), message, touchMessage: null, detail: null, icon: 'offline' } }
 }
 
+/** The direction a stop ended: the one with the stop event, else the phase running when it came. */
+function stoppedDirection(run: RunView, result: Result): Direction | null {
+  const stopped = (['download', 'upload'] as const).find((direction) => result[direction]?.events.some((event) => event.code === 'cancelled') === true)
+  return stopped ?? (run.phase === 'download' || run.phase === 'upload' ? run.phase : null)
+}
+
+/** The last direction of the run's order that ran, or the result's only one. */
+function lastRan(result: Result): Direction | null {
+  const order = runPhases(result.settings).filter((phase): phase is Direction => phase !== 'idle')
+  return order.filter((direction) => result[direction] !== undefined && result[direction].status !== 'skipped').at(-1) ?? null
+}
+
 /**
  * The gauge (design_system/components/gauge.md, Modes and states): Ready between runs, Connecting…
  * during the info phase, idle latency in milliseconds with the ping counter, the download rate
@@ -198,6 +211,11 @@ export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
     if (idleStopped(result)) {
       return { ...reading, mode: 'ms', value: result.idle?.medianMs ?? null, text }
     }
+    // A stop during the upload with no download number (an upload-only run, or a download with
+    // insufficient data) reads the upload: its partial value, or its last sample.
+    if (result.download?.bitsPerSecond === undefined && stoppedDirection(run, result) === 'upload') {
+      return { ...reading, direction: 'upload', value: upload ?? run.live.upload?.gauge ?? null, text }
+    }
     return { ...reading, direction: 'download', value: download, inner: upload, text }
   }
   if (result.settings.preset === 'continuous') {
@@ -211,6 +229,10 @@ export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
   const download = result.download?.bitsPerSecond ?? null
   if (download === null && upload !== null) {
     return { ...reading, direction: 'upload', value: upload, label: t('test.gauge.upload') }
+  }
+  // Without a number, the gauge names the last direction that ran, not the download by default.
+  if (download === null && lastRan(result) === 'upload') {
+    return { ...reading, direction: 'upload', value: null, label: t('test.gauge.upload') }
   }
   const innerLabel = upload === null ? null : t('test.gauge.inner', { rate: formatRate(upload, units, locale) })
   return { ...reading, direction: 'download', value: download, peak: result.download?.peakBitsPerSecond ?? null, inner: upload, label: t('test.gauge.download'), innerLabel }
