@@ -231,6 +231,17 @@ describe('the notices', () => {
 })
 
 describe('a metric tile', () => {
+  it('keeps the unit with its number, so it enters and leaves with it rather than beside the dash', () => {
+    const tile = directionTile({ direction: 'download', units: 'bits', result: { status: 'measured', bitsPerSecond: 9.41e7, streams: 2, bytes: 1, events: [] } }, context)
+    const wrapper = mountWith(MetricTile, { tile })
+    const number = wrapper.get('[data-testid="tile-number"]').element
+    const unit = wrapper.get('[data-testid="tile-unit"]').element
+    // One keyed element of the number's transition holds both (QA-107).
+    expect(unit.parentElement).toBe(number.parentElement)
+    expect(number.parentElement?.tagName).toBe('SPAN')
+    expect(number.parentElement?.children).toHaveLength(2)
+  })
+
   it('shows the number and its unit apart, and the qualifier lines in their tones', () => {
     const tile = directionTile({ direction: 'download', units: 'bits', result: { status: 'measured', bitsPerSecond: 9.41e7, streams: 2, confidence: { level: 'low', reasons: ['unstable'] }, bytes: 1, events: [] } }, context)
     const wrapper = mountWith(MetricTile, { tile })

@@ -76,19 +76,24 @@ const TONES: Record<TilePill['tone'], { pill: string; dot: string }> = {
           class="font-mono text-(length:--text-sm) leading-(--tile-value-h) font-medium text-subtle-foreground"
           data-testid="tile-word"
         >{{ tile.word }}</span>
+        <!-- The unit enters and leaves with its number, so it never sits beside the leaving dash. -->
         <span
           v-else
           :key="tile.number === null ? 'empty' : 'value'"
-          class="font-mono text-(length:--type-metric-value-compact) leading-(--lh-tight) font-medium tracking-(--tracking-metric) tabular-nums desktop:text-(length:--type-metric-value)"
-          :class="tile.number === null ? 'text-subtle-foreground' : 'text-foreground'"
-          data-testid="tile-number"
-        >{{ tile.number ?? $t('test.tiles.empty') }}</span>
+          class="flex flex-wrap items-baseline gap-1.5"
+        >
+          <span
+            class="font-mono text-(length:--type-metric-value-compact) leading-(--lh-tight) font-medium tracking-(--tracking-metric) tabular-nums desktop:text-(length:--type-metric-value)"
+            :class="tile.number === null ? 'text-subtle-foreground' : 'text-foreground'"
+            data-testid="tile-number"
+          >{{ tile.number ?? $t('test.tiles.empty') }}</span>
+          <span
+            v-if="tile.number !== null && tile.unit"
+            class="font-mono text-(length:--text-caption) text-muted-foreground"
+            data-testid="tile-unit"
+          >{{ tile.unit }}</span>
+        </span>
       </Transition>
-      <span
-        v-if="tile.number !== null && tile.unit"
-        class="font-mono text-(length:--text-caption) text-muted-foreground"
-        data-testid="tile-unit"
-      >{{ tile.unit }}</span>
     </div>
     <span
       v-for="(line, index) in tile.lines.length > 0 ? tile.lines : [EMPTY_LINE]"
