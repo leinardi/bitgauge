@@ -94,9 +94,10 @@ function stoppedAt(result: Result, direction: Direction): number | undefined {
 }
 
 /**
- * A direction's duration with its configured bounds in seconds, when the result records them: its
- * series' end; without a series (no steady window), the stop, the instant its error or the data
- * cap ended it, or its maximum when it ran to it insufficient (ui/screens.md section 2).
+ * A direction's duration with its configured bounds in seconds, when the result records them: the
+ * stop, the instant the Test screen named, when the user stopped it; else its series' end; without
+ * a series (no steady window), the instant its error or the data cap ended it, or its maximum when
+ * it ran to it insufficient (ui/screens.md section 2).
  */
 function duration(result: Result, direction: Direction, { t, locale }: Wording): string | null {
   const stopped = stoppedAt(result, direction)
@@ -104,7 +105,7 @@ function duration(result: Result, direction: Direction, { t, locale }: Wording):
   const outcome = result[direction]
   const ended = outcome?.events.flatMap((event) => (event.code === 'error' || event.code === 'data-cap' ? [event.atMs] : [])).at(0)
   const ranToMax = outcome?.status === 'insufficient-data' && bounds !== undefined && bounds.maxMs !== null ? bounds.maxMs : undefined
-  const endMs = outcome?.series?.endMs ?? stopped ?? ended ?? ranToMax
+  const endMs = stopped ?? outcome?.series?.endMs ?? ended ?? ranToMax
   if (endMs === undefined) {
     return null
   }

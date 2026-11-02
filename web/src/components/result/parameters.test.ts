@@ -101,6 +101,16 @@ describe('parameterGroups', () => {
     expect(shown['Warm-up']).toBe('Auto · ended at 6.5\u00a0s (download); upload stopped in warm-up')
   })
 
+  it('reads a direction stopped after its window by its stop instant, not its window end', () => {
+    const base = resultFixture()
+    const upload = base.upload
+    if (upload?.series === undefined) {
+      throw new Error('the fixture has an upload series')
+    }
+    const late = rows({ ...base, settings: { ...base.settings, ...BOUNDS }, upload: { ...upload, status: 'partial', series: { ...upload.series, endMs: 13_000 }, events: [{ code: 'cancelled', atMs: 14_000 }] } })
+    expect(late['Upload']).toBe('14.0\u00a0s · stopped by you · min 15 · max 25')
+  })
+
   it('reads a protocol the browser did not report as not reported', () => {
     const base = resultFixture()
     expect(rows({ ...base, client: { ...base.client, protocol: '' } })['Protocol']).toBe('not reported')
