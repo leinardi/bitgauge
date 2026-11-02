@@ -65,6 +65,13 @@ describe('chartGeometry', () => {
     expect(narrow.ticks.map((tick) => tick.text)).toEqual(['0s', '8s', '16s', '24s'])
   })
 
+  it('ticks a short axis no finer than its labels, a tenth of a second, so no label repeats', () => {
+    const short = chartGeometry({ width: 672, height: 300, xMax: 0.1, yMax: 8e8, yLabels: LABELS, xLabel: (s) => `${s}s`, compact: false })
+    expect(short.ticks.map((tick) => tick.text)).toEqual(['0s', '0.1s'])
+    const texts = chartGeometry({ width: 672, height: 300, xMax: 0.35, yMax: 8e8, yLabels: LABELS, xLabel: (s) => `${s}s`, compact: false }).ticks.map((tick) => tick.text)
+    expect(new Set(texts).size).toBe(texts.length)
+  })
+
   it('has no second scale unless given one', () => {
     expect(geometry.grid2).toEqual([])
   })

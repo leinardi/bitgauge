@@ -113,12 +113,15 @@ export interface GeometryInput {
   y2Labels?: readonly string[]
 }
 
+/** The time labels' resolution, a tenth of a second: a finer step would repeat a label. */
+const MIN_TICK_S = 0.1
+
 function tickStep(xMax: number, compact: boolean): number {
   if (compact && xMax > 20) {
     return xMax > 40 ? 18 : 8
   }
   const step = niceMax(xMax / 6)
-  return step > 0 && Number.isFinite(step) ? step : Math.max(xMax, 1)
+  return step > 0 && Number.isFinite(step) ? Math.max(step, MIN_TICK_S) : Math.max(xMax, 1)
 }
 
 const gutter = (labels: readonly string[], least: number) => Math.max(least, Math.ceil(Math.max(...labels.map((label) => label.length)) * LABEL_CHAR) + LABEL_PAD)
