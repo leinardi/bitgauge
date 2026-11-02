@@ -23,15 +23,16 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
-import { rowView } from '@/components/history/rows'
+import { type RowRate, rowView } from '@/components/history/rows'
 import type { Result } from '@/engine/messages'
 import { continuousDirection } from '@/lib/continuous'
 import { formatAgo } from '@/lib/format'
 
 // The last result line in the idle state (ui/screens.md section 1; design_system/components
 // measurement LastResult): when the latest saved result ran, its headline numbers and its label,
-// linking to its detail. One unit follows both rates when they share it; a Continuous result shows
-// the direction it ran.
+// linking to its detail. Each rate carries its qualifiers in History's words (ui/screens.md section
+// 6); one unit follows both rates when they share it and neither has a qualifier. A Continuous
+// result shows the direction it ran.
 
 const props = defineProps<{ result: Result; units: 'bits' | 'bytes' }>()
 
@@ -42,20 +43,32 @@ const { t, locale } = useI18n()
 const now = useNow({ scheduler: (tick) => useIntervalFn(tick, 60_000) })
 
 const when = computed(() => formatAgo(Date.parse(props.result.startedAt), now.value.getTime(), locale.value))
+/**
+ * A direction's number with its unit (or the number alone where the line shares the unit), then
+ * its qualifiers in History's words; without a number, its qualifiers alone, or a dash.
+ */
+function shown(rate: RowRate, unit: boolean): string {
+  const words = rate.qualifiers.join(', ')
+  if (rate.value === null) {
+    return words === '' ? '—' : words
+  }
+  const number = unit ? `${rate.value.number} ${rate.value.unit}` : rate.value.number
+  return words === '' ? number : `${number} ${words}`
+}
+
 const values = computed(() => {
   const row = rowView(props.result, props.units, { t, locale: locale.value })
   const latency = row.latency === null ? [] : [`${row.latency} ms`]
   // A Continuous result ran one direction: its run-wide average alone, named as Continuous.
   const ran = continuousDirection(props.result.settings)
   if (ran !== null) {
-    const rate = row[ran].value
-    return [`${ran === 'download' ? '↓' : '↑'} ${rate === null ? '—' : `${rate.number} ${rate.unit}`}`, t('test.lastResult.continuous'), ...latency].join(SEPARATOR)
+    return [`${ran === 'download' ? '↓' : '↑'} ${shown(row[ran], true)}`, t('test.lastResult.continuous'), ...latency].join(SEPARATOR)
   }
-  const [download, upload] = [row.download.value, row.upload.value]
-  const shared = download !== null && upload !== null && download.unit === upload.unit
-  const down = download === null ? '—' : shared ? download.number : `${download.number} ${download.unit}`
-  const up = upload === null ? '—' : `${upload.number} ${upload.unit}`
-  return [`↓ ${down}`, `↑ ${up}`, ...latency].join(SEPARATOR)
+  const { download, upload } = row
+  // One unit follows both rates only when they share it and no qualifier sits between them.
+  const plain = download.qualifiers.length === 0 && upload.qualifiers.length === 0
+  const shared = plain && download.value !== null && upload.value !== null && download.value.unit === upload.value.unit
+  return [`↓ ${shown(download, !shared)}`, `↑ ${shown(upload, true)}`, ...latency].join(SEPARATOR)
 })
 const label = computed(() => (props.result.label === '' ? '' : `${SEPARATOR}${props.result.label}`))
 </script>
