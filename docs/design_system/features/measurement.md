@@ -284,12 +284,12 @@ and protocol:
 **Data cap.** An optional limit on data used per test (default: none). Requests are sized so the cap
 is never exceeded (§3). When the remaining budget is below the 16 KiB floor at the moment a stream
 would issue its next request, that stream issues no more and the current phase ends as if its
-maximum had been reached (the window condition decides between a number and
-`insufficient data`): on download once its last request in flight has completed, so the bytes the
-budget held for them are moved (at that instant when none is in flight); on upload at that
-instant, with the grace below for the requests in flight. Remaining throughput phases are skipped,
-and the result carries the `data cap reached` notice. A direction the cap ended without a number carries no larger-preset
-offer (§8.6).
+maximum had been reached (the window condition decides between a number and `insufficient data`): on
+download once its last request in flight has completed, so the bytes the budget held for them are
+moved (at that instant when none is in flight); on upload at that instant, its requests in flight
+getting the upload grace above. Remaining throughput phases are skipped, and the result carries the
+`data cap reached` notice. A direction the cap ended without a number carries no larger-preset offer
+(§8.6).
 
 **Continuous.** A Continuous direction (§15) has no minimum, no maximum and no extension: the end
 condition is never tested, it never carries the `test extended` notice or an `extended` event, and
