@@ -28,7 +28,7 @@ import StatusPill from '@/components/status/StatusPill.vue'
 
 // The confidence and notices card (ui/screens.md section 2, kit ResultDetail.jsx): the lowest
 // confidence as a pill, then two groups, the directions' confidence and the notices, each item with
-// its icon in its tone, its title and its text.
+// its icon in its tone, its title and its text; a result without notices has no notices group.
 
 const props = defineProps<{ view: ConfidenceView }>()
 
@@ -55,9 +55,10 @@ const pill = computed(() => {
       return null
   }
 })
+// The notices group is left out when there are none, so no heading stands over an empty list.
 const groups = computed(() => [
   { key: 'confidence', title: t('result.confidence.group'), items: props.view.confidence, empty: t('result.confidence.none') },
-  { key: 'notices', title: t('result.confidence.notices'), items: props.view.notices, empty: '' },
+  ...(props.view.notices.length === 0 ? [] : [{ key: 'notices', title: t('result.confidence.notices'), items: props.view.notices, empty: '' }]),
 ])
 </script>
 

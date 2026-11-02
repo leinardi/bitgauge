@@ -118,6 +118,14 @@ describe('a stored result', () => {
     page.unmount()
   })
 
+  it('leaves out the notices group of a result without notices', async () => {
+    const quiet: Result = { ...NEWEST, notices: [] }
+    const page = await open(quiet.id, [quiet])
+    expect(page.find('[data-testid="confidence-notices"]').exists()).toBe(false)
+    expect(page.get('[data-testid="confidence-card"]').findAll('h3').map((heading) => heading.text())).toEqual(['Confidence'])
+    page.unmount()
+  })
+
   it('adds the HTTP loaded responsiveness with TM95 and the quality list to a result with them, and neither to one without', async () => {
     const withScores: Result = {
       ...NEWEST,
