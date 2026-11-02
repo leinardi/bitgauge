@@ -26,8 +26,9 @@ import type { RunView } from '@/components/test/screen/states'
 // The Test screen's two visually hidden live regions (ui/i18n-a11y.md sections 2.1 and 2.7). The
 // polite one announces the phase as it starts, a direction's headline once as it finishes, and the
 // rate at most every 5 s while running; never the gauge readout, which redraws several times a
-// second, and it is emptied as the run ends. The summary region reads the result once it is
-// ready, and is emptied as the next run starts.
+// second, and it is emptied as the run ends; a run that ends with nothing measured, no result and
+// no error, then says so. The summary region reads the result once it is ready, and is emptied as
+// the next run starts.
 // A Continuous run's direction is announced as running.
 
 const props = withDefaults(defineProps<{ run: RunView; units: 'bits' | 'bytes'; continuous?: boolean }>(), { continuous: false })
@@ -86,12 +87,17 @@ function stopRate(): void {
 
 watch(
   () => props.run.status === 'running',
-  (running) => {
+  (running, wasRunning) => {
     stopRate()
     // A run that ends, however it ends, leaves no phase in the polite region: what it said last
     // would otherwise stay there as the current state, read again by anyone browsing to it.
     cancelPending()
     live.value = ''
+    // A run that ends with neither a result nor an error, a stop before anything was measured, has
+    // no summary: once the region is emptied, it says so.
+    if (wasRunning === true && !running && props.run.result === null && props.run.error === null) {
+      announce([t('a11y.live.stoppedNothing')])
+    }
     if (running) {
       summary.value = ''
       timer = setInterval(() => {
@@ -117,9 +123,11 @@ watch(
       summary.value = ''
       return
     }
-    // The summary is the run's last message: nothing queued before it is read after it.
+    // The summary is the run's last message: nothing queued before it is read after it, and a
+    // stop's "nothing was measured" does not stay beside a result that arrived late.
     cancelPending()
     stopRate()
+    live.value = ''
     summary.value = resultSummary(result, props.units, wording.value, props.run.idle)
   },
 )

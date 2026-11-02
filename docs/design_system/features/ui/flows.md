@@ -112,8 +112,8 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    - **Branch: the user leaves or runs again without keeping it.** The result is discarded.
    - **Branch: nothing was measured yet** (stopped during info, or during idle latency with
      fewer than 5 successful samples). No result exists to keep; the screen returns to exactly
-     the first run's Idle, with no bufferbloat card and every step pending, and the polite live
-     region says "Test stopped; nothing was measured."
+     the first run's Idle, every step and the bufferbloat card pending with nothing left of the
+     stopped run, and the polite live region says "Test stopped; nothing was measured."
      ([i18n-a11y.md §2.1](i18n-a11y.md#21-live-region-for-the-gauge)).
 
 ## 5. Error Mid-Test

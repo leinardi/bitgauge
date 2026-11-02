@@ -104,7 +104,6 @@ const load = computed(() =>
       phases: shownSettings.value === null ? PENDING_STEPS.map((step) => step.phase) : runPhases(shownSettings.value),
       states: { download: run.phases.value.download.state, upload: run.phases.value.upload.state },
       responsiveness: { download: run.phases.value.download.result?.responsiveness, upload: run.phases.value.upload.result?.responsiveness },
-      stoppedEarly: run.status.value === 'idle' && run.phases.value.idle.state !== 'pending',
       pings: run.answered.value,
       // The finished idle phase's median alone: the progress median exists from the first ping.
       idleMedianMs: run.phases.value.idle.idle?.medianMs ?? null,

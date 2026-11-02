@@ -40,8 +40,6 @@ export interface LoadInput {
   states: Record<Direction, PhaseState | 'pending'>
   /** Each ended direction's HTTP loaded responsiveness, as its finished or failed phase carried it. */
   responsiveness?: Partial<Record<Direction, Responsiveness>>
-  /** A run stopped during idle latency that returned to idle: its directions never ran. */
-  stoppedEarly?: boolean
   /** Each direction's answered loaded-latency pings, whether or not the chart has placed them. */
   pings: AnsweredPings | undefined
   /**
@@ -126,8 +124,9 @@ export function loadView(input: LoadInput, context: Wording): LoadView | null {
     return null
   }
   const { result, status } = input
-  // A run that ended without a result: an error before it, or a stop during idle latency.
-  const ended = (status === 'ended' && result === null) || input.stoppedEarly === true
+  // A run that ended without a result: an error before it. A stop with nothing measured returns to
+  // Idle and reads exactly as the first run's Idle does (ui/flows.md section 4).
+  const ended = status === 'ended' && result === null
   const rows = order.map((direction): LoadRow => {
     const label = direction === 'download' ? t('result.load.during.download') : t('result.load.during.upload')
     const loaded = result?.[direction]?.loadedLatency
@@ -158,9 +157,6 @@ export function loadView(input: LoadInput, context: Wording): LoadView | null {
   }
   if (result !== null) {
     return { grade: result.bufferbloat === undefined ? ungraded(result, context) : gradeView(result, context, true), rows, responsiveness }
-  }
-  if (input.stoppedEarly === true) {
-    return { grade: { grade: null, words: t('test.load.noLoaded'), basis: '' }, rows, responsiveness }
   }
   if (ended) {
     return { grade: { grade: null, words: t('test.load.incomplete'), basis: '' }, rows, responsiveness }

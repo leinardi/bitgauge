@@ -90,14 +90,15 @@ describe('the load card of the Test screen', () => {
     ])
   })
 
-  it('reads a run stopped during idle latency as never reaching its directions', () => {
-    const view = loadView(input({ status: 'idle', stoppedEarly: true }), context)
-    expect(rows(view)).toEqual([
-      ['During download', 'Not run', null, false],
-      ['During upload', 'Not run', null, false],
+  it('reads a run stopped with nothing measured, back in Idle, exactly as the first run’s Idle', () => {
+    // The stop leaves its phase states behind; the card reads the Idle screen, not them.
+    const stopped = loadView(input({ status: 'idle', states: { download: 'skipped', upload: 'skipped' } }), context)
+    expect(stopped).toEqual(loadView(input({ status: 'idle' }), context))
+    expect(rows(stopped)).toEqual([
+      ['During download', 'Pending', null, false],
+      ['During upload', 'Pending', null, false],
     ])
-    expect(view?.grade?.words).toBe('Not graded — no loaded latency')
-    expect(view?.grade?.pending).toBeUndefined()
+    expect(stopped?.grade?.pending).toBe(true)
   })
 
   it('reads a run that ended without a result as not graded, not pending', () => {
