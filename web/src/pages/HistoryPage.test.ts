@@ -274,6 +274,31 @@ describe('the list', () => {
     await settled(() => expect(rows(page)).toHaveLength(8))
     page.unmount()
   })
+
+  it('shows 100 rows at a time, the focus on the first added, and starts again after a sort', async () => {
+    const base = RESULTS[0] as Result
+    const many = Array.from({ length: 230 }, (_, index) => ({ ...base, id: `many-${String(index).padStart(3, '0')}`, startedAt: new Date(Date.parse(base.startedAt) - index * 60_000).toISOString() }))
+    const page = await open('/history', many)
+    const more = () => page.find('[data-testid="history-more"]')
+    expect(rows(page)).toHaveLength(100)
+    // The count and the trend cover every result, not only the rows shown.
+    expect(page.get('[data-testid="history-count"]').text()).toContain('230 of 230 shown')
+    expect(more().text()).toContain('Showing 100 of 230')
+    expect(more().get('button').text()).toBe('Show 100 more')
+    await more().get('button').trigger('click')
+    await settle()
+    expect(rows(page)).toHaveLength(200)
+    expect(document.activeElement).toBe(page.findAll('[data-testid="history-row"]')[100]?.element)
+    expect(more().get('button').text()).toBe('Show 30 more')
+    await more().get('button').trigger('click')
+    await settle()
+    expect(rows(page)).toHaveLength(230)
+    expect(more().exists()).toBe(false)
+    await page.get('[data-testid="sort-download"]').trigger('click')
+    await settle()
+    expect(rows(page)).toHaveLength(100)
+    page.unmount()
+  }, 20_000)
 })
 
 describe('Compare', () => {

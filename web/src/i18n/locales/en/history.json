@@ -165,6 +165,10 @@
         "error": "Error"
       }
     },
+    "more": {
+      "showing": "Showing {shown} of {total}",
+      "button": "Show {n} more"
+    },
     "sort": {
       "label": "Sort",
       "newest": "Newest first",

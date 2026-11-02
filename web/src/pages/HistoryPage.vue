@@ -39,9 +39,10 @@ import ResultsTable from '@/components/history/ResultsTable.vue'
 import { DAY } from '@/components/history/rows'
 import SafariNotice from '@/components/history/SafariNotice.vue'
 import SelectionBar from '@/components/history/SelectionBar.vue'
+import ShowMore from '@/components/history/ShowMore.vue'
 import TrendChart from '@/components/history/TrendChart.vue'
 import { useHistory } from '@/composables/useHistory'
-import { storageUsage, useHistoryList } from '@/composables/useHistoryList'
+import { PAGE_SIZE, storageUsage, useHistoryList } from '@/composables/useHistoryList'
 import { useInfo } from '@/composables/useInfo'
 import { useSettings } from '@/composables/useSettings'
 import { NO_FILTER } from '@/history/filters'
@@ -129,6 +130,16 @@ async function clearAll(): Promise<void> {
   list.clearSelection()
   await nextTick()
   moveFocus(emptyImport.value?.$el as Element | undefined)
+}
+
+// The next rows below the list; the focus moves to the first of them, in the table or the cards,
+// whichever this width shows.
+async function showMore(): Promise<void> {
+  const first = list.shown.value.length
+  list.showMore()
+  await nextTick()
+  const rows = ['[data-testid="history-row"]', '[data-testid="history-card"] a'].map((selector) => document.querySelectorAll(selector)[first])
+  moveFocus(rows.find((row) => row !== undefined && row.getClientRects().length > 0) ?? rows[0])
 }
 
 const selectedIds = computed(() => [...list.selected.value])
@@ -288,7 +299,7 @@ watch(comparedPair, (chosen) => {
         />
         <ResultsTable
           class="hidden tablet:block"
-          :results="list.sorted.value"
+          :results="list.shown.value"
           :units="units"
           :sort-key="list.sort.value.key"
           :sort-direction="list.sort.value.direction"
@@ -311,7 +322,7 @@ watch(comparedPair, (chosen) => {
         </ResultsTable>
         <ResultCardList
           class="tablet:hidden"
-          :results="list.sorted.value"
+          :results="list.shown.value"
           :units="units"
           :sort-key="list.sort.value.key"
           :sort-direction="list.sort.value.direction"
@@ -323,6 +334,13 @@ watch(comparedPair, (chosen) => {
           @clear="list.clearSelection"
           @remove-selected="list.remove(selectedIds)"
           @compare="comparing = true"
+        />
+        <ShowMore
+          v-if="list.shown.value.length < list.sorted.value.length"
+          :shown="list.shown.value.length"
+          :total="list.sorted.value.length"
+          :step="PAGE_SIZE"
+          @more="showMore"
         />
         <ComparePanel
           v-if="comparedPair !== null"

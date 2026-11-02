@@ -190,7 +190,11 @@ parameters collapse into a disclosure.
 - **List** of results: date and time, label, context label, download, upload, idle latency,
   jitter, grade, protocol, status; every column sortable, newest first (`startedAt` descending) by
   default, the sorted column header carrying `aria-sort`; a row action menu (open, delete). On a
-  focused row, Space toggles its selection and Enter opens it.
+  focused row, Space toggles its selection and Enter opens it. The list shows the first 100
+  results of the filtered, sorted set, then "Showing 100 of 2,140" with a **Show 100 more**
+  button (fewer when fewer are left), which adds the next ones below and moves the focus to the
+  first added row. A change of filter or sort starts again from 100. The header's count, the filter chips' counts, the trend chart and export of the
+  current filter cover every filtered result, not only those shown.
 - **Filters:** chips by label and by context label, each with its count; a date range (last 7,
   30 or 90 days, each that many calendar days ending today in the browser's time zone, so the last
   30 days of Oct 8 start on Sep 9; all time; or a custom range of two date fields); a search over

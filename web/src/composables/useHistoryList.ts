@@ -27,11 +27,14 @@ import type { History } from '@/composables/useHistory'
 import { correctedQuery, DEFAULT_SORT, filterFromQuery, filterResults, type HistoryFilter, queryFromFilter, type SortDirection, type SortKey, sortResults } from '@/history/filters'
 
 // The History list's state (ui/screens.md section 3, ui/flows.md section 6): the filter, kept in
-// the query string so Back and a reload keep it; the sort, newest first by default; the selection;
-// and deletion, at once with an undo toast for 8 s. Date ranges count back from the moment the page
+// the query string so Back and a reload keep it; the sort, newest first by default; the rows shown,
+// 100 at a time; the selection; and deletion, at once with an undo toast for 8 s. Date ranges count back from the moment the page
 // opened.
 
 const FILTER_KEYS: readonly string[] = ['labels', 'contexts', 'range', 'q']
+
+/** The rows the list adds at a time (ui/screens.md section 3). */
+export const PAGE_SIZE = 100
 
 /** The direction a column sorts in when first chosen: newest, fastest and best first, text A to Z. */
 const FIRST_DIRECTION: Record<SortKey, SortDirection> = {
@@ -78,6 +81,17 @@ export function useHistoryList(history: History) {
   const sort = shallowRef(DEFAULT_SORT)
   const sorted = computed(() => sortResults(filtered.value, sort.value.key, sort.value.direction))
 
+  // The rows rendered: the first 100 of the sorted set, 100 more at a time, from 100 again after a
+  // change of filter or sort. Rendering every stored result at once takes seconds past a thousand.
+  const limit = shallowRef(PAGE_SIZE)
+  const shown = computed(() => sorted.value.slice(0, limit.value))
+  watch([filter, sort], () => {
+    limit.value = PAGE_SIZE
+  })
+  function showMore(): void {
+    limit.value += PAGE_SIZE
+  }
+
   /** A column's header: the sorted one turns around, another sorts in its first direction. */
   function sortBy(key: SortKey): void {
     const { key: current, direction } = sort.value
@@ -117,7 +131,7 @@ export function useHistoryList(history: History) {
     })
   }
 
-  return { now, filter, setFilter, filtered, sort, sorted, sortBy, selected, toggle, clearSelection, remove }
+  return { now, filter, setFilter, filtered, sort, sorted, shown, showMore, sortBy, selected, toggle, clearSelection, remove }
 }
 
 /** The storage this origin uses, where the browser can estimate it (ui/screens.md section 3). */
