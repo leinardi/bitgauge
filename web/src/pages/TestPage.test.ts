@@ -318,6 +318,59 @@ describe('the Test screen', () => {
     page.unmount()
   })
 
+  describe('the chart after a run that ends early', () => {
+    const chart = (page: Awaited<ReturnType<typeof mountApp>>) => ({
+      latency: page.find('[data-testid="latency-chart"]'),
+      throughput: page.find('[data-testid="throughput-chart"]'),
+    })
+    const base = resultFixture()
+    const { bitsPerSecond: _rate, peakBitsPerSecond: _peak, windowMs: _window, series: _series, ...bare } = present(base.download)
+
+    it('is the throughput chart, marked, after a stop before the first download bucket', async () => {
+      const { page, emit } = await started()
+      await emit(phase('info', 'finished'), phase('idle', 'finished'), phase('download', 'started'))
+      await page.get('[data-testid="start-button"]').trigger('click')
+      const download = { ...bare, status: 'insufficient-data' as const, bytes: 0, events: [{ code: 'cancelled' as const, atMs: 40 }] }
+      const result: Result = { ...base, status: 'partial', download, upload: { status: 'skipped', streams: 0, bytes: 0, events: [], confirmedRequests: 0 }, notices: [{ code: 'stopped-early', direction: 'download', coveredMs: 0 }] }
+      await emit(phase('download', 'finished'), phase('upload', 'skipped'), { type: 'result', result })
+      expect(chart(page).latency.exists()).toBe(false)
+      expect(chart(page).throughput.attributes('aria-label')).toBe('Throughput: Cancelled, stopped at 0.1 s; warm-up shaded; marked: Cancelled')
+      page.unmount()
+    })
+
+    it('is the throughput chart, marked, after an error before the first download bucket', async () => {
+      const { page, emit } = await started()
+      await emit(phase('info', 'finished'), phase('idle', 'finished'), phase('download', 'started'))
+      await emit({ type: 'error', code: 'requests-failed', messageKey: 'errors.requests-failed', phase: 'download', partial: true }, phase('download', 'failed', { ranMs: 300 }), phase('upload', 'skipped'))
+      const result = resultFixture({ status: 'error', download: { status: 'error', streams: 4, bytes: 0, events: [{ code: 'error', atMs: 300, notice: 'requests-failed' }] }, upload: { status: 'skipped', streams: 0, bytes: 0, events: [], confirmedRequests: 0 } })
+      await emit({ type: 'result', result })
+      expect(chart(page).latency.exists()).toBe(false)
+      expect(chart(page).throughput.attributes('aria-label')).toBe('Throughput: Connection lost, stopped at 0.3 s; warm-up shaded; marked: Connection lost')
+      page.unmount()
+    })
+
+    it('stays the latency chart, marked, after a stop or an error during idle latency', async () => {
+      const samples = [
+        { type: 'idle' as const, path: 'websocket' as const, phaseMs: 120, pings: 6, count: 20, rttMs: 3.2, medianMs: 3.1, minMs: 2.4, p90Ms: 4.1, jitterMs: 0.8, lossPercent: 0 },
+      ]
+      const stopped = await started()
+      await stopped.emit(phase('info', 'finished'), phase('idle', 'started'), ...samples)
+      await stopped.page.get('[data-testid="start-button"]').trigger('click')
+      await stopped.emit(phase('idle', 'finished'), phase('download', 'skipped'), phase('upload', 'skipped'), { type: 'result', result: resultFixture({ status: 'partial', download: undefined, upload: undefined }) })
+      expect(chart(stopped.page).throughput.exists()).toBe(false)
+      expect(chart(stopped.page).latency.attributes('aria-label')).toBe('Latency samples: Cancelled, stopped at 0.1 s; marked: Cancelled')
+      stopped.page.unmount()
+      StubWorker.started = []
+      const failed = await started()
+      await failed.emit(phase('info', 'finished'), phase('idle', 'started'), ...samples)
+      // An error that leaves the server's reachability alone, which the later tests rely on.
+      await failed.emit({ type: 'error', code: 'requests-failed', messageKey: 'errors.requests-failed', phase: 'idle', partial: false }, phase('idle', 'failed', { ranMs: 1200 }), phase('download', 'skipped'), phase('upload', 'skipped'))
+      expect(chart(failed.page).throughput.exists()).toBe(false)
+      expect(chart(failed.page).latency.attributes('aria-label')).toBe('Latency samples: Connection lost, stopped at 1.2 s; marked: Connection lost')
+      failed.page.unmount()
+    })
+  })
+
   it('returns to Idle when a stop leaves nothing measured', async () => {
     const { page, emit } = await started()
     await emit(phase('info', 'finished'), phase('idle', 'started'), { type: 'idle', path: 'websocket', phaseMs: 0, pings: 2, count: 20, rttMs: 3, medianMs: 3 })

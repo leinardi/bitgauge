@@ -30,7 +30,7 @@ import { PENDING_STEPS, PING_SPACING_MS, type RunView, type ScreenState } from '
 import { type GaugeContext, type GaugeInput, gaugeReadout } from '@/components/test/screen/view'
 import StartButton from '@/components/test/StartButton.vue'
 import type { PhaseStep } from '@/components/test/steps'
-import { shownEvents } from '@/composables/runLive'
+import { type DirectionLive, shownEvents } from '@/composables/runLive'
 import type { LatencyPoint } from '@/composables/useRunState'
 import type { Direction, TestSettings } from '@/engine/messages'
 import { runPhases } from '@/lib/continuous'
@@ -61,6 +61,10 @@ const props = defineProps<{
 const gaugeWindow = defineModel<number>('window', { required: true })
 const emit = defineEmits<{ press: []; refresh: [] }>()
 
+/** A throughput bucket, as the live series counts it (measurement.md section 7). */
+const BUCKET_MS = 100
+const EMPTY_LIVE: DirectionLive = { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, continuous: null, warmupEnd: null, start: null, sendingTrace: [], streams: 0, phaseMs: 0 }
+
 const running = computed(() => props.state === 'running')
 const shown = computed(() => props.state !== 'idle')
 const readout = computed(() => gaugeReadout(props.gauge, props.gaugeContext))
@@ -84,7 +88,25 @@ const mode = computed(() => {
 
 // The chart shows the current run, or the last one until the next starts; nothing between runs.
 const order = computed(() => (props.settings === null ? PENDING_STEPS.map((step) => step.phase) : runPhases(props.settings)).filter((phase): phase is Direction => phase !== 'idle'))
-const chartLive = computed(() => (props.state === 'idle' ? { download: null, upload: null } : props.view.live))
+const started = (direction: Direction) => props.view.phases[direction].state !== 'pending' && props.view.phases[direction].state !== 'skipped'
+// A bounded direction that ended, by a stop or an error, before its first bucket has no live series:
+// one of unknown buckets up to where it ended puts the throughput chart's axis under it, so its
+// mark sits where the direction stopped and nothing is drawn as measured.
+function endedLive(direction: Direction): DirectionLive {
+  const times = (props.view.result?.[direction]?.events ?? []).map((event) => ('atMs' in event ? event.atMs : event.endMs))
+  const ended = Math.max(props.view.phases[direction].ranMs ?? 0, ...times)
+  return { ...EMPTY_LIVE, values: Array.from({ length: Math.ceil(ended / BUCKET_MS) }, () => null) }
+}
+const chartLive = computed((): Record<Direction, DirectionLive | null> => {
+  if (props.state === 'idle') {
+    return { download: null, upload: null }
+  }
+  const { live } = props.view
+  if (props.state === 'running' || (props.view.continuous ?? null) !== null) {
+    return live
+  }
+  return { download: live.download ?? (started('download') ? endedLive('download') : null), upload: live.upload ?? (started('upload') ? endedLive('upload') : null) }
+})
 const chartEvents = computed(() => shownEvents(chartLive.value, props.view.result))
 const chartState = computed(() => {
   switch (props.state) {
@@ -98,8 +120,10 @@ const chartState = computed(() => {
       return 'stopped'
   }
 })
-// During idle latency, and after a run that ended there, the chart is the latency samples chart.
-const latencyChart = computed(() => shown.value && order.value.every((direction) => chartLive.value[direction] === null) && (props.view.phase === 'idle' || props.latency.length > 0))
+// During idle latency, and after a run that ended there, the chart is the latency samples chart:
+// only while no throughput direction has started, so a stop or an error once the download started,
+// even before its first bucket, shows the throughput chart with its mark.
+const latencyChart = computed(() => shown.value && !order.value.some(started) && (props.view.phase === 'idle' || props.latency.length > 0))
 const latencyMark = computed(() => (props.state === 'cancelled' || props.state === 'error' ? props.state : null))
 </script>
 
