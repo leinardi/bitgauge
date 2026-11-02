@@ -55,7 +55,7 @@ function choose(value: unknown): void {
   emit('sort', { key, direction })
 }
 
-const rows = computed(() => props.results.map((result) => rowView(result, props.units, locale.value)))
+const rows = computed(() => props.results.map((result) => rowView(result, props.units, { t, locale: locale.value })))
 </script>
 
 <template>

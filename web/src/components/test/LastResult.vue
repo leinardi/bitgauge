@@ -43,17 +43,18 @@ const now = useNow({ scheduler: (tick) => useIntervalFn(tick, 60_000) })
 
 const when = computed(() => formatAgo(Date.parse(props.result.startedAt), now.value.getTime(), locale.value))
 const values = computed(() => {
-  const row = rowView(props.result, props.units, locale.value)
+  const row = rowView(props.result, props.units, { t, locale: locale.value })
   const latency = row.latency === null ? [] : [`${row.latency} ms`]
   // A Continuous result ran one direction: its run-wide average alone, named as Continuous.
   const ran = continuousDirection(props.result.settings)
   if (ran !== null) {
-    const rate = row[ran]
+    const rate = row[ran].value
     return [`${ran === 'download' ? '↓' : '↑'} ${rate === null ? '—' : `${rate.number} ${rate.unit}`}`, t('test.lastResult.continuous'), ...latency].join(SEPARATOR)
   }
-  const shared = row.download !== null && row.upload !== null && row.download.unit === row.upload.unit
-  const down = row.download === null ? '—' : shared ? row.download.number : `${row.download.number} ${row.download.unit}`
-  const up = row.upload === null ? '—' : `${row.upload.number} ${row.upload.unit}`
+  const [download, upload] = [row.download.value, row.upload.value]
+  const shared = download !== null && upload !== null && download.unit === upload.unit
+  const down = download === null ? '—' : shared ? download.number : `${download.number} ${download.unit}`
+  const up = upload === null ? '—' : `${upload.number} ${upload.unit}`
   return [`↓ ${down}`, `↑ ${up}`, ...latency].join(SEPARATOR)
 })
 const label = computed(() => (props.result.label === '' ? '' : `${SEPARATOR}${props.result.label}`))

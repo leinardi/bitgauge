@@ -21,7 +21,9 @@
 
 // Compare's wording (ui/screens.md section 3): A is the older result, rates
 // within ±2 % of A's and latencies within 1 ms read same, grades compare by order, an absent value is
-// not comparable, and the warning names a different preset, protocol or label.
+// not comparable, and the warning names a different preset, protocol, label or overhead
+// compensation. A speed carries its qualifiers, and a different compensation makes the speeds not
+// comparable.
 
 import { describe, expect, it } from 'vitest'
 
@@ -32,6 +34,8 @@ import { continuousResult } from '@/test/continuous'
 import { resultFixture } from '@/test/fixtures'
 
 const t = createAppI18n('', ['en']).global.t as unknown as Parameters<typeof compare>[4]
+/** The text with the number formats' non-breaking spaces as plain ones. */
+const plain = (text: string | undefined) => text?.replace(/[\u00a0\u202f]/gu, ' ')
 
 describe('the thresholds', () => {
   it('reads a rate within ±2 % of A as the same, and higher as better', () => {
@@ -131,6 +135,38 @@ describe('the pair', () => {
     expect(comparison.parameters.find((row) => row.key === 'protocol')?.differs).toBe('apart')
     expect(comparison.parameters.find((row) => row.key === 'browser')?.differs).toBeNull()
     expect(compare(older, newer, 'bits', 'en', t).warning).toBeNull()
+  })
+
+  it('names a different overhead compensation and reads the speeds not comparable, each with its qualifier', () => {
+    const b = { ...newer, settings: { ...newer.settings, overheadCompensationPercent: 5 } }
+    expect(differences(older, b)).toEqual(['overhead'])
+    const comparison = compare(older, b, 'bits', 'en', t)
+    const overhead = comparison.parameters.find((row) => row.key === 'overhead')
+    expect([overhead?.name, plain(overhead?.a), plain(overhead?.b), overhead?.differs]).toEqual(['Overhead compensation', 'None · 0 %', '+5.0 %', 'apart'])
+    expect(plain(comparison.warning ?? '')).toBe('different overhead compensation (None · 0 % vs +5.0 %)')
+    const row = (key: string) => comparison.metrics.find((item) => item.key === key)
+    for (const key of ['download', 'upload', 'peakDownload', 'peakUpload']) {
+      expect(row(key)?.verdict).toBe('not-comparable')
+      expect(row(key)?.change).toBeUndefined()
+      expect(plain(row(key)?.b)).toContain('(+5.0 % overhead compensation)')
+    }
+    expect(row('download')?.a).not.toContain('(')
+    expect(row('idle')?.verdict).toBe('same')
+    const text = plain(comparisonText(comparison, { a: 'A side', b: 'B side' }, t))
+    expect(text).toContain('Not directly comparable: different overhead compensation (None · 0 % vs +5.0 %)')
+    expect(text).toContain('Download: 612 Mbit/s → 612 Mbit/s (+5.0 % overhead compensation) (not comparable)')
+  })
+
+  it('reads insufficient data, an error, a partial and a CPU-bound speed through their qualifiers', () => {
+    const { bitsPerSecond: _down, ...bareDown } = older.download!
+    const { bitsPerSecond: _up, ...bareUp } = older.upload!
+    const a = { ...older, status: 'error' as const, download: { ...bareDown, status: 'insufficient-data' as const }, upload: { ...bareUp, status: 'error' as const } }
+    const b = { ...newer, status: 'partial' as const, download: { ...newer.download!, status: 'partial' as const, confidence: { level: 'cpu-bound' as const, reasons: [] } } }
+    const comparison = compare(a, b, 'bits', 'en', t)
+    const row = (key: string) => comparison.metrics.find((item) => item.key === key)
+    const cells = (key: string) => [plain(row(key)?.a), plain(row(key)?.b), row(key)?.verdict]
+    expect(cells('download')).toEqual(['— (insufficient data)', "612 Mbit/s (partial; limited by this device's CPU)", 'not-comparable'])
+    expect(cells('upload')).toEqual(['— (error)', '438 Mbit/s', 'not-comparable'])
   })
 
   it('copies as text with the same rows', () => {

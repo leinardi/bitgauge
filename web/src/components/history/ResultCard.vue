@@ -26,7 +26,6 @@ import GradeBadge from '@/components/history/GradeBadge.vue'
 import ResultStatusPill from '@/components/history/ResultStatusPill.vue'
 import RowActions from '@/components/history/RowActions.vue'
 import type { RowView } from '@/components/history/rows'
-import StatusPill from '@/components/status/StatusPill.vue'
 
 // A stored result as a card on narrow screens (ui/screens.md section 3, responsive notes; kit
 // History.jsx): its selection, then the label, date, protocol and grade over download, upload and
@@ -38,6 +37,8 @@ const emit = defineEmits<{ toggle: []; open: []; remove: [] }>()
 const { t } = useI18n()
 const DASH = '—'
 const SEPARATOR = ' · '
+// A speed's qualifiers, a muted caption under it in the tiles' qualifier type.
+const CAPTION = 'font-mono text-(length:--text-micro) leading-(--lh-compact) text-subtle-foreground text-pretty'
 const name = computed(() => (props.row.label === '' ? t('history.table.noLabel') : props.row.label))
 </script>
 
@@ -83,10 +84,6 @@ const name = computed(() => (props.row.label === '' ? t('history.table.noLabel')
           >{{ name }}</span>
           <span class="font-mono text-(length:--text-micro) text-subtle-foreground"><time :datetime="row.startedAt">{{ row.date }}</time>{{ row.protocol === '' ? '' : `${SEPARATOR}${row.protocol}` }}</span>
         </span>
-        <StatusPill
-          v-if="row.lowConfidence"
-          tone="warn"
-        >{{ t('history.table.lowConfidence') }}</StatusPill>
         <ResultStatusPill
           v-if="row.status !== 'complete'"
           :status="row.status"
@@ -97,25 +94,39 @@ const name = computed(() => (props.row.label === '' ? t('history.table.noLabel')
         />
       </span>
       <span class="grid grid-cols-3 gap-2 font-mono text-(length:--text-sm)">
-        <span class="flex items-center gap-1">
-          <ArrowDown
-            :size="12"
-            :stroke-width="2.25"
-            aria-hidden="true"
-            class="text-primary-text"
-          />
-          {{ row.download?.number ?? DASH }}
-          <span class="text-(length:--text-nano) whitespace-nowrap text-subtle-foreground">{{ row.download?.unit }}</span>
+        <span class="flex flex-col gap-0.5">
+          <span class="flex items-center gap-1">
+            <ArrowDown
+              :size="12"
+              :stroke-width="2.25"
+              aria-hidden="true"
+              class="text-primary-text"
+            />
+            {{ row.download.value?.number ?? DASH }}
+            <span class="text-(length:--text-nano) whitespace-nowrap text-subtle-foreground">{{ row.download.value?.unit }}</span>
+          </span>
+          <span
+            v-if="row.download.qualifiers.length > 0"
+            :class="CAPTION"
+            data-testid="rate-qualifiers"
+          >{{ row.download.qualifiers.join(SEPARATOR) }}</span>
         </span>
-        <span class="flex items-center gap-1">
-          <ArrowUp
-            :size="12"
-            :stroke-width="2.25"
-            aria-hidden="true"
-            class="text-(--series-upload)"
-          />
-          {{ row.upload?.number ?? DASH }}
-          <span class="text-(length:--text-nano) whitespace-nowrap text-subtle-foreground">{{ row.upload?.unit }}</span>
+        <span class="flex flex-col gap-0.5">
+          <span class="flex items-center gap-1">
+            <ArrowUp
+              :size="12"
+              :stroke-width="2.25"
+              aria-hidden="true"
+              class="text-(--series-upload)"
+            />
+            {{ row.upload.value?.number ?? DASH }}
+            <span class="text-(length:--text-nano) whitespace-nowrap text-subtle-foreground">{{ row.upload.value?.unit }}</span>
+          </span>
+          <span
+            v-if="row.upload.qualifiers.length > 0"
+            :class="CAPTION"
+            data-testid="rate-qualifiers"
+          >{{ row.upload.qualifiers.join(SEPARATOR) }}</span>
         </span>
         <span class="flex items-center gap-1">
           <Activity

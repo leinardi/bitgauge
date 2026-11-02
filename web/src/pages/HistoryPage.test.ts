@@ -111,7 +111,7 @@ describe('the states', () => {
     expect(page.get('[data-testid="origin-notice"]').text()).toContain(`Stored only in this browser, for ${window.location.origin}`)
     expect(rows(page)).toHaveLength(8)
     expect(rows(page)[0]).toContain('VPN via 5G')
-    expect(rows(page)[0]).toContain('Low confidence')
+    expect(rows(page)[0]).toContain('low confidence: unstable')
     expect(rows(page)[0]).toContain('640')
     expect(page.get('[aria-sort="descending"]').text()).toBe('Date')
     expect(page.findAll('[aria-sort="none"]')).toHaveLength(9)

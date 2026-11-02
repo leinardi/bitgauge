@@ -19,9 +19,10 @@
 
 import { gradeWord } from '@/components/history/rows'
 import { sourceName } from '@/components/result/load'
+import { directionQualifiers, type Qualifier } from '@/components/result/qualifiers'
 import type { Wording } from '@/components/test/wording'
-import type { Confidence, Direction } from '@/engine/messages'
-import { formatPercent, latencyNumber, rateParts } from '@/lib/format'
+import type { Direction } from '@/engine/messages'
+import { latencyNumber, rateParts } from '@/lib/format'
 import type { ShareContent, ShareRate } from '@/share/content'
 
 // The share's words (ui/flows.md section 8, share-panel.md "Share image layout"): the image's parts
@@ -31,13 +32,9 @@ import type { ShareContent, ShareRate } from '@/share/content'
 // one-direction basis after its words. The image and the text say the same things, which the share
 // panel previews before anything leaves.
 
-/** How a qualifier reads: muted, or the warning or danger tone. */
-export type QualifierTone = 'muted' | 'warn' | 'danger'
+export type { QualifierTone } from '@/components/result/qualifiers'
 
-export interface ShareQualifier {
-  text: string
-  tone: QualifierTone
-}
+export type ShareQualifier = Qualifier
 
 export interface ShareBlock {
   direction: Direction
@@ -65,56 +62,12 @@ export interface ShareView {
 
 const DASH = '—'
 
-function reasonWord(reason: Confidence['reasons'][number], { t }: Wording): string {
-  switch (reason) {
-    case 'ramp-unsettled':
-      return t('share.qualifiers.reasons.rampUnsettled')
-    case 'insufficient-samples':
-      return t('share.qualifiers.reasons.insufficientSamples')
-    case 'unstable':
-      return t('share.qualifiers.reasons.unstable')
-  }
-}
-
-function statusQualifier(rate: ShareRate, { t }: Wording): ShareQualifier | null {
-  switch (rate.status) {
-    // A partial direction without a number, stopped before a confirmed steady window, has insufficient data.
-    case 'partial':
-      return rate.bitsPerSecond === null ? { text: t('share.qualifiers.insufficient'), tone: 'warn' } : { text: t('share.qualifiers.partial'), tone: 'muted' }
-    case 'insufficient-data':
-      return { text: t('share.qualifiers.insufficient'), tone: 'warn' }
-    case 'skipped':
-      return { text: t('share.qualifiers.skipped'), tone: 'muted' }
-    case 'error':
-      return { text: t('share.qualifiers.error'), tone: 'danger' }
-    case 'measured':
-      return null
-  }
-}
-
-function confidenceQualifier(confidence: NonNullable<ShareRate['confidence']>, wording: Wording): ShareQualifier {
-  const { t } = wording
-  if (confidence.level === 'cpu-bound') {
-    return { text: t('share.qualifiers.cpuBound'), tone: 'warn' }
-  }
-  const reasons = confidence.reasons.map((reason) => reasonWord(reason, wording))
-  return { text: reasons.length === 0 ? t('share.qualifiers.lowConfidence') : t('share.qualifiers.lowConfidenceReasons', { reasons: reasons.join(', ') }), tone: 'warn' }
-}
-
 function block(direction: Direction, rate: ShareRate, content: ShareContent, units: 'bits' | 'bytes', wording: Wording): ShareBlock {
   const { t, locale } = wording
   const label = direction === 'download' ? t('share.image.download') : t('share.image.upload')
-  const status = statusQualifier(rate, wording)
-  const qualifiers = status === null ? [] : [status]
+  const qualifiers = directionQualifiers(rate, content.overheadPercent, wording)
   if (rate.bitsPerSecond === null) {
     return { direction, label, value: DASH, unit: '', qualifiers }
-  }
-  // Confidence and overhead compensation qualify a number, so only a block with one carries them.
-  if (rate.confidence !== null) {
-    qualifiers.push(confidenceQualifier(rate.confidence, wording))
-  }
-  if (content.overheadPercent > 0) {
-    qualifiers.push({ text: t('share.overhead', { percent: formatPercent(content.overheadPercent, locale) }), tone: 'muted' })
   }
   const { number, unit } = rateParts(rate.bitsPerSecond, units, locale)
   return { direction, label, value: number, unit, qualifiers }

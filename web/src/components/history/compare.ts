@@ -20,11 +20,13 @@
 import type { useI18n } from 'vue-i18n'
 
 import { gradeWord } from '@/components/history/rows'
-import { browserText, directions } from '@/components/result/parameters'
+import { browserText, directions, overheadText } from '@/components/result/parameters'
+import { directionQualifiers, qualifiedRate } from '@/components/result/qualifiers'
 import { bandName, EXPERIENCES, experienceName } from '@/components/result/qualityList'
 import { presetName } from '@/components/settings/changes'
 import type { Bufferbloat, Direction, DirectionResult, Responsiveness, Result, ScoreBand } from '@/engine/messages'
 import { formatBytes, formatDuration, formatLatency, formatPercent, formatRate, rpmNumber } from '@/lib/format'
+import { runPhases } from '@/lib/continuous'
 import { protocolLabel } from '@/lib/protocol'
 
 // Compare two results (ui/screens.md section 3, ui/flows.md section 6): the
@@ -32,7 +34,9 @@ import { protocolLabel } from '@/lib/protocol'
 // and a latency within 1 ms of A's read "same"; grades compare by their order, A+ best; any other
 // difference is better or worse. A metric absent on either side is not comparable. Probe timeouts,
 // data used and duration show both values without a judgment. The results are not directly
-// comparable when they differ in preset, protocol or label. The HTTP loaded responsiveness of each
+// comparable when they differ in preset, protocol, label or overhead compensation; a speed cell
+// carries its direction's qualifiers, and the speed rows read not comparable when the overhead
+// compensation differs, since their change would be the compensation's. The HTTP loaded responsiveness of each
 // direction compares its RPM as a rate is, only when both sides are measured, and each
 // quality-score experience compares by band order, great best.
 
@@ -91,7 +95,7 @@ export function bandChange(a: ScoreBand | undefined, b: ScoreBand | undefined): 
   return order === 0 ? 'same' : order > 0 ? 'better' : 'worse'
 }
 
-export type Difference = 'preset' | 'protocol' | 'label'
+export type Difference = 'preset' | 'protocol' | 'label' | 'overhead'
 
 /** What keeps the two from being directly comparable, in that order. */
 export function differences(a: Result, b: Result): Difference[] {
@@ -100,6 +104,7 @@ export function differences(a: Result, b: Result): Difference[] {
     // By label, so an empty token and `unknown`, both not reported, are no difference.
     ['protocol', protocolLabel(a.client.protocol) ?? '', protocolLabel(b.client.protocol) ?? ''],
     ['label', a.label, b.label],
+    ['overhead', String(a.settings.overheadCompensationPercent), String(b.settings.overheadCompensationPercent)],
   ]
   return kinds.filter(([, x, y]) => x !== y).map(([kind]) => kind)
 }
@@ -185,7 +190,15 @@ function loadedQualityRows(a: Result, b: Result, locale: string, t: Translate): 
 
 export function compare(x: Result, y: Result, units: 'bits' | 'bytes', locale: string, t: Translate): Comparison {
   const [a, b] = pair(x, y)
-  const rate = (value: number | undefined) => (value === undefined ? DASH : formatRate(value, units, locale))
+  const wording = { t, locale }
+  // A speed with its direction's qualifiers, so insufficient data, an error or a partial number
+  // reads as such rather than as a bare dash.
+  const rate = (value: number | undefined, result: Result, direction: Direction) => {
+    const text = value === undefined ? DASH : formatRate(value, units, locale)
+    const part = result[direction]
+    const qualifiers = part === undefined || !runPhases(result.settings).includes(direction) ? [] : directionQualifiers(qualifiedRate(part), result.settings.overheadCompensationPercent, wording)
+    return qualifiers.length === 0 ? text : t('history.compare.qualified', { value: text, qualifiers: qualifiers.map((qualifier) => qualifier.text).join('; ') })
+  }
   const latency = (value: number | undefined, result: Result) => (value === undefined ? DASH : formatLatency(value, locale, result.client.timerResolutionMs))
   const signed = (value: number, text: string) => `${value > 0 ? '+' : value < 0 ? '−' : '±'}${text}`
 
@@ -211,13 +224,19 @@ export function compare(x: Result, y: Result, units: 'bits' | 'bytes', locale: s
     parameter('protocol', t('history.compare.protocol'), (result) => protocolLabel(result.client.protocol) ?? t('result.parameters.protocolNotReported'), true),
     parameter('streams', t('history.compare.streams'), streams),
     parameter('cap', t('history.compare.cap'), cap),
+    parameter('overhead', t('result.parameters.overhead'), (result) => overheadText(result.settings.overheadCompensationPercent, wording), true),
     parameter('browser', t('history.compare.browser'), browser),
   ]
 
-  const rateRow = (key: string, name: string, of: (result: Result) => number | undefined): CompareRow => {
+  const compensated = kinds.includes('overhead')
+  const rateRow = (key: string, name: string, direction: Direction, of: (result: Result) => number | undefined): CompareRow => {
+    const [ra, rb] = [rate(of(a), a, direction), rate(of(b), b, direction)]
+    if (compensated) {
+      return { key, name, a: ra, b: rb, verdict: 'not-comparable' }
+    }
     const change = rateChange(of(a), of(b))
     const percent = change.percent === undefined ? undefined : signed(change.percent, formatPercent(Math.abs(change.percent), locale))
-    return { key, name, a: rate(of(a)), b: rate(of(b)), verdict: change.verdict, ...(percent === undefined ? {} : { change: percent }) }
+    return { key, name, a: ra, b: rb, verdict: change.verdict, ...(percent === undefined ? {} : { change: percent }) }
   }
   const latencyRow = (key: string, name: string, of: (result: Result) => number | undefined): CompareRow => {
     const change = latencyChange(of(a), of(b))
@@ -231,10 +250,10 @@ export function compare(x: Result, y: Result, units: 'bits' | 'bytes', locale: s
   }
   const loss = (result: Result) => (result.idle === undefined ? DASH : formatPercent(result.idle.lossPercent, locale))
   const metrics: CompareRow[] = [
-    rateRow('download', t('history.compare.download'), (result) => result.download?.bitsPerSecond),
-    rateRow('upload', t('history.compare.upload'), (result) => result.upload?.bitsPerSecond),
-    rateRow('peakDownload', t('history.compare.peakDownload'), (result) => result.download?.peakBitsPerSecond),
-    rateRow('peakUpload', t('history.compare.peakUpload'), (result) => result.upload?.peakBitsPerSecond),
+    rateRow('download', t('history.compare.download'), 'download', (result) => result.download?.bitsPerSecond),
+    rateRow('upload', t('history.compare.upload'), 'upload', (result) => result.upload?.bitsPerSecond),
+    rateRow('peakDownload', t('history.compare.peakDownload'), 'download', (result) => result.download?.peakBitsPerSecond),
+    rateRow('peakUpload', t('history.compare.peakUpload'), 'upload', (result) => result.upload?.peakBitsPerSecond),
     latencyRow('idle', t('history.compare.idle'), (result) => result.idle?.medianMs),
     latencyRow('jitter', t('history.compare.jitter'), (result) => result.idle?.jitterMs),
     latencyRow('loadedDownload', t('history.compare.loadedDownload'), (result) => loaded(result.download)),
@@ -248,7 +267,16 @@ export function compare(x: Result, y: Result, units: 'bits' | 'bytes', locale: s
 
   const different = (row: CompareRow) => {
     const values = { a: row.a, b: row.b }
-    return row.key === 'label' ? t('history.compare.differentLabel', values) : row.key === 'preset' ? t('history.compare.differentPreset', values) : t('history.compare.differentProtocol', values)
+    switch (row.key) {
+      case 'label':
+        return t('history.compare.differentLabel', values)
+      case 'preset':
+        return t('history.compare.differentPreset', values)
+      case 'overhead':
+        return t('history.compare.differentOverhead', values)
+      default:
+        return t('history.compare.differentProtocol', values)
+    }
   }
   const apart = parameters.filter((row) => row.differs === 'apart' && kinds.includes(row.key as Difference))
   const warning = apart.length === 0 ? null : apart.map(different).join('; ')

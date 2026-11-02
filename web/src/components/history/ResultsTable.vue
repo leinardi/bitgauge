@@ -26,7 +26,6 @@ import GradeBadge from '@/components/history/GradeBadge.vue'
 import ResultStatusPill from '@/components/history/ResultStatusPill.vue'
 import RowActions from '@/components/history/RowActions.vue'
 import { rowView } from '@/components/history/rows'
-import StatusPill from '@/components/status/StatusPill.vue'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { Result } from '@/engine/messages'
@@ -56,7 +55,7 @@ const columns = computed(() => [
   { key: 'grade' as const, label: t('history.table.columns.grade'), numeric: false },
 ])
 
-const rows = computed(() => props.results.map((result) => rowView(result, props.units, locale.value)))
+const rows = computed(() => props.results.map((result) => rowView(result, props.units, { t, locale: locale.value })))
 
 function ariaSort(key: SortKey): 'ascending' | 'descending' | 'none' {
   return key === props.sortKey ? props.sortDirection : 'none'
@@ -84,6 +83,10 @@ const HEAD = 'sticky top-0 h-auto bg-(--surface-2) px-3.5 py-2.5 font-(family-na
 const CELL = 'px-3.5 py-(--density-cell-padding-y) text-(length:--text-sm)'
 const NUMBER = 'text-right font-mono tabular-nums whitespace-nowrap'
 const UNIT = 'text-(length:--text-micro) text-subtle-foreground'
+// A speed's qualifiers, a muted caption under it in the tiles' qualifier type, sized to the column
+// the number sets so a long caption wraps rather than widening it.
+const CAPTION = 'block w-0 min-w-full font-mono text-(length:--text-micro) leading-(--lh-compact) whitespace-normal text-subtle-foreground text-pretty'
+const SEPARATOR = ' · '
 // The kit's context pill (History.jsx, a neutral .pill at the small pill height): its icon and name.
 const CONTEXT =
   'inline-flex h-(--pill-h-sm) items-center gap-1 rounded-full border border-(--border-default) bg-(--surface-3) pr-2.5 pl-2 font-(family-name:--font-cond) text-(length:--text-micro) leading-none font-semibold tracking-(--tracking-caps-tight) whitespace-nowrap text-muted-foreground uppercase'
@@ -160,10 +163,6 @@ const contextIcon = (context: string) => (context === 'LAN' ? House : context ==
                 :class="{ 'text-subtle-foreground': row.label === '' }"
                 @click.stop
               >{{ name(row.label) }}</RouterLink>
-              <StatusPill
-                v-if="row.lowConfidence"
-                tone="warn"
-              >{{ t('history.table.lowConfidence') }}</StatusPill>
             </span>
           </TableCell>
           <TableCell :class="[CELL, 'text-muted-foreground']">
@@ -190,10 +189,20 @@ const contextIcon = (context: string) => (context === 'LAN' ? House : context ==
             <ResultStatusPill :status="row.status" />
           </TableCell>
           <TableCell :class="[CELL, NUMBER]">
-            {{ row.download?.number ?? DASH }} <span :class="UNIT">{{ row.download?.unit }}</span>
+            {{ row.download.value?.number ?? DASH }} <span :class="UNIT">{{ row.download.value?.unit }}</span>
+            <span
+              v-if="row.download.qualifiers.length > 0"
+              :class="CAPTION"
+              data-testid="rate-qualifiers"
+            >{{ row.download.qualifiers.join(SEPARATOR) }}</span>
           </TableCell>
           <TableCell :class="[CELL, NUMBER]">
-            {{ row.upload?.number ?? DASH }} <span :class="UNIT">{{ row.upload?.unit }}</span>
+            {{ row.upload.value?.number ?? DASH }} <span :class="UNIT">{{ row.upload.value?.unit }}</span>
+            <span
+              v-if="row.upload.qualifiers.length > 0"
+              :class="CAPTION"
+              data-testid="rate-qualifiers"
+            >{{ row.upload.qualifiers.join(SEPARATOR) }}</span>
           </TableCell>
           <TableCell :class="[CELL, NUMBER]">
             {{ row.latency ?? DASH }} <span

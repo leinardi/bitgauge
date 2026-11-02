@@ -31,6 +31,11 @@ import { protocolLabel } from '@/lib/protocol'
 // and protocol, then the server, the browser, the client IP, the timer resolution and whether the
 // page was cross-origin isolated. A Continuous run lists its one direction and its run length.
 
+/** An overhead compensation as the parameters word it: "+5.0 %", or none. */
+export function overheadText(percent: number, { t, locale }: Wording): string {
+  return percent > 0 ? `+${formatPercent(percent, locale)}` : t('result.parameters.overheadNone')
+}
+
 export interface ParameterRow {
   key: string
   label: string
@@ -185,7 +190,7 @@ export function parameterGroups(result: Result, units: 'bits' | 'bytes', wording
         row('units', t('result.parameters.units'), units === 'bits' ? t('result.parameters.bits', { unit }) : t('result.parameters.bytes', { unit })),
         row('warmup', t('result.parameters.warmup'), warmup(result, wording)),
         row('pings', t('result.parameters.pingCount'), String(settings.pingCount)),
-        row('overhead', t('result.parameters.overhead'), settings.overheadCompensationPercent > 0 ? `+${formatPercent(settings.overheadCompensationPercent, locale)}` : t('result.parameters.overheadNone')),
+        row('overhead', t('result.parameters.overhead'), overheadText(settings.overheadCompensationPercent, wording)),
         row('protocol', t('result.parameters.protocol'), protocol),
       ],
     },

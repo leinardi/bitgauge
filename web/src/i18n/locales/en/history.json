@@ -144,7 +144,6 @@
       "delete": "Delete",
       "noLabel": "No label",
       "ms": "ms",
-      "lowConfidence": "Low confidence",
       "noGrade": "No grade",
       "grade": "Grade {grade} · {word} bufferbloat",
       "columns": {
@@ -256,6 +255,8 @@
       "differentLabel": "different label ({a} vs {b})",
       "differentPreset": "different preset ({a} vs {b})",
       "differentProtocol": "different protocol ({a} vs {b})",
+      "differentOverhead": "different overhead compensation ({a} vs {b})",
+      "qualified": "{value} ({qualifiers})",
       "copyField": "Comparison as text",
       "copyManual": "The browser didn't allow copying: select the text below and copy it."
     }

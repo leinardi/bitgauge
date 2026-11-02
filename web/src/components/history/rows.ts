@@ -19,17 +19,28 @@
 
 import type { useI18n } from 'vue-i18n'
 
-import type { Bufferbloat, Result, ResultStatus } from '@/engine/messages'
+import { directionQualifiers, qualifiedRate } from '@/components/result/qualifiers'
+import type { Wording } from '@/components/test/wording'
+import type { Bufferbloat, Direction, Result, ResultStatus } from '@/engine/messages'
+import { runPhases } from '@/lib/continuous'
 import { latencyNumber, rateParts } from '@/lib/format'
 import { protocolLabel } from '@/lib/protocol'
 
 // A stored result as the History list and the Test screen's last-result line show it (ui/screens.md
 // sections 1 and 3): its start in the active locale, the headline numbers in the chosen units, the
-// grade and the flags; an absent number is null, which the views show as a dash.
+// grade and the status; an absent number is null, which the views show as a dash. Each speed
+// carries its qualifiers (status, confidence, overhead compensation), shown as a caption under it.
 
 export interface RateView {
   number: string
   unit: string
+}
+
+export interface RowRate {
+  /** The number, or null without one. */
+  value: RateView | null
+  /** Its qualifiers' words, in order; empty for a measured direction of normal confidence. */
+  qualifiers: string[]
 }
 
 export interface RowView {
@@ -41,17 +52,22 @@ export interface RowView {
   contextLabel: string
   protocol: string
   status: ResultStatus
-  download: RateView | null
-  upload: RateView | null
+  download: RowRate
+  upload: RowRate
   /** The idle median and jitter, numbers in milliseconds. */
   latency: string | null
   jitter: string | null
   grade: Bufferbloat['grade'] | null
-  lowConfidence: boolean
 }
 
-function rate(direction: Result['download'], units: 'bits' | 'bytes', locale: string): RateView | null {
-  return direction?.bitsPerSecond === undefined ? null : rateParts(direction.bitsPerSecond, units, locale)
+/** A direction's number and qualifiers; a direction the run did not include has neither. */
+function rate(result: Result, direction: Direction, units: 'bits' | 'bytes', wording: Wording): RowRate {
+  const part = result[direction]
+  const value = part?.bitsPerSecond === undefined ? null : rateParts(part.bitsPerSecond, units, wording.locale)
+  if (part === undefined || !runPhases(result.settings).includes(direction)) {
+    return { value, qualifiers: [] }
+  }
+  return { value, qualifiers: directionQualifiers(qualifiedRate(part), result.settings.overheadCompensationPercent, wording).map((qualifier) => qualifier.text) }
 }
 
 /** The start in the active locale and the browser's time zone (ui/i18n-a11y.md section 1.3). */
@@ -63,7 +79,8 @@ export function resultDate(startedAt: string, locale: string): string {
 /** A day without the year or the time ("Sep 26"), as the trend's span and the selection name it. */
 export const DAY: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' }
 
-export function rowView(result: Result, units: 'bits' | 'bytes', locale: string): RowView {
+export function rowView(result: Result, units: 'bits' | 'bytes', wording: Wording): RowView {
+  const { locale } = wording
   const resolution = result.client.timerResolutionMs
   const { idle } = result
   return {
@@ -75,13 +92,11 @@ export function rowView(result: Result, units: 'bits' | 'bytes', locale: string)
     // Labeled as the Test screen labels it (ui/screens.md section 6); empty when not reported.
     protocol: protocolLabel(result.client.protocol) ?? '',
     status: result.status,
-    download: rate(result.download, units, locale),
-    upload: rate(result.upload, units, locale),
+    download: rate(result, 'download', units, wording),
+    upload: rate(result, 'upload', units, wording),
     latency: idle?.medianMs === undefined ? null : latencyNumber(idle.medianMs, locale, resolution),
     jitter: idle?.jitterMs === undefined ? null : latencyNumber(idle.jitterMs, locale, resolution),
     grade: result.bufferbloat?.grade ?? null,
-    // Confidence qualifies a number, so only a direction with one carries it, as the share text does.
-    lowConfidence: [result.download, result.upload].some((direction) => direction?.bitsPerSecond !== undefined && direction.confidence?.level === 'low'),
   }
 }
 

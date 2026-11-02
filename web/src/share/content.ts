@@ -17,7 +17,8 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { Bufferbloat, Confidence, Direction, DirectionStatus, IdleResult, LoadedSource, Result } from '@/engine/messages'
+import { type QualifiedRate, qualifiedRate } from '@/components/result/qualifiers'
+import type { Bufferbloat, Direction, IdleResult, LoadedSource, Result } from '@/engine/messages'
 import { runPhases } from '@/lib/continuous'
 
 // What a share carries (ui/flows.md section 8, security.md section 7): download, upload, idle
@@ -29,13 +30,7 @@ import { runPhases } from '@/lib/continuous'
 // result, so the client IP, the note, the browser and the server's URL can never reach the image or
 // the text.
 
-export interface ShareRate {
-  status: DirectionStatus
-  /** The headline, absent without a number. */
-  bitsPerSecond: number | null
-  /** The confidence other than normal, with its reasons, or null. */
-  confidence: { level: Exclude<Confidence['level'], 'normal'>; reasons: Confidence['reasons'] } | null
-}
+export type ShareRate = QualifiedRate
 
 export interface ShareContent {
   /** The result's label when the user includes it and it has one; null otherwise. */
@@ -65,12 +60,7 @@ function rate(result: Result, direction: Direction): ShareRate | null {
   if (part === undefined || !runPhases(result.settings).includes(direction)) {
     return null
   }
-  const confidence = part.confidence
-  return {
-    status: part.status,
-    bitsPerSecond: part.bitsPerSecond ?? null,
-    confidence: confidence === undefined || confidence.level === 'normal' ? null : { level: confidence.level, reasons: confidence.reasons },
-  }
+  return qualifiedRate(part)
 }
 
 /** The direction whose increase the grade reads: the basis's one, or the worse of both. */
