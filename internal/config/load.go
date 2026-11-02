@@ -258,16 +258,23 @@ func decodeProblems(err error, raw map[string]any) []Problem {
 		return problems
 	}
 
-	decodeErr, isDecodeErr := errors.AsType[*mapstructure.DecodeError](err)
-	if !isDecodeErr {
-		return []Problem{{Rule: ruleText(err)}}
+	// Matched directly, not with errors.AsType: Decode wraps its errors.Join result once, and
+	// errors.AsType would find only the first DecodeError inside it.
+	decodeErr, isDecodeErr := err.(*mapstructure.DecodeError)
+	if isDecodeErr {
+		return []Problem{{
+			Key:   decodeErr.Name(),
+			Value: displayValue(valueAt(raw, decodeErr.Name())),
+			Rule:  ruleText(decodeErr.Unwrap()),
+		}}
 	}
 
-	return []Problem{{
-		Key:   decodeErr.Name(),
-		Value: displayValue(valueAt(raw, decodeErr.Name())),
-		Rule:  ruleText(decodeErr.Unwrap()),
-	}}
+	wrapped, isWrapped := err.(interface{ Unwrap() error })
+	if isWrapped && wrapped.Unwrap() != nil {
+		return decodeProblems(wrapped.Unwrap(), raw)
+	}
+
+	return []Problem{{Rule: ruleText(err)}}
 }
 
 // ruleText is the rule a value broke, from the error that rejected it.

@@ -495,6 +495,33 @@ func TestUnknownKeyBesideADecodeError(t *testing.T) {
 	}
 }
 
+func TestEveryDecodeErrorIsReported(t *testing.T) {
+	t.Parallel()
+
+	// Decode wraps its joined errors once, so only a walk through that wrapper finds the
+	// second error of a section and the error of another section.
+	problems := loadProblems(t, writeFile(t, "limits:\n  max_streams_per_client: abc\n"+
+		"  requests_per_minute: xyz\nserver:\n  trusted_proxies: [10.0.0.0/33]\n"), true, nil)
+
+	keys := make(map[string]int, len(problems))
+	for _, problem := range problems {
+		keys[problem.Key]++
+	}
+
+	want := []string{
+		"limits.max_streams_per_client", "limits.requests_per_minute", "server.trusted_proxies[0]",
+	}
+	if len(problems) != len(want) {
+		t.Fatalf("problems = %+v, want one each for %v", problems, want)
+	}
+
+	for _, key := range want {
+		if keys[key] != 1 {
+			t.Fatalf("problems = %+v, want one each for %v", problems, want)
+		}
+	}
+}
+
 func TestEnvironmentListItemReportsItsValue(t *testing.T) {
 	t.Parallel()
 
