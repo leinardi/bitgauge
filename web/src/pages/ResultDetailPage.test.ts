@@ -23,7 +23,8 @@
 // tiles, grade, loaded latency, confidence and notices, charts with their tables, the share panel and
 // parameters;
 // the label and the note saved as they change; Delete with its undo; Run again; not found; and the
-// result of the run just finished, not saved, with editing and Delete disabled and the reason.
+// result of the run just finished, not saved, with editing and Delete disabled and the reason, and
+// Keep in history with its undo when it is partial or error.
 
 import { flushPromises, type VueWrapper } from '@vue/test-utils'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -283,6 +284,95 @@ describe('the other states', () => {
     const page = await open(result.id, [], result)
     expect(text(page, 'result-unavailable')).toContain('History unavailable')
     expect(text(page, 'not-saved-reason')).toBe('History unavailable · nothing is saved in this window')
+    page.unmount()
+  })
+})
+
+describe('Keep in history', () => {
+  const partial = resultFixture({ id: 'a1b2c3d4-0000-4000-8000-0000000000cc', status: 'partial', label: 'Stopped' })
+  const keep = (page: VueWrapper) => page.find('[data-testid="keep-in-history"]')
+
+  it('keeps the partial result just finished, and its undo brings the not-saved view back with Keep', async () => {
+    const page = await open(partial.id, RESULTS, partial)
+    expect(text(page, 'not-saved')).toBe('Not saved')
+    await keep(page).trigger('click')
+    await vi.waitFor(() => expect(page.find('[data-testid="not-saved"]').exists()).toBe(false))
+    expect(keep(page).exists()).toBe(false)
+    expect(await stored(partial.id)).toMatchObject({ id: partial.id, status: 'partial' })
+    const [notice] = vi.mocked(notify).mock.calls.at(-1) ?? []
+    expect(notice).toMatchObject({ tone: 'info', title: 'Kept in history as partial.', undo: { label: 'Undo' } })
+    notice?.undo?.onClick()
+    await vi.waitFor(() => expect(text(page, 'not-saved')).toBe('Not saved'))
+    expect(await stored(partial.id)).toBeUndefined()
+    expect(keep(page).exists()).toBe(true)
+    await keep(page).trigger('click')
+    await vi.waitFor(() => expect(page.find('[data-testid="not-saved"]').exists()).toBe(false))
+    expect(await stored(partial.id)).toBeDefined()
+    page.unmount()
+  })
+
+  it('offers Keep again when the kept result leaves history from elsewhere', async () => {
+    await seed([partial])
+    const page = await open(partial.id, RESULTS, partial)
+    expect(page.find('[data-testid="not-saved"]').exists()).toBe(false)
+    expect(keep(page).exists()).toBe(false)
+    const { useHistory } = await import('@/composables/useHistory')
+    await useHistory().remove([partial.id])
+    await vi.waitFor(() => expect(text(page, 'not-saved')).toBe('Not saved'))
+    expect(keep(page).exists()).toBe(true)
+    page.unmount()
+  })
+
+  it('offers no Keep on the saved view after a Delete of the kept result is undone', async () => {
+    const page = await open(partial.id, RESULTS, partial)
+    await keep(page).trigger('click')
+    await vi.waitFor(() => expect(page.find('[data-testid="not-saved"]').exists()).toBe(false))
+    await page.get('[data-testid="delete-result"]').trigger('click')
+    await vi.waitFor(() => expect(text(page, 'result-missing')).toContain('Result deleted'))
+    const [notice] = vi.mocked(notify).mock.calls.at(-1) ?? []
+    notice?.undo?.onClick()
+    await vi.waitFor(() => expect(text(page, 'result-label')).toBe('Stopped'))
+    await settle()
+    expect(page.find('[data-testid="not-saved"]').exists()).toBe(false)
+    expect(keep(page).exists()).toBe(false)
+    page.unmount()
+  })
+
+  it('keeps the button and says so when the save fails', async () => {
+    const page = await open(partial.id, RESULTS, partial)
+    const { useHistory } = await import('@/composables/useHistory')
+    vi.spyOn(useHistory(), 'save').mockResolvedValue(false)
+    await keep(page).trigger('click')
+    await settle()
+    expect(notify).toHaveBeenLastCalledWith({ tone: 'danger', title: 'The browser refused to store the result.' })
+    expect(keep(page).exists()).toBe(true)
+    expect(text(page, 'not-saved')).toBe('Not saved')
+    page.unmount()
+  })
+
+  it('is not offered for a stored result that is not the last run, a complete last run, or without history', async () => {
+    const other = await open(NEWEST.id, RESULTS, partial)
+    expect(keep(other).exists()).toBe(false)
+    other.unmount()
+    const complete = resultFixture({ id: 'a1b2c3d4-0000-4000-8000-0000000000dd' })
+    const failed = await open(complete.id, RESULTS, complete)
+    expect(text(failed, 'not-saved')).toBe('Not saved')
+    expect(keep(failed).exists()).toBe(false)
+    failed.unmount()
+    vi.stubGlobal('indexedDB', undefined)
+    const unavailable = await open(partial.id, [], partial)
+    expect(text(unavailable, 'result-unavailable')).toContain('History unavailable')
+    expect(keep(unavailable).exists()).toBe(false)
+    unavailable.unmount()
+  })
+
+  it('offers Keep for the unsaved last run after a saved result was shown', async () => {
+    const page = await open(NEWEST.id, RESULTS, partial)
+    expect(keep(page).exists()).toBe(false)
+    await page.vm.$router.push(`/result/${partial.id}`)
+    await settle()
+    await vi.waitFor(() => expect(text(page, 'result-label')).toBe('Stopped'))
+    expect(keep(page).exists()).toBe(true)
     page.unmount()
   })
 })

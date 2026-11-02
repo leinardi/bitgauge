@@ -30,9 +30,10 @@ import type { Result } from '@/engine/messages'
 // error result, which is not saved otherwise, and confirms with an undo toast; Undo removes it from
 // history again, and the bar offers Keep once more. When the toast goes, the result stays kept. The
 // component stays mounted while the result is kept, its button hidden, so the toast's Undo still
-// reaches the bar; an Undo for a result the bar no longer shows only removes that result.
+// reaches the bar; an Undo for a result the bar no longer shows only removes that result. Its size
+// follows the actions beside it: small in the result bar, medium in the Result detail's header.
 
-const props = defineProps<{ result: Result }>()
+const props = withDefaults(defineProps<{ result: Result; size?: 'sm' | 'md' }>(), { size: 'sm' })
 const kept = defineModel<boolean>('kept', { required: true })
 
 const { t } = useI18n()
@@ -68,7 +69,7 @@ async function keep(): Promise<void> {
 <template>
   <AppButton
     v-if="!kept"
-    size="sm"
+    :size="size"
     :disabled="busy"
     data-testid="keep-in-history"
     @click="keep"

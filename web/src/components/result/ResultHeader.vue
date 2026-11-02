@@ -36,7 +36,8 @@ import { MAX_LABEL } from '@/lib/urlValues'
 // instant on hover, the preset and the server; the actions Download JSON, Run again and Delete,
 // with the note that the JSON holds the client IP and notes. A result not in history carries the
 // not-saved badge and the reason, and its label and Delete are disabled with it. Its slot sits
-// between the breadcrumb and the label, where the kit puts the history-unavailable notice.
+// between the breadcrumb and the label, where the kit puts the history-unavailable notice; its
+// actions slot leads the actions, where the page puts Keep in history.
 
 const props = defineProps<{
   result: Result
@@ -203,6 +204,7 @@ async function finish(save: boolean): Promise<void> {
       </p>
     </div>
     <div class="flex flex-wrap items-center gap-2">
+      <slot name="actions" />
       <DownloadJson
         :result="result"
         variant="secondary"

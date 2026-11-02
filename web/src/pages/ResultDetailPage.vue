@@ -37,6 +37,8 @@ import { qualityView } from '@/components/result/qualityList'
 import ResultHeader from '@/components/result/ResultHeader.vue'
 import ResultMissing from '@/components/result/ResultMissing.vue'
 import SharePanel from '@/components/share/SharePanel.vue'
+import { canKeep } from '@/components/test/keep'
+import KeepInHistory from '@/components/test/KeepInHistory.vue'
 import MetricTile from '@/components/test/MetricTile.vue'
 import NoticeBox from '@/components/test/NoticeBox.vue'
 import { useHistory } from '@/composables/useHistory'
@@ -51,6 +53,9 @@ import { useSettings } from '@/composables/useSettings'
 // other id is not found, as is a result just deleted, until its undo. The label and the note are
 // saved with the result as they change; Delete removes it with an undo toast; Run again starts its
 // settings on the Test screen. The share panel sits in the rail between the note and the parameters.
+// The run just finished, when it is partial or error and has something to keep, offers Keep in
+// history with its undo, as the Test screen does (ui/flows.md section 4): kept, it shows as saved,
+// and the toast's Undo brings the not-saved view back with Keep.
 
 
 const { t, locale } = useI18n()
@@ -82,6 +87,36 @@ const notSaved = computed(() => {
     return t('result.notSaved.unavailable')
   }
   return shown.status === 'complete' ? t('result.notSaved.failed') : t('result.notSaved.partial')
+})
+
+// Keep in history's eligibility does not depend on the saved state, so the component stays mounted
+// while the result is kept and its toast's Undo still reaches it.
+const keepable = computed(() => {
+  const last = lastRunResult.value
+  return last !== null && last.id === id.value && last.status !== 'complete' && canKeep(last) && !unavailable.value ? last : null
+})
+// Whether this id is kept: read from history once it has loaded for each id, then changed only by
+// Keep and its Undo, so a later reload of the same id does not overwrite it.
+const kept = shallowRef(false)
+let keptFor: string | null = null
+watch(
+  [id, loading],
+  ([current, waiting]) => {
+    if (waiting || keptFor === current) {
+      return
+    }
+    keptFor = current
+    kept.value = saved.value !== null
+  },
+  { immediate: true },
+)
+// The result can also leave or come back to history from elsewhere, as by the Test screen's Undo
+// toast after its Details link, or by Delete and its undo here: kept follows each such change, so
+// the not-saved view offers Keep again and the saved view never does.
+watch(saved, (now, before) => {
+  if ((before === null) !== (now === null)) {
+    kept.value = now !== null
+  }
 })
 
 const wording = computed(() => ({ t, locale: locale.value }))
@@ -162,6 +197,14 @@ function runAgain(): void {
         @run-again="runAgain"
         @remove="remove"
       >
+        <template #actions>
+          <KeepInHistory
+            v-if="keepable"
+            v-model:kept="kept"
+            :result="keepable"
+            size="md"
+          />
+        </template>
         <NoticeBox
           v-if="unavailable"
           tone="warn"
