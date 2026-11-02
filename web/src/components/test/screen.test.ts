@@ -296,6 +296,19 @@ describe('gaugeInput', () => {
     expect(gaugeInput(run({ status: 'ended', result: neither }), gaugeContext)).toMatchObject({ direction: 'upload', value: null, label: 'Upload' })
   })
 
+  it('reads idle latency in milliseconds after a finished latency-only run, which ran no direction', () => {
+    const base = resultFixture()
+    const latencyOnly = resultFixture({
+      settings: { ...base.settings, phases: ['idle'] },
+      download: { status: 'skipped', streams: 0, bytes: 0, events: [] },
+      upload: { status: 'skipped', streams: 0, bytes: 0, events: [], confirmedRequests: 0 },
+    })
+    const gauge = gaugeInput(run({ status: 'ended', result: latencyOnly }), gaugeContext)
+    expect(gauge).toMatchObject({ mode: 'ms', value: base.idle?.medianMs, label: 'Latency', text: null })
+    const { idle: _idle, ...withoutIdle } = latencyOnly
+    expect(gaugeInput(run({ status: 'ended', result: withoutIdle }), gaugeContext)).toMatchObject({ mode: 'ms', value: null, label: 'Latency' })
+  })
+
   it('reads Connection lost after an error, with the phase and the last thing measured', () => {
     const download = live({ gauge: 5.75e8 })
     const lost = run({ status: 'ended', live: { download, upload: null }, error: { code: 'requests-failed', phase: 'download', partial: false } })

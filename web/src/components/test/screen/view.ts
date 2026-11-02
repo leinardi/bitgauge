@@ -226,6 +226,11 @@ export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
     const note = p90 === undefined ? null : t('test.gauge.peakLastHour', { peak: rateParts(p90, units, locale).number })
     return { ...reading, direction, value: part?.bitsPerSecond ?? null, peak: p90 ?? null, label: t('test.gauge.average'), note, basis: t('test.gauge.sessionAverage') }
   }
+  // A latency-only run ran no direction: its gauge reads idle latency in milliseconds, as after a
+  // stop during it.
+  if (lastRan(result) === null) {
+    return { ...reading, mode: 'ms', value: result.idle?.medianMs ?? null, label: t('test.gauge.idle') }
+  }
   const download = result.download?.bitsPerSecond ?? null
   if (download === null && upload !== null) {
     return { ...reading, direction: 'upload', value: upload, label: t('test.gauge.upload') }
