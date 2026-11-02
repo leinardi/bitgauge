@@ -26,7 +26,8 @@ import type { RunView } from '@/components/test/screen/states'
 // The Test screen's two visually hidden live regions (ui/i18n-a11y.md sections 2.1 and 2.7). The
 // polite one announces the phase as it starts, a direction's headline once as it finishes, and the
 // rate at most every 5 s while running; never the gauge readout, which redraws several times a
-// second. The summary region reads the result once it is ready. Both are emptied as a run starts.
+// second, and it is emptied as the run ends. The summary region reads the result once it is
+// ready, and is emptied as the next run starts.
 // A Continuous run's direction is announced as running.
 
 const props = withDefaults(defineProps<{ run: RunView; units: 'bits' | 'bytes'; continuous?: boolean }>(), { continuous: false })
@@ -87,9 +88,11 @@ watch(
   () => props.run.status === 'running',
   (running) => {
     stopRate()
+    // A run that ends, however it ends, leaves no phase in the polite region: what it said last
+    // would otherwise stay there as the current state, read again by anyone browsing to it.
+    cancelPending()
+    live.value = ''
     if (running) {
-      cancelPending()
-      live.value = ''
       summary.value = ''
       timer = setInterval(() => {
         const message = rateAnnouncement(props.run, props.units, wording.value)
