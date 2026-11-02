@@ -62,6 +62,12 @@ describe('the insufficient-data notice', () => {
     expect(shown.body.replace(/\u00a0/gu, ' ')).toBe('Download stopped at the data cap before a confirmed steady window long enough for a number. 50 kB used.')
   })
 
+  it('says no data used for a direction stopped before its first byte', () => {
+    const none: DirectionResult = { ...ENDED, bytes: 0, events: [{ code: 'cancelled', atMs: 40 }] }
+    const shown = insufficientWording({ code: 'insufficient-data', direction: 'download', offer: null }, { ...wording, settings, directions: { download: none } })
+    expect(shown.body).not.toContain('used')
+  })
+
   it('offers nothing after Extended', () => {
     expect(words('download', null).body).toBe('Download reached its 20 s maximum without a confirmed steady window long enough for a number. 50 kB used.')
   })

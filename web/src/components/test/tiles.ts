@@ -176,8 +176,9 @@ export function directionTile(input: DirectionInput, context: Wording): TileView
       break
   }
   if (result.bitsPerSecond === undefined) {
-    const used = { text: t('test.tiles.used', { bytes: formatBytes(result.bytes, locale) }) }
-    return { ...tile, pill: pills.insufficient(t), lines: [{ text: insufficientReason(result, input, context), tone: 'warn' }, used] }
+    // Before its first byte a direction used nothing to report: the data tile reads a dash then too.
+    const used = result.bytes === 0 ? [] : [{ text: t('test.tiles.used', { bytes: formatBytes(result.bytes, locale) }) }]
+    return { ...tile, pill: pills.insufficient(t), lines: [{ text: insufficientReason(result, input, context), tone: 'warn' }, ...used] }
   }
   const { number, unit } = rateParts(result.bitsPerSecond, input.units, locale)
   const overhead: TileLine[] = (input.overheadPercent ?? 0) > 0 ? [{ text: t('test.tiles.overhead', { percent: formatPercent(input.overheadPercent ?? 0, locale) }) }] : []

@@ -94,6 +94,12 @@ describe('a direction tile', () => {
     expect(text(cpu)).toEqual(['based on a 3.5 s steady window', "limited by this device's CPU", 'includes +5.0 % overhead compensation'])
   })
 
+  it('shows no used line for a direction stopped before its first byte', () => {
+    const { bitsPerSecond: _rate, peakBitsPerSecond: _peak, ...rest } = result({ status: 'insufficient-data', bytes: 0, events: [{ code: 'cancelled', atMs: 40 }] })
+    const tile = directionTile({ direction: 'download', units: 'bits', result: rest }, context)
+    expect(text(tile)).toEqual(['Insufficient data — stopped during warm-up'])
+  })
+
   it('shows no number and the reason with the bytes used for insufficient data, stopped or at its maximum', () => {
     const none = (overrides: Partial<DirectionResult>): DirectionResult => {
       const { bitsPerSecond: _rate, peakBitsPerSecond: _peak, windowMs: _window, ...rest } = result({ bytes: 142_000_000, ...overrides })

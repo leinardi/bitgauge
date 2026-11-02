@@ -57,7 +57,8 @@ export function insufficientWording(notice: InsufficientData, context: Wording &
       : maxMs === undefined || maxMs === null
         ? download ? t('notices.insufficientData.download') : t('notices.insufficientData.upload')
         : download ? t('notices.insufficientData.downloadMax', { max: formatLimit(maxMs, locale) }) : t('notices.insufficientData.uploadMax', { max: formatLimit(maxMs, locale) }),
-    ...(bytes === undefined ? [] : [t('notices.insufficientData.used', { data: formatBytes(bytes, locale) })]),
+    // Nothing used, a stop before the first byte, says nothing rather than "0 B used".
+    ...(bytes === undefined || bytes === 0 ? [] : [t('notices.insufficientData.used', { data: formatBytes(bytes, locale) })]),
   ]
   const offer = notice.offer === null ? null : notice.offer === 'extended' ? t('notices.insufficientData.offer.extended') : t('notices.insufficientData.offer.standard')
   if (offer !== null) {
