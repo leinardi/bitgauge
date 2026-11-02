@@ -94,6 +94,18 @@ func TestRulesOfSection4(t *testing.T) {
 			file:     "server:\n  trusted_proxies: [proxy.lan]\n",
 			wantKeys: []string{"server.trusted_proxies[0]"},
 		},
+		{
+			name:     "IPv4-mapped trusted proxy",
+			file:     "server:\n  trusted_proxies: [\"::ffff:127.0.0.2/128\"]\n",
+			wantKeys: []string{"server.trusted_proxies[0]"},
+		},
+		{
+			// httpsOriginKnown sees a non-empty list, so only the entry itself is a problem.
+			name: "networkQuality behind only an IPv4-mapped trusted proxy",
+			file: "server:\n  trusted_proxies: [\"::ffff:127.0.0.2/128\"]\n" +
+				"compat:\n  networkquality: {enabled: true}\n",
+			wantKeys: []string{"server.trusted_proxies[0]"},
+		},
 		// Port range.
 		{name: "port 0", file: "server:\n  listen: \":0\"\n", wantKeys: []string{"server.listen"}},
 		{
@@ -654,7 +666,7 @@ server:
   base_path: /a-b.c_d~e/f
   display_name: ` + strings.Repeat("é", 64) + `
   public_url: http://speed.example.lan:8443
-  trusted_proxies: [172.20.0.2/32, "fd00::2/128"]
+  trusted_proxies: [172.20.0.2/32, "fd00::2/128", 127.0.0.2/32]
   labels:
     - {cidr: 10.0.0.0/8, label: LAN}
     - {cidr: 10.8.0.0/24, label: ` + strings.Repeat("é", 64) + `}

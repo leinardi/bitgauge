@@ -189,6 +189,7 @@ func (c *checker) server(server *Server) {
 	c.basePath("server.base_path", server.BasePath)
 
 	c.printable("server.display_name", server.DisplayName)
+	c.trustedProxies(server.TrustedProxies)
 	c.labels(server.Labels)
 
 	if server.PublicURL != "" {
@@ -210,6 +211,19 @@ func (c *checker) printable(key, text string) {
 	}
 }
 
+// ruleIPv4Mapped is the rule an IPv4-mapped IPv6 prefix breaks in server.trusted_proxies and
+// server.labels: an IPv4 client is matched as IPv4, so such a prefix would never match.
+const ruleIPv4Mapped = "is an IPv4-mapped IPv6 prefix; write it as IPv4"
+
+// trustedProxies checks each server.trusted_proxies entry: written as IPv4 when it is IPv4.
+func (c *checker) trustedProxies(prefixes []netip.Prefix) {
+	for index, prefix := range prefixes {
+		if prefix.Addr().Is4In6() {
+			c.add(fmt.Sprintf("server.trusted_proxies[%d]", index), prefix, ruleIPv4Mapped)
+		}
+	}
+}
+
 // labels checks each server.labels entry: a CIDR with no host bits set, written as IPv4 when it
 // is IPv4, unique in the list, and a label under the display_name rule.
 func (c *checker) labels(rules []LabelRule) {
@@ -223,7 +237,7 @@ func (c *checker) labels(rules []LabelRule) {
 		case !cidr.IsValid():
 			c.add(key+".cidr", "", "is required: a CIDR such as 10.8.0.0/24")
 		case cidr.Addr().Is4In6():
-			c.add(key+".cidr", cidr, "is an IPv4-mapped IPv6 prefix; write it as IPv4")
+			c.add(key+".cidr", cidr, ruleIPv4Mapped)
 		case cidr != cidr.Masked():
 			c.add(key+".cidr", cidr, "has host bits set; write "+cidr.Masked().String())
 		default:
