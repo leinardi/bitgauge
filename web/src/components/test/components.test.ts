@@ -174,6 +174,17 @@ describe('the notices', () => {
     expect(items[3]?.get('a').attributes('href')).toBe(links.deployment)
   })
 
+  it('keeps the box of a notice that moves, so its status region is not rewritten and announced again', async () => {
+    const extended = EVERY['slow-link-extended']
+    const wrapper = mountWith(NoticeList, { notices: [extended, EVERY['browser-upload-limit']] })
+    const before = wrapper.findAll('[data-testid="notice"]').map((item) => item.element)
+    await wrapper.setProps({ notices: [EVERY['low-confidence'], extended, EVERY['browser-upload-limit']] })
+    const after = wrapper.findAll('[data-testid="notice"]').map((item) => item.element)
+    expect(after).toHaveLength(3)
+    expect(after[1]).toBe(before[0])
+    expect(after[2]).toBe(before[1])
+  })
+
   it('renders nothing without notices', () => {
     expect(mountWith(NoticeList, { notices: [] }).find('[data-testid="notice"]').exists()).toBe(false)
   })

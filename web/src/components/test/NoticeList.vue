@@ -53,7 +53,15 @@ const { choice } = useTheme()
 const views = computed(() => {
   const context = { t, locale: locale.value, result: props.result, settings: props.settings, theme: choice.value, directions: props.directions, current: props.current }
   const stop = latencyStopView(props.result, props.idle, context)
-  return [...(stop === null ? [] : [stop]), ...noticeViews(props.notices, context)].map((view, index) => ({ key: `${index}`, view }))
+  // Keyed by what each notice says, never by its place: a notice that moves when the result's list
+  // replaces the run's keeps its box, so its status region is not rewritten and announced again.
+  const seen = new Map<string, number>()
+  return [...(stop === null ? [] : [stop]), ...noticeViews(props.notices, context)].map((view) => {
+    const text = `${view.tone}|${view.title}`
+    const count = seen.get(text) ?? 0
+    seen.set(text, count + 1)
+    return { key: `${text}#${count}`, view }
+  })
 })
 </script>
 
