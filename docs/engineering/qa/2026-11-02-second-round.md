@@ -412,3 +412,7 @@ Borderline: QA-55 (the focus after Keep in history) and QA-57 (Keep on the Resul
 move to plan 1 with the run's end; QA-55 stays with the other focus fixes, QA-57 with the other
 end-of-run reading. QA-79 and QA-80 touch the engine's result validator, but go with the import in
 plan 2.
+
+The [third round](2026-11-02-third-round.md#suggested-plan-split) folds ten findings into plan 2
+(QA-102, QA-103, QA-109 to QA-111, QA-115 to QA-119) and three into plan 3 (QA-101, QA-113,
+QA-114).
