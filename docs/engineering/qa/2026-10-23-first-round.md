@@ -463,38 +463,72 @@ wait for a `parity-triage` session with the user, which also extends the cluster
 
 ## To investigate
 
+Each item's verdict was given on 2026-11-02, on the demo build and the real server of that day;
+the items that only compare the app with the design kit are left to demo-parity triage.
+
 - **History at volume:** every row renders, with no virtualization. In a fresh headless Chromium
   the rows took 1.3 s to appear at 500 results, 4.6 s at 2000 and 8.5 s at 4000, and search took
   0.8 s at 4000; under a 20× CPU throttle the 4000-result tab stopped answering for over 100 s.
   History has no retention limit, so Continuous and scripted runs reach these counts.
+  **Verdict:** a bug, linear at about 2.3 ms a row with no single hot spot. Fixed in d15a8ce: the
+  list shows 100 results at a time with Show 100 more (screens.md §3); 4000 results appear in
+  0.33 s.
 - **A stale live status:** after a stop with nothing measured, the gauge's region keeps "Measuring
   idle latency" and nothing announces the stop; on the demo's `error`, the top status still reads
   "Measuring download" while the summary says "Test failed".
+  **Verdict:** the stop itself is announced since 78d4d2a (the summary reads the stop notice), but
+  the polite region kept its last phase. Fixed in aba15fe: it is emptied when the run ends
+  (i18n-a11y.md §2.1).
 - **The upload's sending line before its first confirmation:** on the demo's `insufficient` no
   sending line is drawn and the chart header stays at "20.0 s / 35 s" while the gauge shows
   19.0 kbit/s sending; the kit draws the line. Possibly by design, since sending is placed once a
   request confirms.
+  **Verdict:** by design. The line is placed with the display offset of measurement.md §7.4, a
+  median over confirmed requests, so it has no place before the first confirmation.
 - **Continuous stopped in warm-up:** the step reads "done · insufficient data" and loses
   "· continuous"; the kit reads "cancelled · in warm-up". Check that the parity cluster
   `v03-cont-stopped-in-warmup` covers the step.
+  **Verdict:** a kit difference, left to parity triage (the cluster is in progress).
 - **The streams cell after an upload stop:** the demo's `cancelled` reads "2 auto" where the kit
   reads "6 auto".
+  **Verdict:** a kit difference, left to parity triage. The cell shows the live count at the stop,
+  which screens.md §1 allows.
 - **The empty chart's prompt after a cap-ended run:** seen once on `18084`, "Throughput over time
   appears here while the test runs." stayed after the run.
+  **Verdict:** two bugs behind it, not the prompt itself. With a 50 MiB cap the download ended
+  after 14.4 MB at 65 ms, before its first bucket: a stream that found the budget held by the
+  requests in flight ended the phase and aborted them. Fixed in 0135e15 (measurement.md §5): the
+  phase now ends once those requests have completed, and the run uses the whole cap. The chart of
+  a run without a value then labeled its value axis "0.00 kbit/s" four times; fixed in c3b5867.
+  The upload was checked under the same cap and uses all of it.
 - **Aborted downloads:** Playwright reported over 20 `ERR_ABORTED` downloads in one run where the
   server counted 6 aborts and its log shows the others fully written: probably the browser
   aborting bodies its network stack had already received.
+  **Verdict:** not a bug. A Quick run reproduced it (44 `ERR_ABORTED` of 57 downloads, 3 aborts in
+  `/metrics`); the server logged every request as a full `200`, and over HTTP/1.1 one failed
+  request would have ended the phase, so the engine counted them complete.
 - **Simultaneous notices:** at the end of a Firefox run four or more `role=status` notices
   announce at once (extended, low confidence twice, the Firefox upload limit).
+  **Verdict:** a bug. The notices were keyed by their place, so when the result's list replaced
+  the run's, every box that moved had its status region rewritten and read again. Fixed in
+  7e3b89f: they are keyed by what they say.
 - **An empty "Notices" heading** on a result without notices; the kit does the same
   (`ResultDetail.jsx:232-236`).
+  **Verdict:** a bug, an empty heading over an empty list. Fixed in c0c9c64.
 - **Kit-level overlaps at 390 px that the app reproduces:** the offline "Server unreachable" title
   over the gauge's tick labels, the Continuous gauge caption cut on both sides, and the Continuous
   readout's second line over the tick labels. If confirmed, they are notes for
   [design-system-upstream.md](../design-system-upstream.md).
+  **Verdict:** kit layout, left to parity triage and the upstream notes.
 - **The share image's long label** ends in an ellipsis while the copied text keeps it whole.
+  **Verdict:** by design: the image is a fixed 1200 × 630 (flows.md §8), and the text has no width.
 - **The undo toast's countdown** pauses while the pointer is over it; the undo still works.
+  **Verdict:** by design: pausing a timed message the user is reading is what WCAG 2.2.1 asks.
 - **Wake lock** is requested at run start; headless refuses it, so it needs a real device.
+  **Verdict:** still open, for a check on a real device.
+- **An import that adds nothing** (seen while checking History at volume): a file whose 500
+  records were all rejected shows the done notice in the success tone with its check icon, over a
+  list of 500 reasons. Not checked against the spec yet.
 
 ## By design, no action
 
