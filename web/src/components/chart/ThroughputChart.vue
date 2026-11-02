@@ -103,14 +103,16 @@ const CONTINUOUS_MIN_SPAN = 10
 const ends = computed<{ xMin?: number; xMax: number; yMax: number }>(() => {
   const minimum = (direction: Direction) => (props.durations?.[direction].minMs ?? 0) / 1000
   const [, download, received, sending] = data.value
-  const largest = () => Math.max(0, ...[...download, ...received, ...sending].filter((value): value is number => value !== null))
+  const known = [...download, ...received, ...sending].filter((value): value is number => value !== null)
+  // A run that ended before its first value keeps the empty chart's value axis, not one of 0 bit/s.
+  const top = () => (known.length === 0 ? display(EMPTY_TOP_BPS) : valueMax(Math.max(0, ...known)))
   if (!empty.value && props.continuous !== undefined && props.continuous !== null) {
     // Past the run's last cell to the next half tick, as the design kit draws it, so the newest
     // seconds do not sit on the plot's edge: 42:18 runs to 45m.
     const { start, end } = model.value
     const span = Math.max(end - start, CONTINUOUS_MIN_SPAN)
     const half = continuousStep(span) / 2
-    return { xMin: start, xMax: start + Math.ceil(span / half - 1e-9) * half, yMax: valueMax(largest()) }
+    return { xMin: start, xMax: start + Math.ceil(span / half - 1e-9) * half, yMax: top() }
   }
   if (empty.value) {
     const planned = props.durations === null ? EMPTY_SECONDS : props.order.reduce((sum, direction) => sum + minimum(direction), 0)
@@ -118,7 +120,7 @@ const ends = computed<{ xMin?: number; xMax: number; yMax: number }>(() => {
   }
   const current = shown.value.at(-1)
   const phaseEnd = props.state !== 'done' && current !== undefined ? (model.value.separators.at(-1) ?? 0) + minimum(current) : 0
-  return { xMax: Math.max(model.value.end, phaseEnd), yMax: valueMax(largest()) }
+  return { xMax: Math.max(model.value.end, phaseEnd), yMax: top() }
 })
 const continuousAxis = computed(() => {
   const { xMin, xMax } = ends.value

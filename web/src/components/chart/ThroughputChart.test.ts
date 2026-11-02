@@ -97,6 +97,15 @@ describe('the throughput chart', () => {
     done.unmount()
   })
 
+  it('keeps the empty value axis for a run that ended before its first value', async () => {
+    const wrapper = chart({ order: ['download'], live: { download: live({ values: [null] }), upload: null }, state: 'done' })
+    await flushPromises()
+    const labels = wrapper.findAll('[aria-hidden="true"] > span').map((label) => label.text())
+    expect(labels).toContain('1.00\u00a0Gbit/s')
+    expect(labels).not.toContain('0.00\u00a0kbit/s')
+    wrapper.unmount()
+  })
+
   it('draws the loaded latency on its second scale, labeled right of the plot, until its toggle turns it off', async () => {
     const download = live({ values: Array.from({ length: 30 }, () => 1_176_250), warmupEnd: 10 })
     const loaded = { download: Array.from({ length: 10 }, (_, index) => ({ at: index * 3, ms: 18 + index })) }
