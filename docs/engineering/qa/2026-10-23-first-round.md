@@ -1,6 +1,6 @@
 # Exploratory QA — first round, 2026-10-23
 
-**Open.**
+**Closed.**
 
 The first exploratory QA round of BitGauge, run with the `qa-round` skill: the real server on
 loopback in seven configurations, the demo's simulated links, and a TLS proxy for HTTP/2, driven
