@@ -1,6 +1,6 @@
 # Exploratory QA — second round, 2026-11-02
 
-**Open.**
+**Closed.**
 
 The second exploratory QA round of BitGauge, run with the `qa-round` skill after the fixes of the
 [first round](2026-10-23-first-round.md). It looked for real bugs only: wrong or unqualified
@@ -130,7 +130,7 @@ symlinks, so each such change is listed for Claude Design.
 - **Cause:** `web/src/composables/useHistoryList.ts`: the limit resets on a filter or sort, but
   the selection is trimmed against `filtered`, not `shown`.
 - **Evidence:** verified in IndexedDB and the code.
-- **Status:** Open.
+- **Status:** Fixed in 3fa76e5.
 
 ### QA-55: The focus falls to the page body when the control that had it goes away, in eight more places
 
@@ -147,7 +147,7 @@ symlinks, so each such change is listed for Claude Design.
   `:disabled="busy"`), `web/src/components/test/NoticeList.vue` (Dismiss), the History and Result
   detail delete paths; none hands the focus on.
 - **Evidence:** verified by reading `document.activeElement` after each action, and in the code.
-- **Status:** Open.
+- **Status:** Fixed in 1522795.
 
 ### QA-56: A stopped (`partial`) direction drops its low or CPU-bound confidence on its tile, while the share text keeps it
 
@@ -182,7 +182,7 @@ symlinks, so each such change is listed for Claude Design.
   ([screens.md §3](../../features/ui/screens.md#3-history--history)); content is not hidden.
 - **Cause:** `web/src/components/history/ComparePanel.vue:135`: the text has no wrap rule.
 - **Evidence:** verified by measuring the box.
-- **Status:** Open.
+- **Status:** Fixed in e10bbcc.
 
 ### QA-59: At 768 px History's table scrolls sideways inside its card, hiding most columns and the row actions
 
@@ -193,7 +193,7 @@ symlinks, so each such change is listed for Claude Design.
   [screens.md §3](../../features/ui/screens.md#3-history--history); QA-48 fixed 1440.
 - **Cause:** the table shows from the `tablet:` breakpoint (768 px) and needs about 1060 px.
 - **Evidence:** verified by measuring the table.
-- **Status:** Open.
+- **Status:** Fixed in 5282c98.
 
 ### QA-60: The idle "Last test" line with a 64-character unbroken label scrolls the Test screen sideways at 390 px
 
@@ -205,7 +205,7 @@ symlinks, so each such change is listed for Claude Design.
 - **Cause:** `web/src/components/test/LastResult.vue:63-75`: the label is a bare text item in a
   `flex flex-wrap` link, with no `min-w-0` or wrapping rule.
 - **Evidence:** verified in two browsers.
-- **Status:** Open.
+- **Status:** Fixed in 49f7b0c.
 
 ### QA-61: WebKit runs on loopback, with no proxy, carry "Proxy buffering suspected"
 
@@ -258,8 +258,8 @@ symlinks, so each such change is listed for Claude Design.
 - **Cause:** `web/src/pages/SettingsPage.vue:63-66`: `current`, `valueOf` and `defaultOf` use
   `storedOver(defaults, stored)` with no URL layer.
 - **Evidence:** verified in the DOM, against the summary, and in the code.
-- **Status:** Open. What an edit to an overridden field does is decided by D-9. QA-17 holds for
-  the theme only.
+- **Status:** Fixed in 3270ba2 (spec c6b1e02). What an edit to an overridden field does is
+  decided by D-9. QA-17 holds for the theme only.
 
 ### QA-65: In forced colors the selected preset card and every switch lose their state
 
@@ -273,7 +273,7 @@ symlinks, so each such change is listed for Claude Design.
 - **Cause:** `web/src/components/settings/PresetCards.vue:98` and
   `web/src/components/settings/SettingSwitch.vue:34` draw the state as a background only.
 - **Evidence:** verified on screenshots.
-- **Status:** Open.
+- **Status:** Fixed in f44b3b6.
 
 ### QA-66: The fixed stream count has no visible focus indicator
 
@@ -284,7 +284,7 @@ symlinks, so each such change is listed for Claude Design.
   ([i18n-a11y.md §2.3](../../features/ui/i18n-a11y.md#23-focus-order), WCAG 2.4.7).
 - **Cause:** `web/src/components/settings/StreamsField.vue:90` (`focus-visible:ring-0`).
 - **Evidence:** verified with computed styles.
-- **Status:** Open.
+- **Status:** Fixed in f44b3b6.
 
 ### QA-67: About's "Copy verbose networkQuality command" copies a shell comment
 
@@ -298,7 +298,7 @@ symlinks, so each such change is listed for Claude Design.
 - **Cause:** `web/src/components/about/snippets.ts:82`.
 - **Evidence:** the copied text verified through the clipboard; zsh's behavior is its documented
   default, not run here.
-- **Status:** Open.
+- **Status:** Fixed in 72065d4.
 
 ### QA-68: The "WebSocket unavailable" notice blames a reverse proxy when the server's own limit refused the socket
 
@@ -327,24 +327,24 @@ symlinks, so each such change is listed for Claude Design.
 | QA-75 | `cancelled-late`: the Test screen says "Upload stopped at 14.0 s", the kept result's Test parameters "Upload 13.0 s · stopped by you" (the window end). | `web/src/components/result/parameters.ts:99` | Fixed in b2fede4 |
 | QA-76 | A Continuous run stopped in warm-up shows its step as "done · insufficient data" beside a "Cancelled" gauge and "Test cancelled during download"; the step contradicts the screen. | `web/src/components/test/screen/states.ts:121,131-132,140` | Fixed in 0898ffb |
 | QA-77 | A download stopped before its first byte shows "0 B used" on its tile; screens.md §1 reads "—" until the first byte. | `web/src/components/test/tiles.ts` | Fixed in e6d4e4b |
-| QA-78 | Back to History after Show more starts again at 100 rows, so a row opened from further down is no longer in the list. | `web/src/composables/useHistoryList.ts` | Open |
-| QA-79 | Import accepts an `id` that is not a UUID (`"not-a-uuid"`). | `web/src/engine/result/validate.ts` | Open |
-| QA-80 | A `startedAt` without milliseconds is rejected as "not an ISO 8601 instant", which it is; the rule may stay, the message is wrong. | `web/src/engine/result/validate.ts` | Open |
-| QA-81 | The Export menu's "contains client IPs and notes" warning sits outside every menu item, so arrow keys never reach it. | `web/src/components/history/ExportMenu.vue` | Open |
-| QA-82 | After Clear all the URL keeps the filter, so the next import lands in a filtered list. | `web/src/pages/HistoryPage.vue` | Open |
-| QA-83 | A duration bound's error goes stale: min 25 with max 20 errors; raising max to 30 saves max, but min stays 25, unsaved, with the old error. | `web/src/components/settings/DurationFields.vue:51-63` | Open |
-| QA-84 | The ignored-parameter notice names the default, not what the run keeps: with a stored label, a 65-character `label` "stays on the suggested one"; with stored durations, `duration=601` "stays on the preset's". The spec table words both this way. | `web/src/components/test/ignored.ts:112,114`; url-params.md §2 | Open |
-| QA-85 | With Quick the server default and `streams.fixed: 2`, the Quick card says "Fixed 3 streams"; the run uses 2. | `web/src/components/settings/PresetCards.vue:57` | Open |
-| QA-86 | Under Continuous with idle latency off, the summary shows only "Continuous", though Settings lists Phases as changed. | `web/src/lib/settingsSummary.ts:64-73` | Open |
-| QA-87 | A `cap` that overflows to Infinity (1 followed by 320 zeros) is accepted with no notice; Configure then fails, the link's other parameters are dropped and Start ends in "Test failed — the test settings are not valid". | `web/src/lib/urlValues.ts:73` | Open |
-| QA-88 | The Test screen's summary shows the settings without the URL's for 6–14 ms on every mount. | `web/src/composables/useRun.ts:91` | Open |
-| QA-89 | About's copy button is transparent over the code, so text runs under it at 390; each `<pre>` carries `aria-label` on a generic element. | `web/src/components/about/Snippet.vue:78-93` | Open |
-| QA-90 | Every route's title is "BitGauge", and nothing is announced after navigating (WCAG 2.4.2). | the router | Open. Decided by D-16 |
+| QA-78 | Back to History after Show more starts again at 100 rows, so a row opened from further down is no longer in the list. | `web/src/composables/useHistoryList.ts` | Fixed in 3fa76e5 |
+| QA-79 | Import accepts an `id` that is not a UUID (`"not-a-uuid"`). | `web/src/engine/result/validate.ts` | Fixed in 2a6e83b |
+| QA-80 | A `startedAt` without milliseconds is rejected as "not an ISO 8601 instant", which it is; the rule may stay, the message is wrong. | `web/src/engine/result/validate.ts` | Fixed in 2a6e83b |
+| QA-81 | The Export menu's "contains client IPs and notes" warning sits outside every menu item, so arrow keys never reach it. | `web/src/components/history/ExportMenu.vue` | Fixed in 91be1d0 |
+| QA-82 | After Clear all the URL keeps the filter, so the next import lands in a filtered list. | `web/src/pages/HistoryPage.vue` | Fixed in 3fa76e5 |
+| QA-83 | A duration bound's error goes stale: min 25 with max 20 errors; raising max to 30 saves max, but min stays 25, unsaved, with the old error. | `web/src/components/settings/DurationFields.vue:51-63` | Fixed in 86adba9 |
+| QA-84 | The ignored-parameter notice names the default, not what the run keeps: with a stored label, a 65-character `label` "stays on the suggested one"; with stored durations, `duration=601` "stays on the preset's". The spec table words both this way. | `web/src/components/test/ignored.ts:112,114`; url-params.md §2 | Fixed in 49f7b0c |
+| QA-85 | With Quick the server default and `streams.fixed: 2`, the Quick card says "Fixed 3 streams"; the run uses 2. | `web/src/components/settings/PresetCards.vue:57` | Fixed in 86adba9 |
+| QA-86 | Under Continuous with idle latency off, the summary shows only "Continuous", though Settings lists Phases as changed. | `web/src/lib/settingsSummary.ts:64-73` | Fixed in 86adba9 |
+| QA-87 | A `cap` that overflows to Infinity (1 followed by 320 zeros) is accepted with no notice; Configure then fails, the link's other parameters are dropped and Start ends in "Test failed — the test settings are not valid". | `web/src/lib/urlValues.ts:73` | Fixed in 49f7b0c |
+| QA-88 | The Test screen's summary shows the settings without the URL's for 6–14 ms on every mount. | `web/src/composables/useRun.ts:91` | Fixed in 49f7b0c |
+| QA-89 | About's copy button is transparent over the code, so text runs under it at 390; each `<pre>` carries `aria-label` on a generic element. | `web/src/components/about/Snippet.vue:78-93` | Fixed in 72065d4 |
+| QA-90 | Every route's title is "BitGauge", and nothing is announced after navigating (WCAG 2.4.2). | the router | Fixed in 2deeb82 (spec c6b1e02). Decided by D-16 |
 | QA-91 | Only the first decode error in the configuration is reported (`max_streams_per_client: abc` with `requests_per_minute: xyz` logs one); configuration.md §4 reports every problem. mapstructure wraps its joined errors, so the `Unwrap() []error` check misses them. Same with mapstructure 2.4.0 and 2.5.0. What is left of QA-28. | `internal/config/load.go:246-271` | Fixed in 81855f3 |
 | QA-92 | `server.listen` accepts a host name; `serve` then looks it up (an outbound DNS query) and exits 1, not 2, when it does not resolve. | `internal/config/types.go` (`Listen.UnmarshalText`), `cmd/bitgauge/main.go:312` | Fixed in 562e235 (spec 943aab5). Decided by D-17 |
 | QA-93 | `public_url: https://x:99999` (port out of range) and `allowed_origins: https://*.x.com` (a wildcard that can never match) are accepted. | `internal/config/validate.go:289-306` | Fixed in fac39f7 (spec 943aab5) |
 | QA-94 | A foreign `Origin` on `/api/v1/ws` gets a plain 403 without the envelope; wire-protocol.md §7 lists no such exception (OpenAPI and `ws.go:139` intend it). Document it, as QA-30 was, or add a code. | `internal/handlers/ws.go:134-141`; wire-protocol.md §7 | Fixed in 5c46f71 (spec only) |
-| QA-95 | An import that adds nothing (all records rejected) shows the done notice in the success tone with its check icon and "Imported <file>". The first round's last open item. | `web/src/components/history/ImportDialog.vue:218-222` | Open. Decided by D-13 |
+| QA-95 | An import that adds nothing (all records rejected) shows the done notice in the success tone with its check icon and "Imported <file>". The first round's last open item. | `web/src/components/history/ImportDialog.vue:218-222` | Fixed in 91be1d0 (spec c6b1e02). Decided by D-13 |
 
 ## To investigate
 

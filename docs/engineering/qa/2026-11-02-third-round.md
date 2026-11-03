@@ -1,6 +1,6 @@
 # Exploratory QA — third round, 2026-11-02
 
-**Open.**
+**Closed.**
 
 The third exploratory QA round of BitGauge, run with the `qa-round` skill after plan 1 of the
 [second round](2026-11-02-second-round.md) (QA-53 to QA-77) landed. Like the second round it
@@ -219,8 +219,8 @@ each such change is listed for Claude Design.
   the source), `:257-260` (latency rows bare), `:247-251,261` (grade without `basis`).
 - **Evidence:** verified on imported records and a real run, in the dialog, Copy comparison and the
   code.
-- **Status:** Open. Decided by D-18, which also settles the second round's To-investigate item
-  on Compare's parameter set.
+- **Status:** Fixed in e10bbcc (spec c6b1e02). Decided by D-18, which also settles the second
+  round's To-investigate item on Compare's parameter set.
 
 ### QA-103: The focus falls to the page body in three more places
 
@@ -238,7 +238,7 @@ each such change is listed for Claude Design.
   button), `web/src/components/test/NoticeList.vue:97-99`, `web/src/pages/ResultDetailPage.vue`
   with `components/test/KeepInHistory.vue`.
 - **Evidence:** verified by reading `document.activeElement` after each action, and in the code.
-- **Status:** Open. Fix with QA-55.
+- **Status:** Fixed in 1522795. Fix with QA-55.
 
 ## Low
 
@@ -249,17 +249,17 @@ each such change is listed for Claude Design.
 | QA-106 | A finished latency-only run (`?test=latency`) shows "DOWNLOAD —" on the gauge; no direction ran. QA-70's kind. | `web/src/components/test/screen/view.ts:230-238` | Fixed in c3f5320 |
 | QA-107 | A Continuous upload before its first sample reads "Current · sending — kbit/s" and "Data used — kB"; the download view shows "—" alone. | `web/src/components/test/continuous/` | Fixed in bf1b231 |
 | QA-108 | After Stop → Details → Back the Test screen is plain Idle with no Keep, Details or last-result line, though Forward still reopens the unsaved result with Keep. | `web/src/pages/TestPage.vue` | Fixed in 26850ed. Decided by D-20 (spec a75c133) |
-| QA-109 | Compare rounds a latency change for display but judges the raw value: 10 → 11 ms reads "+1.0 ms, same" in one pair and "+1.0 ms, worse" in another (11.01 ms); jitter the same. | `web/src/components/history/compare.ts:72-76,243` | Open |
-| QA-110 | Download JSON within 300 ms of typing a note exports the previous note, and a reload in that window loses the last keystrokes (the `pagehide` flush is an IndexedDB write the unload cancels). | `web/src/composables/useDebouncedSave.ts:28,52`; `components/result/NoteField.vue:48` | Open |
-| QA-111 | A result without a grade shows a bare "—" in History's Grade column and in Compare; screens.md §6 has "Not graded" with its reason the same on every screen. | `web/src/components/history/rows.ts:96`; `compare.ts:247-251` | Open |
+| QA-109 | Compare rounds a latency change for display but judges the raw value: 10 → 11 ms reads "+1.0 ms, same" in one pair and "+1.0 ms, worse" in another (11.01 ms); jitter the same. | `web/src/components/history/compare.ts:72-76,243` | Fixed in e10bbcc |
+| QA-110 | Download JSON within 300 ms of typing a note exports the previous note, and a reload in that window loses the last keystrokes (the `pagehide` flush is an IndexedDB write the unload cancels). | `web/src/composables/useDebouncedSave.ts:28,52`; `components/result/NoteField.vue:48` | Fixed in 0227d0c for Download JSON; the reload half is best effort: a reload during the note's write keeps the record whole with the old note or the new one (e2e), and nothing guarantees the new one |
+| QA-111 | A result without a grade shows a bare "—" in History's Grade column and in Compare; screens.md §6 has "Not graded" with its reason the same on every screen. | `web/src/components/history/rows.ts:96`; `compare.ts:247-251` | Fixed in e10bbcc |
 | QA-112 | The not-saved Result detail of an `error` result says "Partial results are not saved" under "Test failed". | `web/src/pages/ResultDetailPage.vue` (`notSaved`), `i18n/locales/en/test.json:268` | Fixed in 0fad631 (spec a75c133) |
 | QA-113 | Requests rejected by net/http before routing get its plain text with no envelope, and wire-protocol.md §7 names only the malformed `Content-Length` 400: also `431` for large headers, `400` for a malformed `Host` or duplicate `Content-Length`, `501` for `Transfer-Encoding: gzip`, `505` for `HTTP/2.0` on the request line. Document them as a class, as QA-30 was. | `docs/features/wire-protocol.md` §7 | Fixed in 5c46f71 (spec only) |
 | QA-114 | `server.trusted_proxies` accepts an IPv4-mapped IPv6 prefix (`::ffff:127.0.0.2/128`) that never matches, since peers are unmapped first; the proxy is silently untrusted, and the entry still satisfies networkQuality's `trusted_proxies` rule, so that layer answers 503. `server.labels` rejects the same form. | `internal/config/load.go:508`; `internal/clientip/clientip.go:105,120-126`; compare `internal/config/validate.go:225` | Fixed in 7e12941 (spec 943aab5) |
-| QA-115 | Opening a Select (Overhead compensation, Language) logs a CSP `style-src-elem` violation: reka-ui's `SelectViewport` inserts an inline `<style>` that `style-src 'self'` blocks; the scrollbar rule is not applied. | `web/node_modules/reka-ui/dist/Select/SelectViewport.js:83`, via `web/src/components/ui/select` | Open |
-| QA-116 | `?preset=continuous` drops the stored Continuous direction and run length when the stored preset is bounded (stored upload, 2 h runs download with no run length); url-params.md §1 says a URL preset brings only its durations, ping count and stream mode, and choosing Continuous in Settings keeps both. | `web/src/lib/settingsStorage.ts:203-217`; `web/src/engine/settings.ts:82` | Open |
-| QA-117 | The run-length field is too narrow for a stored value that is not a whole number of minutes: "1501.02" shows as "1501.0" at every width. | `web/src/components/settings/RunLengthField.vue:129` | Open |
-| QA-118 | With a server data cap that is not a whole number of MB (50 MiB shows as "52.429"), typing the shown value back is rejected with "Enter a whole number from 2 to 100000". | `web/src/components/settings/DataCapField.vue` | Open |
-| QA-119 | The ping count's caption reads "Preset default: 15" when 15 is the server's `ping_count`; Standard's own is 20. | `web/src/i18n/locales/en/settings.json:127` | Open |
+| QA-115 | Opening a Select (Overhead compensation, Language) logs a CSP `style-src-elem` violation: reka-ui's `SelectViewport` inserts an inline `<style>` that `style-src 'self'` blocks; the scrollbar rule is not applied. | `web/node_modules/reka-ui/dist/Select/SelectViewport.js:83`, via `web/src/components/ui/select` | Fixed in b0c52ef |
+| QA-116 | `?preset=continuous` drops the stored Continuous direction and run length when the stored preset is bounded (stored upload, 2 h runs download with no run length); url-params.md §1 says a URL preset brings only its durations, ping count and stream mode, and choosing Continuous in Settings keeps both. | `web/src/lib/settingsStorage.ts:203-217`; `web/src/engine/settings.ts:82` | Fixed in 21eb2cd |
+| QA-117 | The run-length field is too narrow for a stored value that is not a whole number of minutes: "1501.02" shows as "1501.0" at every width. | `web/src/components/settings/RunLengthField.vue:129` | Fixed in 86adba9 |
+| QA-118 | With a server data cap that is not a whole number of MB (50 MiB shows as "52.429"), typing the shown value back is rejected with "Enter a whole number from 2 to 100000". | `web/src/components/settings/DataCapField.vue` | Fixed in 86adba9 |
+| QA-119 | The ping count's caption reads "Preset default: 15" when 15 is the server's `ping_count`; Standard's own is 20. | `web/src/i18n/locales/en/settings.json:127` | Fixed in 86adba9 |
 
 ## To investigate
 
