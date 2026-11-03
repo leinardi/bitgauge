@@ -25,8 +25,10 @@
 
 pub mod buildinfo;
 pub mod clientip;
+pub mod clock;
 pub mod config;
 pub mod logger;
+pub mod ratelimit;
 pub mod server;
 
 #[cfg(test)]

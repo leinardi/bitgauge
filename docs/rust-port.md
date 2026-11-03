@@ -287,6 +287,23 @@ not expect.
   `TestMiddlewareRecordsWhetherThePeerIsTrusted` is ported now. `TestDeriveUnparsablePeer` has no
   Rust counterpart: the peer is a `SocketAddr` from the listener, never text, so it cannot fail to
   parse. A `X-Forwarded-For` line that is not UTF-8 is a malformed chain and gives the peer.
+- **Phase 7, the idle list.** The plan's "idle LRU ordered by sequence number" is kept as an
+  order, not as a sorted map: a map keyed by a last-seen sequence number would make each operation
+  logarithmic, and configuration-security.md section 5 says constant time. The idle entries are
+  linked through the `HashMap` by address, most recently seen first, which is the order a
+  sequence number gives; `idle_list_keeps_its_order` checks it, since Go's `container/list` had
+  no test of ours.
+- **Phase 7, the clock and its timers.** `Clock` lives in `src/clock.rs`, beside the limiter
+  rather than in it, since the handlers read it too. Go's `Timers` (`AfterFunc`) has no
+  counterpart: tokio's `sleep_until` and `timeout_at` follow the same paused clock, so
+  `TestRealClockAfterFunc` is not ported. A release is the permit's `Drop`, which runs exactly
+  once, so Go's second call of one release in `TestConcurrencyLimitAndRelease` has no Rust
+  spelling; an aborted transfer is a panic or a cancelled task, both in `release_on_abort`.
+- **Phase 7, the limiter middleware moves to phase 12.** `Middleware`, `FlowMiddleware` and
+  `Refuse` write the 429 through the handlers' error envelope and wrap route groups, so they come
+  with the router; `TestMiddlewareRefusesWith429BeforeReadingTheBody`,
+  `TestMiddlewareReleasesOnPanic`, `TestRefuseLogsEveryTableFull`, `TestRefuseOtherErrorsAre500`
+  and `TestFlowMiddlewareTakesAFlowSlotNotAStream` move with them.
 - **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
   started. The `cargo-machete` pre-commit hook builds its own; `zig` is first needed by phase 15.
 
@@ -300,7 +317,7 @@ Go package to Rust module, filled in by the phase that ports it.
 | `internal/buildinfo` | `src/buildinfo.rs` (`info`, `Build`, the `option_env!` stamps) | 6 |
 | `internal/logger` | `src/logger.rs` (`stdout`, `to_writer`, `stderr_text`, `text_to`, `parse_level`, `Format`, `LogError`); `ReportProblems`, `ReportWarnings` and the startup line in `src/config/report.rs` | 6 |
 | `internal/clientip` | `src/clientip.rs` (`address_class`, `suggested_label`, `version`, `Labeler`, `Rule`, `Deriver`, `Client`); the middleware and context helpers move to phase 12 | 6 |
-| `internal/ratelimit` |  | 7 |
+| `internal/ratelimit` | `src/ratelimit.rs` (`Limiter`, `Options`, `Permit`, `Limit`, `LimitError`, the codes); `Clock` and `TokioClock` in `src/clock.rs`; the middleware and `Refuse` move to phase 12 | 7 |
 | `internal/metrics` |  | 8 |
 | `internal/handlers` |  | 9, 10 |
 | `internal/compat/openspeedtest` |  | 11 |
@@ -321,7 +338,7 @@ it did not port, with the reason.
 | --- | --- | --- |
 | `internal/config` | `src/config/tests/` (`load.rs`, `validate.rs`, `effective.rs`, `types.rs`); `TestReportProblems` and the reporting half of `TestInvalidLogKeysReportOnStderr` move to phase 6 | 5 |
 | `internal/buildinfo`, `internal/logger`, `internal/clientip` | `src/buildinfo.rs`, `src/logger/tests.rs`, `src/clientip/tests.rs`; `TestReportProblems`, `TestInvalidLogKeysReportOnStderr` and the rendering half of `TestEffective` in `src/config/tests/report.rs`; the middleware tests move to phase 12 | 6 |
-| `internal/ratelimit` |  | 7 |
+| `internal/ratelimit` | `src/ratelimit/tests.rs`, `src/clock.rs`; the middleware tests move to phase 12 | 7 |
 | `internal/metrics` |  | 8 |
 | `internal/handlers` |  | 9, 10 |
 | `internal/compat/...` |  | 11 |
