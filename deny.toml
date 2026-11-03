@@ -48,6 +48,9 @@ allow = [
     # unicode-ident, (MIT OR Apache-2.0) AND Unicode-3.0: through proc-macro2 under tokio-macros
     # and futures-macro.
     "Unicode-3.0",
+    # encoding_rs, (Apache-2.0 OR MIT) AND BSD-3-Clause: through encoding_rs_io, which
+    # serde-saphyr's deserialize feature always pulls in for its reader API.
+    "BSD-3-Clause",
 ]
 confidence-threshold = 0.9
 

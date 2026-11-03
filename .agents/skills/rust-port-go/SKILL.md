@@ -137,6 +137,12 @@ bugs, never into a guess.
 - `strconv.ParseInt` returns a range error at the digit that overflows, before a later invalid
   byte (`99999999999999999999x` is out of range); `i64::from_str` says invalid. `%+v` of a struct
   with pointer fields prints addresses → an open question, not a guess. (go1.26 scratch program)
+- Go 1.26's `url.Parse` is not WHATWG: it keeps `*` as a path, lowercases only the scheme,
+  refuses a second colon in an http or https host (`urlstrictcolons`), an IPv4 literal in
+  brackets, an ASCII `%XX` in a host and any malformed escape in the path or fragment, and the
+  `url` crate disagrees on all of them. When "does not parse" and "parses but breaks a rule" are
+  reported differently → port `parse`, `parseHost` and `unescape` from GOROOT and test the
+  refusals. (go1.26.10 `net/url/url.go`)
 
 ### JSON and YAML
 
@@ -159,6 +165,14 @@ bugs, never into a guess.
   name in a shape check but decodes as the key it names, so a strict pre-pass can be bypassed
   → port the node tree and both passes, and grow the Go corpus with every such case. (golden
   diff)
+- koanf with yaml.v3 decodes into `map[string]any`, so only `true`, `True` and `TRUE` are
+  booleans and `yes`/`on` stay text, but serde-saphyr's `strict_booleans` matches `true` and
+  `false` in any case (`tRuE`); serde-saphyr 2.0 refuses a second document where yaml.v3 reads
+  the first, and refuses a non-text mapping key in an untyped tree. It does take `key:<TAB>value`
+  (granit-parser, unlike saphyr-parser 0.3) → set `strict_booleans`, `legacy_octal_numbers`,
+  `DuplicateKeyPolicy::Error` and `NonFiniteFloatPolicy::PassThrough`, read into an untyped tree,
+  and list the rest as differences. (serde-saphyr 2.0.0 probes; 165-case differential run
+  against the Go loader)
 
 ### Logging
 
