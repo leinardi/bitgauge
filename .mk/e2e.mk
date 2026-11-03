@@ -33,9 +33,13 @@ E2E_MAX_STREAMS ?= 64
 # make's wildcard reads ** as *, so it would miss a spec two folders down; find does not.
 E2E_SPECS := $(shell [ -d "$(REPO_ROOT)/web/e2e" ] && find "$(REPO_ROOT)/web/e2e" -name '*.spec.ts' -type f)
 E2E_MAIN := $(wildcard $(REPO_ROOT)/cmd/bitgauge/main.go)
+# The binary under test: empty builds the Go one; BIN=<path> runs a binary built beforehand, such
+# as the Rust one of make rust-bin, which embeds the web app itself.
+BIN ?=
+E2E_BIN = $(if $(strip $(BIN)),$(BIN),$(DIST_DIR)/$(BIN_NAME))
 
 .PHONY: e2e
-e2e: ## Run the Playwright end-to-end tests against a host-built binary
+e2e: ## Run the Playwright end-to-end tests against a host-built binary, or the prebuilt BIN
 ifeq ($(strip $(E2E_SPECS)),)
 	@echo "e2e is dormant: web/e2e/ holds no *.spec.ts yet." >&2
 	@exit 1
@@ -43,13 +47,13 @@ else ifeq ($(strip $(E2E_MAIN)),)
 	@echo "e2e is dormant: cmd/bitgauge/main.go does not exist yet." >&2
 	@exit 1
 else
-	$(MAKE) build
+	$(if $(strip $(BIN)),test -x "$(BIN)" || { echo "BIN=$(BIN) is not an executable" >&2; exit 1; },$(MAKE) build)
 	export BITGAUGE_SERVER__LISTEN="127.0.0.1:$(E2E_PORT)" \
 	  BITGAUGE_LIMITS__MAX_STREAMS_PER_CLIENT="$(E2E_MAX_STREAMS)"; \
-	  "$(DIST_DIR)/$(BIN_NAME)" serve & server=$$!; \
+	  "$(E2E_BIN)" serve & server=$$!; \
 	  trap 'kill $$server' EXIT; \
-	  for _ in $$(seq 50); do "$(DIST_DIR)/$(BIN_NAME)" healthcheck && break; sleep 0.2; done; \
-	  "$(DIST_DIR)/$(BIN_NAME)" healthcheck || { echo "bitgauge did not become healthy" >&2; exit 1; }; \
+	  for _ in $$(seq 50); do "$(E2E_BIN)" healthcheck && break; sleep 0.2; done; \
+	  "$(E2E_BIN)" healthcheck || { echo "bitgauge did not become healthy" >&2; exit 1; }; \
 	  BITGAUGE_E2E_URL="http://127.0.0.1:$(E2E_PORT)" npm --prefix "$(REPO_ROOT)/web" run e2e
 endif
 

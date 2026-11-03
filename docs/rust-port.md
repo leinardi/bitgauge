@@ -453,6 +453,31 @@ not expect.
   meter knows the layers' routes from the configuration that enables them, so the panicking
   route keeps its pattern. The 10 s grace of `TestRunCutsRequestsAfterTheGrace` is the command's,
   which phase 13 ports; the cut itself is phase 4's `download_past_the_grace_is_cut`.
+- **Phase 13, the command runs in process.** `command::run` takes the arguments and a
+  `Process` (stdout, stderr, the environment, the SPA renderer, a `Mode` and the `Lifecycle`),
+  so the Go `cmd` tests run without a child process. `Mode::Process`, which `main.rs` uses,
+  blocks SIGTERM and SIGINT, installs the global logger, starts the `sigwait` thread and then
+  builds the multi-thread runtime by hand; `Mode::InProcess` runs a current-thread runtime under
+  the test's log dispatch and leaves the signal mask alone. Help, refusals, configuration
+  problems and the healthcheck return before anything blocks a signal. `tests/process_mode.rs`
+  runs `Mode::Process` in child processes: one signal exits 0 after "stopped", and a second one
+  during a shutdown held by an unread download ends the child by the signal; building the runtime
+  before blocking the signals fails it. `TestMain` built the Go binary; `tests/cli.rs` runs
+  Cargo's own build of it.
+- **Phase 13, the listener.** `server::listen::bind` follows Go's `net.Listen`: a wildcard host
+  (empty, `0.0.0.0`, `::`) binds `[::]` with `IPV6_V6ONLY` off and falls back to `0.0.0.0`, an
+  IPv4-mapped address binds as IPv4, and a zone (`fe80::1%eth0`) is the scope id from
+  `if_nametoindex`, or the zone read as a number. A taken port stops the attempt at once.
+- **Phase 13, the healthcheck.** It is blocking std code with no runtime and no DNS: the literal
+  address derived from `server.listen` (empty or IPv4 wildcard to `127.0.0.1`, `::` to `::1`,
+  an IPv4-mapped host to its IPv4 address, as the listener binds it),
+  one `connect_timeout`, the read and write timeouts set to what is left of the 3 s before each
+  call, and the deadline checked after every read. Its deadline reads `tokio::time::Instant`,
+  since std's `Instant::now` is banned in the package; without a paused test clock both read the
+  same monotonic clock.
+- **Phase 13, the make targets.** `make rust-bin` builds the release binary after the web build,
+  `make rust-run` serves it as `make run` serves Go's, and `make e2e BIN=<path>` runs Playwright
+  against a prebuilt binary instead of building the Go one.
 - **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
   started. The `cargo-machete` pre-commit hook builds its own; `zig` is first needed by phase 15.
 
@@ -475,7 +500,7 @@ Go package to Rust module, filled in by the phase that ports it.
 | `internal/server` (`server.go` settings, `shutdown.go`) | `src/server/conn.rs` (`serve`, `drive`, `Lifecycle`, `Outcome`), `src/server/timeouts.rs` (`Timeouts`, `ConnState`, `ConnIo`), `src/server/framing.rs`, `src/server/upgrade.rs`, `src/server/signals.rs`, `src/server/mod.rs` (`finish_process`) | 4 |
 | `internal/server` (router, middleware) | `src/server/routes.rs` (`route_table`, `check_routes`, `mounted_routes`, `Owner`, `Route`), `src/server/classify.rs` (`Classifier`, `Group`, `set_headers`, `content_security_policy`), `src/server/router.rs` (`app`, `router`, `Groups`), `src/server/middleware.rs` (`Stack`, `Observer`, `record_route`; Go's `clientip.Middleware` is its client IP stage, which stores the `Client`); the native routes and their CORS in `src/handlers/routes.rs` (`native_routes`, `Native`, `NATIVE_ROUTES`) | 12 |
 | `web/embed*.go` | `src/web.rs` (`Spa`, `RenderError`, `route_patterns`, `ROOT_ASSETS`, `METHODS`), `src/web/files.rs` (one file's answer: the content types, the ranges, the conditional headers, `not_found`, `plain_error`); `build.rs` | 12 |
-| `cmd/bitgauge` |  | 13 |
+| `cmd/bitgauge` | `src/main.rs`; `src/command.rs` (`run`, `Process`, `Mode`, `SHUTDOWN_GRACE`, the startup order); `src/cli.rs` (`parse`, `Parsed`, `Options`, `CliError`, the pre-scan); `src/healthcheck.rs` (`answers`, `address`, `TIMEOUT`); `src/server/listen.rs` (`bind`, `addresses`, `zone_index`) | 13 |
 
 ## Test Map
 
@@ -493,6 +518,6 @@ it did not port, with the reason.
 | `internal/compat/...` | `src/compat/tests/` (`openspeedtest.rs`, `librespeed.rs`, `nq.rs`) | 11 |
 | `internal/server` | `src/server/tests/` (`router.rs`, `native.rs`, `headers.rs`, `middleware.rs`, `metrics.rs`, `layers.rs`, `shutdown.rs`, with the whole stack in `stack.rs`); the handlers' route tests in `native.rs` and the client IP middleware tests in `middleware.rs`; the shutdown cases on the echo service in `src/server/tests.rs` (phase 4) | 4, 12 |
 | `web` | `src/web/tests.rs` | 12 |
-| `cmd/bitgauge` |  | 13 |
+| `cmd/bitgauge` | `TestParseArgs` in the `src/cli.rs` tests; `TestHealthcheckAddress` and `TestHealthcheckExitCodes` in `src/healthcheck/tests.rs`; `TestServeExitsTwoOnInvalidConfig` in `src/command/tests.rs` and `tests/cli.rs`; `TestServeAndHealthcheck`, `TestServeExitsOneWithoutTheSPA` and `TestCompatibilityLayersOnTheStartupLine` in `src/command/tests.rs`; the process-mode startup and its signals in `tests/process_mode.rs`; `TestMain` is Cargo's binary build | 13 |
 | `test/docs`, `test/disturls`, `test/distdemo`, `test/chunksize`, `test/licenseheaders`, `test/toolchain`, `test/deployments`, `test/dockerfiles`, `test/boundary` |  | 16 |
 | `test/internal/...`, `test/image`, `test/harness` |  | 17 |

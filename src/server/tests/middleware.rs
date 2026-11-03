@@ -88,8 +88,25 @@ async fn panic_on_api_route_is_the_envelope() {
     assert_eq!(warned[0]["level"], "WARN", "{text}");
     assert_eq!(warned[0]["route"], "/api/v1/things/{id}", "{text}");
     assert_eq!(warned[0]["panic"], "&str", "{text}");
+    // The timestamp can contain 42 itself, so only the other fields are searched.
+    let fields: Vec<String> = text
+        .lines()
+        .map(
+            |line| match serde_json::from_str::<serde_json::Value>(line) {
+                Ok(mut record) => {
+                    if let Some(object) = record.as_object_mut() {
+                        object.remove("timestamp");
+                    }
+                    record.to_string()
+                }
+                Err(_) => line.to_owned(),
+            },
+        )
+        .collect();
     assert!(
-        !text.contains("42") && !text.contains("query-value"),
+        fields
+            .iter()
+            .all(|record| !record.contains("42") && !record.contains("query-value")),
         "{text}"
     );
 }

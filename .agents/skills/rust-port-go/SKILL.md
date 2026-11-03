@@ -218,6 +218,9 @@ bugs, never into a guess.
   **true** plus an ignored positional in Go: refuse it), ints are base-0 literals, positionals are
   ignored. clap derive drops a trailing period from help and uses the struct doc as `about` →
   `help = "…"`, `about = None`. (flag source, help snapshot)
+- clap's missing-value error (`--config` last) has no usage line, unlike its other errors → do
+  not assert one on every refusal. A help request is an `Err` whose `use_stderr()` is false →
+  print it on stdout with exit 0. (clap 4.6.7)
 
 ### BPF instructions and fmt verbs
 
@@ -413,6 +416,10 @@ bugs, never into a guess.
 `rust-port` maps goroutines to threads or async tasks. These entries assume tokio, the usual
 choice for a Go service built on timers, network I/O and `context` cancellation.
 
+- A blocked signal mask is per thread and inherited only by threads created later → block
+  SIGTERM and SIGINT just before building the runtime, after anything that must not inherit it,
+  and only on the path that serves. Go's `net.Listen` on a wildcard host is dual stack → bind
+  `[::]` with `IPV6_V6ONLY` set off explicitly, falling back to `0.0.0.0`. (startup tests)
 - Dropping a tokio runtime waits for `spawn_blocking` tasks → build it by hand and end it with
   `shutdown_timeout`; in tests `shutdown_background()`. Give shutdown one overall budget and hand
   each step what remains. (a test went 10 s → 0.1 s)

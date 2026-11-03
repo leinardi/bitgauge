@@ -17,11 +17,34 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! The `bitgauge` command. A stub until the command line is ported (`docs/rust-port.md`, phase 13):
-//! it exits with status 1, so nothing mistakes it for a working server.
+//! The `bitgauge` command: `serve` (the default) runs the speed test, and `healthcheck` asks a
+//! running server whether it answers (backend.md sections 5 and 6). Everything is in
+//! [`bitgauge::command`]; this passes it the process's arguments, environment and streams.
 
 use std::process::ExitCode;
 
+use bitgauge::command::{self, Mode, Process};
+use bitgauge::server::Lifecycle;
+use bitgauge::web::Spa;
+
 fn main() -> ExitCode {
-    ExitCode::FAILURE
+    let environment = std::env::vars_os()
+        .map(|(name, value)| {
+            (
+                name.to_string_lossy().into_owned(),
+                value.to_string_lossy().into_owned(),
+            )
+        })
+        .collect();
+    command::run(
+        std::env::args_os().skip(1),
+        Process {
+            stdout: std::io::stdout,
+            stderr: std::io::stderr,
+            environment,
+            render: Spa::render,
+            mode: Mode::Process,
+            lifecycle: Lifecycle::new(),
+        },
+    )
 }

@@ -70,6 +70,21 @@ rust-doc: ## Check the Rust documentation, warnings as errors
 rust-deny: ## Check the Rust dependencies with cargo-deny (advisories, licenses, bans, sources; network)
 	$(CARGO) deny --workspace check
 
+# The release binary, with the SPA web-build leaves in web/dist embedded (build.rs makes cargo
+# re-embed it whenever it changes). make e2e BIN=$(RUST_BIN) runs the end-to-end suite against it.
+RUST_BIN ?= $(REPO_ROOT)/target/release/bitgauge
+
+.PHONY: rust-bin
+rust-bin: web-build ## Build the web app, then the release Rust binary that embeds it, with the version stamps
+	$(RUST_VERSION_ENV) $(CARGO) build --release --locked --bin bitgauge
+
+.PHONY: rust-run
+rust-run: rust-bin ## Build the web app and the Rust binary, then serve them on the LAN until Ctrl+C (RUN_BIND, RUN_PORT, ARGS)
+	@echo "BitGauge (Rust): http://$(RUN_BIND):$(RUN_PORT)/"
+	BITGAUGE_SERVER__LISTEN="$(RUN_BIND):$(RUN_PORT)" \
+	  BITGAUGE_LOG__LEVEL="$(RUN_LOG_LEVEL)" \
+	  "$(RUST_BIN)" serve $(ARGS)
+
 .PHONY: verify-rust
 verify-rust: rust-build rust-fmt-check rust-clippy rust-test rust-doc ## Verify the Rust code (build, fmt, clippy, tests, docs)
 

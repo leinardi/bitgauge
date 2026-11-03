@@ -24,11 +24,14 @@
 //! arrive phase by phase.
 
 pub mod buildinfo;
+pub mod cli;
 pub mod clientip;
 pub mod clock;
+pub mod command;
 pub mod compat;
 pub mod config;
 pub mod handlers;
+pub mod healthcheck;
 pub mod logger;
 pub mod metrics;
 pub mod ratelimit;
