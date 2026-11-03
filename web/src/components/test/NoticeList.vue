@@ -27,6 +27,7 @@ import NoticeBox from '@/components/test/NoticeBox.vue'
 import { latencyStopView, noticeViews } from '@/components/test/notices'
 import { useTheme } from '@/composables/useTheme'
 import type { Direction, DirectionResult, IdleResult, Notice, Preset, Result, TestSettings } from '@/engine/messages'
+import { controlIn, firstConnected, focusHandOff } from '@/lib/focus'
 
 // The notices area (ui/screens.md section 7): each notice an icon and text, never color alone,
 // in its tone, with up to two actions. Danger notices are alerts; the others are status messages.
@@ -46,10 +47,32 @@ const props = withDefaults(
   }>(),
   { result: null, settings: null, directions: () => ({}), idle: null, finishedIdle: null },
 )
-defineEmits<{ retry: []; preset: [preset: Preset]; dismiss: [parameter: string] }>()
+const emit = defineEmits<{ retry: []; preset: [preset: Preset]; dismiss: [parameter: string] }>()
 
 const { t, locale } = useI18n()
 const { choice } = useTheme()
+
+// An action takes its notice away. Dismiss hands the focus to the next notice's first control, else
+// the previous one's; Retry and Try Extended start a run, so the focus moves to Stop
+// (ui/i18n-a11y.md section 2.3).
+const NOTICE = '[data-testid="notice"]'
+const startButton = () => document.querySelector('#main [data-testid="start-button"]')
+const control = (notice: Element | null | undefined) => (notice?.matches(NOTICE) === true ? controlIn(notice) : null)
+
+async function act(event: Event, emitted: () => void): Promise<void> {
+  const notice = (event.currentTarget as Element | null)?.closest(NOTICE)
+  const [after, before] = [control(notice?.nextElementSibling), control(notice?.previousElementSibling)]
+  const handOff = focusHandOff(notice)
+  emitted()
+  // Notices that say the same are keyed by their order, so the box can stay and show the next one.
+  await handOff(() => firstConnected(notice, after, before) ?? startButton())
+}
+
+async function start(event: Event, emitted: () => void): Promise<void> {
+  const handOff = focusHandOff((event.currentTarget as Element | null)?.closest(NOTICE))
+  emitted()
+  await handOff(startButton)
+}
 
 const views = computed(() => {
   const context = { t, locale: locale.value, result: props.result, settings: props.settings, theme: choice.value, directions: props.directions, finishedIdle: props.finishedIdle }
@@ -87,7 +110,7 @@ const views = computed(() => {
         <AppButton
           v-if="action.kind === 'retry'"
           size="sm"
-          @click="$emit('retry')"
+          @click="start($event, () => emit('retry'))"
         >
           <RefreshCw
             :size="14"
@@ -98,7 +121,7 @@ const views = computed(() => {
         <AppButton
           v-else-if="action.kind === 'preset'"
           size="sm"
-          @click="$emit('preset', action.preset)"
+          @click="start($event, () => emit('preset', action.preset))"
         >
           <Timer
             :size="14"
@@ -110,7 +133,7 @@ const views = computed(() => {
           v-else-if="action.kind === 'dismiss'"
           size="sm"
           variant="ghost"
-          @click="$emit('dismiss', action.parameter)"
+          @click="act($event, () => emit('dismiss', action.parameter))"
         >
           <X
             :size="14"

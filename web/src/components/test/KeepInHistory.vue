@@ -18,13 +18,14 @@
 -->
 <script setup lang="ts">
 import { CircleCheck, History } from '@lucide/vue'
-import { shallowRef } from 'vue'
+import { shallowRef, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/actions/AppButton.vue'
 import { notify } from '@/components/feedback/notify'
 import { useHistory } from '@/composables/useHistory'
 import type { Result } from '@/engine/messages'
+import { firstConnected, focusHandOff } from '@/lib/focus'
 
 // Keep in history (ui/flows.md section 4, design_system/components save-bar.md): saves a partial or
 // error result, which is not saved otherwise, and confirms with an undo toast; Undo removes it from
@@ -32,6 +33,9 @@ import type { Result } from '@/engine/messages'
 // component stays mounted while the result is kept, its button hidden, so the toast's Undo still
 // reaches the bar; an Undo for a result the bar no longer shows only removes that result. Its size
 // follows the actions beside it: small in the result bar, medium in the Result detail's header.
+// While saving, the button stays focusable (aria-disabled), and once kept the focus moves to the
+// action that takes its place, the next beside it; the toast's Undo brings the focus back to Keep
+// (ui/i18n-a11y.md section 2.3).
 
 const props = withDefaults(defineProps<{ result: Result; size?: 'sm' | 'md' }>(), { size: 'sm' })
 const kept = defineModel<boolean>('kept', { required: true })
@@ -39,19 +43,29 @@ const kept = defineModel<boolean>('kept', { required: true })
 const { t } = useI18n()
 const history = useHistory()
 const busy = shallowRef(false)
+const button = useTemplateRef<InstanceType<typeof AppButton>>('button')
+const element = () => button.value?.$el as Element | undefined
 
 const kind = (result: Result) => (result.status === 'error' ? t('test.bar.kinds.error') : t('test.bar.kinds.partial'))
 
 async function undo(id: string): Promise<void> {
+  const handOff = focusHandOff(document.activeElement)
   await history.remove([id])
   if (props.result.id === id) {
     kept.value = false
   }
   notify({ tone: 'info', icon: CircleCheck, title: t('test.bar.removed') })
+  await handOff(() => element() ?? document.getElementById('main'))
 }
 
 async function keep(): Promise<void> {
+  if (busy.value) {
+    return
+  }
   const { result } = props
+  const leaving = element()
+  const [after, before] = [leaving?.nextElementSibling, leaving?.previousElementSibling]
+  const handOff = focusHandOff(leaving)
   busy.value = true
   const saved = await history.save(result)
   busy.value = false
@@ -63,14 +77,16 @@ async function keep(): Promise<void> {
     kept.value = true
   }
   notify({ tone: 'info', icon: History, title: t('test.bar.keptToast', { kind: kind(result) }), undo: { label: t('test.bar.undo'), onClick: () => void undo(result.id) } })
+  await handOff(() => firstConnected(after, before) ?? document.getElementById('main'))
 }
 </script>
 
 <template>
   <AppButton
     v-if="!kept"
+    ref="button"
     :size="size"
-    :disabled="busy"
+    :aria-disabled="busy ? 'true' : undefined"
     data-testid="keep-in-history"
     @click="keep"
   >

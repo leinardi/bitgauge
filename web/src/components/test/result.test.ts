@@ -230,6 +230,40 @@ describe('the status bar of a partial or error result', () => {
     expect(wrapper.find('[data-testid="keep-in-history"]').exists()).toBe(true)
   })
 
+  it('hands the focus to Download JSON once kept, and back to Keep after the toast\'s Undo (QA-55)', async () => {
+    const wrapper = mountBar({ result: partial(), save: null })
+    const keep = wrapper.get<HTMLButtonElement>('[data-testid="keep-in-history"]')
+    keep.element.focus()
+    await keep.trigger('click')
+    await flushPromises()
+    expect(document.activeElement?.textContent?.trim()).toBe('Download JSON')
+    // The toast's Undo has the focus, and goes with its toast.
+    const toast = document.body.appendChild(document.createElement('button'))
+    toast.focus()
+    const [notice] = vi.mocked(notify).mock.lastCall ?? []
+    notice?.undo?.onClick()
+    toast.remove()
+    await flushPromises()
+    expect(document.activeElement).toBe(wrapper.get('[data-testid="keep-in-history"]').element)
+    wrapper.unmount()
+  })
+
+  it('keeps the focus on Keep while it saves, and takes no second press', async () => {
+    let finish: (saved: boolean) => void = () => undefined
+    history.save.mockReturnValue(new Promise<boolean>((resolve) => (finish = resolve)))
+    const wrapper = mountBar({ result: partial(), save: null })
+    const keep = wrapper.get<HTMLButtonElement>('[data-testid="keep-in-history"]')
+    keep.element.focus()
+    await keep.trigger('click')
+    await keep.trigger('click')
+    expect([keep.attributes('aria-disabled'), keep.attributes('disabled')]).toEqual(['true', undefined])
+    expect(document.activeElement).toBe(keep.element)
+    expect(history.save).toHaveBeenCalledTimes(1)
+    finish(true)
+    await flushPromises()
+    wrapper.unmount()
+  })
+
   it('says when the browser refused to keep the result, and offers Keep again', async () => {
     history.save.mockResolvedValue(false)
     const wrapper = mountBar({ result: partial(), save: null })

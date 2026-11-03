@@ -346,6 +346,24 @@ describe('Keep in history', () => {
     page.unmount()
   })
 
+  it('hands the focus on as Keep, Delete and its Undo take their controls away (QA-55, QA-103)', async () => {
+    const page = await open(partial.id, RESULTS, partial)
+    ;(keep(page).element as HTMLElement).focus()
+    await keep(page).trigger('click')
+    await vi.waitFor(() => expect(document.activeElement?.textContent?.trim()).toBe('Download JSON'))
+    const remove = page.get<HTMLButtonElement>('[data-testid="delete-result"]')
+    remove.element.focus()
+    await remove.trigger('click')
+    await vi.waitFor(() => expect(document.activeElement).toBe(page.find('[data-testid="result-missing"] a').element))
+    const toast = document.body.appendChild(document.createElement('button'))
+    toast.focus()
+    const [notice] = vi.mocked(notify).mock.calls.find(([call]) => call?.undo?.countdown === true) ?? []
+    notice?.undo?.onClick()
+    toast.remove()
+    await vi.waitFor(() => expect(document.activeElement).toBe(page.find('[data-testid="delete-result"]').element))
+    page.unmount()
+  })
+
   it('keeps the button and says so when the save fails', async () => {
     const page = await open(partial.id, RESULTS, partial)
     const { useHistory } = await import('@/composables/useHistory')

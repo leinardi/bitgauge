@@ -31,6 +31,7 @@ import ExportMenu from '@/components/history/ExportMenu.vue'
 import { saveJson } from '@/components/history/exporting'
 import FilterBar from '@/components/history/FilterBar.vue'
 import HistoryLoading from '@/components/history/HistoryLoading.vue'
+import { historyRow } from '@/components/history/listFocus'
 import ImportDialog from '@/components/history/ImportDialog.vue'
 import { noMatchBody } from '@/components/history/noMatch'
 import OriginNotice from '@/components/history/OriginNotice.vue'
@@ -47,7 +48,7 @@ import { useInfo } from '@/composables/useInfo'
 import { useSettings } from '@/composables/useSettings'
 import { NO_FILTER } from '@/history/filters'
 import { formatBytes } from '@/lib/format'
-import { moveFocus } from '@/lib/focus'
+import { focusHandOff, moveFocus } from '@/lib/focus'
 import { isSafari } from '@/lib/safari'
 import { fill, slot, timeList, timeRange, type TimedText } from '@/lib/timeText'
 
@@ -140,8 +141,25 @@ async function showMore(): Promise<void> {
   const first = list.shown.value.length
   list.showMore()
   await nextTick()
-  const rows = ['[data-testid="history-row"]', '[data-testid="history-card"] a'].map((selector) => document.querySelectorAll(selector)[first])
-  moveFocus(rows.find((row) => row !== undefined && row.getClientRects().length > 0) ?? rows[0])
+  moveFocus(historyRow(first))
+}
+
+// Deleted rows take the focus with them: it moves to the row now in their place, else the last one,
+// else Clear filters when the filter has nothing left, else the empty state's Import JSON; the
+// toast's Undo gives it to the first row put back, and Clear selection to the first row it
+// unselected (ui/i18n-a11y.md section 2.3).
+const shownIndex = (has: (id: string) => boolean) => list.shown.value.findIndex((result) => has(result.id))
+async function removeRows(ids: readonly string[]): Promise<void> {
+  const index = shownIndex((id) => ids.includes(id))
+  const handOff = focusHandOff(document.activeElement)
+  await list.remove(ids, (restored) => historyRow(shownIndex((id) => restored.includes(id))) ?? document.getElementById('main'))
+  await handOff(() => historyRow(index) ?? document.querySelector('[data-testid="no-match-clear"]') ?? (emptyImport.value?.$el as Element | undefined))
+}
+async function clearSelection(): Promise<void> {
+  const index = shownIndex((id) => list.selected.value.has(id))
+  const handOff = focusHandOff(document.activeElement)
+  list.clearSelection()
+  await handOff(() => historyRow(index))
 }
 
 const selectedIds = computed(() => [...list.selected.value])
@@ -283,7 +301,10 @@ watch(comparedPair, (chosen) => {
         :body="noMatchBody(list.filter.value, all.length, { t, locale })"
         data-testid="history-no-match"
       >
-        <AppButton @click="list.setFilter(NO_FILTER)">
+        <AppButton
+          data-testid="no-match-clear"
+          @click="list.setFilter(NO_FILTER)"
+        >
           <X
             :size="15"
             aria-hidden="true"
@@ -309,15 +330,15 @@ watch(comparedPair, (chosen) => {
           @sort="list.sortBy"
           @toggle="list.toggle"
           @open="open"
-          @remove="(id) => list.remove([id])"
+          @remove="(id) => removeRows([id])"
         >
           <template #footer>
             <SelectionBar
               v-if="list.selected.value.size > 0"
               :count="list.selected.value.size"
               :summary="selectionSummary"
-              @clear="list.clearSelection"
-              @remove="list.remove(selectedIds)"
+              @clear="clearSelection"
+              @remove="removeRows(selectedIds)"
               @compare="comparing = true"
             />
           </template>
@@ -332,9 +353,9 @@ watch(comparedPair, (chosen) => {
           @sort="(next) => (list.sort.value = next)"
           @toggle="list.toggle"
           @open="open"
-          @remove="(id) => list.remove([id])"
-          @clear="list.clearSelection"
-          @remove-selected="list.remove(selectedIds)"
+          @remove="(id) => removeRows([id])"
+          @clear="clearSelection"
+          @remove-selected="removeRows(selectedIds)"
           @compare="comparing = true"
         />
         <ShowMore

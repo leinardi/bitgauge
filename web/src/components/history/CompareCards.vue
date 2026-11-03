@@ -25,16 +25,28 @@ import { RouterLink } from 'vue-router'
 import AppButton from '@/components/actions/AppButton.vue'
 import type { Comparison, CompareRow } from '@/components/history/compare'
 import CompareChange from '@/components/history/CompareChange.vue'
+import { focusHandOff } from '@/lib/focus'
 
 // The compare view on narrow screens (ui/screens.md section 3, responsive notes; kit History.jsx):
 // one result per column, paged horizontally by swipe or by the previous and next buttons, each
-// linking to its detail; B's column carries each change.
+// linking to its detail; B's column carries each change. A paging button disables itself on the
+// last page it reaches, so the focus moves to the other, inside the dialog (ui/i18n-a11y.md
+// section 2.3).
 
 const props = defineProps<{ comparison: Comparison; sides: { side: 'A' | 'B'; id: string; label: string; date: string; startedAt: string }[] }>()
 
 const { t } = useI18n()
 const scroller = useTemplateRef<HTMLDivElement>('scroller')
 const page = shallowRef(0)
+const previous = useTemplateRef<InstanceType<typeof AppButton>>('previous')
+const next = useTemplateRef<InstanceType<typeof AppButton>>('next')
+
+async function turn(index: number): Promise<void> {
+  const [pressed, other] = index === 0 ? [previous.value, next.value] : [next.value, previous.value]
+  const handOff = focusHandOff(pressed?.$el as Element | undefined)
+  go(index)
+  await handOff(() => other?.$el as Element | undefined)
+}
 
 function go(index: number): void {
   const card = scroller.value?.children[index] as HTMLElement | undefined
@@ -63,11 +75,12 @@ const EYEBROW = 'pt-3 pb-1 font-(family-name:--font-cond) text-(length:--text-mi
   <div class="flex flex-col gap-3">
     <div class="flex items-center gap-1 px-2">
       <AppButton
+        ref="previous"
         variant="ghost"
         class="size-11 justify-center px-0"
         :aria-label="t('history.compare.previous')"
         :disabled="page === 0"
-        @click="go(0)"
+        @click="turn(0)"
       >
         <ChevronLeft
           :size="15"
@@ -92,11 +105,12 @@ const EYEBROW = 'pt-3 pb-1 font-(family-name:--font-cond) text-(length:--text-mi
         </span>
       </div>
       <AppButton
+        ref="next"
         variant="ghost"
         class="size-11 justify-center px-0"
         :aria-label="t('history.compare.next')"
         :disabled="page === 1"
-        @click="go(1)"
+        @click="turn(1)"
       >
         <ChevronRight
           :size="15"

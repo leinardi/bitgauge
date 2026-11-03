@@ -284,6 +284,59 @@ describe('the list', () => {
     page.unmount()
   })
 
+  it('hands the focus to the row that takes the place of what Delete, Clear selection and Undo take away (QA-55)', async () => {
+    const page = await open()
+    const table = page.get('[data-testid="history-table"]')
+    const row = (index: number) => table.findAll('[data-testid="history-row"]')[index]?.element
+    const [, second, third] = table.findAll('[data-testid="row-select"]')
+    await second?.trigger('click')
+    await third?.trigger('click')
+    const removeSelected = table.get<HTMLButtonElement>('[data-testid="delete-selected"]')
+    removeSelected.element.focus()
+    await removeSelected.trigger('click')
+    await settled(() => expect(rows(page)).toHaveLength(6))
+    // The row now in the place of the first one deleted.
+    await settled(() => expect(document.activeElement).toBe(row(1)))
+    // The toast's Undo goes with its toast; the focus moves to the first row put back.
+    const toast = document.body.appendChild(document.createElement('button'))
+    toast.focus()
+    const [notice] = vi.mocked(notify).mock.lastCall ?? []
+    notice?.undo?.onClick()
+    toast.remove()
+    await settled(() => expect(rows(page)).toHaveLength(8))
+    await settled(() => expect(document.activeElement).toBe(row(1)))
+    // Clear selection: to the first row it unselected.
+    await table.findAll('[data-testid="row-select"]')[4]?.trigger('click')
+    const clear = table.get<HTMLButtonElement>('[data-testid="clear-selection"]')
+    clear.element.focus()
+    await clear.trigger('click')
+    await settle()
+    expect(page.find('[data-testid="selection-bar"]').exists()).toBe(false)
+    expect(document.activeElement).toBe(row(4))
+    // A row's own Delete, from its actions menu: to the row now in its place.
+    await table.findAll('[data-testid="row-actions"]')[7]?.trigger('keydown', { key: 'Enter' })
+    await settle()
+    const item = body().get<HTMLElement>('[data-testid="row-delete"]')
+    item.element.focus()
+    await item.trigger('click')
+    await settled(() => expect(rows(page)).toHaveLength(7))
+    // The last row went, so the focus moves to the one before it.
+    await settled(() => expect(document.activeElement).toBe(row(6)))
+    page.unmount()
+  })
+
+  it('hands the focus to Clear filters when Delete takes the last row the filter shows', async () => {
+    const page = await open('/history?q=hotel')
+    expect(rows(page)).toHaveLength(1)
+    await page.get('[data-testid="history-table"] [data-testid="row-select"]').trigger('click')
+    const removeSelected = page.get<HTMLButtonElement>('[data-testid="history-table"] [data-testid="delete-selected"]')
+    removeSelected.element.focus()
+    await removeSelected.trigger('click')
+    await settled(() => expect(page.find('[data-testid="history-no-match"]').exists()).toBe(true))
+    await settled(() => expect(document.activeElement).toBe(page.get('[data-testid="no-match-clear"]').element))
+    page.unmount()
+  })
+
   it('shows 100 rows at a time, the focus on the first added, and starts again after a sort', async () => {
     const page = await open('/history', many())
     const more = () => page.find('[data-testid="history-more"]')

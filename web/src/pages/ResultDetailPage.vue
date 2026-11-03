@@ -46,6 +46,7 @@ import { useInfo } from '@/composables/useInfo'
 import { lastRunResult } from '@/composables/useRun'
 import { requestRunAgain } from '@/composables/useRunAgain'
 import { useSettings } from '@/composables/useSettings'
+import { focusHandOff } from '@/lib/focus'
 
 // The Result detail (ui/screens.md section 2, kit ResultDetail.jsx): everything about one result,
 // from history, or, when its id is not there, the result of the run just finished, which this page
@@ -142,7 +143,10 @@ function saveNote(target: string, note: string): void {
   }
 }
 
+// Delete takes its control away: the focus moves to the deleted state's link to History, and after
+// the toast's Undo to Delete again (ui/i18n-a11y.md section 2.3).
 async function remove(): Promise<void> {
+  const handOff = focusHandOff(document.activeElement)
   const removed = await history.remove([id.value])
   if (removed.length === 0) {
     return
@@ -156,13 +160,16 @@ async function remove(): Promise<void> {
       label: t('history.deleted.undo'),
       countdown: true,
       onClick: () => {
+        const undone = focusHandOff(document.activeElement)
         void history.restore(removed).then(() => {
           deleted.value = false
           notify({ tone: 'ok', title: t('history.deleted.restored') })
+          return undone(() => document.querySelector('#main [data-testid="delete-result"]'))
         })
       },
     },
   })
+  await handOff(() => document.querySelector('[data-testid="result-missing"] a'))
 }
 
 function runAgain(): void {

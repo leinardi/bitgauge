@@ -230,3 +230,23 @@ test('shows cards up to the desktop breakpoint, and from there a table that fits
   const fits = await table.evaluate((element) => element.scrollWidth <= (element.parentElement?.clientWidth ?? 0))
   expect(fits).toBe(true)
 })
+
+test('hands the focus to the row in place of a deleted one, and to the row put back by the keyboard Undo', async ({ page }) => {
+  await importHistory(page)
+  const rows = page.getByTestId('history-table').getByTestId('history-row')
+  await rows.nth(2).getByTestId('row-actions').focus()
+  await page.keyboard.press('Enter')
+  await page.getByTestId('row-delete').focus()
+  await page.keyboard.press('Enter')
+  await expect(rows).toHaveCount(7)
+  // The row now in the deleted one's place (ui/i18n-a11y.md section 2.3).
+  await expect(rows.nth(2)).toBeFocused()
+  // The toast's Undo by the keyboard: the focus moves to the row put back, and stays there as the
+  // next toast comes.
+  await page.locator('[data-sonner-toast]').filter({ hasText: 'Result deleted.' }).getByRole('button', { name: 'Undo' }).focus()
+  await page.keyboard.press('Enter')
+  await expect(rows).toHaveCount(8)
+  await expect(rows.nth(2)).toBeFocused()
+  await page.waitForTimeout(500)
+  await expect(rows.nth(2)).toBeFocused()
+})

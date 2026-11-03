@@ -25,6 +25,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { notify } from '@/components/feedback/notify'
 import type { History } from '@/composables/useHistory'
 import { correctedQuery, DEFAULT_SORT, filterFromQuery, filterResults, type HistoryFilter, queryFromFilter, type SortDirection, type SortKey, sortResults } from '@/history/filters'
+import { focusHandOff } from '@/lib/focus'
 
 // The History list's state (ui/screens.md section 3, ui/flows.md section 6): the filter, kept in
 // the query string so Back and a reload keep it; the sort, newest first by default; the rows shown,
@@ -151,7 +152,8 @@ export function useHistoryList(history: History) {
     selected.value = new Set()
   }
 
-  async function remove(ids: readonly string[]): Promise<void> {
+  /** Removes the results at once with an undo toast; `restored` names where the focus goes after the Undo. */
+  async function remove(ids: readonly string[], restored?: (ids: string[]) => Element | null | undefined): Promise<void> {
     const removed = await history.remove(ids)
     if (removed.length === 0) {
       return
@@ -160,7 +162,14 @@ export function useHistoryList(history: History) {
       tone: 'info',
       icon: Trash2,
       title: t('history.deleted.title', { n: removed.length }, removed.length),
-      undo: { label: t('history.deleted.undo'), countdown: true, onClick: () => void history.restore(removed) },
+      undo: {
+        label: t('history.deleted.undo'),
+        countdown: true,
+        onClick: () => {
+          const handOff = focusHandOff(document.activeElement)
+          void history.restore(removed).then(() => handOff(() => restored?.(removed.map((result) => result.id))))
+        },
+      },
     })
   }
 

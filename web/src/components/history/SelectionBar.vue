@@ -60,6 +60,7 @@ function compare(): void {
       variant="ghost"
       class="size-11 justify-center px-0"
       :aria-label="t('history.selection.clear')"
+      data-testid="clear-selection"
       @click="emit('clear')"
     >
       <X
@@ -125,6 +126,7 @@ function compare(): void {
       <AppButton
         variant="ghost"
         size="sm"
+        data-testid="clear-selection"
         @click="emit('clear')"
       >
         {{ t('history.selection.clear') }}

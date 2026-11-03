@@ -22,7 +22,7 @@
 // The Test screen's components: the notices for every code with their tones and actions, the
 // metric tile, the Test list with its browser row, the phase indicator's states, and the start control.
 
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import type { Component } from 'vue'
 
@@ -182,6 +182,48 @@ describe('the notices', () => {
     expect(wrapper.emitted('preset')).toEqual([['extended']])
     expect(items[1]?.get('button').text()).toBe('Try Extended')
     expect(items[3]?.get('a').attributes('href')).toBe(links.deployment)
+  })
+
+  it('hands the focus to the next notice when Dismiss takes one away, and to Stop when an action starts a run (QA-55, QA-103)', async () => {
+    const main = document.body.appendChild(Object.assign(document.createElement('main'), { id: 'main' }))
+    const start = main.appendChild(Object.assign(document.createElement('button'), { textContent: 'Stop' }))
+    start.dataset['testid'] = 'start-button'
+    const host = main.appendChild(document.createElement('div'))
+    const streams: Notice = { code: 'url-parameter-ignored', parameter: 'streams', value: '12' }
+    const cap: Notice = { code: 'url-parameter-ignored', parameter: 'cap', value: 'x' }
+    let shown: Notice[] = [streams, cap, EVERY['insufficient-data']]
+    const wrapper: VueWrapper = mount(NoticeList, {
+      props: {
+        notices: shown,
+        onDismiss: (parameter: string) => {
+          shown = shown.filter((notice) => !('parameter' in notice) || notice.parameter !== parameter)
+          return wrapper.setProps({ notices: shown })
+        },
+      },
+      global: { plugins: [i18n()] },
+      attachTo: host,
+    } as never)
+    const titles = () => wrapper.findAll('[data-testid="notice"]').map((notice) => notice.get('button').text())
+    const press = async (index: number) => {
+      const button = wrapper.findAll('[data-testid="notice"]')[index]?.get<HTMLButtonElement>('button')
+      button?.element.focus()
+      await button?.trigger('click')
+      await flushPromises()
+    }
+    expect(titles()).toEqual(['Dismiss', 'Dismiss', 'Try Extended'])
+    // The first ignored parameter's Dismiss: to the next notice's.
+    await press(0)
+    expect(titles()).toEqual(['Dismiss', 'Try Extended'])
+    expect(document.activeElement).toBe(wrapper.findAll('[data-testid="notice"]')[0]?.get('button').element)
+    // The last one's: to the notice after it, Try Extended.
+    await press(0)
+    expect(titles()).toEqual(['Try Extended'])
+    expect(document.activeElement).toBe(wrapper.get('[data-testid="notice"] button').element)
+    await press(0)
+    expect(wrapper.emitted('preset')).toEqual([['extended']])
+    expect(document.activeElement).toBe(start)
+    wrapper.unmount()
+    main.remove()
   })
 
   it('keeps the box of a notice that moves, so its status region is not rewritten and announced again', async () => {
