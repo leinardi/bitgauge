@@ -1,0 +1,92 @@
+#
+# This file is part of BitGauge.
+#
+# Copyright (c) 2026 Roberto Leinardi
+#
+# BitGauge is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# BitGauge is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Adapted from swarm-scheduler-exporter/deny.toml at 722b8a3, MIT, Copyright (c) 2026 Roberto Leinardi
+#
+# cargo-deny: the dependency gate for the Rust workspace. `cargo deny --workspace check` runs every
+# section (the cargo-deny pre-commit hook on a manifest change, and the rust CI job).
+#
+# cargo-deny 0.20 leaves workspace members' dev-dependencies out of its graph (the rust-port-go
+# skill, section 5), so the licenses and advisories of the dev-only crates are not checked here;
+# the bans below still hold for every normal dependency of every member, and
+# meta/tests/production_graph.rs reads the same ban list to hold the shipped package's resolved
+# graph to it.
+
+[graph]
+all-features = true
+
+[advisories]
+# Every vulnerability and unsound advisory fails; "unmaintained" fails for direct and transitive
+# crates alike unless ignored here by advisory ID, with a reason. An ignore written as
+# `{ crate = "name" }` would only ignore yanked versions, so none is.
+version = 2
+unmaintained = "all"
+yanked = "deny"
+ignore = []
+
+[licenses]
+version = 2
+# Only the licenses the Cargo.lock graph needs, each added by the change that brings in the crate
+# needing it. The dual-licensed crates pick MIT.
+allow = ["MIT"]
+confidence-threshold = 0.9
+
+# The workspace's own crates are GPL-3.0-or-later and unpublished (publish = false); they are
+# BitGauge itself, not a dependency to license-check.
+[licenses.private]
+ignore = true
+
+[bans]
+multiple-versions = "allow"
+wildcards = "deny"
+allow-wildcard-paths = true
+# The server never stores a result and never calls out (AGENTS.md): no HTTP client, database,
+# key-value store or RPC framework may enter the graph. hyper's and hyper-util's client features
+# cannot be banned by name here; meta/tests/production_graph.rs refuses them in the shipped
+# package's resolved features.
+deny = [
+    # HTTP clients.
+    { name = "reqwest", reason = "the server never calls out" },
+    { name = "ureq", reason = "the server never calls out" },
+    { name = "isahc", reason = "the server never calls out" },
+    { name = "surf", reason = "the server never calls out" },
+    { name = "attohttpc", reason = "the server never calls out" },
+    { name = "curl", reason = "the server never calls out" },
+    { name = "awc", reason = "the server never calls out" },
+    # Databases and stores.
+    { name = "sqlx", reason = "the server stores nothing" },
+    { name = "rusqlite", reason = "the server stores nothing" },
+    { name = "diesel", reason = "the server stores nothing" },
+    { name = "sea-orm", reason = "the server stores nothing" },
+    { name = "postgres", reason = "the server stores nothing" },
+    { name = "tokio-postgres", reason = "the server stores nothing" },
+    { name = "mysql", reason = "the server stores nothing" },
+    { name = "mongodb", reason = "the server stores nothing" },
+    { name = "sled", reason = "the server stores nothing" },
+    { name = "redb", reason = "the server stores nothing" },
+    { name = "rocksdb", reason = "the server stores nothing" },
+    { name = "redis", reason = "the server stores nothing" },
+    # RPC frameworks.
+    { name = "tonic", reason = "the native API is REST and JSON (decisions.md section 3)" },
+    { name = "tarpc", reason = "the native API is REST and JSON (decisions.md section 3)" },
+]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

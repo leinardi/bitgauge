@@ -1,0 +1,96 @@
+#
+# This file is part of BitGauge.
+#
+# Copyright (c) 2026 Roberto Leinardi
+#
+# BitGauge is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# BitGauge is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Adapted from swarm-scheduler-exporter/Cargo.toml at 722b8a3, MIT, Copyright (c) 2026 Roberto Leinardi
+
+# The Rust port of BitGauge (docs/rust-port.md), built beside the Go module until the cutover.
+
+[workspace]
+# Listed explicitly, never as a glob: meta/tests/lint_inheritance.rs checks each member's manifest.
+members = [".", "meta", "testenv"]
+resolver = "3"
+
+[workspace.package]
+edition = "2024"
+# One exact Rust release, the one rust-toolchain.toml pins.
+rust-version = "1.98.1"
+license = "GPL-3.0-or-later"
+authors = ["Roberto Leinardi"]
+repository = "https://github.com/leinardi/bitgauge"
+
+# The lint set lives here once. Every member opts in with `[lints] workspace = true` (a member does
+# not inherit it otherwise, and meta/tests/lint_inheritance.rs asserts that each one does).
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+# Only `#[expect(lint, reason = "...")]` may silence a lint: it fails once the lint stops firing,
+# and the reason is mandatory.
+allow_attributes = "deny"
+allow_attributes_without_reason = "deny"
+# No panics outside tests; clippy.toml allows both in tests.
+unwrap_used = "deny"
+expect_used = "deny"
+# A match on an enum names every variant, so a new variant is a compile-time decision everywhere.
+wildcard_enum_match_arm = "deny"
+# Descriptive names; clippy's default allow-list applies.
+min_ident_chars = "deny"
+# The lint boundary (docs/rust-port.md): the lists live in each crate's nearest clippy.toml, and
+# they are enforced only because these lints are denied. The root clippy.toml carries the
+# production bans; the meta and testenv ones carry none.
+disallowed_methods = "deny"
+disallowed_macros = "deny"
+disallowed_types = "deny"
+
+[package]
+name = "bitgauge"
+version = "0.0.0"
+description = "Self-hosted, browser-based network speed test for LAN, homelab and VPN links"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "bitgauge"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+
+# The meta-tests scan the whole tree with regexes; unoptimized, regex compilation and matching
+# dominate their run time. Only the regex crates are optimized in dev and test builds.
+[profile.dev.package.regex]
+opt-level = 3
+
+[profile.dev.package.regex-automata]
+opt-level = 3
+
+[profile.dev.package.regex-syntax]
+opt-level = 3

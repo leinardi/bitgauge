@@ -36,6 +36,6 @@ verify-go: $(VERIFY_GO_BUILD) go-test go-vet go-vet-image go-vet-harness go-lint
 verify-web: web-lint web-test ## Verify the web code (ESLint, vue-tsc, Vitest)
 
 .PHONY: verify
-verify: verify-go verify-web ## Verify everything
+verify: verify-go verify-rust verify-web ## Verify everything (verify-rust lives in rust.mk)
 
 endif  # MK_LOCAL_VERIFY_INCLUDED

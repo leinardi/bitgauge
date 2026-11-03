@@ -92,6 +92,24 @@ updates:
         patterns:
           - "*"
 
+  # The Rust workspace, built beside the Go module until the cutover (docs/rust-port.md). chore,
+  # not fix: no Rust code ships until then, so a bump releases nothing. The cutover makes it
+  # fix(deps), as gomod is.
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "chore(deps)"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "ci"]
+    groups:
+      cargo:
+        patterns:
+          - "*"
+
   # The SPA, embedded in the binary and the image. Its runtime dependencies ship, so they are
   # fix(deps); devDependencies (lint, test and build tooling) are chore(deps) and bump nothing.
   - package-ecosystem: "npm"

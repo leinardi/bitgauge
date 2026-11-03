@@ -75,6 +75,29 @@ const shellHeader = `#!/usr/bin/env bash
 echo ok
 `
 
+// rustHeader is goHeader in a Rust file: the same block comment.
+const rustHeader = `/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ */
+`
+
+// provenance is the one accepted shape of the line an adapted file carries after its header.
+const provenance = "// Adapted from swarm-scheduler-exporter/meta/src/repo.rs at 722b8a3, MIT, " +
+	"Copyright (c) 2026 Roberto Leinardi\n"
+
+// tomlHeader is the shell header without the shebang, as the Rust workspace's TOML files carry it.
+const tomlHeader = "#\n# This file is part of BitGauge.\n#\n# Copyright (c) 2026 Roberto Leinardi\n#\n" +
+	"# it under the terms of the GNU General Public License as published by\n" +
+	"# the Free Software Foundation, either version 3 of the License, or\n" +
+	"# (at your option) any later version.\n"
+
 const makefile = "MK_COMMON_FILES := docker.mk help.mk\n"
 
 // makefileWithHeader is the scratch repositories' Makefile, which the check governs too.
@@ -126,7 +149,26 @@ func TestHeaderCases(t *testing.T) {
 		"vue without a header":           {map[string]string{"web/src/App.vue": "<template></template>\n"}, false},
 		"dockerfile without a header":    {map[string]string{"deployments/docker/Dockerfile": "FROM scratch\n"}, false},
 		"local make fragment, no header": {map[string]string{".mk/verify.mk": "x:\n"}, false},
-		"makefile without a header":      {map[string]string{"Makefile": makefile}, false},
+		"rust file with the header":      {map[string]string{"src/lib.rs": rustHeader + "//! x\n"}, true},
+		"rust file without a header":     {map[string]string{"src/lib.rs": "//! x\n"}, false},
+		"rust file, exact provenance":    {map[string]string{"meta/src/repo.rs": rustHeader + provenance}, true},
+		"rust file, provenance no commit": {
+			map[string]string{"meta/src/repo.rs": rustHeader + "// Adapted from swarm-scheduler-exporter/meta/src/repo.rs, MIT\n"},
+			false,
+		},
+		"rust file, provenance no license": {
+			map[string]string{"meta/src/repo.rs": rustHeader + strings.Replace(provenance, " MIT,", "", 1)},
+			false,
+		},
+		"toml provenance in its own marker": {
+			map[string]string{"Cargo.toml": tomlHeader + strings.Replace(provenance, "//", "#", 1)},
+			true,
+		},
+		"cargo manifest without a header": {map[string]string{"meta/Cargo.toml": "[package]\n"}, false},
+		"clippy config without a header":  {map[string]string{"clippy.toml": "msrv = \"1\"\n"}, false},
+		// The Go side did not move: an unadapted Go file still passes on its header alone.
+		"go file without provenance": {map[string]string{"internal/x/x.go": goHeader}, true},
+		"makefile without a header":  {map[string]string{"Makefile": makefile}, false},
 		// goHeader's last required line is its ninth: 16 lines before it put it on line 25, the
 		// last line of the window, and one more pushes it out.
 		"header ending on the last line of the window": {

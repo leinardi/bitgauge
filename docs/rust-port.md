@@ -209,6 +209,15 @@ for byte where this port does not.
 | Source | Commit | What | Adaptation |
 | --- | --- | --- | --- |
 | swarm-rootless-docker | `253a99b` | Idiomatic crate picks (tracing, thiserror) | Choices only, no files |
+| swarm-scheduler-exporter | `722b8a3` | `Cargo.toml` | Members `.`, `meta`, `testenv`; GPL license; `unsafe_code` forbidden; the three boundary lints denied; no dependencies yet |
+| swarm-scheduler-exporter | `722b8a3` | `rust-toolchain.toml`, `rustfmt.toml` | Unchanged settings |
+| swarm-scheduler-exporter | `722b8a3` | `clippy.toml` | The production bans of the lint boundary; `allow-invalid` for crates not yet depended on |
+| swarm-scheduler-exporter | `722b8a3` | `deny.toml` | BitGauge's bans (HTTP clients, stores, RPC); `[licenses.private] ignore`; MIT only so far |
+| swarm-scheduler-exporter | `722b8a3` | `.mk/rust.mk` | `BITGAUGE_*` stamps from the Go build's variables; no `rust-run` yet |
+| swarm-scheduler-exporter | `722b8a3` | `scripts/hooks/rustfmt-on-edit.sh` | Unchanged logic |
+| swarm-scheduler-exporter | `722b8a3` | `meta/src/repo.rs` | `tracked_or_new` (tracked and untracked, not ignored) in place of `tracked` |
+| swarm-scheduler-exporter | `722b8a3` | `meta/tests/workspace_lints.rs` | Became `meta/tests/lint_inheritance.rs`, with the clippy configuration checks and the scratch-crate control |
+| swarm-device-access | `4cd31c4` | `meta/tests/unsafe_allowlist.rs` | The pattern only, for `meta/tests/lint_exemptions.rs`; no file copied |
 
 Rows are added by the phase that copies a file.
 

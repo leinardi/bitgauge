@@ -1,0 +1,76 @@
+#
+# This file is part of BitGauge.
+#
+# Copyright (c) 2026 Roberto Leinardi
+#
+# BitGauge is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# BitGauge is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Adapted from swarm-scheduler-exporter/clippy.toml at 722b8a3, MIT, Copyright (c) 2026 Roberto Leinardi
+#
+# The production half of the lint boundary (docs/rust-port.md, Lint Boundary). clippy reads the
+# clippy.toml nearest to each crate's manifest, so this file governs the bitgauge package only;
+# meta/clippy.toml and testenv/clippy.toml carry the test settings and none of these bans, since
+# those crates write reports, run Docker and dial test servers by design.
+#
+# The server never stores a result and never calls out (AGENTS.md): no file write, no outbound
+# connection, no name lookup, and no wall-clock read outside the injected clock. An exemption is an
+# #[expect(clippy::disallowed_methods, reason = "...")] on one item, and
+# meta/tests/lint_exemptions.rs pins the few that may exist.
+
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+
+# Proper names the docs cite, never an identifier that should be in backticks; ".." keeps
+# clippy's default list.
+doc-valid-idents = ["BitGauge", "OpenMetrics", "OpenSpeedTest", "LibreSpeed", "networkQuality", ".."]
+
+# allow-invalid: a path is banned before the crate that defines it becomes a dependency, so the
+# ban is already in place the moment it does.
+disallowed-methods = [
+    # No file write: the configuration is read-only and nothing is stored.
+    { path = "std::fs::write", reason = "the server writes no file" },
+    { path = "std::fs::File::create", reason = "the server writes no file" },
+    { path = "std::fs::File::create_new", reason = "the server writes no file" },
+    { path = "std::fs::OpenOptions::open", reason = "the server writes no file; read with std::fs::read or File::open" },
+    { path = "std::fs::create_dir", reason = "the server writes no file" },
+    { path = "std::fs::create_dir_all", reason = "the server writes no file" },
+    { path = "std::fs::remove_file", reason = "the server writes no file" },
+    { path = "std::fs::remove_dir", reason = "the server writes no file" },
+    { path = "std::fs::remove_dir_all", reason = "the server writes no file" },
+    { path = "std::fs::rename", reason = "the server writes no file" },
+    # No outbound connection: the server only accepts.
+    { path = "std::net::TcpStream::connect", reason = "the server never calls out" },
+    { path = "std::net::TcpStream::connect_timeout", reason = "the server never calls out" },
+    { path = "tokio::net::TcpStream::connect", reason = "the server never calls out", allow-invalid = true },
+    { path = "std::net::UdpSocket::bind", reason = "the server never calls out" },
+    { path = "tokio::net::UdpSocket::bind", reason = "the server never calls out", allow-invalid = true },
+    # No name lookup: every address is a literal.
+    { path = "std::net::ToSocketAddrs::to_socket_addrs", reason = "the server does no name lookup" },
+    { path = "tokio::net::lookup_host", reason = "the server does no name lookup", allow-invalid = true },
+    # No wall-clock read: the grid, the limiter and the deadlines use tokio::time::Instant, which
+    # follows the paused test clock and stays allowed.
+    { path = "std::time::SystemTime::now", reason = "use tokio::time::Instant through the injected Clock" },
+    { path = "std::time::Instant::now", reason = "use tokio::time::Instant through the injected Clock" },
+    { path = "jiff::Timestamp::now", reason = "use tokio::time::Instant through the injected Clock", allow-invalid = true },
+    { path = "jiff::Zoned::now", reason = "use tokio::time::Instant through the injected Clock", allow-invalid = true },
+]
+
+# Output goes through tracing, or an explicit writeln! to a handle (the CLI's help and refusals).
+disallowed-macros = [
+    { path = "std::print", reason = "log through tracing, or writeln! to a handle" },
+    { path = "std::println", reason = "log through tracing, or writeln! to a handle" },
+    { path = "std::eprint", reason = "log through tracing, or writeln! to a handle" },
+    { path = "std::eprintln", reason = "log through tracing, or writeln! to a handle" },
+    { path = "std::dbg", reason = "no debugging output in shipped code" },
+]
