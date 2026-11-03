@@ -192,6 +192,27 @@ describe('a stored result', () => {
   })
 })
 
+describe('the heading after a navigation', () => {
+  it('focuses the h1 only once the result has loaded, with Result as the title until then', async () => {
+    await seed(RESULTS)
+    vi.resetModules()
+    vi.doMock('@/composables/useRun', () => ({ lastRunResult: shallowRef(null) }))
+    const { default: ResultDetailPage } = await import('@/pages/ResultDetailPage.vue')
+    const { mountApp } = await import('@/test/mount')
+    const page = await mountApp(ResultDetailPage, '/result/none', { attachTo: document.body })
+    // An in-app navigation while the history still loads: no heading to focus yet.
+    await page.vm.$router.push(`/result/${NEWEST.id}`)
+    expect(page.find('[data-testid="result-loading"]').exists()).toBe(true)
+    expect(document.title).toBe('Result · BitGauge')
+    expect(document.activeElement?.tagName).not.toBe('H1')
+    await vi.waitFor(() => expect(page.find('[data-testid="result-loading"]').exists()).toBe(false))
+    await settle()
+    expect(document.activeElement).toBe(page.get('h1').element)
+    expect(document.activeElement?.textContent).toContain('VPN via 5G')
+    page.unmount()
+  })
+})
+
 describe('editing', () => {
   it('saves the label edited in place', async () => {
     const page = await open(NEWEST.id)
@@ -202,6 +223,17 @@ describe('editing', () => {
     // The edit is a write to IndexedDB, which a loaded machine can take longer than the settling for.
     await vi.waitFor(() => expect(text(page, 'result-label')).toBe('Desk, 5 GHz'))
     expect((await stored(NEWEST.id))?.label).toBe('Desk, 5 GHz')
+    page.unmount()
+  })
+
+  it('titles the page by the label, and follows a rename (D-16)', async () => {
+    const page = await open(NEWEST.id)
+    expect(document.title).toBe('VPN via 5G · BitGauge')
+    await page.get('[data-testid="edit-label"]').trigger('click')
+    const input = page.get('[data-testid="label-input"]')
+    await input.setValue('Desk, 5 GHz')
+    await input.trigger('keydown', { key: 'Enter' })
+    await vi.waitFor(() => expect(document.title).toBe('Desk, 5 GHz · BitGauge'))
     page.unmount()
   })
 

@@ -43,6 +43,7 @@ import MetricTile from '@/components/test/MetricTile.vue'
 import NoticeBox from '@/components/test/NoticeBox.vue'
 import { useHistory } from '@/composables/useHistory'
 import { useInfo } from '@/composables/useInfo'
+import { usePageHeading, usePageTitle } from '@/composables/usePageHeading'
 import { lastRunResult } from '@/composables/useRun'
 import { requestRunAgain } from '@/composables/useRunAgain'
 import { useSettings } from '@/composables/useSettings'
@@ -79,6 +80,11 @@ const loading = computed(() => history.status.value === 'loading')
 const unsaved = computed(() => (!loading.value && saved.value === null && !deleted.value && lastRunResult.value?.id === id.value ? lastRunResult.value : null))
 const result = computed(() => saved.value ?? unsaved.value)
 const unavailable = computed(() => history.status.value === 'unavailable')
+// Its title is the result's label, after a rename too, "Result" while it loads, without a label or
+// when not found; its heading takes the focus after an in-app navigation once the result has
+// loaded (ui/i18n-a11y.md section 2.3).
+usePageTitle(() => result.value?.label || t('result.pageTitle'))
+usePageHeading(() => document.querySelector('#main h1'), () => !loading.value)
 const notSaved = computed(() => {
   const shown = unsaved.value
   if (shown === null) {

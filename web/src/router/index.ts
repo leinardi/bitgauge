@@ -19,6 +19,7 @@
 
 import { createRouter, createWebHistory, type Router, type RouterHistory } from 'vue-router'
 
+import { countNavigation } from '@/composables/usePageHeading'
 import TestPage from '@/pages/TestPage.vue'
 import { readBasePath } from '@/router/base'
 
@@ -27,7 +28,7 @@ import { readBasePath } from '@/router/base'
 
 /** The router over a history; the application passes HTML5 history under the base path. */
 export function createAppRouter(history: RouterHistory): Router {
-  return createRouter({
+  const router = createRouter({
     history,
     routes: [
       { path: '/', name: 'test', component: TestPage },
@@ -37,6 +38,9 @@ export function createAppRouter(history: RouterHistory): Router {
       { path: '/result/:id', name: 'result', component: () => import('@/pages/ResultDetailPage.vue') },
     ],
   })
+  // Each navigation to another page moves the focus to its heading (ui/i18n-a11y.md section 2.3).
+  router.afterEach(countNavigation)
+  return router
 }
 
 /** HTML5 history under the base path of the page's meta element. */

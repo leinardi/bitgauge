@@ -17,7 +17,7 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { computed, nextTick, shallowRef, watch } from 'vue'
+import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import LiveRegions from '@/components/a11y/LiveRegions.vue'
@@ -42,6 +42,7 @@ import { useElapsed } from '@/composables/useElapsed'
 import { useHistory } from '@/composables/useHistory'
 import { useInfo } from '@/composables/useInfo'
 import { useEndedRun } from '@/composables/useEndedRun'
+import { usePageHeading, usePageTitle } from '@/composables/usePageHeading'
 import { useResultSave } from '@/composables/useResultSave'
 import { type StartOptions, useRun } from '@/composables/useRun'
 import { takeRunAgain } from '@/composables/useRunAgain'
@@ -71,6 +72,10 @@ const { defaults, settings } = run
 const countdown = useCountdown((stored.value.autoStart?.countdownS ?? DEFAULT_AUTO_START.countdownS) * SECOND)
 const { label: contextLabel } = useContextLabel(computed(() => info.value?.client.suggestedLabel))
 const { t, locale } = useI18n()
+// Its title, and its heading's focus after an in-app navigation (ui/i18n-a11y.md section 2.3).
+const heading = useTemplateRef<HTMLElement>('heading')
+usePageHeading(() => heading.value)
+usePageTitle(() => t('app.nav.test'))
 const host = window.location.host
 
 const counting = computed(() => countdown.remainingMs.value !== null)
@@ -258,7 +263,10 @@ watch(run.error, (error) => {
     tabindex="-1"
     class="focus:outline-none mx-auto flex w-full max-w-(--layout-max) flex-1 flex-col gap-(--layout-section-gap-compact) px-(--layout-gutter-compact) pt-4 pb-6 desktop:gap-(--layout-section-gap) desktop:px-(--layout-gutter) desktop:pt-6 desktop:pb-10"
   >
-    <h1 class="sr-only text-[length:calc(2*var(--text-base))] leading-(--lh-normal) font-bold">
+    <h1
+      ref="heading"
+      class="sr-only text-[length:calc(2*var(--text-base))] leading-(--lh-normal) font-bold"
+    >
       {{ $t('test.title') }}
     </h1>
     <LiveRegions

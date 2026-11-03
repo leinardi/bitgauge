@@ -18,7 +18,7 @@
 -->
 <script setup lang="ts">
 import { ExternalLink } from '@lucide/vue'
-import { computed } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import ClientCard from '@/components/about/ClientCard.vue'
@@ -29,6 +29,7 @@ import AppButton from '@/components/actions/AppButton.vue'
 import AppLink from '@/components/actions/AppLink.vue'
 import GithubIcon from '@/components/brand/GithubIcon.vue'
 import { useInfo } from '@/composables/useInfo'
+import { usePageHeading, usePageTitle } from '@/composables/usePageHeading'
 import { links } from '@/lib/links'
 import { readBasePath } from '@/router/base'
 
@@ -41,6 +42,10 @@ import { readBasePath } from '@/router/base'
 const LAYERS: readonly Layer[] = ['openspeedtest', 'librespeed', 'networkquality']
 
 const { t, locale } = useI18n()
+// Its title, and its heading's focus after an in-app navigation (ui/i18n-a11y.md section 2.3).
+const heading = useTemplateRef<HTMLElement>('heading')
+usePageHeading(() => heading.value)
+usePageTitle(() => t('app.nav.about'))
 const { info, reachability, refresh } = useInfo()
 const host = window.location.host
 const origin = window.location.origin
@@ -89,7 +94,10 @@ const facts = computed(() => {
   >
     <div class="flex min-w-0 flex-col gap-4">
       <header class="flex flex-col gap-1.5">
-        <h1 class="text-(length:--text-3xl) leading-(--lh-snug) font-semibold tracking-(--tracking-tight) desktop:text-(length:--text-4xl) desktop:leading-(--lh-tight)">
+        <h1
+          ref="heading"
+          class="text-(length:--text-3xl) leading-(--lh-snug) font-semibold tracking-(--tracking-tight) desktop:text-(length:--text-4xl) desktop:leading-(--lh-tight)"
+        >
           {{ t('about.clients.title') }}
         </h1>
         <p class="max-w-160 text-(length:--text-base) leading-(--lh-prose) text-muted-foreground">

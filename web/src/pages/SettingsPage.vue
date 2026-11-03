@@ -18,7 +18,7 @@
 -->
 <script setup lang="ts">
 import { CircleAlert, CircleCheck, Gauge, Layers, Monitor } from '@lucide/vue'
-import { computed, provide, shallowRef } from 'vue'
+import { computed, provide, shallowRef, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import OfflineNotice from '@/components/OfflineNotice.vue'
@@ -37,6 +37,7 @@ import StreamsField from '@/components/settings/StreamsField.vue'
 import ThemeLanguageField from '@/components/settings/ThemeLanguageField.vue'
 import UnitsField from '@/components/settings/UnitsField.vue'
 import { useInfo } from '@/composables/useInfo'
+import { usePageHeading, usePageTitle } from '@/composables/usePageHeading'
 import { useSettings } from '@/composables/useSettings'
 import type { TestSettings } from '@/engine/messages'
 import { settingsFromDefaults } from '@/lib/defaults'
@@ -48,6 +49,10 @@ import { changedKeys, defaultOf, storedOver, valueOf } from '@/lib/settingsStora
 // defaults, so they show once GET /info has answered.
 
 const { t } = useI18n()
+// Its title, and its heading's focus after an in-app navigation (ui/i18n-a11y.md section 2.3).
+const heading = useTemplateRef<HTMLElement>('heading')
+usePageHeading(() => heading.value)
+usePageTitle(() => t('app.nav.settings'))
 const { info, reachability, refresh } = useInfo()
 const settings = useSettings()
 const host = window.location.host
@@ -95,7 +100,10 @@ provide(
   >
     <div class="flex min-w-0 flex-col gap-4">
       <header class="flex flex-col gap-1.5">
-        <h1 class="text-(length:--text-3xl) leading-(--lh-normal) font-semibold tracking-(--tracking-tight) desktop:text-(length:--text-4xl)">
+        <h1
+          ref="heading"
+          class="text-(length:--text-3xl) leading-(--lh-normal) font-semibold tracking-(--tracking-tight) desktop:text-(length:--text-4xl)"
+        >
           {{ t('settings.title') }}
         </h1>
         <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-(length:--text-sm) text-subtle-foreground">

@@ -45,6 +45,7 @@ import TrendChart from '@/components/history/TrendChart.vue'
 import { useHistory } from '@/composables/useHistory'
 import { PAGE_SIZE, storageUsage, useHistoryList } from '@/composables/useHistoryList'
 import { useInfo } from '@/composables/useInfo'
+import { usePageHeading, usePageTitle } from '@/composables/usePageHeading'
 import { useSettings } from '@/composables/useSettings'
 import { NO_FILTER } from '@/history/filters'
 import { formatBytes } from '@/lib/format'
@@ -59,6 +60,10 @@ import { fill, slot, timeList, timeRange, type TimedText } from '@/lib/timeText'
 // history unavailable, and the import's. Two selected results open the compare view.
 
 const { t, locale } = useI18n()
+// Its title, and its heading's focus after an in-app navigation (ui/i18n-a11y.md section 2.3).
+const heading = useTemplateRef<HTMLElement>('heading')
+usePageHeading(() => heading.value)
+usePageTitle(() => t('app.nav.history'))
 const router = useRouter()
 const history = useHistory()
 const { info } = useInfo()
@@ -187,7 +192,10 @@ watch(comparedPair, (chosen) => {
   >
     <header class="flex flex-wrap items-center gap-x-4 gap-y-3">
       <div class="flex items-baseline gap-2.5">
-        <h1 class="text-(length:--text-3xl) leading-(--lh-normal) font-semibold tracking-(--tracking-tight) desktop:text-(length:--text-4xl)">
+        <h1
+          ref="heading"
+          class="text-(length:--text-3xl) leading-(--lh-normal) font-semibold tracking-(--tracking-tight) desktop:text-(length:--text-4xl)"
+        >
           {{ t('history.title') }}
         </h1>
         <span
