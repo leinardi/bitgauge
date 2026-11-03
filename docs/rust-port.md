@@ -217,6 +217,8 @@ for byte where this port does not.
 | swarm-scheduler-exporter | `722b8a3` | `scripts/hooks/rustfmt-on-edit.sh` | Unchanged logic |
 | swarm-scheduler-exporter | `722b8a3` | `meta/src/repo.rs` | `tracked_or_new` (tracked and untracked, not ignored) in place of `tracked` |
 | swarm-scheduler-exporter | `722b8a3` | `meta/tests/workspace_lints.rs` | Became `meta/tests/lint_inheritance.rs`, with the clippy configuration checks and the scratch-crate control |
+| swarm-scheduler-exporter | `b670952` | `src/server/framing.rs`, `src/server/framing/tests.rs` | Unchanged framing; the module doc names BitGauge's pipelined head |
+| swarm-scheduler-exporter | `b670952` | `src/server/timeouts.rs` | BitGauge's states (head, body, idle, upgraded) in place of Go's four timeouts; a 30 s write stall in place of `WriteTimeout`; the read waker kept so a new deadline is armed at once; the drain on `poll_shutdown`; `wait_until_idle` for shutdown |
 | swarm-device-access | `4cd31c4` | `meta/tests/unsafe_allowlist.rs` | The pattern only, for `meta/tests/lint_exemptions.rs`; no file copied |
 
 Rows are added by the phase that copies a file.
@@ -224,7 +226,27 @@ Rows are added by the phase that copies a file.
 ## Findings During the Port
 
 Fallbacks taken, premises that turned out false, and anything else a phase found that the plan did
-not expect. Empty until a phase records one.
+not expect.
+
+- **Phase 4, the pinned `graceful_shutdown()`.** It finishes an in-flight response and closes an
+  idle connection, so the `closing`-flag fallback was not applied. But called while a request is
+  in flight, it disables keep-alive, and hyper 1.12 then appends `close` to that response's
+  `Connection` header (`enforce_version` in `proto/h1/conn.rs`) and closes after it: a `101`
+  written after `stop` reads `Connection: Upgrade, close`, and the upgrade never happens. The
+  fallback would break a `101` the same way. The driver instead waits, on `stop`, until no request
+  is in flight (`ConnState::wait_until_idle`: no head started, no response pending) or the response
+  in flight at `stop` is done, then calls `graceful_shutdown()`, which closes the connection; `cut`
+  still bounds the wait. The second bound keeps a pipelining client from holding the connection to
+  the end of the grace: as under Go's `Shutdown`, it is closed after the current response, here
+  after at most one more already-read request, answered with `Connection: close`. A response
+  already in flight at `stop` no longer gains `Connection: close`; the connection still closes
+  after it. The upgrade-race test (`upgrade_racing_stop_gets_the_101_then_1001`) failed before and
+  passes after.
+- **Phase 4, the drain on close.** `poll_shutdown` drains reads for up to 500 ms, and a client that
+  keeps its end open after the server's FIN holds the connection task, and so the shutdown, for
+  that long. Browsers and `curl` close on EOF; the loopback tests close too, as they would.
+- **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
+  started. The `cargo-machete` pre-commit hook builds its own; `zig` is first needed by phase 15.
 
 ## API Map
 
@@ -242,7 +264,8 @@ Go package to Rust module, filled in by the phase that ports it.
 | `internal/compat/openspeedtest` |  | 11 |
 | `internal/compat/librespeed` |  | 11 |
 | `internal/compat/nq` |  | 11 |
-| `internal/server` |  | 4, 12 |
+| `internal/server` (`server.go` settings, `shutdown.go`) | `src/server/conn.rs` (`serve`, `drive`, `Lifecycle`, `Outcome`), `src/server/timeouts.rs` (`Timeouts`, `ConnState`, `ConnIo`), `src/server/framing.rs`, `src/server/upgrade.rs`, `src/server/signals.rs`, `src/server/mod.rs` (`finish_process`) | 4 |
+| `internal/server` (router, middleware) |  | 12 |
 | `web/embed*.go` |  | 12 |
 | `cmd/bitgauge` |  | 13 |
 

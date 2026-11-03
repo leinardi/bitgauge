@@ -105,6 +105,63 @@ static ITEM_NAME: LazyLock<Regex> = LazyLock::new(|| {
     )
 });
 
+/// The text as logical lines, each with its first line's number: an attribute that rustfmt wrapped
+/// over several lines (`#[expect(` ... `)]`) is joined into one, so it reads as it would unwrapped.
+fn logical_lines(text: &str) -> Vec<(usize, String)> {
+    let mut joined: Vec<(usize, String)> = Vec::new();
+    let mut open: Option<(usize, String, i32)> = None;
+    for (index, line) in text.lines().enumerate() {
+        if let Some((number, mut attribute, depth)) = open.take() {
+            attribute.push(' ');
+            attribute.push_str(line.trim());
+            let depth = depth + bracket_depth(line);
+            if depth > 0 {
+                open = Some((number, attribute, depth));
+            } else {
+                joined.push((number, attribute));
+            }
+            continue;
+        }
+        let trimmed = line.trim_start();
+        let depth = bracket_depth(line);
+        if (trimmed.starts_with("#[") || trimmed.starts_with("#![")) && depth > 0 {
+            open = Some((index + 1, line.trim_end().to_owned(), depth));
+        } else {
+            joined.push((index + 1, line.to_owned()));
+        }
+    }
+    if let Some((number, attribute, _)) = open {
+        joined.push((number, attribute));
+    }
+    joined
+}
+
+/// How many more square brackets and parentheses a line opens than it closes, outside string
+/// literals: a bracket inside a `reason = "..."` does not count.
+fn bracket_depth(line: &str) -> i32 {
+    let mut depth = 0;
+    let mut in_string = false;
+    let mut escaped = false;
+    for character in line.chars() {
+        if in_string {
+            match character {
+                _ if escaped => escaped = false,
+                '\\' => escaped = true,
+                '"' => in_string = false,
+                _ => {}
+            }
+            continue;
+        }
+        match character {
+            '"' => in_string = true,
+            '[' | '(' => depth += 1,
+            ']' | ')' => depth -= 1,
+            _ => {}
+        }
+    }
+    depth
+}
+
 /// The item the attribute on line `index` applies to: the first following line that is neither
 /// an attribute, a comment nor blank.
 fn item_after(lines: &[&str], index: usize) -> Option<String> {
@@ -128,9 +185,10 @@ fn exemption_problems(files: &BTreeMap<String, String>) -> Vec<String> {
     let mut problems = Vec::new();
     let mut used: BTreeMap<(&str, &str, &str), usize> = BTreeMap::new();
     for (path, text) in files {
-        let lines: Vec<&str> = text.lines().collect();
+        let logical = logical_lines(text);
+        let lines: Vec<&str> = logical.iter().map(|(_, line)| line.as_str()).collect();
         for (index, line) in lines.iter().enumerate() {
-            let number = index + 1;
+            let number = logical[index].0;
             if GROUP_WORD.is_match(line) {
                 problems.push(format!(
                     "{path}:{number}: names a clippy lint group that contains the boundary lints \
@@ -365,6 +423,45 @@ fn a_similar_lint_name_is_not_a_group() {
     assert_eq!(
         exemption_problems(&files(&[("src/lib.rs", &text)])),
         Vec::<String>::new()
+    );
+}
+
+/// An expect that rustfmt wrapped over several lines reads as the one-line form.
+#[test]
+fn a_wrapped_expect_is_read_whole() {
+    let text = format!(
+        "#[expect(\n    clippy::{},\n    reason = \"the one exemption\"\n)]\npub(crate) async fn \
+         dial_loopback() {{}}\n",
+        LINTS[0]
+    );
+    assert_eq!(
+        exemption_problems(&files(&[("src/test_support.rs", &text)])),
+        Vec::<String>::new()
+    );
+    let elsewhere = text.replace("dial_loopback", "dial_anywhere");
+    let problems = exemption_problems(&files(&[("src/test_support.rs", &elsewhere)]));
+    assert_eq!(problems.len(), 1, "{problems:?}");
+    assert!(
+        problems[0].starts_with("src/test_support.rs:1:"),
+        "{problems:?}"
+    );
+}
+
+/// Negative control: a bracket inside a reason does not hide a later exemption by joining the rest
+/// of the file into the first attribute.
+#[test]
+fn a_bracket_in_a_reason_does_not_hide_a_later_exemption() {
+    let text = format!(
+        "#[expect(\n    clippy::{lint},\n    reason = \"the one exemption (see below\"\n)]\n\
+         pub(crate) fn dial_loopback() {{}}\n\n#[expect(clippy::{lint}, reason = \"x\")]\n\
+         fn store() {{}}\n",
+        lint = LINTS[0]
+    );
+    let problems = exemption_problems(&files(&[("src/test_support.rs", &text)]));
+    assert_eq!(problems.len(), 1, "{problems:?}");
+    assert!(
+        problems[0].starts_with("src/test_support.rs:7:"),
+        "{problems:?}"
     );
 }
 

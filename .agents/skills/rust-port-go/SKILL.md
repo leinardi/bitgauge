@@ -329,6 +329,14 @@ bugs, never into a guess.
   getservbyname. Reused captures belong to the server they came from (its routes, its deadlines) →
   recapture against the Go server being replaced. (37 Go captures, then 41 of this daemon's;
   paused-clock tests; a pipelining probe against Go 1.26; a static Go binary in busybox)
+- **hyper's `graceful_shutdown` and upgrades:** called on a connection whose request is in flight,
+  it disables keep-alive, and hyper 1.12 appends `close` to that response's `Connection` header
+  and closes after it, so a `101` sent after shutdown began reads `Connection: Upgrade, close` and
+  the upgrade is lost (tungstenite: `MissingConnectionUpgradeHeader`). Go's `Shutdown` never
+  touches a hijacked or in-flight upgrade → on shutdown, wait until the connection has no request
+  in flight (track the head start and the response body's drop), then call `graceful_shutdown`.
+  An I/O wrapper whose `poll_shutdown` drains reads (to keep a `413` from an RST) holds the task
+  until the client closes or the drain ends. (bitgauge connection driver, hyper 1.12.0)
 - **Prometheus (client_golang, expfmt):** no crate writes Go's text (float formats, `charset`,
   `escaping=`, HELP escaping, sort order) → an in-tree registry and encoder porting `writeFloat`
   and `Gather`'s normalisation. promhttp negotiates `escaping=` over all four formats, protobuf

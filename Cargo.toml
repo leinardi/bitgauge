@@ -76,6 +76,55 @@ path = "src/lib.rs"
 name = "bitgauge"
 path = "src/main.rs"
 
+# The server is hyper's HTTP/1 server on BitGauge's own accept loop and connection driver
+# (docs/rust-port.md, Server Design): no client, no HTTP/2, no hyper-util graceful helper.
+[dependencies]
+bytes = "1.12.1"
+http = "1.5.0"
+http-body = "1.1.0"
+hyper = { version = "1.12.0", default-features = false, features = ["http1", "server"] }
+hyper-util = { version = "0.1.21", default-features = false, features = ["tokio"] }
+# SIGTERM and SIGINT blocked and taken with sigwait on a thread of their own.
+nix = { version = "0.30.1", default-features = false, features = ["signal"] }
+pin-project-lite = "0.2.17"
+tokio = { version = "1.54.1", default-features = false, features = [
+    "macros",
+    "net",
+    "rt",
+    "rt-multi-thread",
+    "sync",
+    "time",
+] }
+# CancellationToken (stop and cut) and the TaskTracker that owns every connection and socket task.
+tokio-util = { version = "0.7.20", default-features = false, features = ["rt"] }
+tower-service = "0.3.3"
+tracing = { version = "0.1.44", default-features = false, features = ["std"] }
+
+[dev-dependencies]
+futures-util = { version = "0.3.34", default-features = false, features = ["sink", "std"] }
+# The second-signal test sends its child the signals.
+nix = { version = "0.30.1", default-features = false, features = ["process", "signal"] }
+http-body-util = "0.1.5"
+# The paused clock (start_paused) and the test I/O.
+tokio = { version = "1.54.1", default-features = false, features = [
+    "io-util",
+    "macros",
+    "net",
+    "rt",
+    "rt-multi-thread",
+    "sync",
+    "test-util",
+    "time",
+] }
+# The test-only echo service's WebSocket, until the real one is ported (phase 10).
+tokio-tungstenite = { version = "0.30.0", default-features = false, features = ["handshake"] }
+
+# A second signal ends the process: a child process with the signals blocked in its only thread,
+# so a plain main rather than libtest's threads.
+[[test]]
+name = "second_signal"
+harness = false
+
 [lints]
 workspace = true
 

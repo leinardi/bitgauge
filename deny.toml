@@ -43,7 +43,12 @@ ignore = []
 version = 2
 # Only the licenses the Cargo.lock graph needs, each added by the change that brings in the crate
 # needing it. The dual-licensed crates pick MIT.
-allow = ["MIT"]
+allow = [
+    "MIT",
+    # unicode-ident, (MIT OR Apache-2.0) AND Unicode-3.0: through proc-macro2 under tokio-macros
+    # and futures-macro.
+    "Unicode-3.0",
+]
 confidence-threshold = 0.9
 
 # The workspace's own crates are GPL-3.0-or-later and unpublished (publish = false); they are
