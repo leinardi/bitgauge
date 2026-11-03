@@ -89,6 +89,8 @@ describe('parseUrlParams', () => {
     ['cap', '1.5'],
     ['cap', '-1MB'],
     ['cap', '10TB'],
+    // Too long for a double: Infinity bytes.
+    ['cap', `1${'0'.repeat(320)}`],
     ['units', 'nibbles'],
     ['lang', 'xx'],
     ['theme', 'sepia'],

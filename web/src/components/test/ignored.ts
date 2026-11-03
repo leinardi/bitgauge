@@ -18,7 +18,7 @@
  */
 
 import type { ThemeChoice } from '@/composables/useTheme'
-import type { IgnoredParameter, MeasuringPhase, Notice, Preset, TestSettings } from '@/engine/messages'
+import type { DurationBounds, IgnoredParameter, MeasuringPhase, Notice, Preset, TestSettings } from '@/engine/messages'
 import { formatBytes } from '@/lib/format'
 import { runLengthShown } from '@/lib/runLength'
 
@@ -30,10 +30,12 @@ import type { Wording } from '@/components/test/wording'
 
 type Ignored = Extract<Notice, { code: 'url-parameter-ignored' }>
 
-/** What the second sentence reads from: the run's settings and the page's own theme choice. */
+/** What the second sentence reads from: the run's settings, the page's own theme choice and the stored label. */
 export interface IgnoredContext {
   settings?: TestSettings | null
   theme?: ThemeChoice
+  /** The label stored in Settings, which a run keeps when the link's is ignored. */
+  label?: string
 }
 
 const or = (items: string[], { locale }: Wording) => new Intl.ListFormat(locale, { type: 'disjunction' }).format(items)
@@ -98,7 +100,24 @@ function themeName(theme: ThemeChoice, { t }: Wording): string {
   return theme === 'system' ? t('notices.urlParameterIgnored.themes.system') : theme === 'light' ? t('notices.urlParameterIgnored.themes.light') : t('notices.urlParameterIgnored.themes.dark')
 }
 
-/** What the setting stays on for the run; without the run's settings, its default. */
+function range({ minMs, maxMs }: DurationBounds, { t }: Wording): string {
+  return t('notices.urlParameterIgnored.range', { min: minMs / 1000, max: maxMs / 1000 })
+}
+
+/** The bounds a bounded run keeps, the stored ones or its preset's (ui/url-params.md section 2). */
+function durations(settings: TestSettings, context: Wording): string {
+  const { download, upload } = settings
+  const { t } = context
+  if (download.minMs === null || upload.minMs === null) {
+    return t('notices.urlParameterIgnored.stays.duration')
+  }
+  if (download.minMs === upload.minMs && download.maxMs === upload.maxMs) {
+    return t('notices.urlParameterIgnored.stays.durations', { range: range(download, context) })
+  }
+  return t('notices.urlParameterIgnored.stays.durationsSplit', { download: range(download, context), upload: range(upload, context) })
+}
+
+/** What the setting stays on for the run, the stored value it keeps; without the run's settings, its default. */
 function stays({ parameter }: Ignored, context: Wording & IgnoredContext): string {
   const { t, locale } = context
   const settings = context.settings ?? null
@@ -109,9 +128,9 @@ function stays({ parameter }: Ignored, context: Wording & IgnoredContext): strin
       if (settings?.preset === 'continuous') {
         return settings.runLengthMs === undefined ? t('notices.urlParameterIgnored.stays.noRunLength') : t('notices.urlParameterIgnored.stays.runLength', { value: runLengthName(settings.runLengthMs, context) })
       }
-      return t('notices.urlParameterIgnored.stays.duration')
+      return settings === null ? t('notices.urlParameterIgnored.stays.duration') : durations(settings, context)
     case 'label':
-      return t('notices.urlParameterIgnored.stays.label')
+      return context.label === undefined || context.label === '' ? t('notices.urlParameterIgnored.stays.label') : t('notices.urlParameterIgnored.stays.labelStored', { value: context.label })
     case 'lang':
       return t('notices.urlParameterIgnored.stays.lang', { value: new Intl.DisplayNames(locale, { type: 'language' }).of(locale) ?? locale })
     case 'theme':

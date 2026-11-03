@@ -76,14 +76,19 @@ const label = computed(() => (props.result.label === '' ? '' : `${SEPARATOR}${pr
 <template>
   <RouterLink
     :to="`/result/${encodeURIComponent(result.id)}`"
-    class="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 self-start text-(length:--text-caption) text-subtle-foreground no-underline hover:text-muted-foreground"
+    class="flex max-w-full min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1.5 self-start text-(length:--text-caption) text-subtle-foreground no-underline hover:text-muted-foreground"
     data-testid="last-result"
   >
     <History
       :size="13"
       aria-hidden="true"
     />
-    <!-- Each part is its own flex item, spaced by the gap and wrapping as a whole, as the kit's are. -->
-    {{ t('test.lastResult.when', { when }) }}{{ SEPARATOR }}<span class="font-mono text-muted-foreground">{{ values }}</span>{{ label }} <span class="font-semibold text-primary-text">{{ t('test.lastResult.view') }}</span>
+    <!-- Each part is its own flex item, spaced by the gap and wrapping as a whole, as the kit's are;
+         a long unbroken label breaks within the line. -->
+    {{ t('test.lastResult.when', { when }) }}{{ SEPARATOR }}<span class="font-mono text-muted-foreground">{{ values }}</span><span
+      v-if="label !== ''"
+      class="max-w-full min-w-0 wrap-anywhere"
+      data-testid="last-result-label"
+    >{{ label }}</span> <span class="font-semibold text-primary-text">{{ t('test.lastResult.view') }}</span>
   </RouterLink>
 </template>

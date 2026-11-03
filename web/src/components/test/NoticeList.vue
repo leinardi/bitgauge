@@ -25,6 +25,7 @@ import AppButton from '@/components/actions/AppButton.vue'
 import AppLink from '@/components/actions/AppLink.vue'
 import NoticeBox from '@/components/test/NoticeBox.vue'
 import { latencyStopView, noticeViews } from '@/components/test/notices'
+import { useSettings } from '@/composables/useSettings'
 import { useTheme } from '@/composables/useTheme'
 import type { Direction, DirectionResult, IdleResult, Notice, Preset, Result, TestSettings } from '@/engine/messages'
 import { controlIn, firstConnected, focusHandOff } from '@/lib/focus'
@@ -51,6 +52,7 @@ const emit = defineEmits<{ retry: []; preset: [preset: Preset]; dismiss: [parame
 
 const { t, locale } = useI18n()
 const { choice } = useTheme()
+const { stored } = useSettings()
 
 // An action takes its notice away. Dismiss hands the focus to the next notice's first control, else
 // the previous one's; Retry and Try Extended start a run, so the focus moves to Stop
@@ -75,7 +77,16 @@ async function start(event: Event, emitted: () => void): Promise<void> {
 }
 
 const views = computed(() => {
-  const context = { t, locale: locale.value, result: props.result, settings: props.settings, theme: choice.value, directions: props.directions, finishedIdle: props.finishedIdle }
+  const context = {
+    t,
+    locale: locale.value,
+    result: props.result,
+    settings: props.settings,
+    theme: choice.value,
+    ...(stored.value.label === undefined ? {} : { label: stored.value.label }),
+    directions: props.directions,
+    finishedIdle: props.finishedIdle,
+  }
   const stop = latencyStopView(props.result, props.idle, context)
   // Keyed by what each notice says, never by its place: a notice that moves when the result's list
   // replaces the run's keeps its box, so its status region is not rewritten and announced again.

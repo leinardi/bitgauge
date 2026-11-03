@@ -170,6 +170,12 @@ describe('useRun', () => {
     expect(StubWorker.last.terminated).toBe(true)
   })
 
+  it('shows the URL override from the first render, before the engine answers', () => {
+    const { run, scope } = started({ override: () => ({ preset: 'quick', units: 'bytes', dataCapBytes: 200_000_000 }) })
+    expect(run.settings.value).toMatchObject({ preset: 'quick', units: 'bytes', dataCapBytes: 200_000_000, pingCount: 10, streams: { mode: 'fixed', fixed: 3 } })
+    scope.stop()
+  })
+
   it('takes the settings the engine resolved: the configured ones, then each run\'s', () => {
     const { run, worker, scope } = started()
     if (SETTINGS === null) {

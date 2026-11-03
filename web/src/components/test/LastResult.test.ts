@@ -39,6 +39,13 @@ describe('the last result line', () => {
     continuous.unmount()
   })
 
+  it('breaks a long unbroken label within the line', async () => {
+    const wrapper = await mountApp(LastResult, '/', { props: { result: resultFixture({ label: 'x'.repeat(64) }), units: 'bits' } })
+    expect(wrapper.get('[data-testid="last-result-label"]').classes()).toEqual(expect.arrayContaining(['min-w-0', 'wrap-anywhere']))
+    expect(wrapper.get('[data-testid="last-result"]').classes()).toContain('min-w-0')
+    wrapper.unmount()
+  })
+
   it('carries each speed\'s qualifiers in History\'s words, each rate with its own unit', async () => {
     const base = resultFixture()
     const { bitsPerSecond: _b, peakBitsPerSecond: _p, ...upload } = base.upload!

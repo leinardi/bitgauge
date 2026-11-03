@@ -44,7 +44,7 @@ describe('the ignored URL parameter notice', () => {
     ['run', 'yes', 'run=yes ignored, allowed 1, true, 0, or false. The test waits for Start'],
     ['test', 'both', 'test=both ignored, allowed all, download, upload, or latency. Phases stay on idle latency, download, and upload'],
     ['preset', 'turbo', 'preset=turbo ignored, allowed quick, standard, extended, or continuous. The preset stays on Standard'],
-    ['duration', '4', 'duration=4 ignored, allowed 5–600 s. Durations stay on the preset\'s'],
+    ['duration', '4', 'duration=4 ignored, allowed 5–600 s. Durations stay on 10–20 s for download and 15–25 s for upload'],
     ['cap', '2KiB', 'cap=2KiB ignored, allowed 1 MiB or more, 0, or none. The data cap stays on none'],
     ['units', 'nibbles', 'units=nibbles ignored, allowed bits or bytes. Units stay on bits'],
     ['lang', 'xx', 'lang=xx ignored, allowed en. The language stays on English'],
@@ -52,6 +52,15 @@ describe('the ignored URL parameter notice', () => {
     ['label', 'x', 'label=x ignored, allowed at most 64 characters. The label stays on the suggested one'],
   ])('words %s=%s', (parameter, value, words) => {
     expect(body(parameter, value)).toBe(words + TAIL)
+  })
+
+  it('names the stored durations and label the run keeps', () => {
+    const stored = { ...SETTINGS, download: { minMs: 10_000, maxMs: 30_000 }, upload: { minMs: 10_000, maxMs: 30_000 } }
+    expect(body('duration', '601', stored)).toBe('duration=601 ignored, allowed 5–600 s. Durations stay on 10–30 s' + TAIL)
+    const split = { ...stored, upload: { minMs: 15_000, maxMs: 25_000 } }
+    expect(body('duration', '601', split)).toBe('duration=601 ignored, allowed 5–600 s. Durations stay on 10–30 s for download and 15–25 s for upload' + TAIL)
+    const label = ignoredBody({ code: 'url-parameter-ignored', parameter: 'label', value: 'x' }, { ...wording, settings: SETTINGS, theme: 'system', label: 'Desk' })
+    expect(label).toBe('label=x ignored, allowed at most 64 characters. The label stays on “Desk”' + TAIL)
   })
 
   it('words test and duration under Continuous: the direction, and the run length or none', () => {

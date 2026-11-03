@@ -75,6 +75,8 @@
         "test": "Phases stay on {value}",
         "preset": "The preset stays on {value}",
         "duration": "Durations stay on the preset's",
+      "durations": "Durations stay on {range}",
+      "durationsSplit": "Durations stay on {download} for download and {upload} for upload",
         "runLength": "The run length stays on {value}",
         "noRunLength": "The run has no run length",
         "direction": "The direction is {value}",
@@ -84,6 +86,7 @@
         "lang": "The language stays on {value}",
         "theme": "The theme stays on {value}",
         "label": "The label stays on the suggested one",
+      "labelStored": "The label stays on “{value}”",
         "default": "The setting stays on its default"
       },
       "phases": {
@@ -97,7 +100,8 @@
         "extended": "Extended",
         "continuous": "Continuous"
       },
-      "runLength": {
+      "range": "{min}–{max} s",
+    "runLength": {
         "minutes": "{n} min",
         "hours": "{n} h",
         "days": "{n} d"

@@ -24,7 +24,7 @@ import { type ContinuousSnapshot, useContinuousSeries } from '@/composables/useC
 import { type LoadedSnapshot, useLoadedSeries } from '@/composables/useLoadedSeries'
 import { type CompleteSnapshot, createRunState } from '@/composables/useRunState'
 import { useWorker } from '@/composables/useWorker'
-import type { ConfigureOverride, IgnoredParameter, Preset, Result, SettingsOverride, TestSettings } from '@/engine/messages'
+import { type ConfigureOverride, type IgnoredParameter, type Preset, resolveSettings, type Result, type SettingsOverride, type TestSettings } from '@/engine/messages'
 import { settingsFromDefaults } from '@/lib/defaults'
 import { readBasePath } from '@/router/base'
 
@@ -115,8 +115,19 @@ export function useRun(options: RunOptions = {}) {
   /** The settings the Worker is configured with: the stored settings over the defaults on the Test screen. */
   const base = computed(() => (defaults.value === null ? null : (options.base?.(defaults.value) ?? defaults.value)))
   const override = computed(() => (base.value === null || options.override === undefined ? null : options.override(base.value)))
-  /** The settings the next run starts from: the engine's resolution of the last configure, or the configured ones until it answers. */
-  const settings = computed(() => (base.value === null ? null : (state.configured.value ?? base.value)))
+  /**
+   * The settings the next run starts from: the engine's resolution of the last configure; until it
+   * answers, the same resolution of the configured settings and the URL's override, so the first
+   * render already shows the URL's settings.
+   */
+  const resolved = computed(() => {
+    if (base.value === null) {
+      return null
+    }
+    const resolution = resolveSettings(base.value, override.value ?? {})
+    return resolution.ok ? resolution.settings : base.value
+  })
+  const settings = computed(() => (resolved.value === null ? null : (state.configured.value ?? resolved.value)))
 
   bridge.onEvent(state.apply)
   // The live loaded latency and a Continuous run's tier rings, kept once the run ends until the

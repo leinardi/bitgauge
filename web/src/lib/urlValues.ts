@@ -71,7 +71,8 @@ export function dataCap(value: string): number | null | undefined {
     return undefined
   }
   const bytes = Math.round(Number(match[1]) * (match[2] === undefined ? 1 : (SIZE_UNITS[match[2]] ?? 1)))
-  return bytes >= MIN_DATA_CAP ? bytes : undefined
+  // A number too long for a double is Infinity, no size: ignored with its notice.
+  return Number.isFinite(bytes) && bytes >= MIN_DATA_CAP ? bytes : undefined
 }
 
 /** A stream mode: `auto`, `single`, or a fixed count of 1–6. */
