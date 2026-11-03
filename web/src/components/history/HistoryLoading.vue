@@ -54,7 +54,11 @@ const BLOCK = 'animate-pulse rounded-(--radius-sm) bg-(--surface-3) motion-reduc
         />
       </div>
     </section>
-    <section class="hidden overflow-hidden rounded-(--radius-lg) border border-(--border-subtle) bg-(--surface-2) shadow-card tablet:block">
+    <!-- The table from the desktop breakpoint, cards below it, as the list itself (QA-59). -->
+    <section
+      class="hidden overflow-hidden rounded-(--radius-lg) border border-(--border-subtle) bg-(--surface-2) shadow-card desktop:block"
+      data-testid="loading-table"
+    >
       <div class="h-9.5 border-b border-(--border-default)" />
       <div
         v-for="index in ROWS"
@@ -69,7 +73,10 @@ const BLOCK = 'animate-pulse rounded-(--radius-sm) bg-(--surface-3) motion-reduc
         <span :class="[BLOCK, 'h-3 w-14']" />
       </div>
     </section>
-    <div class="flex flex-col gap-2 tablet:hidden">
+    <div
+      class="flex flex-col gap-2 desktop:hidden"
+      data-testid="loading-cards"
+    >
       <div
         v-for="index in 4"
         :key="index"

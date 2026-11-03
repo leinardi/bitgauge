@@ -25,7 +25,8 @@ import type { Bufferbloat } from '@/engine/messages'
 
 // The bufferbloat grade as the History list shows it (kit History.jsx): the letter in a box of the
 // grade's tone, named in full for assistive technology; without a grade, "Not graded" and its one
-// reason, as every screen words it (ui/screens.md section 6).
+// reason, as every screen words it (ui/screens.md section 6); in the table, wrapped word by word
+// to keep the Grade column narrow, on a card on one line where it has room.
 
 const props = withDefaults(defineProps<{ grade: Bufferbloat['grade'] | null; ungraded: string | null; large?: boolean }>(), { large: false })
 
@@ -60,7 +61,8 @@ const name = computed(() => (props.grade === null ? '' : t('history.table.grade'
 <template>
   <span
     v-if="grade === null"
-    class="text-(length:--text-caption) text-subtle-foreground"
+    class="text-subtle-foreground"
+    :class="large ? 'text-(length:--text-caption)' : 'inline-block w-min text-center text-(length:--text-micro) leading-(--lh-compact) whitespace-normal'"
     data-testid="grade-ungraded"
   >{{ t('history.table.notGraded', { reason: ungraded ?? '' }) }}</span>
   <span

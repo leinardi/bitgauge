@@ -138,7 +138,7 @@ test('compares two results in a focus-trapped dialog, copies the comparison, and
   }
 
   // Escape returns the focus to Compare; deselecting one row and selecting another compares a new
-  // pair, two results of the same label and protocol.
+  // pair, two results of the same label and protocol, whose grades differ only in their basis.
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()
   await expect(compare).toBeFocused()
@@ -147,7 +147,8 @@ test('compares two results in a focus-trapped dialog, copies the comparison, and
   await expect(table.getByTestId('selection-bar')).toContainText('2 selected')
   await compare.click()
   await expect(dialog).toBeVisible()
-  await expect(dialog.getByTestId('compare-warning')).toHaveCount(0)
+  await expect(dialog.getByTestId('compare-warning')).toHaveText('Not directly comparable: Bufferbloat grade measured differently (download only vs worse of download and upload)')
+  await expect(dialog.getByTestId('compare-row-grade')).toContainText('not comparable')
 
   // Either side opens its detail.
   await dialog.locator('a[href*="/result/"]').first().click()
@@ -214,4 +215,18 @@ test('keeps every column of the table in its card with a long unbroken label', a
   const filters = await page.getByTestId('history-filters').boundingBox()
   const box = await chip.boundingBox()
   expect(box !== null && filters !== null && box.x + box.width <= filters.x + filters.width).toBe(true)
+})
+
+test('shows cards up to the desktop breakpoint, and from there a table that fits its card', async ({ page }) => {
+  await page.setViewportSize({ width: 768, height: 1024 })
+  await importHistory(page, DEMO_RESULTS)
+  await expect(page.getByTestId('history-card')).toHaveCount(8)
+  await expect(page.getByTestId('history-table')).toBeHidden()
+  await page.setViewportSize({ width: 1140, height: 900 })
+  const table = page.getByTestId('history-table').locator('table')
+  await expect(table).toBeVisible()
+  await expect(page.getByTestId('history-card').first()).toBeHidden()
+  // Every column, the row actions and a grade's "Not graded" with its reason included.
+  const fits = await table.evaluate((element) => element.scrollWidth <= (element.parentElement?.clientWidth ?? 0))
+  expect(fits).toBe(true)
 })

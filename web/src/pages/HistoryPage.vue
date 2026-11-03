@@ -300,7 +300,7 @@ watch(comparedPair, (chosen) => {
           :now="list.now.value"
         />
         <ResultsTable
-          class="hidden tablet:block"
+          class="hidden desktop:block"
           :results="list.shown.value"
           :units="units"
           :sort-key="list.sort.value.key"
@@ -323,7 +323,7 @@ watch(comparedPair, (chosen) => {
           </template>
         </ResultsTable>
         <ResultCardList
-          class="tablet:hidden"
+          class="desktop:hidden"
           :results="list.shown.value"
           :units="units"
           :sort-key="list.sort.value.key"
