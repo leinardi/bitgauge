@@ -30,3 +30,37 @@ publish = false
 
 [lints]
 workspace = true
+
+# The Docker suites: the image suite (tests/image) and the accuracy harness runners
+# (tests/harness). Both drive the docker CLI; without a feature only the unit-tested parts build.
+[features]
+image = []
+harness = []
+
+[dependencies]
+jiff = { version = "0.2.38", default-features = false, features = ["std"] }
+regex = "1.13.1"
+serde = { version = "1.0.229", default-features = false, features = ["derive", "std"] }
+serde_json = { version = "1.0.154", default-features = false, features = ["std"] }
+sha2 = { version = "0.10.9", default-features = false, features = ["std"] }
+tar = { version = "0.4.46", default-features = false }
+flate2 = { version = "1.1.10", default-features = false, features = ["rust_backend"] }
+tempfile = "3.27.0"
+
+[[test]]
+name = "image"
+path = "tests/image/main.rs"
+harness = false
+required-features = ["image"]
+
+[[test]]
+name = "netguard"
+path = "tests/netguard.rs"
+harness = false
+required-features = ["image"]
+
+[[test]]
+name = "harness"
+path = "tests/harness/main.rs"
+harness = false
+required-features = ["harness"]

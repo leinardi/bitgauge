@@ -18,5 +18,31 @@
  */
 
 //! The Docker test environments of BitGauge: the image suite and the accuracy harness, with the
-//! network guard and the syscall tracer they share. A stub until they are ported
-//! (`docs/rust-port.md`, phase 17).
+//! network guard and the syscall tracer they share (`docs/rust-port.md`, phase 17).
+//!
+//! The modules compile without a feature, so their rules are unit-tested in every `cargo test`;
+//! nothing here starts a container unless a feature-gated suite asks it to.
+//!
+//! - [`docker`]: the [`docker::Runner`] over the docker CLI, and its errors.
+//! - [`env`](mod@env), [`envid`], [`sweep`], [`logger`]: labeled environments, their cleanup and
+//!   the stale sweep (Go's `test/internal/testenv`).
+//! - [`runner`] and [`run_filter`]: the `harness = false` runner with Go's `-run` filter.
+//! - [`identity`]: the check, before any test, that the image is the expected implementation
+//!   and commit.
+//! - [`netguard`]: the namespace whose egress is counted (Go's `test/internal/netguard`).
+//! - [`syscalltrace`]: the strace parser and policies (Go's `test/internal/syscalltrace`).
+//! - [`gitenv`] and [`toolgate`]: git isolation and gated tools for behavioral tests.
+
+pub mod docker;
+pub mod env;
+pub mod envid;
+pub mod gitenv;
+pub mod harness;
+pub mod identity;
+pub mod logger;
+pub mod netguard;
+pub mod run_filter;
+pub mod runner;
+pub mod sweep;
+pub mod syscalltrace;
+pub mod toolgate;

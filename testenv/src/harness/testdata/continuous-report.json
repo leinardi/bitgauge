@@ -1,0 +1,75 @@
+{
+  "profile": "ci-100m-50ms",
+  "browser": "chromium",
+  "minutes": 6,
+  "envId": "env",
+  "started": "1970-01-01T00:00:00Z",
+  "finished": "0001-01-01T00:00:00Z",
+  "rule": "every Worker heap sample (Runtime.getHeapUsage usedSize after HeapProfiler.collectGarbage, every 60 s from the steady start) from minute 5 to the last lies within 2 MiB (2097152 bytes) of the minute-5 sample (testing.md section 5)",
+  "noEgressLayer": "no packet egress (netguard counters, from BitGauge's start to the end of the run)",
+  "status": "pass",
+  "verdict": "pass: minutes 5 to 6 within 2097152 bytes of the minute-5 sample (largest 0)",
+  "heap": {
+    "status": "pass",
+    "workerUrl": "http://bitgauge:8080/assets/worker-x.js",
+    "samples": [
+      {
+        "minute": 0,
+        "atMs": 0,
+        "usedSize": 1000000,
+        "totalSize": 2000000
+      },
+      {
+        "minute": 1,
+        "atMs": 60000,
+        "usedSize": 1000000,
+        "totalSize": 2000000
+      },
+      {
+        "minute": 2,
+        "atMs": 120000,
+        "usedSize": 1000000,
+        "totalSize": 2000000
+      },
+      {
+        "minute": 3,
+        "atMs": 180000,
+        "usedSize": 1000000,
+        "totalSize": 2000000
+      },
+      {
+        "minute": 4,
+        "atMs": 240000,
+        "usedSize": 1000000,
+        "totalSize": 2000000
+      },
+      {
+        "minute": 5,
+        "atMs": 300000,
+        "usedSize": 1000000,
+        "totalSize": 2000000
+      },
+      {
+        "minute": 6,
+        "atMs": 360000,
+        "usedSize": 1000000,
+        "totalSize": 2000000
+      }
+    ],
+    "baselineBytes": 1000000,
+    "maxDriftBytes": 0
+  },
+  "egress": {
+    "dns": 0,
+    "egress": 0,
+    "loopback": 0
+  },
+  "export": "exports/ci-100m-50ms/continuous.json",
+  "environmentalLimits": [
+    "tc shaping jitter (tbf burst sizes, netem timer granularity).",
+    "Docker bridge overhead at high rates.",
+    "Playwright WebKit ≠ Safari: Worker XHR and nextHopProtocol behavior must be re-checked on real Safari.",
+    "Mobile power management: device runs happen with the screen on."
+  ],
+  "cannotProve": "What the harness cannot prove: real Wi-Fi behavior, real VPN MTU effects, carrier-grade NAT, and anything about networks the project does not target."
+}

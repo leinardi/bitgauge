@@ -600,3 +600,36 @@ async fn cut_while_the_upgrade_is_pending_ends_without_a_close() {
         None | Some(Err(_)) => {}
     }
 }
+
+/// A connection the driver serves has Nagle off, as Go's net package leaves it: a small echo or
+/// ping answer is sent at once, not held for the peer's delayed ACK. A second handle on the
+/// server's socket reads the option the driver set.
+#[tokio::test]
+async fn a_served_connection_has_nagle_off() {
+    let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let mut client = dial_loopback(address).await;
+    let (accepted, _) = listener.accept().await.unwrap();
+    let accepted = accepted.into_std().unwrap();
+    let observer = accepted.try_clone().unwrap();
+    assert!(
+        !observer.nodelay().unwrap(),
+        "a fresh socket already had TCP_NODELAY"
+    );
+    let lifecycle = Lifecycle::new();
+    let service = EchoService::new(lifecycle.clone(), Arc::new(Hooks::default()), SOCKET_IDLE);
+    let driven = tokio::spawn({
+        let lifecycle = lifecycle.clone();
+        let stream = TcpStream::from_std(accepted).unwrap();
+        async move { conn::drive(stream, service, &lifecycle, SHORT).await }
+    });
+    client.write_all(GET).await.unwrap();
+    let mut answer = [0_u8; 12];
+    timeout(Duration::from_secs(5), client.read_exact(&mut answer))
+        .await
+        .unwrap()
+        .unwrap();
+    assert!(observer.nodelay().unwrap(), "the driver left Nagle on");
+    drop(client);
+    let _ = timeout(Duration::from_secs(5), driven).await;
+}

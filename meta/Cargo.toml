@@ -41,6 +41,8 @@ serde-saphyr = { version = "2.0.0", default-features = false, features = ["deser
 serde_json = { version = "1.0.154", default-features = false, features = ["std"] }
 toml = "1.1.8"
 
-# The scratch crates and workspaces of the negative controls.
+# The scratch crates and workspaces of the negative controls, and the tool gate the gated tests
+# look their tools up through (testenv::toolgate).
 [dev-dependencies]
+testenv = { path = "../testenv" }
 tempfile = "3.27.0"

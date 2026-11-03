@@ -49,6 +49,13 @@ jobs:
           cache: false
 
       # The client container mounts web/ with its node_modules: it has no route out to install them.
+      # The runners are the Rust ones (testenv, feature harness); the toolchain is the one
+      # rust-toolchain.toml pins.
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: 1.98.1
+
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -72,12 +79,13 @@ jobs:
       - name: Load the shaping modules
         run: sudo modprobe -a ifb sch_netem sch_tbf sch_fq_codel sch_ingress cls_u32 act_mirred
 
-      # Empty inputs (every pull request and push) run every CI profile on all three browsers.
+      # Empty inputs (every pull request and push) run every CI profile on all three browsers,
+      # against the shipped image, which is the Go build until the cutover.
       - name: Run the CI tier
         env:
           HARNESS_PROFILES: ${{ inputs.profiles }}
           HARNESS_BROWSERS: ${{ inputs.browsers }}
-        run: make harness-ci HARNESS_TIMEOUT=120m
+        run: make harness-ci BITGAUGE_TEST_IMPL=go HARNESS_TIMEOUT=120m
 
       - name: Summarize the report
         if: ${{ !cancelled() }}

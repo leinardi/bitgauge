@@ -1,0 +1,30 @@
+# Accuracy harness: floor tier
+
+- Environment: `abcd1234`
+- Started: 2026-10-09T12:30:00Z
+- Finished: 2026-10-09T13:30:00Z
+- Tolerances: testing.md section 5: each direction's headline against mean(iperf3 before, after), and its loaded latency against the concurrent ICMP ping, judged per run as pass, fail or inconclusive
+- Loaded latency: each direction measured with websocket or http-h1-reserved: its increase over idle within ±20 % or 5 ms, whichever is larger, of the ICMP ping's increase from idle latency's window to the direction's after I_s; the grade on the letter of the larger ping increase its basis names, or the adjacent letter within that tolerance of a threshold; http-h2 and http-h3 recorded, not judged
+- No-egress layer: no packet egress (netguard counters, from BitGauge's start to the end of the run)
+
+## Runs
+
+| Profile | Browser | Attempt | Status | Self-test down / up | iperf3 before down / up | iperf3 after down / up | Reference down / up | Download | Upload | Loaded latency down / up | Ping idle / down / up | Grade | Path B down / up | Data used | Client CPU and memory | Egress | Compatibility clients | Verdict |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| floor-300k-600ms-vpn | firefox | 1 | pass | 299.0 kbit/s / 301.0 kbit/s | 298.0 kbit/s / 297.0 kbit/s | 296.0 kbit/s / 299.5 kbit/s | 297.0 kbit/s / 298.2 kbit/s | 281.0 kbit/s (measured, 12.4 s window) | 290.0 kbit/s (measured, 11.0 s window) | +160.0 ms (websocket, 40 samples) / +190.0 ms (websocket, 40 samples) | 600.0 ms / +150.0 ms / +170.0 ms | C (download+upload, +190.0 ms) | measured, 95 RPM (h2, 31 samples) / unavailable_h1 | 0.0 MB | 40.5 s CPU in 27.0 s (1.50 cores), 812.4 MB peak | 0 | librespeed-cli 280.0 kbit/s / 270.0 kbit/s; goresponsiveness 250.0 kbit/s / 240.0 kbit/s, 61 RPM (estimate); OpenSpeedTest UI 275.0 kbit/s / 265.0 kbit/s | pass: download 281.0 kbit/s vs 297.0 kbit/s (-5.4 %, ±15 %); upload 290.0 kbit/s vs 298.2 kbit/s (-2.8 %, ±15 %); download loaded +160.0 ms (websocket) vs ping +150.0 ms (±30.0 ms); upload loaded +190.0 ms (websocket) vs ping +170.0 ms (±34.0 ms); grade C (download+upload) vs ping +170.0 ms (C or D) |
+| floor-300k-300ms-1pct-loss | webkit | 1 | failed: shaper \| self-test | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| floor-300k-300ms-1pct-loss | chromium | 1 (re-run) | inconclusive | — | — | — | — | — | — | — | — | — | — | — | — | — | — | inconclusive: unstable reference; upload: iperf3 before (290.0 kbit/s) and after (250.0 kbit/s) differ by 14.8 % |
+
+## Manual runs this tier requires
+
+- one real Android Chrome run over an actual VPN
+- one real iOS Safari run over an actual VPN
+
+## Environmental limits
+
+- tc shaping jitter (tbf burst sizes, netem timer granularity).
+- Docker bridge overhead at high rates.
+- Playwright WebKit ≠ Safari: Worker XHR and nextHopProtocol behavior must be re-checked on real Safari.
+- Mobile power management: device runs happen with the screen on.
+
+What the harness cannot prove: real Wi-Fi behavior, real VPN MTU effects, carrier-grade NAT, and anything about networks the project does not target.

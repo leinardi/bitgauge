@@ -24,12 +24,12 @@
 //! under `web/src/`, as the file it pretends to be, and names the rule message that must reject
 //! it, or none when it must be accepted.
 //!
-//! eslint is a gated tool: when `web/node_modules/.bin/eslint` is missing the test returns early
-//! with a note, and `BITGAUGE_REQUIRE_TOOLS=1` (set in CI) turns that into a failure, since a test
-//! that skips passes in exactly the place it is meant to guard.
+//! eslint is a gated tool, looked up through `testenv::toolgate`: when
+//! `web/node_modules/.bin/eslint` is missing the test returns early with a note, and
+//! `BITGAUGE_REQUIRE_TOOLS=1` (set in CI) turns that into a failure, since a test that skips passes
+//! in exactly the place it is meant to guard.
 
-use std::env;
-use std::io::{ErrorKind, Write};
+use std::io::Write;
 use std::num::NonZeroUsize;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
@@ -37,9 +37,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::thread;
 
 use meta::repo;
-
-/// The variable that turns a missing tool from an early return into a failure.
-const REQUIRE_ENV: &str = "BITGAUGE_REQUIRE_TOOLS";
+use testenv::toolgate::{self, Tool};
 
 /// The cases: the file a source pretends to be, the source, and the text the rejection must
 /// contain, empty when the source must be accepted.
@@ -201,35 +199,6 @@ const CASES: &[(&str, &str, &str)] = &[
     ),
 ];
 
-/// The eslint that `npm ci` installed, found as `web/node_modules/.bin/eslint` in the nearest
-/// ancestor of the working directory that has one; `None`, with a note, when there is none and
-/// `REQUIRE_ENV` is not 1.
-///
-/// # Panics
-///
-/// eslint is missing and `REQUIRE_ENV` is 1, or a candidate path cannot be inspected.
-fn eslint() -> Option<PathBuf> {
-    let start =
-        env::current_dir().unwrap_or_else(|error| panic!("read the working directory: {error}"));
-    let found = start.ancestors().find_map(|directory| {
-        let candidate = directory.join("web/node_modules/.bin/eslint");
-        match candidate.metadata() {
-            Ok(_) => Some(candidate),
-            Err(error) if error.kind() == ErrorKind::NotFound => None,
-            Err(error) => panic!("stat {}: {error}", candidate.display()),
-        }
-    });
-    if found.is_none() {
-        let reason = "web/node_modules/.bin/eslint: not installed; run npm ci in web/";
-        assert!(
-            env::var_os(REQUIRE_ENV).is_none_or(|value| value != "1"),
-            "eslint is required ({REQUIRE_ENV}=1) but was not found: {reason}"
-        );
-        eprintln!("note: eslint not found ({reason}); set {REQUIRE_ENV}=1 to make this a failure");
-    }
-    found
-}
-
 /// What is wrong with eslint's verdict on one case, if anything.
 fn case_problem(eslint: &PathBuf, (file, source, want): &(&str, &str, &str)) -> Option<String> {
     let mut child = Command::new(eslint)
@@ -312,7 +281,7 @@ fn parallel_map<T: Sync, R: Send>(items: &[T], run: impl Fn(&T) -> R + Sync) -> 
 /// globals.
 #[test]
 fn engine_boundary_lint() {
-    let Some(eslint) = eslint() else {
+    let Some(eslint) = toolgate::lookup(Tool::Eslint) else {
         return;
     };
     let problems: Vec<String> = parallel_map(CASES, |case| case_problem(&eslint, case))

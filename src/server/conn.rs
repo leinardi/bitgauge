@@ -227,6 +227,17 @@ where
     }
 }
 
+/// Sets `TCP_NODELAY` on a connection [`drive`] serves, as Go's net package does on every
+/// connection it accepts. Without it, Nagle holds a small write (a WebSocket echo, a ping answer) until the
+/// peer's delayed ACK arrives, which added about 180 ms to the loaded latency on the harness's
+/// 500 kbit/s profile (docs/rust-port.md, phase 17). A socket that refuses the option is served
+/// anyway, as Go ignores the error too.
+fn disable_nagle(stream: &TcpStream) {
+    if let Err(error) = stream.set_nodelay(true) {
+        tracing::debug!(error = %error, "could not set TCP_NODELAY");
+    }
+}
+
 /// The shutdown sequence after the listener is gone, all under one deadline.
 async fn finish(lifecycle: &Lifecycle, grace_end: Instant, failed: Option<io::Error>) -> Outcome {
     lifecycle.tracker.close();
@@ -265,6 +276,7 @@ where
     B: Body<Data = Bytes> + Send + 'static,
     B::Error: Into<BoxError>,
 {
+    disable_nagle(&stream);
     let state = ConnState::new(timeouts);
     let peer = stream.peer_addr().ok();
     let io = TokioIo::new(ConnIo::new(stream, state.clone()));

@@ -21,8 +21,12 @@
 ifndef MK_LOCAL_HARNESS_INCLUDED
 MK_LOCAL_HARNESS_INCLUDED := 1
 
-# The accuracy harness (testing.md section 5): Go runners behind the harness build tag drive the
-# topology over the docker CLI and write dist/harness/<tier>-<UTC>-<envid>/report.{json,md}.
+# The accuracy harness (testing.md section 5): the Rust runners of testenv (feature harness, the
+# tests/harness target) drive the topology over the docker CLI and write
+# dist/harness/<tier>-<UTC>-<envid>/report.{json,md}. Every target names the implementation it
+# tests, BITGAUGE_TEST_IMPL=go or rust, with no default (image-test.mk); the targets that run
+# BitGauge build that implementation's image first. The Go runners under test/harness stay until
+# the cutover and run with go test -tags=harness directly.
 #
 # Prerequisites: Linux, a running Docker daemon with buildx, a dhi.io login, the ifb, sch_netem,
 # sch_tbf, sch_fq_codel, sch_ingress, cls_u32 and act_mirred kernel modules loadable on the host (a
@@ -45,6 +49,8 @@ MK_LOCAL_HARNESS_INCLUDED := 1
 
 HARNESS_TIMEOUT         ?= 120m
 HARNESS_PKG             := ./test/harness/
+# The cargo invocation of the Rust runners; the arguments after -- go to the runner.
+HARNESS_CARGO           = $(CARGO) test --locked -p testenv --features harness --test harness --
 HARNESS_PROFILES        ?=
 HARNESS_BROWSERS        ?=
 HARNESS_KEEP_ON_FAILURE ?= 0
@@ -56,12 +62,15 @@ HARNESS_CONTINUOUS_SETUP_MINUTES := 30
 
 # harness_run runs one tier: $(1) is the tier, $(2) the shape setting.
 define harness_run
+	$(test_impl_guard)
+	$(MAKE) --no-print-directory test-impl-image
+	$(test_impl_env) \
 	HARNESS_TIER=$(1) \
 	HARNESS_PROFILES="$(HARNESS_PROFILES)" \
 	HARNESS_BROWSERS="$(HARNESS_BROWSERS)" \
 	HARNESS_KEEP_ON_FAILURE="$(HARNESS_KEEP_ON_FAILURE)" \
 	HARNESS_SHAPE="$(2)" \
-	$(GO) test -tags=harness -run '^TestHarness$$' -timeout $(HARNESS_TIMEOUT) -v $(HARNESS_PKG)
+	timeout $(HARNESS_TIMEOUT) $(HARNESS_CARGO) --run '^TestHarness$$'
 endef
 
 .PHONY: harness-ci
@@ -78,22 +87,26 @@ harness-ceiling: ## Run the manual range-ceiling harness tier, unshaped (bare me
 
 .PHONY: harness-continuous
 harness-continuous: ## Run the manual Continuous memory check, Chromium on ci-100m-50ms (Docker)
+	$(test_impl_guard)
 	@case "$(HARNESS_CONTINUOUS_MINUTES)" in ''|*[!0-9]*) \
 	  echo "HARNESS_CONTINUOUS_MINUTES must be a whole number of at least 6, not '$(HARNESS_CONTINUOUS_MINUTES)'" >&2; exit 1;; \
 	esac
+	$(MAKE) --no-print-directory test-impl-image
+	$(test_impl_env) \
 	HARNESS_CONTINUOUS_MINUTES="$(HARNESS_CONTINUOUS_MINUTES)" \
 	HARNESS_KEEP_ON_FAILURE="$(HARNESS_KEEP_ON_FAILURE)" \
-	$(GO) test -tags=harness -count=1 -run '^TestHarnessContinuous$$' \
-	  -timeout $$(( $(HARNESS_CONTINUOUS_MINUTES) + $(HARNESS_CONTINUOUS_SETUP_MINUTES) ))m -v $(HARNESS_PKG)
+	timeout $$(( $(HARNESS_CONTINUOUS_MINUTES) + $(HARNESS_CONTINUOUS_SETUP_MINUTES) ))m \
+	  $(HARNESS_CARGO) --run '^TestHarnessContinuous$$'
 
 .PHONY: harness-preflight
 harness-preflight: ## Check the Docker daemon's cgroup accounting and shaping for the harness
-	HARNESS_PREFLIGHT="$(HARNESS_PREFLIGHT)" \
-	$(GO) test -tags=harness -count=1 -run '^TestPreflight$$' -v $(HARNESS_PKG)
+	$(test_impl_guard)
+	$(test_impl_env) HARNESS_PREFLIGHT="$(HARNESS_PREFLIGHT)" $(HARNESS_CARGO) --run '^TestPreflight$$'
 
 .PHONY: harness-sweep
 harness-sweep: ## Remove stale harness environments and list the kept ones
-	$(GO) test -tags=harness -count=1 -run '^TestSweep$$' -v $(HARNESS_PKG)
+	$(test_impl_guard)
+	$(test_impl_env) $(HARNESS_CARGO) --run '^TestSweep$$'
 
 .PHONY: harness-sweep-all
 harness-sweep-all: ## Remove every harness environment, kept or live (needs CONFIRM=1)
@@ -101,7 +114,8 @@ ifneq ($(CONFIRM),1)
 	@echo "harness-sweep-all removes every harness environment, including kept and running ones; rerun with CONFIRM=1." >&2
 	@exit 1
 else
-	HARNESS_SWEEP_ALL_CONFIRM=1 $(GO) test -tags=harness -count=1 -run '^TestSweepAll$$' -v $(HARNESS_PKG)
+	$(test_impl_guard)
+	$(test_impl_env) HARNESS_SWEEP_ALL_CONFIRM=1 $(HARNESS_CARGO) --run '^TestSweepAll$$'
 endif
 
 .PHONY: go-vet-harness

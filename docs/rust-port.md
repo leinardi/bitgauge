@@ -548,6 +548,24 @@ not expect.
   `cargo test --offline --locked -p meta --test docs`. Found while porting: `make audit-deps` runs
   no `cargo deny` (only `make rust-deny`, its hook and the CI rust job do), and no file pins the
   cargo-deny version; `audit_deps.rs` pins today's set, and the cutover adds `rust-deny` to it.
+- **Phase 17, the testenv crate.** `testenv/` holds the Docker suites in Rust: the docker CLI
+  runner, environments and the sweep, gitenv, toolgate, the `harness = false` runner with a
+  Go-style `--run`, netguard, the syscall analyser and the identity check (`testenv/src/identity.rs`,
+  adapted from swarm-device-access). The image suite (`tests/image`, feature `image`) and the
+  harness runners (`tests/harness`, feature `harness`) take the image `make test-impl-image`
+  built for `BITGAUGE_TEST_IMPL` (`bitgauge:go-test` or `bitgauge:rust-candidate`) and never build
+  BitGauge themselves; the identity check and its crossed control run before any test. The probe
+  is a std-only Rust program the image suite compiles with `rustc` for the musl target, so no
+  Cargo target, and thus no workspace clippy run, covers it; it is linted with `clippy-driver`.
+  The Rust candidate's serve and healthcheck traces (`testenv/tests/testdata/syscalltrace/rust-*`)
+  pass the policies unchanged. `make rust-test-image` and the harness targets run cargo and refuse
+  to run without `BITGAUGE_TEST_IMPL`; `harness.yaml` passes `go`, the shipped implementation.
+  Found while porting: the first Rust CI tier failed ci-500k-300ms on loaded latency (+190 ms
+  over WebSocket against +14 ms on the Go image), because the accept loop left Nagle on where Go
+  sets TCP_NODELAY; `src/server/conn.rs` now sets it on every accepted connection (the trap is in
+  `rust-port-go`). Neither image is byte-reproducible across rebuilds of one commit from a dirty
+  tree; the identity check compares the copied binary against the image's own layer, so it is
+  unaffected.
 - **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
   started. The `cargo-machete` pre-commit hook builds its own; phase 15 fetched the pinned `zig`
   into the scratchpad.
@@ -592,4 +610,4 @@ it did not port, with the reason.
 | `cmd/bitgauge` | `TestParseArgs` in the `src/cli.rs` tests; `TestHealthcheckAddress` and `TestHealthcheckExitCodes` in `src/healthcheck/tests.rs`; `TestServeExitsTwoOnInvalidConfig` in `src/command/tests.rs` and `tests/cli.rs`; `TestServeAndHealthcheck`, `TestServeExitsOneWithoutTheSPA` and `TestCompatibilityLayersOnTheStartupLine` in `src/command/tests.rs`; the process-mode startup and its signals in `tests/process_mode.rs`; `TestMain` is Cargo's binary build | 13 |
 | (the Go binary) | `tests/wire.rs` replays the Go binary's recorded answers (`tests/testdata/wire/`) | 14 |
 | `test/docs`, `test/disturls`, `test/distdemo`, `test/chunksize`, `test/licenseheaders`, `test/toolchain`, `test/deployments`, `test/dockerfiles`, `test/boundary` | `meta/tests/` under the Go package's name (`docs.rs`, `toolchain.rs` for the pins, `compat_boundary.rs`, one file per `test/toolchain` test file); `boundary_test.go` is the lint boundary of phase 3 (`lint_exemptions.rs`, `lint_inheritance.rs`); `untagged_tests_test.go` moves to phase 17 with the toolgate | 16 |
-| `test/internal/...`, `test/image`, `test/harness` |  | 17 |
+| `test/internal/...`, `test/image`, `test/harness` | `testenv/src/` (one module per Go package; the harness logic in `testenv/src/harness/`, unit-tested untagged), `testenv/tests/image/`, `testenv/tests/netguard.rs`, `testenv/tests/harness/`; `untagged_tests_test.go` in `meta/tests/untagged_tests.rs` | 17 |

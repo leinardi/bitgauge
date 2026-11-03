@@ -1,0 +1,160 @@
+{
+  "tier": "floor",
+  "envId": "abcd1234",
+  "started": "2026-10-09T12:30:00Z",
+  "finished": "2026-10-09T13:30:00Z",
+  "tolerances": "testing.md section 5: each direction's headline against mean(iperf3 before, after), and its loaded latency against the concurrent ICMP ping, judged per run as pass, fail or inconclusive",
+  "latencyRule": "each direction measured with websocket or http-h1-reserved: its increase over idle within ±20 % or 5 ms, whichever is larger, of the ICMP ping's increase from idle latency's window to the direction's after I_s; the grade on the letter of the larger ping increase its basis names, or the adjacent letter within that tolerance of a threshold; http-h2 and http-h3 recorded, not judged",
+  "noEgressLayer": "no packet egress (netguard counters, from BitGauge's start to the end of the run)",
+  "runs": [
+    {
+      "profile": "floor-300k-600ms-vpn",
+      "browser": "firefox",
+      "status": "pass",
+      "shaped": true,
+      "selfTest": {
+        "downloadBitsPerSecond": 299000,
+        "uploadBitsPerSecond": 301000,
+        "seconds": 5
+      },
+      "referenceBefore": {
+        "downloadBitsPerSecond": 298000,
+        "uploadBitsPerSecond": 297000,
+        "seconds": 20
+      },
+      "referenceAfter": {
+        "downloadBitsPerSecond": 296000,
+        "uploadBitsPerSecond": 299500,
+        "seconds": 20
+      },
+      "reference": {
+        "downloadBitsPerSecond": 297000,
+        "uploadBitsPerSecond": 298250,
+        "seconds": 20
+      },
+      "result": {
+        "status": "complete",
+        "preset": "extended",
+        "protocol": "",
+        "download": {
+          "status": "measured",
+          "bitsPerSecond": 281000,
+          "windowMs": 12400,
+          "bytes": 0,
+          "streams": 0,
+          "loadedLatency": {
+            "source": "websocket",
+            "samples": 40,
+            "medianMs": 760,
+            "increaseMs": 160
+          },
+          "responsiveness": {
+            "state": "measured",
+            "protocol": "h2",
+            "samples": 31,
+            "rpm": 95
+          }
+        },
+        "upload": {
+          "status": "measured",
+          "bitsPerSecond": 290000,
+          "windowMs": 11000,
+          "bytes": 0,
+          "streams": 0,
+          "loadedLatency": {
+            "source": "websocket",
+            "samples": 40,
+            "medianMs": 790,
+            "increaseMs": 190
+          },
+          "responsiveness": {
+            "state": "unavailable_h1",
+            "protocol": "http/1.1",
+            "samples": 0
+          }
+        },
+        "bufferbloat": {
+          "grade": "C",
+          "basis": "download+upload",
+          "increaseMs": 190
+        },
+        "dataUsedBytes": 0,
+        "notices": null
+      },
+      "attempt": 1,
+      "verdict": "pass: download 281.0 kbit/s vs 297.0 kbit/s (-5.4 %, ±15 %); upload 290.0 kbit/s vs 298.2 kbit/s (-2.8 %, ±15 %); download loaded +160.0 ms (websocket) vs ping +150.0 ms (±30.0 ms); upload loaded +190.0 ms (websocket) vs ping +170.0 ms (±34.0 ms); grade C (download+upload) vs ping +170.0 ms (C or D)",
+      "ping": {
+        "summary": "120 packets transmitted, 120 received, 0% packet loss",
+        "log": "exports/floor-300k-600ms-vpn/firefox.ping.txt",
+        "idle": {
+          "samples": 30,
+          "medianMs": 600
+        },
+        "download": {
+          "samples": 60,
+          "medianMs": 750,
+          "increaseMs": 150
+        },
+        "upload": {
+          "samples": 60,
+          "medianMs": 770,
+          "increaseMs": 170
+        }
+      },
+      "clientUsage": {
+        "cpuSeconds": 40.5,
+        "wallSeconds": 27,
+        "peakMemoryBytes": 812400000
+      },
+      "egress": {
+        "dns": 0,
+        "egress": 0,
+        "loopback": 0
+      },
+      "compat": {
+        "librespeed": {
+          "downloadBitsPerSecond": 280000,
+          "uploadBitsPerSecond": 270000
+        },
+        "goresponsiveness": {
+          "downloadBitsPerSecond": 250000,
+          "uploadBitsPerSecond": 240000,
+          "rpm": 61,
+          "estimate": true
+        },
+        "openspeedtest": {
+          "downloadBitsPerSecond": 275000,
+          "uploadBitsPerSecond": 265000
+        }
+      }
+    },
+    {
+      "profile": "floor-300k-300ms-1pct-loss",
+      "browser": "webkit",
+      "status": "failed",
+      "error": "shaper | self-test",
+      "shaped": true,
+      "attempt": 1
+    },
+    {
+      "profile": "floor-300k-300ms-1pct-loss",
+      "browser": "chromium",
+      "status": "inconclusive",
+      "shaped": true,
+      "attempt": 1,
+      "rerun": true,
+      "verdict": "inconclusive: unstable reference; upload: iperf3 before (290.0 kbit/s) and after (250.0 kbit/s) differ by 14.8 %"
+    }
+  ],
+  "manual": [
+    "one real Android Chrome run over an actual VPN",
+    "one real iOS Safari run over an actual VPN"
+  ],
+  "environmentalLimits": [
+    "tc shaping jitter (tbf burst sizes, netem timer granularity).",
+    "Docker bridge overhead at high rates.",
+    "Playwright WebKit ≠ Safari: Worker XHR and nextHopProtocol behavior must be re-checked on real Safari.",
+    "Mobile power management: device runs happen with the screen on."
+  ],
+  "cannotProve": "What the harness cannot prove: real Wi-Fi behavior, real VPN MTU effects, carrier-grade NAT, and anything about networks the project does not target."
+}

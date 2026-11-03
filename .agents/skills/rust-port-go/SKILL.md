@@ -357,6 +357,12 @@ bugs, never into a guess.
   getservbyname. Reused captures belong to the server they came from (its routes, its deadlines) →
   recapture against the Go server being replaced. (37 Go captures, then 41 of this daemon's;
   paused-clock tests; a pipelining probe against Go 1.26; a static Go binary in busybox)
+- **TCP_NODELAY:** Go's `net` sets it on every TCP connection it accepts or dials; tokio and std
+  leave Nagle on. A small write after one still unacknowledged (a WebSocket echo, a ping answer
+  behind a transfer) then waits for the peer's delayed ACK: +180 ms of loaded latency on a
+  500 kbit/s, 300 ms link, invisible on fast ones and on loopback → `set_nodelay(true)` on every
+  accepted (and dialed) stream; only a shaped slow link shows it. (bitgauge accuracy harness,
+  ci-500k-300ms, Go image +14 ms, Rust image +190 ms)
 - **hyper's `graceful_shutdown` and upgrades:** called on a connection whose request is in flight,
   it disables keep-alive, and hyper 1.12 appends `close` to that response's `Connection` header
   and closes after it, so a `101` sent after shutdown began reads `Connection: Upgrade, close` and

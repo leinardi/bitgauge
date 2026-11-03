@@ -1,0 +1,56 @@
+8     execve("/trace/bitgauge", ["/trace/bitgauge", "serve"], 0x7ffc6ecc10c8 /* 3 vars */) = 0
+8     stat("/etc/bitgauge/config.yaml", 0x7ffc88b30680) = -1 ENOENT (No such file or directory)
+8     open("/proc/self/cgroup", O_RDONLY|O_LARGEFILE|O_CLOEXEC) = 3</proc/8/cgroup>
+8     fcntl(3</proc/8/cgroup>, F_SETFD, FD_CLOEXEC) = 0
+8     close(3</proc/8/cgroup>)          = 0
+8     stat("/sys/fs/cgroup/cgroup.controllers", {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+8     open("/sys/fs/cgroup/cpu.max", O_RDONLY|O_LARGEFILE|O_CLOEXEC) = 3</sys/fs/cgroup/cpu.max>
+8     fcntl(3</sys/fs/cgroup/cpu.max>, F_SETFD, FD_CLOEXEC) = 0
+8     close(3</sys/fs/cgroup/cpu.max>)  = 0
+8     fcntl(3<anon_inode:[eventpoll]>, F_DUPFD_CLOEXEC, 3) = 5<anon_inode:[eventpoll]>
+8     fcntl(5<anon_inode:[eventpoll]>, F_SETFD, FD_CLOEXEC) = 0
+8     open("/proc/self/cgroup", O_RDONLY|O_LARGEFILE|O_CLOEXEC) = 6</proc/8/cgroup>
+8     fcntl(6</proc/8/cgroup>, F_SETFD, FD_CLOEXEC) = 0
+8     close(6</proc/8/cgroup>)          = 0
+8     stat("/sys/fs/cgroup/cgroup.controllers", {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+8     open("/sys/fs/cgroup/cpu.max", O_RDONLY|O_LARGEFILE|O_CLOEXEC) = 6</sys/fs/cgroup/cpu.max>
+8     fcntl(6</sys/fs/cgroup/cpu.max>, F_SETFD, FD_CLOEXEC) = 0
+8     close(6</sys/fs/cgroup/cpu.max>)  = 0
+8     socket(AF_INET6, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_TCP) = 6<TCPv6:[11824013]>
+8     setsockopt(6<TCPv6:[11824013]>, SOL_IPV6, IPV6_V6ONLY, [0], 4) = 0
+8     setsockopt(6<TCPv6:[11824013]>, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
+8     bind(6<TCPv6:[11824013]>, {sa_family=AF_INET6, sin6_port=htons(8080), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::", &sin6_addr), sin6_scope_id=0}, 28) = 0
+8     listen(6<TCPv6:[[::]:8080]>, 65535) = 0
+8     getsockname(6<TCPv6:[[::]:8080]>, {sa_family=AF_INET6, sin6_port=htons(8080), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::", &sin6_addr), sin6_scope_id=0}, [128 => 28]) = 0
+8     write(1<pipe:[11835029]>, "2026-11-03T21:58:40.029012Z  INF"..., 149) = 149
+8     write(1<pipe:[11835029]>, "2026-11-03T21:58:40.029129Z  INF"..., 1138) = 1138
+8     accept4(6<TCPv6:[[::]:8080]>, {sa_family=AF_INET6, sin6_port=htons(39036), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::ffff:127.0.0.1", &sin6_addr), sin6_scope_id=0}, [128 => 28], SOCK_CLOEXEC|SOCK_NONBLOCK) = 7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39036]>
+8     setsockopt(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39036]>, SOL_TCP, TCP_NODELAY, [1], 4) = 0
+8     accept4(6<TCPv6:[[::]:8080]>, 0x7ffc88b2e380, [128], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+31    getpeername(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39036]>, {sa_family=AF_INET6, sin6_port=htons(39036), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::ffff:127.0.0.1", &sin6_addr), sin6_scope_id=0}, [128 => 28]) = 0
+31    recvfrom(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39036]>, "GET /api/v1/info HTTP/1.1\r\nHost:"..., 8192, 0, NULL, NULL) = 101
+31    writev(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39036]>, [{iov_base="HTTP/1.1 200 OK\r\ncache-control: "..., iov_len=186}, {iov_base="{\"server\":{\"name\":\"BitGauge\",\"ve"..., iov_len=729}], 2) = 915
+31    shutdown(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39036]>, SHUT_WR) = 0
+31    write(4<{eventfd-count=0, eventfd-id=59, eventfd-semaphore=0}>, "\1\0\0\0\0\0\0\0", 8) = 8
+31    recvfrom(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39036]>, "", 4096, 0, NULL, NULL) = 0
+31    close(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39036]>) = 0
+8     accept4(6<TCPv6:[[::]:8080]>, {sa_family=AF_INET6, sin6_port=htons(39038), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::ffff:127.0.0.1", &sin6_addr), sin6_scope_id=0}, [128 => 28], SOCK_CLOEXEC|SOCK_NONBLOCK) = 7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39038]>
+8     setsockopt(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39038]>, SOL_TCP, TCP_NODELAY, [1], 4) = 0
+8     accept4(6<TCPv6:[[::]:8080]>, 0x7ffc88b2e380, [128], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+31    getpeername(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39038]>, {sa_family=AF_INET6, sin6_port=htons(39038), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::ffff:127.0.0.1", &sin6_addr), sin6_scope_id=0}, [128 => 28]) = 0
+31    recvfrom(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39038]>, "GET / HTTP/1.1\r\nHost: 127.0.0.1:"..., 8192, 0, NULL, NULL) = 90
+31    writev(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39038]>, [{iov_base="HTTP/1.1 200 OK\r\ncontent-type: t"..., iov_len=801}, {iov_base="<!doctype html>\n<!--\n  This file"..., iov_len=2151}], 2) = 2952
+31    shutdown(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39038]>, SHUT_WR) = 0
+31    write(4<{eventfd-count=0x1, eventfd-id=59, eventfd-semaphore=0}>, "\1\0\0\0\0\0\0\0", 8) = 8
+10    recvfrom(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39038]>, "", 4096, 0, NULL, NULL) = 0
+10    close(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39038]>) = 0
+8     accept4(6<TCPv6:[[::]:8080]>, {sa_family=AF_INET6, sin6_port=htons(39040), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::ffff:127.0.0.1", &sin6_addr), sin6_scope_id=0}, [128 => 28], SOCK_CLOEXEC|SOCK_NONBLOCK) = 7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39040]>
+8     setsockopt(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39040]>, SOL_TCP, TCP_NODELAY, [1], 4) = 0
+8     write(4<{eventfd-count=0x2, eventfd-id=59, eventfd-semaphore=0}>, "\1\0\0\0\0\0\0\0", 8) = 8
+8     accept4(6<TCPv6:[[::]:8080]>, 0x7ffc88b2e380, [128], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+10    getpeername(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39040]>, {sa_family=AF_INET6, sin6_port=htons(39040), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::ffff:127.0.0.1", &sin6_addr), sin6_scope_id=0}, [128 => 28]) = 0
+10    recvfrom(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39040]>, "GET /api/v1/ping HTTP/1.1\r\nHost:"..., 8192, 0, NULL, NULL) = 70
+10    writev(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39040]>, [{iov_base="HTTP/1.1 204 No Content\r\ncache-c"..., iov_len=141}], 1) = 141
+10    shutdown(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39040]>, SHUT_WR) = 0
+10    recvfrom(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39040]>, "", 4096, 0, NULL, NULL) = 0
+10    close(7<TCPv6:[[::ffff:127.0.0.1]:8080->[::ffff:127.0.0.1]:39040]>) = 0

@@ -1,0 +1,10 @@
+67    execve("/trace/bitgauge", ["/trace/bitgauge", "healthcheck"], 0x7ffce3a35318 /* 3 vars */) = 0
+67    stat("/etc/bitgauge/config.yaml", 0x7ffec6b37470) = -1 ENOENT (No such file or directory)
+67    socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC, IPPROTO_IP) = 3<TCP:[11835852]>
+67    connect(3<TCP:[11835852]>, {sa_family=AF_INET, sin_port=htons(8080), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 EINPROGRESS (Operation in progress)
+67    setsockopt(3<TCP:[127.0.0.1:39040->127.0.0.1:8080]>, SOL_SOCKET, SO_SNDTIMEO_OLD, "\2\0\0\0\0\0\0\0\341\365\16\0\0\0\0\0", 16) = 0
+67    sendto(3<TCP:[127.0.0.1:39040->127.0.0.1:8080]>, "GET /api/v1/ping HTTP/1.1\r\nHost:"..., 70, MSG_NOSIGNAL, NULL, 0) = 70
+67    setsockopt(3<TCP:[127.0.0.1:39040->127.0.0.1:8080]>, SOL_SOCKET, SO_RCVTIMEO_OLD, "\2\0\0\0\0\0\0\0\270\317\16\0\0\0\0\0", 16) = 0
+67    recvfrom(3<TCP:[127.0.0.1:39040->127.0.0.1:8080]>, "HTTP/1.1 204 No Content\r\ncache-c"..., 512, 0, NULL, NULL) = 141
+67    close(3<TCP:[127.0.0.1:39040->127.0.0.1:8080]>) = 0
+67    +++ exited with 0 +++

@@ -1,0 +1,31 @@
+# BitGauge Continuous memory check
+
+- Profile: `ci-100m-50ms`, chromium, 6 minutes
+- Environment: `env` (run ``)
+- Started 1970-01-01T00:00:00Z, finished 0001-01-01T00:00:00Z
+- Rule: every Worker heap sample (Runtime.getHeapUsage usedSize after HeapProfiler.collectGarbage, every 60 s from the steady start) from minute 5 to the last lies within 2 MiB (2097152 bytes) of the minute-5 sample (testing.md section 5)
+- No-egress layer: no packet egress (netguard counters, from BitGauge's start to the end of the run)
+- Self-test (down / up): —
+- Egress: 0
+- Worker: http://bitgauge:8080/assets/worker-x.js
+
+**pass: minutes 5 to 6 within 2097152 bytes of the minute-5 sample (largest 0)**
+
+| Minute | Used (bytes) | Total (bytes) | From minute 5 (bytes) |
+| --- | --- | --- | --- |
+| 0 | 1000000 | 2000000 | — |
+| 1 | 1000000 | 2000000 | — |
+| 2 | 1000000 | 2000000 | — |
+| 3 | 1000000 | 2000000 | — |
+| 4 | 1000000 | 2000000 | — |
+| 5 | 1000000 | 2000000 | +0 |
+| 6 | 1000000 | 2000000 | +0 |
+
+## Environmental limits
+
+- tc shaping jitter (tbf burst sizes, netem timer granularity).
+- Docker bridge overhead at high rates.
+- Playwright WebKit ≠ Safari: Worker XHR and nextHopProtocol behavior must be re-checked on real Safari.
+- Mobile power management: device runs happen with the screen on.
+
+What the harness cannot prove: real Wi-Fi behavior, real VPN MTU effects, carrier-grade NAT, and anything about networks the project does not target.
