@@ -24,7 +24,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { checkImport, MAX_IMPORT_BYTES, newRecords, readImport } from '@/history/import'
-import { resultFixture } from '@/test/fixtures'
+import { resultFixture, uuidFor } from '@/test/fixtures'
 
 function file(results: unknown[], extra: Record<string, unknown> = {}): string {
   return JSON.stringify({ format: 'bitgauge.history', formatVersion: 1, exportedAt: '2026-10-17T07:00:00.000Z', results, ...extra })
@@ -66,22 +66,22 @@ describe('the import', () => {
   })
 
   it('rejects a record by its position and reason, keeping the others', async () => {
-    const good = resultFixture({ id: 'good' })
+    const good = resultFixture({ id: uuidFor('good') })
     const parsed = await parse(file([{ ...resultFixture(), schemaVersion: 2 }, good, { ...resultFixture(), id: 7 }, 'text']))
     expect(parsed).toEqual({
       ok: true,
       results: [good],
       rejected: [
         { index: 0, reason: 'newer-schema', detail: '2' },
-        { index: 2, reason: 'invalid', detail: 'result.id: not a string' },
+        { index: 2, reason: 'invalid', detail: 'result.id: not a version 4 UUID' },
         { index: 3, reason: 'invalid', detail: 'result: not an object' },
       ],
     })
   })
 
   it('rejects a record whose label is over 64 characters, counted in characters', async () => {
-    const longest = resultFixture({ id: 'longest', label: '🛰'.repeat(64) })
-    const parsed = await parse(file([longest, resultFixture({ id: 'long', label: 'x'.repeat(65) })]))
+    const longest = resultFixture({ id: uuidFor('longest'), label: '🛰'.repeat(64) })
+    const parsed = await parse(file([longest, resultFixture({ id: uuidFor('long'), label: 'x'.repeat(65) })]))
     expect(parsed).toEqual({ ok: true, results: [longest], rejected: [{ index: 1, reason: 'invalid', detail: 'result.label: more than 64 characters' }] })
   })
 
@@ -92,7 +92,7 @@ describe('the import', () => {
   })
 
   it('counts the records as it checks them, and a cancel stops it with nothing to write', async () => {
-    const records = [resultFixture({ id: 'a' }), resultFixture({ id: 'b' }), resultFixture({ id: 'c' })]
+    const records = [resultFixture({ id: uuidFor('a') }), resultFixture({ id: uuidFor('b') }), resultFixture({ id: uuidFor('c') })]
     const progress: string[] = []
     expect(await checkImport(records, { onProgress: (checked, total) => progress.push(`${checked}/${total}`) })).toEqual({ results: records, rejected: [] })
     expect(progress).toEqual(['0/3', '1/3', '2/3', '3/3'])
@@ -110,7 +110,7 @@ describe('the import', () => {
   })
 
   it('skips the records already stored or earlier in the file', () => {
-    const [a, b, c] = ['a', 'b', 'c'].map((id) => resultFixture({ id }))
-    expect(newRecords([a!, b!, b!, c!], new Set(['c']))).toEqual({ added: [a, b], skipped: 2 })
+    const [a, b, c] = ['a', 'b', 'c'].map((name) => resultFixture({ id: uuidFor(name) }))
+    expect(newRecords([a!, b!, b!, c!], new Set([uuidFor('c')]))).toEqual({ added: [a, b], skipped: 2 })
   })
 })

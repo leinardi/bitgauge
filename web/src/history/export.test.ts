@@ -24,13 +24,13 @@ import { describe, expect, it } from 'vitest'
 
 import { historyCsv, historyExport } from '@/history/export'
 import { checkImport, readImport } from '@/history/import'
-import { resultFixture } from '@/test/fixtures'
+import { resultFixture, uuidFor } from '@/test/fixtures'
 
 const NOW = new Date(2026, 9, 17, 9, 5)
 
 describe('the History exports', () => {
   it('writes the JSON export format with every result, notes included, and reads back', async () => {
-    const results = [resultFixture({ id: 'a', note: 'kitchen' }), resultFixture({ id: 'b' })]
+    const results = [resultFixture({ id: uuidFor('a'), note: 'kitchen' }), resultFixture({ id: uuidFor('b') })]
     const file = historyExport(results, NOW)
     expect(file?.filename).toBe('bitgauge-history-2026-10-17-0905.json')
     expect(JSON.parse(file?.json ?? '')).toEqual({ format: 'bitgauge.history', formatVersion: 1, exportedAt: NOW.toISOString(), results })

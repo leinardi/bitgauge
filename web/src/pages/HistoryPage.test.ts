@@ -31,6 +31,7 @@ import { notify } from '@/components/feedback/notify'
 import { demoHistoryResults } from '@/demo/history'
 import type { Result } from '@/engine/messages'
 import { openHistoryDB } from '@/history/db'
+import { uuidFor } from '@/test/fixtures'
 import { freshIndexedDB } from '@/test/idb'
 
 vi.mock('@/components/feedback/notify', () => ({ notify: vi.fn() }))
@@ -90,7 +91,7 @@ const body = () => new DOMWrapper(document.body)
 /** 230 copies of the first result, a minute apart, newest first. */
 function many(): Result[] {
   const base = RESULTS[0] as Result
-  return Array.from({ length: 230 }, (_, index) => ({ ...base, id: `many-${String(index).padStart(3, '0')}`, startedAt: new Date(Date.parse(base.startedAt) - index * 60_000).toISOString() }))
+  return Array.from({ length: 230 }, (_, index) => ({ ...base, id: uuidFor(`many-${String(index).padStart(3, '0')}`), startedAt: new Date(Date.parse(base.startedAt) - index * 60_000).toISOString() }))
 }
 
 // The page's modules are transformed once here, so no test pays for it within its own timeout.
@@ -334,14 +335,14 @@ describe('the list', () => {
     await app.get('[data-testid="history-more"] button').trigger('click')
     await settle()
     expect(rows(app)).toHaveLength(200)
-    await router.push('/result/many-050')
+    await router.push(`/result/${uuidFor('many-050')}`)
     await settled(() => expect(app.find('[data-testid="history-row"]').exists()).toBe(false))
     router.back()
     await vi.waitFor(() => expect(router.currentRoute.value.path).toBe('/history'))
     await loaded()
     expect(rows(app)).toHaveLength(200)
     expect(app.get('[aria-sort="ascending"]').text()).toBe('Date')
-    await router.push('/result/many-050')
+    await router.push(`/result/${uuidFor('many-050')}`)
     await router.push('/history')
     await loaded()
     expect(rows(app)).toHaveLength(100)

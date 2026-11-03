@@ -35,10 +35,20 @@ const string: Check = (value, path, problems) => {
   }
 }
 
-/** An ISO 8601 instant in UTC, as Date.toISOString writes it. */
+/**
+ * An ISO 8601 instant in UTC, as Date.toISOString writes it: milliseconds and a Z required. Another
+ * ISO 8601 form is still refused, and the problem names the one form accepted.
+ */
 const instant: Check = (value, path, problems) => {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)) {
-    problems.push(`${path}: not an ISO 8601 instant`)
+    problems.push(`${path}: not an instant in UTC with milliseconds, as YYYY-MM-DDTHH:MM:SS.sssZ`)
+  }
+}
+
+/** A random version 4 UUID (measurement.md section 17), in either case. */
+const uuid: Check = (value, path, problems) => {
+  if (typeof value !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(value)) {
+    problems.push(`${path}: not a version 4 UUID`)
   }
 }
 
@@ -265,7 +275,7 @@ const result = object(
   {
     schema: literal('bitgauge.result'),
     schemaVersion: literal(1),
-    id: string,
+    id: uuid,
     startedAt: instant,
     durationMs: amount,
     status: literal('complete', 'partial', 'error'),

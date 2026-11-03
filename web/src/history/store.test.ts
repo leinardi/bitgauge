@@ -24,12 +24,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { DB_NAME, DB_VERSION, openHistoryDB } from '@/history/db'
 import { createHistoryStore } from '@/history/store'
-import { resultFixture } from '@/test/fixtures'
+import { resultFixture, uuidFor } from '@/test/fixtures'
 import { freshIndexedDB } from '@/test/idb'
 
-const OLD = resultFixture({ id: 'old', startedAt: '2026-10-01T08:00:00.000Z', label: 'LAN' })
-const NEW = resultFixture({ id: 'new', startedAt: '2026-10-09T08:00:00.000Z', label: 'VPN' })
-const MID = resultFixture({ id: 'mid', startedAt: '2026-10-05T08:00:00.000Z' })
+const OLD = resultFixture({ id: uuidFor('old'), startedAt: '2026-10-01T08:00:00.000Z', label: 'LAN' })
+const NEW = resultFixture({ id: uuidFor('new'), startedAt: '2026-10-09T08:00:00.000Z', label: 'VPN' })
+const MID = resultFixture({ id: uuidFor('mid'), startedAt: '2026-10-05T08:00:00.000Z' })
 
 beforeEach(() => {
   freshIndexedDB()
@@ -58,22 +58,22 @@ describe('the store', () => {
     for (const result of [OLD, NEW, MID]) {
       await history.save(result)
     }
-    expect(await history.get('mid')).toEqual(MID)
-    expect(await history.get('none')).toBeUndefined()
-    expect((await history.list()).map((result) => result.id)).toEqual(['new', 'mid', 'old'])
+    expect(await history.get(uuidFor('mid'))).toEqual(MID)
+    expect(await history.get(uuidFor('none'))).toBeUndefined()
+    expect((await history.list()).map((result) => result.id)).toEqual([uuidFor('new'), uuidFor('mid'), uuidFor('old')])
     expect(await history.count()).toBe(3)
-    expect(await history.ids()).toEqual(new Set(['old', 'new', 'mid']))
+    expect(await history.ids()).toEqual(new Set([uuidFor('old'), uuidFor('new'), uuidFor('mid')]))
   })
 
   it('removes at once, restores what it removed, and clears', async () => {
     const { store: history } = await store()
     await history.save(OLD)
     await history.save(NEW)
-    const removed = await history.remove(['new', 'none'])
+    const removed = await history.remove([uuidFor('new'), uuidFor('none')])
     expect(removed).toEqual([NEW])
     expect(await history.count()).toBe(1)
     await history.restore(removed)
-    expect((await history.list()).map((result) => result.id)).toEqual(['new', 'old'])
+    expect((await history.list()).map((result) => result.id)).toEqual([uuidFor('new'), uuidFor('old')])
     await history.clear()
     expect(await history.count()).toBe(0)
   })
@@ -81,10 +81,10 @@ describe('the store', () => {
   it('edits the label and note and writes the record back', async () => {
     const { store: history } = await store()
     await history.save(OLD)
-    expect(await history.edit('old', { note: 'after the router swap' })).toEqual({ ...OLD, note: 'after the router swap' })
-    expect(await history.edit('old', { label: 'Office' })).toEqual({ ...OLD, label: 'Office', note: 'after the router swap' })
-    expect(await history.get('old')).toEqual({ ...OLD, label: 'Office', note: 'after the router swap' })
-    expect(await history.edit('none', { note: 'x' })).toBeUndefined()
+    expect(await history.edit(uuidFor('old'), { note: 'after the router swap' })).toEqual({ ...OLD, note: 'after the router swap' })
+    expect(await history.edit(uuidFor('old'), { label: 'Office' })).toEqual({ ...OLD, label: 'Office', note: 'after the router swap' })
+    expect(await history.get(uuidFor('old'))).toEqual({ ...OLD, label: 'Office', note: 'after the router swap' })
+    expect(await history.edit(uuidFor('none'), { note: 'x' })).toBeUndefined()
   })
 
   it('reads a record without a note, and keeps out of the list one it cannot read', async () => {
@@ -94,8 +94,8 @@ describe('the store', () => {
     await db.put('results', withoutNote)
     await db.put('results', { ...NEW, schemaVersion: 2 as 1 })
     await db.put('results', { ...MID, status: 'great' as 'complete' })
-    expect((await history.list()).map((result) => result.id)).toEqual(['old'])
-    expect(await history.get('new')).toBeUndefined()
+    expect((await history.list()).map((result) => result.id)).toEqual([uuidFor('old')])
+    expect(await history.get(uuidFor('new'))).toBeUndefined()
     // Unreadable records stay stored.
     expect(await history.count()).toBe(3)
   })

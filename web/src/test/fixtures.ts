@@ -45,6 +45,19 @@ export function infoFixture(overrides: { client?: Partial<Info['client']>; serve
 }
 
 /** A complete result without the optional fields (measurement.md section 17) that passes validateResult; `overrides` replaces top-level fields. */
+/**
+ * A version 4 UUID that spells `name` (at most 9 bytes), so a test names its results and their ids
+ * still pass the result validator.
+ */
+export function uuidFor(name: string): string {
+  const hex = [...new TextEncoder().encode(name)].map((byte) => byte.toString(16).padStart(2, '0')).join('')
+  if (hex.length > 18) {
+    throw new Error(`uuidFor: "${name}" is longer than 9 bytes`)
+  }
+  const digits = hex.padStart(18, '0')
+  return `00000000-0000-4${digits.slice(0, 3)}-8${digits.slice(3, 6)}-${digits.slice(6)}`
+}
+
 export function resultFixture(overrides: Partial<Result> = {}): Result {
   return {
     schema: 'bitgauge.result',

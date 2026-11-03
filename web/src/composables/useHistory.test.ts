@@ -27,7 +27,7 @@ import { createHistory, useHistory } from '@/composables/useHistory'
 import { openIfAvailable } from '@/history/availability'
 import { openHistoryDB } from '@/history/db'
 import { historyExport } from '@/history/export'
-import { resultFixture } from '@/test/fixtures'
+import { resultFixture, uuidFor } from '@/test/fixtures'
 import { freshIndexedDB } from '@/test/idb'
 
 async function opened() {
@@ -72,17 +72,17 @@ describe('the history', () => {
   it('keeps the list newest first through save, remove, restore and clear', async () => {
     const history = await opened()
     expect(history.status.value).toBe('available')
-    await history.save(resultFixture({ id: 'a', startedAt: '2026-10-01T00:00:00.000Z' }))
-    await history.save(resultFixture({ id: 'b', startedAt: '2026-10-02T00:00:00.000Z' }))
-    expect(history.results.value.map((r) => r.id)).toEqual(['b', 'a'])
-    const removed = await history.remove(['b'])
-    expect(history.results.value.map((r) => r.id)).toEqual(['a'])
+    await history.save(resultFixture({ id: uuidFor('a'), startedAt: '2026-10-01T00:00:00.000Z' }))
+    await history.save(resultFixture({ id: uuidFor('b'), startedAt: '2026-10-02T00:00:00.000Z' }))
+    expect(history.results.value.map((r) => r.id)).toEqual([uuidFor('b'), uuidFor('a')])
+    const removed = await history.remove([uuidFor('b')])
+    expect(history.results.value.map((r) => r.id)).toEqual([uuidFor('a')])
     await history.restore(removed)
-    expect(history.results.value.map((r) => r.id)).toEqual(['b', 'a'])
+    expect(history.results.value.map((r) => r.id)).toEqual([uuidFor('b'), uuidFor('a')])
     // A listed result goes back into a write as it is.
     expect(await history.save(history.results.value[0] ?? resultFixture())).toBe(true)
     await history.restore(history.results.value)
-    expect(history.results.value.map((r) => r.id)).toEqual(['b', 'a'])
+    expect(history.results.value.map((r) => r.id)).toEqual([uuidFor('b'), uuidFor('a')])
     await history.clear()
     expect(history.results.value).toEqual([])
   })
@@ -98,18 +98,18 @@ describe('the history', () => {
 
   it('round-trips an edited label and note through the JSON export and import, beside a record without a note', async () => {
     const history = await opened()
-    const bare = resultFixture({ id: 'bare', startedAt: '2026-09-01T00:00:00.000Z' })
+    const bare = resultFixture({ id: uuidFor('bare'), startedAt: '2026-09-01T00:00:00.000Z' })
     await history.save(bare)
-    await history.save(resultFixture({ id: 'edited' }))
-    await history.edit('edited', { label: 'Kitchen', note: 'after the router swap' })
+    await history.save(resultFixture({ id: uuidFor('edited') }))
+    await history.edit(uuidFor('edited'), { label: 'Kitchen', note: 'after the router swap' })
     const file = historyExport(history.results.value, new Date())
     expect(file).not.toBeNull()
 
     const other = await opened()
     expect(await other.importText(file?.json ?? '')).toEqual({ ok: true, added: 2, skipped: 0, rejected: [] })
     expect(other.results.value).toEqual(history.results.value)
-    expect(other.results.value.find((r) => r.id === 'edited')).toMatchObject({ label: 'Kitchen', note: 'after the router swap' })
-    expect('note' in (other.results.value.find((r) => r.id === 'bare') ?? {})).toBe(false)
+    expect(other.results.value.find((r) => r.id === uuidFor('edited'))).toMatchObject({ label: 'Kitchen', note: 'after the router swap' })
+    expect('note' in (other.results.value.find((r) => r.id === uuidFor('bare')) ?? {})).toBe(false)
     // The same file again only skips.
     expect(await other.importText(file?.json ?? '')).toEqual({ ok: true, added: 0, skipped: 2, rejected: [] })
   })

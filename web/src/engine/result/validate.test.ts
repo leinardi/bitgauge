@@ -204,12 +204,23 @@ describe('the result validator', () => {
     ])
   })
 
+  it('takes only a version 4 UUID as the id (QA-79)', () => {
+    expect(validateResult(changed((result) => (result.id = 'not-a-uuid')))).toEqual(['result.id: not a version 4 UUID'])
+    expect(validateResult(changed((result) => (result.id = '0b6f2c1e-8a4d-1f3b-9c2a-1d2e3f4a5b6c')))).toEqual(['result.id: not a version 4 UUID'])
+    expect(validateResult(changed((result) => (result.id = '0B6F2C1E-8A4D-4F3B-9C2A-1D2E3F4A5B6C')))).toEqual([])
+  })
+
+  it('names the one instant form it reads, and keeps refusing one without milliseconds (QA-80)', () => {
+    expect(validateResult(changed((result) => (result.startedAt = '2026-10-08T12:02:11Z')))).toEqual(['result.startedAt: not an instant in UTC with milliseconds, as YYYY-MM-DDTHH:MM:SS.sssZ'])
+    expect(validateResult(changed((result) => (result.startedAt = '2026-10-08T12:02:11.000Z')))).toEqual([])
+  })
+
   it('names a missing field and a wrong type by their path', () => {
     expect(validateResult(changed((result) => delete (result as Partial<Result>).dataUsedBytes))).toEqual(['result.dataUsedBytes: missing'])
     expect(validateResult(changed((result) => (result.client.crossOriginIsolated = 'yes' as unknown as boolean)))).toEqual([
       'result.client.crossOriginIsolated: not a boolean',
     ])
-    expect(validateResult(changed((result) => (result.startedAt = 'yesterday')))).toEqual(['result.startedAt: not an ISO 8601 instant'])
+    expect(validateResult(changed((result) => (result.startedAt = 'yesterday')))).toEqual(['result.startedAt: not an instant in UTC with milliseconds, as YYYY-MM-DDTHH:MM:SS.sssZ'])
     expect(validateResult(changed((result) => (result.schemaVersion = 2 as 1)))).toEqual(['result.schemaVersion: not one of 1'])
   })
 
