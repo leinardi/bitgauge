@@ -21,7 +21,9 @@ import { Switch } from '@/components/ui/switch'
 
 // The kit's Switch (design_system/components/forms Switch.jsx, forms.css `.switch`) on the
 // shadcn-vue switch: an on/off setting, its knob moving to the right and filling when on. The
-// knob's colors are stated as important, since the vendored knob's own follow the system theme.
+// knob's colors are stated as important, since the vendored knob's own follow the system theme. In
+// forced colors, which drop both fills, the knob keeps a border and an on switch an outline
+// (ui/i18n-a11y.md section 2.5).
 
 defineProps<{ label: string }>()
 const checked = defineModel<boolean>({ required: true })
@@ -31,6 +33,6 @@ const checked = defineModel<boolean>({ required: true })
   <Switch
     v-model="checked"
     :aria-label="label"
-    class="h-(--switch-h) w-(--switch-w) border-(--border-default) px-0 shadow-none [&>span]:ml-0.5 data-[state=checked]:border-primary data-[state=checked]:bg-primary! data-[state=unchecked]:bg-(--surface-4)! [&>span]:size-(--switch-knob) [&>span]:bg-(--fg-subtle)! data-[state=checked]:[&>span]:translate-x-[calc(var(--switch-w)-var(--switch-knob)-2*var(--space-0-5)-2*var(--border-width))] data-[state=checked]:[&>span]:bg-(--fg-on-solid)!"
+    class="h-(--switch-h) w-(--switch-w) border-(--border-default) px-0 shadow-none [&>span]:ml-0.5 data-[state=checked]:border-primary data-[state=checked]:bg-primary! data-[state=unchecked]:bg-(--surface-4)! [&>span]:size-(--switch-knob) [&>span]:bg-(--fg-subtle)! data-[state=checked]:[&>span]:translate-x-[calc(var(--switch-w)-var(--switch-knob)-2*var(--space-0-5)-2*var(--border-width))] data-[state=checked]:[&>span]:bg-(--fg-on-solid)! forced-colors:[&>span]:border forced-colors:data-[state=checked]:outline-2 forced-colors:data-[state=checked]:-outline-offset-2 forced-colors:data-[state=checked]:outline-solid"
   />
 </template>

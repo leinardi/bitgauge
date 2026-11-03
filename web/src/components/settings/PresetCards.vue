@@ -33,7 +33,8 @@ import { storedOver } from '@/lib/settingsStorage'
 // per preset with the streams, durations and ping count it runs, the server's default marked;
 // Continuous runs one direction until stopped, or for its run length. Each card reads what the
 // preset runs on this server: the server's default preset with the server's own values, the fixed
-// stream count within the server's maximum.
+// stream count within the server's maximum. In forced colors, where the tint is dropped, the selected
+// card keeps an outline and its radio keeps its dot (ui/i18n-a11y.md section 2.5).
 
 const { t } = useI18n()
 const form = useSettingsForm()
@@ -82,7 +83,7 @@ function choose(value: unknown): void {
       v-for="card in cards"
       :key="card.value"
       :value="card.value"
-      class="group flex w-full min-h-(--control-h-touch) cursor-pointer flex-col gap-1.5 rounded-(--radius-md) border border-(--border-default) bg-(--surface-1) px-3.5 py-3 text-left text-foreground hover:border-(--border-strong) data-[state=checked]:border-(--primary-border) data-[state=checked]:bg-(--primary-bg)"
+      class="group flex w-full min-h-(--control-h-touch) cursor-pointer flex-col gap-1.5 rounded-(--radius-md) border border-(--border-default) bg-(--surface-1) px-3.5 py-3 text-left text-foreground hover:border-(--border-strong) data-[state=checked]:border-(--primary-border) data-[state=checked]:bg-(--primary-bg) forced-colors:data-[state=checked]:outline-2 forced-colors:data-[state=checked]:-outline-offset-2 forced-colors:data-[state=checked]:outline-solid"
       :data-testid="`preset-${card.value}`"
     >
       <span class="flex w-full items-center gap-2">
@@ -102,7 +103,7 @@ function choose(value: unknown): void {
           class="ml-auto flex size-(--check-size) items-center justify-center rounded-full border-(length:--border-width-strong) border-(--border-strong) group-data-[state=checked]:border-primary"
           aria-hidden="true"
         >
-          <span class="size-(--dot-size) rounded-full group-data-[state=checked]:bg-primary" />
+          <span class="size-(--dot-size) rounded-full group-data-[state=checked]:bg-primary forced-colors:forced-color-adjust-none" />
         </span>
       </span>
       <span class="font-mono text-(length:--text-caption) leading-(--lh-compact) text-muted-foreground">{{ card.text }}</span>

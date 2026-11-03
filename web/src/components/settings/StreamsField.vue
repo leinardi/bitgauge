@@ -80,7 +80,7 @@ const ramp = computed(() => [...new Set(RAMP_SEQUENCE.map((count) => Math.min(co
         @update:model-value="count"
       >
         <NumberFieldContent
-          class="flex h-8.5 items-center overflow-hidden rounded-(--radius-md) border border-(--border-default) bg-(--surface-1)"
+          class="flex h-8.5 items-center overflow-hidden rounded-(--radius-md) border border-(--border-default) bg-(--surface-1) has-[input:focus-visible]:border-primary has-[input:focus-visible]:outline-(length:--focus-width) has-[input:focus-visible]:outline-offset-(--focus-offset) has-[input:focus-visible]:outline-(--focus-ring)"
         >
           <NumberFieldDecrement
             :aria-label="t('settings.streams.fewer')"
