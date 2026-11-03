@@ -58,13 +58,13 @@ comma:
 | `run` | 1, true, 0, or false | The test waits for Start |
 | `test` | all, download, upload, or latency; under Continuous, all, download, or upload | Phases stay on the run's phases ("idle latency, download, and upload"); under Continuous, the direction is download |
 | `preset` | quick, standard, extended, or continuous | The preset stays on the run's ("Standard") |
-| `duration` | 5–600 s; under Continuous, 60–604800 s | Durations stay on the preset's; under Continuous, the run length stays on the stored one, or none |
+| `duration` | 5–600 s; under Continuous, 60–604800 s | Durations stay on the run's (the stored ones, or the preset's when none are stored or the link sets another preset); under Continuous, the run length stays on the stored one, or none |
 | `streams` | 1–`streams.max` for a number, otherwise auto, single, or 1–`streams.max` | Streams stay on the run's mode ("Auto", "Single" or the count) |
 | `cap` | 1 MiB or more, 0, or none | The data cap stays on the run's ("none" or the size) |
 | `units` | bits or bytes | Units stay on the run's ("bits") |
 | `lang` | the supported locale tags (`en`) | The language stays on the page's ("English") |
 | `theme` | system, light, or dark | The theme stays on the page's ("System") |
-| `label` | at most 64 characters | The label stays on the suggested one |
+| `label` | at most 64 characters | The label stays on the stored one, or the suggested one when none is stored |
 
 Advanced settings (warm-up, ping count, overhead compensation) are not URL parameters: they change
 what a number means, so they are set deliberately in Settings and shown with the result.

@@ -249,9 +249,14 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 
 1. The user opens Settings. Fields show the effective values: URL parameters over stored settings
    over server defaults ([url-params.md §1](url-params.md#1-rules)). Settings that differ from the server
-   defaults are marked and listed with their defaults.
+   defaults are marked and listed with their defaults. A field that a URL parameter of this page
+   load overrides shows the URL's value with a "from the link" mark.
 2. The user changes fields. Each field validates inline, and each valid change is stored in this
    browser at once; there is no Save or Discard step.
+   - **Branch: field set by the link.** The edit is stored and takes effect at once, replacing the
+     URL's value, and every parameter that governs the field is dropped from the address (the
+     history entry is replaced). When `preset` is one of them, the link's preset and the values it
+     implies are stored first, so the fields it sets but the user did not edit keep their values.
    - **Branch: invalid value.** Inline error on the field; the value is not stored and the
      previous valid value stays in effect.
    - **Branch: preset changed.** Duration fields take the preset's values unless they were
@@ -262,7 +267,7 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    - **Branch: Reset all to defaults.** After confirmation, stored settings are removed and the
      server defaults apply.
 5. The next run uses the stored settings, unless URL parameters on a page load override them for
-   that load.
+   that load and have not been dropped by an edit.
 
 ## Related
 

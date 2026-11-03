@@ -139,9 +139,16 @@ Cross-Origin-Resource-Policy: same-origin
 X-Frame-Options: DENY
 ```
 
-- **No inline scripts or styles.** The build emits no inline `<script>`; Vue's style bindings use
-  the CSSOM, which `style-src 'self'` permits. Any future need for `'unsafe-inline'` is a decision
-  for [technical-stack/decisions.md](technical-stack/decisions.md), not a quiet change.
+- **No inline scripts, and no inline styles but one hashed.** The build emits no inline
+  `<script>`; Vue's style bindings use the CSSOM, which `style-src 'self'` permits. Any future
+  need for `'unsafe-inline'` is a decision for
+  [technical-stack/decisions.md](technical-stack/decisions.md), not a quiet change.
+- **One hashed inline style.** The select component (reka-ui's `SelectViewport`) inserts a fixed
+  `<style>` element that hides the list's scrollbar. Its text never changes, so `style-src` is to
+  allow exactly that text by its SHA-256 hash,
+  `'sha256-60LHlRjW/B3CtzIoE/Lf1/NEDvko9efWMFaGVhHu/cs='`, which the header above gains with the
+  code that serves it, rather than `'unsafe-inline'`, which stays forbidden. A test hashes the
+  text in the installed package, so an upgrade that changes it fails until the hash is updated.
 - `connect-src` names the WebSocket scheme for the request's own `Host` explicitly, because older
   Safari versions do not match `ws:`/`wss:` with `'self'`. The value only ever reflects the host
   the browser itself asked for.

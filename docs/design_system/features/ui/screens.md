@@ -160,7 +160,9 @@ portrait on a phone without horizontal scrolling.
   units, warm-up mode with where each direction's warm-up ended (or that the user stopped it in
   warm-up), ping count, overhead compensation, protocol, server name and version, browser, client
   IP, timer resolution and whether the page was cross-origin isolated.
-- **Label and note:** editable, saved with the result in history as they change.
+- **Label and note:** editable, saved with the result in history as they change; Download JSON
+  waits for a pending save, so it carries the latest text. A change made in the last moment
+  before the page closes may be lost.
 - **Share panel:** always visible beside the metrics: a preview of the share image and of the
   copied text, showing exactly what each contains
   ([../security.md §7](../security.md#7-browser-only-history-and-privacy)), an "include label"
@@ -231,17 +233,24 @@ parameters collapse into a disclosure.
 - **Selection bar** once rows are selected: the selection count, Compare (exactly two), Delete
   selected (with an undo toast), Clear selection.
 - **Compare two results**, in a focus-trapped dialog: side-by-side metrics with the change per
-  metric, worded as better or worse with an icon, and both parameter sets including the browser
-  and the overhead compensation; a warning when they differ in preset, protocol, label or
-  overhead compensation, naming the difference; Copy comparison. Each speed cell carries its
+  metric, worded as better or worse with an icon, and both parameter sets: preset, phases,
+  each direction's duration bounds, warm-up, ping count, protocol, streams, the browser and the
+  overhead compensation; a warning when they differ in preset, protocol, label, overhead
+  compensation, or a latency path, loaded-latency source or grade basis, naming the difference;
+  Copy comparison, with the same text and qualifiers. Each speed cell carries its
   qualifiers as in History, so insufficient data, partial, an error and low or CPU-bound
-  confidence read as such, never as a bare "—".
+  confidence read as such, never as a bare "—". The other cells carry the qualifiers of §6: idle
+  latency its path, loaded latency its source and "vs idle over …", the grade its basis or, without
+  a grade, "Not graded" and its one reason, a Continuous peak "p90, last hour".
   The older result (by start time) is A and the newer B, and each change is B's against A. A rate
   (download, upload, peak) within ±2 % of A's and a latency (idle median, jitter, loaded latency)
   within 1 ms of A's read "same"; grades compare by their order, A+ best; any other difference in
   those metrics is better or worse. A metric absent on either side (a direction without a number,
   no grade) reads "not comparable", and so do the speed rows (download, upload, peak) when the two
   results differ in overhead compensation, since their difference would be the compensation's.
+  Likewise idle latency and jitter read "not comparable" when the two sides differ in path, a
+  loaded-latency row when they differ in source or in the idle path it is measured against, and
+  the grade when they differ in basis. Latencies are judged on their values as rounded for display.
   The other rows (probe timeouts, data used, duration) show both values without a judgment. The
   comparison also has:
   - one HTTP loaded responsiveness row per direction: the RPM is compared, higher being better and
@@ -269,7 +278,9 @@ it); empty ("No results yet" with Start a test and Import JSON); populated; filt
 results…" with a progress bar named Import progress, and Cancel, which stops the import before
 anything is written), import result (added, skipped as duplicates, rejected with each record's
 position and reason, a label over 64 characters among them, or the whole file refused with its
-reason).
+reason). An import result with any rejected record takes the warn tone, titled "Nothing imported
+from <file>" when nothing was added; one that only added records or skipped duplicates takes the
+success tone.
 
 **Responsive notes.** On narrow screens rows become cards with label, date, download, upload,
 latency and grade, with a sort control; the trend shows one metric at a time with a selector;
