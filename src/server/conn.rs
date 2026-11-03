@@ -33,6 +33,7 @@
 use std::error::Error as StdError;
 use std::future::{Future, poll_fn};
 use std::io;
+use std::net::SocketAddr;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::Duration;
@@ -60,6 +61,10 @@ pub type BoxError = Box<dyn StdError + Send + Sync>;
 #[derive(Debug, thiserror::Error)]
 #[error("the client went away mid-body")]
 pub struct Aborted;
+
+/// The TCP peer of a request's connection, which the driver stores in each request.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Peer(pub SocketAddr);
 
 /// How long the tracker is given after `cut`, before the runtime's own backstop.
 pub const CUT_WAIT: Duration = Duration::from_secs(1);
@@ -261,10 +266,12 @@ where
     B::Error: Into<BoxError>,
 {
     let state = ConnState::new(timeouts);
+    let peer = stream.peer_addr().ok();
     let io = TokioIo::new(ConnIo::new(stream, state.clone()));
     let service = Tracked {
         inner: service,
         state: state.clone(),
+        peer,
     };
     let mut builder = http1::Builder::new();
     builder
@@ -302,6 +309,8 @@ where
 struct Tracked<S> {
     inner: S,
     state: ConnState,
+    /// The TCP peer, stored in each request as a [`Peer`] for the client IP stage.
+    peer: Option<SocketAddr>,
 }
 
 impl<S, B> hyper::service::Service<Request<Incoming>> for Tracked<S>
@@ -316,8 +325,11 @@ where
     type Error = BoxError;
     type Future = Pin<Box<dyn Future<Output = Result<Self::Response, BoxError>> + Send>>;
 
-    fn call(&self, request: Request<Incoming>) -> Self::Future {
+    fn call(&self, mut request: Request<Incoming>) -> Self::Future {
         self.state.on_request_head();
+        if let Some(peer) = self.peer {
+            request.extensions_mut().insert(Peer(peer));
+        }
         let mut inner = self.inner.clone();
         let state = self.state.clone();
         Box::pin(async move {

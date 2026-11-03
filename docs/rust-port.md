@@ -402,6 +402,57 @@ not expect.
   route groups' wiring.
 - **Phase 11, the query.** `handlers::query_value` is Go's `URL.Query()[name][0]`, moved out
   of the download handler so LibreSpeed's `ckSize` and `cors` read the same way.
+- **Phase 12, the middleware is one service.** Recovery, client IP, security headers and
+  observation run in `server::middleware::Stack`, one tower `Service` around the router, in Go's
+  order. Recovery is the panic catch of tower-http's `CatchPanicLayer`, written in the tree: its
+  answer depends on the request's group (the envelope, or plain text with `no-store` on the
+  SPA's) and its log line names the matched route, neither of which tower-http's handler sees.
+  The route comes from axum's `MatchedPath` through a route layer, `record_route`, in the route
+  table's syntax (`/assets/*`). A handler returns before its body streams, so a request is
+  observed when its body ends or is dropped, which is when Go's handler returned; a WebSocket is
+  observed at its 101. A recovered panic is counted but writes no request line, as in Go; a
+  panic inside the body, once the head is out, drops the connection and is counted with the
+  status it started. The security headers are added after the handler without replacing a
+  value it set, which is what Go's setting them first gave. `server::router::app` is the
+  service the connection driver serves.
+- **Phase 12, the route label of a 405.** chi matched no route for a method a row does not
+  list, so Go counted that 405 as `unmatched`. axum matches the path, so
+  `Classifier::route` reads the row's methods and labels it `unmatched` too
+  (`an_unlisted_method_is_unmatched`). The metrics endpoint keeps its route for every method, as
+  Go's `getOnly` did; a native 405's debug line reads `unmatched` where Go's read `/api/v1/*`.
+- **Phase 12, the API prefix with its slash.** axum's catch-all needs a tail, so
+  `/api/v1/` is a route of its own; without it the path fell to the plain 404 instead of the
+  envelope (`routes_unknown_path_is_404_envelope`).
+- **Phase 12, ranges from a go1.26 run.** `http.ServeContent` ignores a range that cannot overlap
+  an empty file (200) and writes the end of an empty suffix as -1 (`bytes 0--1/0`);
+  `src/web/files.rs` does both, and reads an empty `If-Match` or `If-Range` as no header, as
+  `Header.Get` does. An asset name goes through Go's `path.Clean` before it is looked up, so
+  `/assets/fonts//x.txt` and `/assets/./index-a1.js` are served and a name that leaves
+  `assets/` is 404. Every range, conditional and asset-path case in `src/web/tests.rs` is the
+  answer of a go1.26 run. The SPA's routes answer `HEAD` (row 12), so their 405 carries
+  `Allow: GET, HEAD` and no body, where chi's carried `Allow: GET`.
+- **Phase 12, the embedded build.** `include_dir!` does not make cargo watch `web/dist` on a
+  stable toolchain, so `build.rs` declares `rerun-if-changed=web/dist`; it writes the line to
+  stdout rather than printing it, since the print macros are banned in the package. A missing
+  file or meta element is a `RenderError`; phase 13's startup turns it into exit status 1.
+- **Phase 12, the test client.** The server tests send each request with hyper's HTTP/1 client,
+  a dev-dependency only. The production-graph check reads the normal and build graph, so its
+  scratch copies drop the dev-dependencies, which would otherwise name hyper a second time when a
+  control stubs it.
+- **Phase 12, the Go server tests not ported as they were.** `TestChainOrder` and
+  `TestPanicInsideEveryStageIsRecovered` probe Go's stage list; here the four stages are one
+  service in a fixed order, and only the router runs inside the panic catch, since the stages are
+  BitGauge's own code. `TestRecoveryCompletesTheRouteContext` checks chi's route context, which
+  axum has no counterpart of. `TestChainKeepsTheResponseControllerReachable` has no
+  `ResponseController` to reach; its Rust counterpart is the upgrade,
+  `a_websocket_upgrade_passes_through_the_stack`. `TestRouterServesOnlyTheRouteTable` walked the
+  router with `chi.Walk`, which axum lacks; every method is sent to every row instead. The zero
+  address of `TestFromContextWithoutTheMiddleware` and the unparsable peer of
+  `TestMiddlewareRecordsWhetherThePeerIsTrusted` cannot be written: the peer is a `SocketAddr`
+  from the listener and `Client` is only ever derived. In `TestLayerGroupsTakeTheAPIRules` the
+  meter knows the layers' routes from the configuration that enables them, so the panicking
+  route keeps its pattern. The 10 s grace of `TestRunCutsRequestsAfterTheGrace` is the command's,
+  which phase 13 ports; the cut itself is phase 4's `download_past_the_grace_is_cut`.
 - **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
   started. The `cargo-machete` pre-commit hook builds its own; `zig` is first needed by phase 15.
 
@@ -422,8 +473,8 @@ Go package to Rust module, filled in by the phase that ports it.
 | `internal/compat/librespeed` | `src/compat/librespeed.rs` (`routes`, `Deps`, `ROWS`, `/getIP`, the server list), `src/compat/librespeed/cors.rs` | 11 |
 | `internal/compat/nq` | `src/compat/nq.rs` (`routes`, `Deps`, `ROWS`, the config) | 11 |
 | `internal/server` (`server.go` settings, `shutdown.go`) | `src/server/conn.rs` (`serve`, `drive`, `Lifecycle`, `Outcome`), `src/server/timeouts.rs` (`Timeouts`, `ConnState`, `ConnIo`), `src/server/framing.rs`, `src/server/upgrade.rs`, `src/server/signals.rs`, `src/server/mod.rs` (`finish_process`) | 4 |
-| `internal/server` (router, middleware) |  | 12 |
-| `web/embed*.go` |  | 12 |
+| `internal/server` (router, middleware) | `src/server/routes.rs` (`route_table`, `check_routes`, `mounted_routes`, `Owner`, `Route`), `src/server/classify.rs` (`Classifier`, `Group`, `set_headers`, `content_security_policy`), `src/server/router.rs` (`app`, `router`, `Groups`), `src/server/middleware.rs` (`Stack`, `Observer`, `record_route`; Go's `clientip.Middleware` is its client IP stage, which stores the `Client`); the native routes and their CORS in `src/handlers/routes.rs` (`native_routes`, `Native`, `NATIVE_ROUTES`) | 12 |
+| `web/embed*.go` | `src/web.rs` (`Spa`, `RenderError`, `route_patterns`, `ROOT_ASSETS`, `METHODS`), `src/web/files.rs` (one file's answer: the content types, the ranges, the conditional headers, `not_found`, `plain_error`); `build.rs` | 12 |
 | `cmd/bitgauge` |  | 13 |
 
 ## Test Map
@@ -440,7 +491,8 @@ it did not port, with the reason.
 | `internal/metrics` | `src/metrics/tests.rs`; the server's `/metrics` tests stay for phase 12 | 8 |
 | `internal/handlers` | `src/handlers/tests/` (`random.rs`, `epoch.rs`, `envelope.rs`, `json.rs`, `origin.rs`, `drain.rs`, `download.rs`, `probes.rs`, `upload.rs`, `info.rs`, `contract.rs`, `metrics.rs`, `loopback.rs`, `ws.rs`); the route tests move to phase 12 | 9, 10 |
 | `internal/compat/...` | `src/compat/tests/` (`openspeedtest.rs`, `librespeed.rs`, `nq.rs`) | 11 |
-| `internal/server` |  | 12 |
+| `internal/server` | `src/server/tests/` (`router.rs`, `native.rs`, `headers.rs`, `middleware.rs`, `metrics.rs`, `layers.rs`, `shutdown.rs`, with the whole stack in `stack.rs`); the handlers' route tests in `native.rs` and the client IP middleware tests in `middleware.rs`; the shutdown cases on the echo service in `src/server/tests.rs` (phase 4) | 4, 12 |
+| `web` | `src/web/tests.rs` | 12 |
 | `cmd/bitgauge` |  | 13 |
 | `test/docs`, `test/disturls`, `test/distdemo`, `test/chunksize`, `test/licenseheaders`, `test/toolchain`, `test/deployments`, `test/dockerfiles`, `test/boundary` |  | 16 |
 | `test/internal/...`, `test/image`, `test/harness` |  | 17 |

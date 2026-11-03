@@ -79,8 +79,8 @@ path = "src/main.rs"
 # The server is hyper's HTTP/1 server on BitGauge's own accept loop and connection driver
 # (docs/rust-port.md, Server Design): no client, no HTTP/2, no hyper-util graceful helper.
 [dependencies]
-# The router (phase 12) and the handlers' request and response body.
-axum = { version = "0.8.9", default-features = false }
+# The router and the handlers' request and response body; MatchedPath labels the metrics.
+axum = { version = "0.8.9", default-features = false, features = ["matched-path"] }
 bytes = "1.12.1"
 # The WebSocket's stream and sink.
 futures-util = { version = "0.3.34", default-features = false, features = ["sink", "std"] }
@@ -92,12 +92,16 @@ http-body = "1.1.0"
 http-body-util = "0.1.5"
 hyper = { version = "1.12.0", default-features = false, features = ["http1", "server"] }
 hyper-util = { version = "0.1.21", default-features = false, features = ["tokio"] }
+# The built SPA, web/dist, embedded in the binary.
+include_dir = "0.7.4"
 jiff = { version = "0.2.38", default-features = false, features = ["std"] }
 # SIGTERM and SIGINT blocked and taken with sigwait on a thread of their own.
 nix = { version = "0.30.1", default-features = false, features = ["signal"] }
 pin-project-lite = "0.2.17"
 # The metric set of backend.md section 7, written as OpenMetrics text.
 prometheus-client = { version = "0.25.1", default-features = false }
+# index.html rendered once at startup: the base-path meta element and the relative asset URLs.
+regex = { version = "1.13.1", default-features = false, features = ["std"] }
 serde = { version = "1.0.228", default-features = false, features = ["derive", "std"] }
 # The JSON bodies, written through a formatter that matches encoding/json.
 serde_json = { version = "1.0.154", default-features = false, features = ["raw_value", "std"] }
@@ -120,8 +124,11 @@ tracing = { version = "0.1.44", default-features = false, features = ["std"] }
 tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "json", "std"] }
 
 [dev-dependencies]
-# The second-signal test sends its child the signals.
-nix = { version = "0.30.1", default-features = false, features = ["process", "signal"] }
+# The server tests' HTTP/1 client on a loopback connection.
+hyper = { version = "1.12.0", default-features = false, features = ["client", "http1"] }
+# The second-signal test sends its child the signals; the listener-failure test shuts a
+# listening socket down.
+nix = { version = "0.30.1", default-features = false, features = ["process", "signal", "socket"] }
 # The paused clock (start_paused) and the test I/O.
 tokio = { version = "1.54.1", default-features = false, features = [
     "io-util",

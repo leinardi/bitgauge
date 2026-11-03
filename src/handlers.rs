@@ -39,6 +39,7 @@ mod origin;
 mod probes;
 mod query;
 mod random;
+mod routes;
 mod upload;
 mod ws;
 
@@ -54,10 +55,11 @@ pub use epoch::{BUCKET_MS, Epoch, Grid};
 pub use info::Info;
 pub use json::to_vec as to_json;
 pub use limit::{Limit, limited};
-pub use origin::{RequestOrigin, normalize_origin, request_origin, valid_host};
+pub use origin::{RequestOrigin, normalize_origin, request_host, request_origin, valid_host};
 pub use probes::{empty_ok, ping, small};
 pub use query::query_value;
 pub use random::{BUFFER_SIZE, MAX_FRAME, RandomBody, RandomError, RandomSource};
+pub use routes::{NATIVE_ROUTES, Native, NativeRoute, native_routes};
 pub use upload::upload;
 pub use ws::{IDLE as WEBSOCKET_IDLE, READ_LIMIT as WEBSOCKET_READ_LIMIT, WebSockets};
 

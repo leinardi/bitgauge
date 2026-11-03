@@ -17,15 +17,20 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! The HTTP server: the accept loop and connection driver, the connection deadlines, the
-//! upgraded-socket tasks, the shutdown signals and the end of the process.
+//! The HTTP server: the route table, the router of the route groups and the global middleware,
+//! the accept loop and connection driver, the connection deadlines, the upgraded-socket tasks,
+//! the shutdown signals and the end of the process.
 
 use std::process::ExitCode;
 
 use tokio::runtime::Runtime;
 
+pub mod classify;
 pub mod conn;
 pub mod framing;
+pub mod middleware;
+pub mod router;
+pub mod routes;
 pub mod signals;
 pub mod timeouts;
 pub mod upgrade;

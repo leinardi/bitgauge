@@ -21,6 +21,14 @@
 //! short injected timeouts, against a test-only echo service with an upgrade route.
 
 mod echo;
+mod headers;
+mod layers;
+mod metrics;
+mod middleware;
+mod native;
+mod router;
+mod shutdown;
+mod stack;
 
 use std::error::Error as _;
 use std::io;
@@ -467,6 +475,8 @@ async fn keep_alive_download_completes_and_then_the_connection_is_closed() {
     assert!(matches!(outcome, Outcome::Stopped), "{outcome:?}");
 }
 
+/// Go: `TestRunCutsRequestsAfterTheGrace`, with a short grace; the 10 s grace itself is the
+/// command's, which phase 13 ports.
 #[tokio::test]
 async fn download_past_the_grace_is_cut() {
     let server = start(SHORT, GRACE).await;
@@ -499,6 +509,8 @@ where
     }
 }
 
+/// Go: `TestRunClosesWebSocketsWithGoingAway`, on the echo service; through the real WebSocket
+/// handler it is `shutdown::stop_closes_websockets_with_going_away`.
 #[tokio::test]
 async fn open_websockets_each_get_1001() {
     let server = start(SHORT, GRACE).await;

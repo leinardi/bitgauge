@@ -143,9 +143,9 @@ Applied in this order to every request, before routing. A request with framing o
 > rejects before routing gets hyper's answer: a `400` with an empty body (an unsupported
 > `Transfer-Encoding` or HTTP version included), `414` for an over-long request target, and `431`
 > for a head over exactly 16 KiB or with more than 100 headers; a malformed `Host` is not rejected
-> before routing. The chain
-> is a stack of tower layers in the same order: panic recovery, client IP, security headers, then
-> logging and metrics. ([rust-port.md](../../rust-port.md#intended-differences-from-go), row 6.)
+> before routing. The chain is one tower service around the router that runs the stages in the
+> same order: panic recovery, client IP, security headers, then logging and metrics.
+> ([rust-port.md](../../rust-port.md#intended-differences-from-go), row 6.)
 
 1. **Panic recovery**: logs the panic with the route pattern and answers `500` (error envelope on
    API routes and on an enabled compatibility layer's routes, by the classifier's group:

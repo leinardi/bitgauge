@@ -362,6 +362,29 @@ bugs, never into a guess.
   in flight (track the head start and the response body's drop), then call `graceful_shutdown`.
   An I/O wrapper whose `poll_shutdown` drains reads (to keep a `413` from an RST) holds the task
   until the client closes or the drain ends. (bitgauge connection driver, hyper 1.12.0)
+- **chi to axum:** axum's `get` also answers `HEAD`, where chi served `HEAD` only when a route
+  listed it → route with `any` and dispatch on the method yourself, writing chi's 405 and its
+  `Allow`. A `{*rest}` catch-all needs a non-empty tail, where chi's `/*` also matched the bare
+  prefix with its slash → route `prefix/` on its own, or `/api/v1/` falls to the outer 404. chi
+  had no route pattern for a method a route does not list, so its metrics and logs called that
+  405 unmatched; axum's `MatchedPath` names the path whatever the method → check the route
+  table's methods before using it as a label. `MatchedPath` needs axum's `matched-path` feature
+  and writes a tail as `{*path}`, chi as `/*`. A middleware that set headers before chi's handler
+  ran is, after an axum handler, `entry().or_insert`, so a value the handler set still wins. A
+  Rust handler returns before its body streams, so whatever Go did after the handler returned
+  (log the request, release a limit slot) moves into the response body's end or drop.
+  (bitgauge router, axum 0.8.9)
+- **Serving files (`http.ServeContent`):** with no `ETag` and no modification time, only
+  `If-Match` without `*` (412) and `If-None-Match: *` (304) decide; an `If-Range` can never
+  match, so it drops the range. A range that cannot overlap an empty file is ignored (200, not
+  416), the end of a range is signed (an empty suffix of an empty file is `bytes 0--1/0`), and the
+  416 bodies are `invalid range: failed to overlap` with `Content-Range: bytes */size`, or
+  `invalid range` without it. `Header.Get` reads an empty conditional header as absent. A
+  handler that `path.Clean`s a request path serves `a//b`, `./a` and `a/` as `a` → port `Clean`
+  rather than refusing unclean names. The content type comes from Go's built-in table, then
+  sniffing; `include_dir!` gives neither, and on a stable toolchain it does not make cargo watch
+  the directory → a `build.rs` with `rerun-if-changed`. Take each case from a Go run.
+  (go1.26 `ServeContent`, include_dir 0.7.4)
 - **Prometheus (client_golang, expfmt):** no crate writes Go's text (float formats, `charset`,
   `escaping=`, HELP escaping, sort order) → an in-tree registry and encoder porting `writeFloat`
   and `Gather`'s normalisation. promhttp negotiates `escaping=` over all four formats, protobuf

@@ -278,6 +278,9 @@ fn scratch_workspace(change: impl FnOnce(&Path, &mut Table)) -> tempfile::TempDi
     fs::copy(repo::path("Cargo.lock"), dir.join("Cargo.lock"))
         .unwrap_or_else(|error| panic!("copy Cargo.lock: {error}"));
     let mut root = parse(&repo::read("Cargo.toml"), "Cargo.toml");
+    // The check reads the normal and build graph only, and a control that stubs a crate the
+    // dev-dependencies also name (hyper, for the test client) would give it two sources.
+    root.remove("dev-dependencies");
     let dependencies = root
         .entry("dependencies")
         .or_insert_with(|| toml::Value::Table(Table::new()))
