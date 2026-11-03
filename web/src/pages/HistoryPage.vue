@@ -123,11 +123,13 @@ function invalidExport(): void {
   notify({ tone: 'danger', title: t('history.export.invalid') })
 }
 
-// Cleared, focus moves to the empty state's Import JSON, as Clear all leaves with the history.
+// Cleared, focus moves to the empty state's Import JSON, as Clear all leaves with the history. The
+// filter goes too, so the next import does not land in a filtered list.
 const emptyImport = useTemplateRef<InstanceType<typeof AppButton>>('emptyImport')
 async function clearAll(): Promise<void> {
   await history.clear()
   list.clearSelection()
+  list.setFilter(NO_FILTER)
   await nextTick()
   moveFocus(emptyImport.value?.$el as Element | undefined)
 }

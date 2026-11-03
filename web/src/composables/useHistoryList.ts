@@ -31,6 +31,23 @@ import { correctedQuery, DEFAULT_SORT, filterFromQuery, filterResults, type Hist
 // 100 at a time; the selection; and deletion, at once with an undo toast for 8 s. Date ranges count back from the moment the page
 // opened.
 
+const KEPT_KEY = 'bitgaugeHistoryList'
+
+/** The list's sort and rows shown, as kept in a history entry's state, when they read correctly. */
+function keptList(state: unknown): { limit: number; sort: { key: SortKey; direction: SortDirection } } | null {
+  const kept = typeof state === 'object' && state !== null ? (state as Record<string, unknown>)[KEPT_KEY] : undefined
+  if (typeof kept !== 'object' || kept === null) {
+    return null
+  }
+  const { limit, sort } = kept as { limit?: unknown; sort?: { key?: unknown; direction?: unknown } }
+  const key = sort?.key
+  const direction = sort?.direction
+  if (typeof limit !== 'number' || !Number.isInteger(limit) || limit < PAGE_SIZE || typeof key !== 'string' || !(key in FIRST_DIRECTION) || (direction !== 'ascending' && direction !== 'descending')) {
+    return null
+  }
+  return { limit, sort: { key: key as SortKey, direction } }
+}
+
 const FILTER_KEYS: readonly string[] = ['labels', 'contexts', 'range', 'q']
 
 /** The rows the list adds at a time (ui/screens.md section 3). */
@@ -77,17 +94,33 @@ export function useHistoryList(history: History) {
     { immediate: true },
   )
 
+  // The sort and the number of rows shown live in this history entry's state, so Back from a
+  // result's detail finds the list as it was left, the row opened still in it; a new visit to
+  // History starts from the defaults.
+  const kept = keptList(router.options.history.state)
   const filtered = computed(() => filterResults(history.results.value, filter.value, now.value))
-  const sort = shallowRef(DEFAULT_SORT)
+  const sort = shallowRef(kept?.sort ?? DEFAULT_SORT)
   const sorted = computed(() => sortResults(filtered.value, sort.value.key, sort.value.direction))
 
   // The rows rendered: the first 100 of the sorted set, 100 more at a time, from 100 again after a
   // change of filter or sort. Rendering every stored result at once takes seconds past a thousand.
-  const limit = shallowRef(PAGE_SIZE)
+  const limit = shallowRef(kept?.limit ?? PAGE_SIZE)
   const shown = computed(() => sorted.value.slice(0, limit.value))
   watch([filter, sort], () => {
     limit.value = PAGE_SIZE
   })
+  // Written after each change, and after each change of the query string, which may replace the
+  // entry's state.
+  watch(
+    [limit, sort, () => route.fullPath],
+    () => {
+      const routerHistory = router.options.history
+      if (route.name === 'history') {
+        routerHistory.replace(routerHistory.location, { ...routerHistory.state, [KEPT_KEY]: { limit: limit.value, sort: sort.value } })
+      }
+    },
+    { flush: 'post' },
+  )
   function showMore(): void {
     limit.value += PAGE_SIZE
   }
@@ -99,9 +132,9 @@ export function useHistoryList(history: History) {
   }
 
   const selected = shallowRef<ReadonlySet<string>>(new Set())
-  // A result that left the list, deleted or hidden by the filter, leaves the selection, so Delete
-  // selected removes only rows in view.
-  watch(filtered, (results) => {
+  // A result that left the list, deleted, hidden by the filter or past the rows shown after a
+  // change of filter or sort, leaves the selection, so Delete selected removes only rows in view.
+  watch(shown, (results) => {
     const shown = new Set(results.map((result) => result.id))
     if ([...selected.value].some((id) => !shown.has(id))) {
       selected.value = new Set([...selected.value].filter((id) => shown.has(id)))

@@ -87,6 +87,12 @@ function rows(page: VueWrapper): string[] {
 
 const body = () => new DOMWrapper(document.body)
 
+/** 230 copies of the first result, a minute apart, newest first. */
+function many(): Result[] {
+  const base = RESULTS[0] as Result
+  return Array.from({ length: 230 }, (_, index) => ({ ...base, id: `many-${String(index).padStart(3, '0')}`, startedAt: new Date(Date.parse(base.startedAt) - index * 60_000).toISOString() }))
+}
+
 // The page's modules are transformed once here, so no test pays for it within its own timeout.
 beforeAll(async () => {
   await import('@/pages/HistoryPage.vue')
@@ -276,9 +282,7 @@ describe('the list', () => {
   })
 
   it('shows 100 rows at a time, the focus on the first added, and starts again after a sort', async () => {
-    const base = RESULTS[0] as Result
-    const many = Array.from({ length: 230 }, (_, index) => ({ ...base, id: `many-${String(index).padStart(3, '0')}`, startedAt: new Date(Date.parse(base.startedAt) - index * 60_000).toISOString() }))
-    const page = await open('/history', many)
+    const page = await open('/history', many())
     const more = () => page.find('[data-testid="history-more"]')
     expect(rows(page)).toHaveLength(100)
     // The count and the trend cover every result, not only the rows shown.
@@ -298,6 +302,49 @@ describe('the list', () => {
     await settle()
     expect(rows(page)).toHaveLength(100)
     page.unmount()
+  }, 20_000)
+
+  it('drops from the selection the rows a sort leaves past the ones shown', async () => {
+    const page = await open('/history', many())
+    await page.get('[data-testid="history-more"] button').trigger('click')
+    await settle()
+    await page.findAll('[data-testid="row-select"]')[120]?.trigger('click')
+    expect(page.get('[data-testid="selection-bar"]').text()).toContain('1 selected')
+    // Oldest first, the selected row is no longer among the first 100.
+    await page.get('[data-testid="sort-startedAt"]').trigger('click')
+    await settle()
+    expect(rows(page)).toHaveLength(100)
+    expect(page.find('[data-testid="selection-bar"]').exists()).toBe(false)
+    page.unmount()
+  }, 20_000)
+
+  it('keeps the rows shown and the sort when coming Back from a result, not on a new visit', async () => {
+    await seed(many())
+    vi.resetModules()
+    const { RouterView } = await import('vue-router')
+    const { mountApp } = await import('@/test/mount')
+    // The router view, as in the app: the page is mounted again on Back.
+    const app = await mountApp(RouterView, '/history', { attachTo: document.body })
+    const router = app.vm.$router
+    const loaded = () => settled(() => expect(app.findAll('[data-testid="history-row"]').length).toBeGreaterThan(0))
+    await loaded()
+    await app.get('[data-testid="sort-startedAt"]').trigger('click')
+    await app.get('[data-testid="history-more"] button').trigger('click')
+    await settle()
+    expect(rows(app)).toHaveLength(200)
+    await router.push('/result/many-050')
+    await settled(() => expect(app.find('[data-testid="history-row"]').exists()).toBe(false))
+    router.back()
+    await vi.waitFor(() => expect(router.currentRoute.value.path).toBe('/history'))
+    await loaded()
+    expect(rows(app)).toHaveLength(200)
+    expect(app.get('[aria-sort="ascending"]').text()).toBe('Date')
+    await router.push('/result/many-050')
+    await router.push('/history')
+    await loaded()
+    expect(rows(app)).toHaveLength(100)
+    expect(app.get('[aria-sort="descending"]').text()).toBe('Date')
+    app.unmount()
   }, 20_000)
 })
 
@@ -380,6 +427,16 @@ describe('Clear all', () => {
     await settled(() => expect(page.get('[data-testid="history-empty"]').text()).toContain('No results yet'))
     // The trigger left with the history: focus is on the empty state's Import JSON.
     await settled(() => expect(document.activeElement).toBe(page.get('[data-testid="empty-import"]').element))
+    page.unmount()
+  })
+
+  it('drops the filter from the URL, so the next import lands in an unfiltered list', async () => {
+    const page = await open('/history?q=hotel&units=bytes')
+    await page.get('[data-testid="clear-all"]').trigger('click')
+    await settle()
+    await body().get('[data-testid="clear-confirm"]').trigger('click')
+    await settled(() => expect(page.find('[data-testid="history-empty"]').exists()).toBe(true))
+    await settled(() => expect(query(page)).toEqual({ units: 'bytes' }))
     page.unmount()
   })
 })
