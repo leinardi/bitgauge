@@ -28,6 +28,7 @@ pub mod clientip;
 pub mod clock;
 pub mod config;
 pub mod logger;
+pub mod metrics;
 pub mod ratelimit;
 pub mod server;
 

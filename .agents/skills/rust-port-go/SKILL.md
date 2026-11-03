@@ -365,6 +365,14 @@ bugs, never into a guess.
   wildcard), and client_golang does not pin common → port the version in the Go module's
   `go.sum`, not a reused port's, and capture the answers from the Go program being replaced.
   (client_golang v1.24.1, common v0.70.1 and v0.71.0)
+- **prometheus-client's text:** `register` appends a period to every help text, while a
+  collector's `encode_descriptor` writes its help as given; a counter's HELP and TYPE lines
+  name the family without `_total`, which only its samples carry; a histogram's `le` comes
+  first in the label set and bounds print as `1.0`; and a family's children come out in
+  `HashMap` order → register Go's help texts without their final period, keep it on a
+  collector's, and compare a family as the sorted set of its lines, never byte for byte. A
+  family with no children is left out entirely, as Go's `Gather` does. (prometheus-client
+  0.25.1)
 
 ## 4. Concurrency and shutdown
 

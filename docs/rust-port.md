@@ -304,6 +304,25 @@ not expect.
   with the router; `TestMiddlewareRefusesWith429BeforeReadingTheBody`,
   `TestMiddlewareReleasesOnPanic`, `TestRefuseLogsEveryTableFull`, `TestRefuseOtherErrorsAre500`
   and `TestFlowMiddlewareTakesAFlowSlotNotAStream` move with them.
+- **Phase 8, the exposition.** prometheus-client writes OpenMetrics (row 5): a counter's HELP
+  and TYPE lines name the family without `_total`, a histogram's `le` label comes first and
+  its bounds read `1.0`, and a family's children come out in no fixed order, so the tests
+  compare each family as a sorted set of lines. The crate appends a period to every
+  registered help text, so Go's texts are registered without theirs and the HELP lines read
+  as Go's. A family with no children, such as the request counter before any answer, is left
+  out, as in Go. The endpoint's plain `500` body is promhttp's wording.
+- **Phase 8, the Go metric tests not ported as they were.**
+  `TestObserveAllocatesNothingOnceARouteAnswered` needs a counting global allocator, which is
+  `unsafe` and forbidden; after a route's first answer, `observe` is a map lookup by `&str`, a
+  `OnceLock` read and atomic adds.
+  `TestNilMetricsRecordNothing` has no nil `Metrics`; its other half, a group without
+  throughput routes, is `a_group_without_transfers_records_nothing`. The non-limit error of
+  `TestEverySentinelIsMapped` cannot be written, since `refused` takes a `Limit`.
+  `TestRegistryHoldsTheRuntimeCollectors` is inverted by row 5. The server's
+  `/metrics` tests (`TestMetricsEndpointOffIsAPlain404`, `TestMetricsEndpoint`,
+  `TestMetricsEndpointIsNotRateLimited`, `TestRequestsAreLabeledByOwner`,
+  `TestPanickingRequestsAreCounted`) need the router and stay for phase 12; the endpoint half
+  of `TestMetricsEndpoint` is in `endpoint_writes_open_metrics`.
 - **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
   started. The `cargo-machete` pre-commit hook builds its own; `zig` is first needed by phase 15.
 
@@ -318,7 +337,7 @@ Go package to Rust module, filled in by the phase that ports it.
 | `internal/logger` | `src/logger.rs` (`stdout`, `to_writer`, `stderr_text`, `text_to`, `parse_level`, `Format`, `LogError`); `ReportProblems`, `ReportWarnings` and the startup line in `src/config/report.rs` | 6 |
 | `internal/clientip` | `src/clientip.rs` (`address_class`, `suggested_label`, `version`, `Labeler`, `Rule`, `Deriver`, `Client`); the middleware and context helpers move to phase 12 | 6 |
 | `internal/ratelimit` | `src/ratelimit.rs` (`Limiter`, `Options`, `Permit`, `Limit`, `LimitError`, the codes); `Clock` and `TokioClock` in `src/clock.rs`; the middleware and `Refuse` move to phase 12 | 7 |
-| `internal/metrics` |  | 8 |
+| `internal/metrics` | `src/metrics.rs` (`Metrics`, `Route`, `Transfer`), `src/metrics/labels.rs` (`Group`, `Direction`, `UNMATCHED`, the code slots), `src/metrics/endpoint.rs` (`encode`, `respond`, `CONTENT_TYPE`) | 8 |
 | `internal/handlers` |  | 9, 10 |
 | `internal/compat/openspeedtest` |  | 11 |
 | `internal/compat/librespeed` |  | 11 |
@@ -339,7 +358,7 @@ it did not port, with the reason.
 | `internal/config` | `src/config/tests/` (`load.rs`, `validate.rs`, `effective.rs`, `types.rs`); `TestReportProblems` and the reporting half of `TestInvalidLogKeysReportOnStderr` move to phase 6 | 5 |
 | `internal/buildinfo`, `internal/logger`, `internal/clientip` | `src/buildinfo.rs`, `src/logger/tests.rs`, `src/clientip/tests.rs`; `TestReportProblems`, `TestInvalidLogKeysReportOnStderr` and the rendering half of `TestEffective` in `src/config/tests/report.rs`; the middleware tests move to phase 12 | 6 |
 | `internal/ratelimit` | `src/ratelimit/tests.rs`, `src/clock.rs`; the middleware tests move to phase 12 | 7 |
-| `internal/metrics` |  | 8 |
+| `internal/metrics` | `src/metrics/tests.rs`; the server's `/metrics` tests stay for phase 12 | 8 |
 | `internal/handlers` |  | 9, 10 |
 | `internal/compat/...` |  | 11 |
 | `internal/server` |  | 12 |
