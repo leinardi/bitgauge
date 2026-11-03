@@ -31,9 +31,14 @@ publish = false
 [lints]
 workspace = true
 
-# The repository readers the tests share.
+# The repository readers the tests share: the configuration loader of the deployments test, and
+# the parsers of the YAML, JSON and TOML files the tests read.
 [dependencies]
+bitgauge = { path = ".." }
 regex = "1.13.1"
+serde = { version = "1.0.228", default-features = false, features = ["derive", "std"] }
+serde-saphyr = { version = "2.0.0", default-features = false, features = ["deserialize"] }
+serde_json = { version = "1.0.154", default-features = false, features = ["std"] }
 toml = "1.1.8"
 
 # The scratch crates and workspaces of the negative controls.

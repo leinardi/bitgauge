@@ -535,6 +535,19 @@ not expect.
   `isDockerfile` matches `Dockerfile.<name>` (not its `.dockerignore`), `deployments/docker` may
   hold exactly the shipped file and the candidate, and `TestRustCandidateIsTestOnly` finds it and
   fails if any workflow names it.
+- **Phase 16, the meta-tests in the meta crate.** The Go meta-tests under `test/` are ported to
+  `meta/tests/` and stay, unchanged, until the cutover deletes them; the scripts the dist tests
+  drive run through `meta::script`. The transitional assertions (`toolchain.rs`, `dockerfiles.rs`
+  with `dockerfiles/release.rs`, `audit_deps.rs`) read `meta::transition::TRANSITION`, today
+  `Transition::Candidate`: the shipped Dockerfile is held to the Go build's checks and
+  `Dockerfile.rust` to the Rust build's, and at the cutover the one constant becomes `Done`. Each
+  has a negative control that mutates one file in memory. The compat boundary, which Go read from
+  `go list -deps`, is a source scan (`meta/tests/compat_boundary.rs`): no file of `src/handlers`,
+  `src/ratelimit` or `src/clientip` spells a path to `crate::compat`, with comments stripped, so
+  the configuration's `compat` field stays allowed. The `docs-links` hook runs
+  `cargo test --offline --locked -p meta --test docs`. Found while porting: `make audit-deps` runs
+  no `cargo deny` (only `make rust-deny`, its hook and the CI rust job do), and no file pins the
+  cargo-deny version; `audit_deps.rs` pins today's set, and the cutover adds `rust-deny` to it.
 - **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
   started. The `cargo-machete` pre-commit hook builds its own; phase 15 fetched the pinned `zig`
   into the scratchpad.
@@ -578,5 +591,5 @@ it did not port, with the reason.
 | `web` | `src/web/tests.rs` | 12 |
 | `cmd/bitgauge` | `TestParseArgs` in the `src/cli.rs` tests; `TestHealthcheckAddress` and `TestHealthcheckExitCodes` in `src/healthcheck/tests.rs`; `TestServeExitsTwoOnInvalidConfig` in `src/command/tests.rs` and `tests/cli.rs`; `TestServeAndHealthcheck`, `TestServeExitsOneWithoutTheSPA` and `TestCompatibilityLayersOnTheStartupLine` in `src/command/tests.rs`; the process-mode startup and its signals in `tests/process_mode.rs`; `TestMain` is Cargo's binary build | 13 |
 | (the Go binary) | `tests/wire.rs` replays the Go binary's recorded answers (`tests/testdata/wire/`) | 14 |
-| `test/docs`, `test/disturls`, `test/distdemo`, `test/chunksize`, `test/licenseheaders`, `test/toolchain`, `test/deployments`, `test/dockerfiles`, `test/boundary` |  | 16 |
+| `test/docs`, `test/disturls`, `test/distdemo`, `test/chunksize`, `test/licenseheaders`, `test/toolchain`, `test/deployments`, `test/dockerfiles`, `test/boundary` | `meta/tests/` under the Go package's name (`docs.rs`, `toolchain.rs` for the pins, `compat_boundary.rs`, one file per `test/toolchain` test file); `boundary_test.go` is the lint boundary of phase 3 (`lint_exemptions.rs`, `lint_inheritance.rs`); `untagged_tests_test.go` moves to phase 17 with the toolgate | 16 |
 | `test/internal/...`, `test/image`, `test/harness` |  | 17 |
