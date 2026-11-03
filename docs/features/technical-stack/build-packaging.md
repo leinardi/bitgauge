@@ -49,6 +49,10 @@ Runtime image properties:
   probe. The compose examples of
   [deployment-example.md](../deployment-example.md#1-compose-bitgauge-alone) use the same timings.
 - Runs with a **read-only root filesystem** and no volume; nothing is written.
+
+  > **Rust implementation (from the cutover):** the Go runtime variables (`GOMAXPROCS`, `GOMEMLIMIT`,
+  > `GOGC`, `GODEBUG` and the rest) have no effect on the binary.
+  > ([rust-port.md](../../rust-port.md#intended-differences-from-go), row 14.)
 - OCI labels: `org.opencontainers.image.title`, `.description`, `.source`
   (`https://github.com/leinardi/bitgauge`), `.version`, `.revision`, `.created` and
   `.licenses="GPL-3.0-or-later"`.

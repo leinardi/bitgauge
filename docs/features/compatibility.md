@@ -393,6 +393,11 @@ path and method.
 `metrics.path` is validated at startup so it cannot collide with any row above
 ([configuration.md](configuration.md)).
 
+> **Rust implementation (from the cutover):** every SPA row above also answers `HEAD`; a file with
+> an extension outside the fixed content-type table is `application/octet-stream`, and a request for
+> more than one range gets `200` with the whole file.
+> ([rust-port.md](../rust-port.md#intended-differences-from-go), row 12.)
+
 ## 6. Rules Every Layer Shares
 
 - **Errors.** Every error status a layer answers (`400`, `405`, `408`, `413`, `429`, `500`,

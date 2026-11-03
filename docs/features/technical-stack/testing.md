@@ -47,6 +47,14 @@ Table-driven `net/http/httptest` tests per package, run with `go test -race ./..
   scraper sends `Accept-Encoding: gzip`, never rate-limited, mounted under `base_path`, and the
   `group` label of each route owner.
 
+> **Rust implementation (from the cutover):** these become Rust `#[test]` and `#[tokio::test]`
+> tests, each naming the Go test it replaces, with a paused tokio clock where a fake clock is used.
+> The download and probe tests check that every frame is a slice of the shared buffer in place of
+> `testing.AllocsPerRun`; the stall test covers every response and an upgraded socket at the
+> connection level; ws also checks 1007 for a duplicate key, a top-level `null` and invalid UTF-8,
+> and the byte-for-byte echo; metrics reads OpenMetrics text with no `go_*` or `process_*` family.
+> ([rust-port.md](../../rust-port.md#intended-differences-from-go), rows 5, 7, 9, 11.)
+
 ## 2. Engine Tests With Synthetic Timelines
 
 The engine runs in vitest against a fake `Clock` and a fake `Transport`

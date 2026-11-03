@@ -189,7 +189,7 @@ note.
 | 3 | **Durations:** jiff's friendly syntax; Go-only forms (`1µs`, `.5s`) may differ, and `1 minute` is now accepted. | configuration.md §1 |
 | 4 | **Config problem wording:** library-originated texts are Rust's; our own rule texts are kept. | configuration-security.md §1–§2 |
 | 5 | **`/metrics`:** OpenMetrics only; no `go_*` or `process_*`; `bitgauge_build_info{version,commit}` without `goversion`. Family names, types, labels and buckets are kept. | backend.md §7; wire-protocol.md (metrics); api/openapi.yaml; testing.md §1 |
-| 6 | **Malformed requests:** hyper's empty-body 400, 414 and 431; at most 100 headers; an exact 16 KiB header limit. | wire-protocol.md §7; backend.md §3, §5 |
+| 6 | **Malformed requests:** hyper's empty-body 400, 414 and 431; at most 100 headers; an exact 16 KiB header limit. An unsupported `Transfer-Encoding` or HTTP version is a 400 (Go: 501, 505); a malformed `Host` is not rejected before routing. | wire-protocol.md §7; backend.md §3, §5 |
 | 7 | **Stall rule:** 30 s without progress on any write, for every response and upgraded socket. | backend.md §2.1, §5; testing.md §1; edge-cases.md |
 | 8 | **Transfer bytes:** counted when handed to hyper, up to about 400 KB ahead of the socket. | backend.md §7 |
 | 9 | **Allocation:** "no per-request data buffer" replaces "no allocation per request"; tests check that every frame is a slice of the shared buffer. | backend.md §2.1–§2.3; testing.md §1 |

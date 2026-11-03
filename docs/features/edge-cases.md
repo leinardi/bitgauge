@@ -20,6 +20,10 @@ timeouts scale with the running median and cap at 10 s. The slow-link budget is 
 **User sees.** `test extended` when a phase extends; `insufficient data` with an offer
 of the next larger preset when even the maximum is not enough; data used is always shown.
 
+> **Rust implementation (from the cutover):** a slow link is never cut by the 30 s stall rule as
+> long as each write makes progress; the rule holds for every write of every response and of an
+> upgraded WebSocket. ([rust-port.md](../rust-port.md#intended-differences-from-go), row 7.)
+
 ## 2. Mobile Browsers Throttling Background Tabs and Workers
 
 **Situation.** Mobile browsers throttle timers and may suspend JavaScript, Workers included, when

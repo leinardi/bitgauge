@@ -84,6 +84,13 @@ fonts, icons and scripts are embedded in the binary.
 
 - **Enforced in review:** a change that adds a network client to the server or an external URL to
   the SPA is rejected ([AGENTS.md](../../AGENTS.md)).
+
+  > **Rust implementation (from the cutover):** also enforced by lint on the shipped code. The root
+  > `clippy.toml` disallows the `std::fs` writes, TCP and UDP connects and binds outside the listener,
+  > name lookups, wall-clock reads and the print macros in the `bitgauge` package, outside a few
+  > pinned exemptions (the healthcheck's one connect); `deny.toml` bans HTTP-client, database and RPC
+  > crates; and a meta-test rejects a production dependency graph that enables hyper's or hyper-util's
+  > client features. The full boundary is in [rust-port.md](../rust-port.md#lint-boundary).
 - **Verifiable in two layers**
   ([technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness)): the accuracy
   harness and the image test run BitGauge on a Docker network with no route out and prove
@@ -245,6 +252,11 @@ exactly what each includes before anything is downloaded, copied or shared.
   a scheduled scan of `:latest` says when one is needed ([release.md](../release.md)).
 - **Vulnerability checks:** `govulncheck` and the npm audit run in CI; lint runs golangci-lint v2
   with all linters ([technical-stack/build-packaging.md](technical-stack/build-packaging.md)).
+
+  > **Rust implementation (from the cutover):** cargo-deny checks every Cargo dependency's advisories
+  > (RustSec), licenses and sources, and bans the crates the lint boundary names; clippy runs with the
+  > workspace lints in place of golangci-lint, and Dependabot updates `cargo` in place of `gomod`.
+  > ([rust-port.md](../rust-port.md).)
 - **No vendored third-party speed-test code:** OpenSpeedTest and LibreSpeed are used for ideas and
   protocol compatibility only.
 

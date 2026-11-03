@@ -14,6 +14,11 @@ from `/etc/bitgauge/config.yaml`, or from the path given with `--config`. A miss
 default path is not an error (defaults and environment apply); a missing file at a path given
 explicitly is.
 
+> **Rust implementation (from the cutover):** the path is given with `--config <path>` or
+> `--config=<path>` only, and it may start with `-`; `-config` and every other single-dash long form
+> are refused with exit status 2. ([rust-port.md](../rust-port.md#intended-differences-from-go), row
+> 2.)
+
 Full annotated example, showing every key with its default unless noted:
 
 ```yaml
@@ -80,6 +85,11 @@ metrics:
 **Value syntax.** Sizes accept a plain integer (bytes) or a number with a unit: `KiB`, `MiB`,
 `GiB` (binary) or `kB`, `MB`, `GB` (decimal). Durations use Go syntax (`500ms`, `10s`, `2m`). Lists
 in the file are YAML sequences.
+
+> **Rust implementation (from the cutover):** durations use jiff's friendly syntax, which reads the
+> same `500ms`, `10s` and `2m` and also `1 minute`; forms only Go reads, such as `1µs` or `.5s`, may
+> be read differently or refused. ([rust-port.md](../rust-port.md#intended-differences-from-go), row
+> 3.)
 
 ## 2. Keys
 
@@ -165,6 +175,10 @@ The networkQuality limits are listed in §2.2.
 | --- | --- | --- | --- |
 | `log.format` | `BITGAUGE_LOG__FORMAT` | `text` | `text` or `json` (`log/slog` handlers). |
 | `log.level` | `BITGAUGE_LOG__LEVEL` | `info` | `debug`, `info`, `warn`, `error`. |
+
+> **Rust implementation (from the cutover):** `text` and `json` are tracing-subscriber's text and
+> JSON renderings, with UTC timestamps; the messages, fields and levels are the same.
+> ([rust-port.md](../rust-port.md#intended-differences-from-go), row 1.)
 
 What is and is never logged is specified in
 [technical-stack/configuration-security.md](technical-stack/configuration-security.md).

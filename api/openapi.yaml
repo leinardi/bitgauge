@@ -255,14 +255,14 @@ paths:
       responses:
         "200":
           description: >-
-            The Prometheus text exposition, or OpenMetrics when the Accept header asks for it.
+            OpenMetrics text (application/openmetrics-text; version=1.0.0; charset=utf-8),
+            whatever the Accept header says, from the Rust implementation (from the cutover).
+            Until the cutover the Go binary negotiates: the Prometheus text exposition
+            (text/plain) by default, OpenMetrics when the Accept header asks for it.
           headers:
             Cache-Control:
               $ref: "#/components/headers/CacheControlNoStore"
           content:
-            text/plain:
-              schema:
-                type: string
             application/openmetrics-text:
               schema:
                 type: string

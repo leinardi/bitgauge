@@ -28,6 +28,11 @@ services, nothing to keep in sync between a frontend and a backend deployment.
 **Not chosen:** separate frontend container or static hosting (two artifacts and a CORS setup for
 no benefit).
 
+> **Rust implementation (from the cutover):** one Rust binary, built with the toolchain pinned in
+> `rust-toolchain.toml` (1.98.1), from the Cargo package `bitgauge`; the SPA is embedded with
+> `include_dir`. One binary, one image and one port are unchanged.
+> ([rust-port.md](../../rust-port.md).)
+
 ### 2. Server state — Stateless; history in the browser only
 
 No database, no disk writes, no volume, read-only configuration. In-memory state is limited to the
@@ -47,6 +52,12 @@ without hiding the `ResponseWriter` the throughput handlers need.
 **Not chosen:** ConnectRPC/gRPC (codegen and framing for six endpoints); heavier frameworks that
 abstract the response writer.
 
+> **Rust implementation (from the cutover):** axum 0.8 routes and tower middleware on hyper 1's
+> HTTP/1 server, driven by BitGauge's own hyper-util accept loop and connection wrapper; axum is
+> built without its `ws` and `http2` features. REST, `/api/v1` and `api/openapi.yaml` are unchanged.
+> The throughput handlers write hyper body frames directly, which is what the `ResponseWriter`
+> argument above asked for. ([rust-port.md](../../rust-port.md).)
+
 ### 4. Throughput transport — HTTP requests, timed by the browser (download) and the server (upload)
 
 Download and upload are ordinary HTTP requests through the user's proxy, so the measurement covers
@@ -64,11 +75,21 @@ Runhold; defaults < file < env; fail-closed validation ([configuration.md](../co
 
 **Not chosen:** Viper (heavier, case-insensitive keys); flags-only configuration (not IaC-friendly).
 
+> **Rust implementation (from the cutover):** no koanf: serde-saphyr parses the file into a tree
+> that keeps each value's position, BitGauge's own code merges the `BITGAUGE_` environment into it,
+> and a typed walker reads it and collects every problem, which serde derive cannot do (it stops at
+> the first error). The layering, the `__` rule and fail-closed validation are unchanged.
+> ([rust-port.md](../../rust-port.md).)
+
 ### 6. Logging — `internal/logger` package (slog wrapper)
 
 `log/slog` with a small wrapper for format and level, as in Runhold. Logs go to stdout/stderr only.
 
 **Not chosen:** zerolog/zap (no need beyond slog).
+
+> **Rust implementation (from the cutover):** tracing and tracing-subscriber, with its `fmt` text
+> and `json` renderings and UTC timestamps. Logs still go to stdout/stderr only.
+> ([rust-port.md](../../rust-port.md).)
 
 ### 7. Metrics — Prometheus `client_golang`, root `/metrics`, off by default
 
@@ -77,15 +98,30 @@ unauthenticated. Root placement follows Prometheus convention and Runhold, not `
 
 **Not chosen:** `/api/v1/metrics` (mixes an operations endpoint into the versioned API).
 
+> **Rust implementation (from the cutover):** `prometheus-client`, writing OpenMetrics text only,
+> with no Go runtime or process collectors. Root `/metrics`, the configurable path and off by
+> default are unchanged. ([rust-port.md](../../rust-port.md).)
+
 ### 8. WebSocket — `coder/websocket`
 
 Minimal, context-aware, maintained; used only for the latency echo at `/api/v1/ws`.
 
 **Not chosen:** `gorilla/websocket` (heavier API surface for a ping/pong echo).
 
+> **Rust implementation (from the cutover):** tokio-tungstenite on `hyper::upgrade::on`, with the
+> handshake checked by hand as in Go and the accept key from `derive_accept_key`.
+> ([rust-port.md](../../rust-port.md).)
+
 ### 9. Lint policy — golangci-lint v2 with `default: all`
 
 Every linter enabled, with justified, documented exclusions only, as in Runhold.
+
+> **Rust implementation (from the cutover):** clippy on the whole workspace with `--all-targets
+> --all-features`, the lints set once in `[workspace.lints]` (unsafe code forbidden) and inherited
+> by every crate; an exclusion is an `#[expect(lint, reason = "…")]` on one item, never an `allow`.
+> rustfmt formats, cargo-deny checks licenses, advisories and banned crates, and cargo-machete finds
+> unused dependencies. The lint boundary that keeps the server stateless and silent is in
+> [rust-port.md](../../rust-port.md#lint-boundary). ([rust-port.md](../../rust-port.md).)
 
 ### 10. Frontend — Vue 3 + Vite + TypeScript + Tailwind 4 + shadcn-vue (Reka UI)
 
@@ -219,6 +255,12 @@ swarm-scheduler-exporter.
 
 **Not chosen:** digest-pinned `dhi.io` bases (every republish of a tag becomes a Dependabot pull
 request, and the security fixes it carries wait for that pull request to merge).
+
+> **Rust implementation (from the cutover):** the `build` stage is `dhi.io/rust` at the
+> `rust-toolchain.toml` line (`-debian13-dev`), with cargo-zigbuild and each target's `rust-std`
+> pinned by sha256, building static musl binaries for amd64 and arm64. The `web` and `runtime`
+> stages, the user, the labels and the `healthcheck` are unchanged.
+> ([rust-port.md](../../rust-port.md).)
 
 ### 27. Platforms — linux/amd64 and linux/arm64 only
 

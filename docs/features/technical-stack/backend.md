@@ -31,6 +31,18 @@ Dependencies point inwards: compat packages use the shared building blocks (the 
 writer and body drainer in `internal/handlers`, plus `internal/clientip` and `internal/ratelimit`)
 but never the reverse, and nothing imports `cmd/`.
 
+> **Rust implementation (from the cutover):** one Cargo package, `bitgauge`, with a library and a
+> binary, replaces the Go module; each package above becomes a module of it (`src/config`,
+> `src/server`, `src/handlers`, `src/compat`, `src/web.rs` and so on) with the same dependency
+> direction. The command line accepts `--config` only, and its value may start with `-`; a
+> single-dash long form such as `-config` or `-help` is refused with exit status 2, naming the `--`
+> spelling; `-h` and `--help` print the help on stdout. Logs are written by tracing and
+> tracing-subscriber, in their own text and JSON renderings with UTC timestamps; messages, fields
+> and levels are kept, and invalid log settings still print as text on stderr. The build info comes
+> from `BITGAUGE_VERSION`, `BITGAUGE_COMMIT` and `BITGAUGE_DATE` at compile time, `dev` and
+> `unknown` when unset. ([rust-port.md](../../rust-port.md#intended-differences-from-go), rows 1,
+> 2.)
+
 ## 2. Handler Rules
 
 ### 2.1 Download (and Every Response That Streams Random Bytes)
@@ -54,6 +66,12 @@ but never the reverse, and nothing imports `cmd/`.
   deadline of 30 s from now through `http.ResponseController`; a client that stops reading for 30 s
   is disconnected. Each write is at most 64 KiB, so the deadline catches a stall and never a slow
   link: 64 KiB take about 5 s at 100 kbit/s.
+
+  > **Rust implementation (from the cutover):** the stall rule moves to the connection: a write of any
+  > response, or of an upgraded socket, that makes no progress for 30 s ends the connection. The body
+  > is a stream of slices, at most 64 KiB each, of the one shared 4 MiB buffer: "no per-request data
+  > buffer" replaces "no allocation per request", and the tests check that every frame is a slice of
+  > the shared buffer. ([rust-port.md](../../rust-port.md#intended-differences-from-go), rows 7, 9.)
 - Client aborts end the handler on the next failed write; only the Prometheus counters record it
   (`bitgauge_http_aborts_total`, §7).
 
@@ -71,6 +89,12 @@ but never the reverse, and nothing imports `cmd/`.
 - **Reading is discarding.** The drainer reads into a pooled 64 KiB buffer (`sync.Pool`) and drops
   the data, which is what `io.Copy(io.Discard, body)` does, except that each read's byte count is
   available for the grid. No allocation per request beyond the pooled buffer and the counts slice.
+
+  > **Rust implementation (from the cutover):** reads follow hyper's read buffer, not a pooled 64 KiB
+  > buffer, and the grid counts each body frame as it arrives; there is no per-request data buffer
+  > beyond the counts. The lifetime is one deadline, handler entry + 120 s, on every frame read, and
+  > the cap is checked per frame in place of `MaxBytesReader`; the statuses are unchanged.
+  > ([rust-port.md](../../rust-port.md#intended-differences-from-go), rows 9, 10.)
 - **Grid counting** (native upload only): after each read,
   `cell = floor((monotonic now − process start) / 100 ms) + K` and `counts[cell − firstCell] += n`,
   where `K` is a random whole number of cells chosen at startup (the grid origin is process start
@@ -99,6 +123,11 @@ but never the reverse, and nothing imports `cmd/`.
   [wire-protocol.md §6](../wire-protocol.md#6-websocket-apiv1ws), sets a 256-byte read limit (larger
   messages close with 1009), echoes `ping` messages as `pong`, and closes after 120 s without a
   message. The per-IP WebSocket counter is released on close.
+
+  > **Rust implementation (from the cutover):** keys of a WebSocket message are matched
+  > case-sensitively, and a duplicate key, a top-level `null` or invalid UTF-8 closes with 1007; `seq`
+  > and `t` are echoed byte for byte as raw JSON, `null` included. ping and small use no per-request
+  > data buffer. ([rust-port.md](../../rust-port.md#intended-differences-from-go), rows 9, 11.)
 - **info** builds its JSON per request from the configuration, the build info, the epoch and the
   client IP; nothing is cached per client.
 - **Handlers are thin.** No handler holds state beyond its request; shared state is limited to the
@@ -109,6 +138,14 @@ but never the reverse, and nothing imports `cmd/`.
 Applied in this order to every request, before routing. A request with framing or headers
 `net/http` rejects reaches none of them and gets `net/http`'s plain-text answer
 ([../wire-protocol.md §7](../wire-protocol.md#7-error-envelope)).
+
+> **Rust implementation (from the cutover):** the server is hyper with axum, and a request hyper
+> rejects before routing gets hyper's answer: a `400` with an empty body (an unsupported
+> `Transfer-Encoding` or HTTP version included), `414` for an over-long request target, and `431`
+> for a head over exactly 16 KiB or with more than 100 headers; a malformed `Host` is not rejected
+> before routing. The chain
+> is a stack of tower layers in the same order: panic recovery, client IP, security headers, then
+> logging and metrics. ([rust-port.md](../../rust-port.md#intended-differences-from-go), row 6.)
 
 1. **Panic recovery**: logs the panic with the route pattern and answers `500` (error envelope on
    API routes and on an enabled compatibility layer's routes, by the classifier's group:
@@ -150,10 +187,23 @@ chi.Router mounted at server.base_path
 Route collisions are impossible by construction and are also checked at startup, which is how
 `metrics.path` validation is implemented ([compatibility.md §5](../compatibility.md#5-route-table)).
 
+> **Rust implementation (from the cutover):** the router is axum's, nested under `base_path`. The
+> SPA's routes also answer `HEAD`, a file with an extension outside the fixed content-type table is
+> `application/octet-stream`, and a request with more than one range gets `200` with the whole file.
+> ([rust-port.md](../../rust-port.md#intended-differences-from-go), row 12.)
+
 ## 5. Server Settings and Graceful Shutdown
 
 - `ReadHeaderTimeout` 10 s, `IdleTimeout` 120 s, `MaxHeaderBytes` 16 KiB. No global `ReadTimeout`
   or `WriteTimeout`; per-request deadlines are set through `http.ResponseController` (§2).
+
+  > **Rust implementation (from the cutover):** hyper serves each connection from BitGauge's own
+  > accept loop, and a connection wrapper keeps Go's deadline states with another mechanism: a request
+  > head must complete within 10 s of the accept or of its first byte, a keep-alive connection may
+  > stay idle 120 s, a pipelined head gets 10 s with no idle phase, and neither a body (its handler
+  > owns that deadline) nor an upgraded socket has a connection deadline. Every write is held to the
+  > 30 s stall rule. The header limit is exactly 16 KiB, with at most 100 headers.
+  > ([rust-port.md](../../rust-port.md#intended-differences-from-go), rows 6, 7, 13.)
 - On `SIGTERM` or `SIGINT` the server stops accepting connections, closes WebSockets with status
   1001 (going away) and calls `Shutdown` with a 10 s grace. Transfers still running after that are
   cut. A test in progress then sees a network change or, after a restart, a new epoch
@@ -172,6 +222,12 @@ when the host is empty or `0.0.0.0` (`:8080` listens on all addresses); `::1` wh
 request has a 3 s timeout, and exits `0` on `204`, `1` otherwise. It needs no shell or `curl` in the
 image and is used by the image's `HEALTHCHECK` and by compose files ([deployment-example.md
 §1](../deployment-example.md#1-compose-bitgauge-alone)).
+
+> **Rust implementation (from the cutover):** `healthcheck` takes `--config` under the same rules as
+> `serve`. The probe is one connection to the derived literal address, with no name lookup, and one
+> 3 s deadline over the connect, the write and the read of the status line; it exits `0` only on an
+> `HTTP/1.x 204` status line. ([rust-port.md](../../rust-port.md#intended-differences-from-go), row
+> 2.)
 
 ## 7. Prometheus Metric Set
 
@@ -194,6 +250,13 @@ per-client label, and no measured result exists on the server to export.
 | `bitgauge_build_info` | gauge (1) | `version`, `commit`, `goversion` | Build information: `version` and `commit` from the build info, `goversion` from `runtime.Version()`. |
 
 Plus the standard Go runtime (`go_*`) and process (`process_*`) collectors.
+
+> **Rust implementation (from the cutover):** the metrics come from prometheus-client and are
+> written as OpenMetrics text only. There are no `go_*` or `process_*` families, and
+> `bitgauge_build_info` carries `version` and `commit` without `goversion`. The family names, types,
+> labels and buckets above are kept. `bitgauge_transfer_bytes_total` counts download bytes when they
+> are handed to hyper, which can be up to about 400 KB ahead of the socket.
+> ([rust-port.md](../../rust-port.md#intended-differences-from-go), rows 5, 8.)
 
 **Labels.**
 
@@ -236,6 +299,11 @@ lifetime, still fall in a bucket.
   (`DisableCompression`), as on every `/api/v1` response
   ([wire-protocol.md §8](../wire-protocol.md#8-caching-cors-and-compression)), and the response
   carries `Cache-Control: no-store` and `X-Content-Type-Options: nosniff`.
+
+  > **Rust implementation (from the cutover):** no format is negotiated: the response is always
+  > OpenMetrics text (`application/openmetrics-text; version=1.0.0; charset=utf-8`), whatever `Accept`
+  > says, never compressed, with the same two headers.
+  > ([rust-port.md](../../rust-port.md#intended-differences-from-go), row 5.)
 - The endpoint is not rate-limited and not counted by any limit.
 - A failure to gather the metrics answers `500` (`HTTPErrorOnError`) and is logged at `warn`
   through a `slog` adapter, naming the error and nothing about the scraper.

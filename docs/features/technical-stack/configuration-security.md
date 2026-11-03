@@ -22,6 +22,13 @@ The merged map is decoded into the configuration struct with every unknown key, 
 that does not parse collected as an error of its own (unknown keys from the decoder's metadata of
 unused keys), then validated.
 
+> **Rust implementation (from the cutover):** there is no koanf. The file is parsed with
+> serde-saphyr into a tree that keeps each value's position, the environment is merged into it by
+> BitGauge's own code under the same `__` rule, and a typed walker reads the tree and collects every
+> problem, unknown keys and nulls included. Texts that come from a library, such as a YAML syntax
+> error, are Rust's; BitGauge's own rule texts are kept.
+> ([rust-port.md](../../rust-port.md#intended-differences-from-go), row 4.)
+
 **Env mapping examples:**
 
 | Variable | Key | Value |
@@ -45,6 +52,12 @@ unused keys), then validated.
 - The rules are those of [../configuration.md §4](../configuration.md#4-fail-closed-validation),
   including the route-collision check for `metrics.path`, which reuses the router's own route list.
 - Warnings (valid but suspicious settings) are logged at `warn` and do not stop startup.
+
+> **Rust implementation (from the cutover):** the problem lines are tracing events in
+> tracing-subscriber's rendering, with the same `key`, `value` and `rule` fields; library-originated
+> texts are Rust's and BitGauge's own rule texts are kept. Invalid `log.*` settings still print the
+> problems as text on stderr. ([rust-port.md](../../rust-port.md#intended-differences-from-go), rows
+> 1, 4.)
 
 ## 3. Security Headers Middleware
 
@@ -139,6 +152,11 @@ return leftmost parsed entry, or peer if there were no entries
 
 No log file is ever written ([../configuration.md
 §5](../configuration.md#5-read-only-configuration-and-the-no-write-guarantee)).
+
+> **Rust implementation (from the cutover):** the lines are written by tracing-subscriber in its
+> text or JSON rendering, with UTC timestamps; what is logged and never logged, the messages, fields
+> and levels are unchanged. ([rust-port.md](../../rust-port.md#intended-differences-from-go), row
+> 1.)
 
 ## Related
 
