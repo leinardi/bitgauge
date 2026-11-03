@@ -28,6 +28,7 @@ use super::{Loaded, Problem, check};
 
 mod effective;
 mod load;
+mod report;
 mod types;
 mod validate;
 

@@ -285,7 +285,7 @@ fn split_host_port(text: &str) -> Result<(&str, &str), &'static str> {
 
 /// An IP address as `netip.ParseAddr` reads it: IPv4 in dotted decimal without leading zeros, or
 /// IPv6 with an optional non-empty `%zone`. The zone is returned beside the address.
-pub(super) fn parse_addr(text: &str) -> Option<(IpAddr, Option<&str>)> {
+pub(crate) fn parse_addr(text: &str) -> Option<(IpAddr, Option<&str>)> {
     if let Ok(v4) = Ipv4Addr::from_str(text) {
         return Some((IpAddr::V4(v4), None));
     }
@@ -354,6 +354,21 @@ impl Cidr {
             address,
             bits: self.bits,
         }
+    }
+}
+
+impl Cidr {
+    /// Whether `address` is within the prefix, host bits ignored. An IPv4 address never matches
+    /// an IPv6 prefix nor the reverse, so an IPv4-mapped address matches only after
+    /// [`IpAddr::to_canonical`].
+    #[must_use]
+    pub fn contains(&self, address: IpAddr) -> bool {
+        let candidate = Self {
+            address,
+            bits: self.bits,
+        };
+        address.is_ipv4() == self.address.is_ipv4()
+            && candidate.masked().address == self.masked().address
     }
 }
 

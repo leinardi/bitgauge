@@ -98,80 +98,10 @@ macro_rules! field {
     };
 }
 
-/// Every key of configuration.md section 2. The unknown-key rule, the comma rule of the
-/// environment and the effective list all follow this table, so a key is added in one place.
+/// Every key of configuration.md section 2, sorted. The unknown-key rule, the comma rule of the
+/// environment and the effective list all follow this table, so a key is added in one place;
+/// the effective list keeps its order.
 pub(super) const FIELDS: &[Field] = &[
-    field!("server.listen", Listen, server.listen),
-    field!("server.base_path", Text, server.base_path),
-    field!("server.display_name", Text, server.display_name),
-    field!("server.public_url", Origin, server.public_url),
-    field!("server.trusted_proxies", Cidrs, server.trusted_proxies),
-    field!("server.labels", Labels, server.labels),
-    field!(
-        "server.cors.allowed_origins",
-        Origins,
-        server.cors.allowed_origins
-    ),
-    field!("limits.max_download_bytes", Size, limits.max_download_bytes),
-    field!("limits.max_upload_bytes", Size, limits.max_upload_bytes),
-    field!(
-        "limits.max_streams_per_client",
-        Int,
-        limits.max_streams_per_client
-    ),
-    field!(
-        "limits.requests_per_minute",
-        Int,
-        limits.requests_per_minute
-    ),
-    field!("limits.tracked_clients", Int, limits.tracked_clients),
-    field!("test_defaults.preset", Text, test_defaults.preset),
-    field!("test_defaults.phases", Texts, test_defaults.phases),
-    field!(
-        "test_defaults.streams.mode",
-        Text,
-        test_defaults.streams.mode
-    ),
-    field!(
-        "test_defaults.streams.fixed",
-        Int,
-        test_defaults.streams.fixed
-    ),
-    field!("test_defaults.streams.max", Int, test_defaults.streams.max),
-    field!(
-        "test_defaults.download.min_duration",
-        Duration,
-        test_defaults.download.min_duration
-    ),
-    field!(
-        "test_defaults.download.max_duration",
-        Duration,
-        test_defaults.download.max_duration
-    ),
-    field!(
-        "test_defaults.upload.min_duration",
-        Duration,
-        test_defaults.upload.min_duration
-    ),
-    field!(
-        "test_defaults.upload.max_duration",
-        Duration,
-        test_defaults.upload.max_duration
-    ),
-    field!("test_defaults.data_cap", Size, test_defaults.data_cap),
-    field!("test_defaults.units", Text, test_defaults.units),
-    field!("test_defaults.warmup", Warmup, test_defaults.warmup),
-    field!("test_defaults.ping_count", Int, test_defaults.ping_count),
-    field!(
-        "test_defaults.overhead_compensation_percent",
-        Float,
-        test_defaults.overhead_compensation_percent
-    ),
-    field!(
-        "compat.openspeedtest.enabled",
-        Bool,
-        compat.openspeedtest.enabled
-    ),
     field!("compat.librespeed.enabled", Bool, compat.librespeed.enabled),
     field!(
         "compat.networkquality.enabled",
@@ -179,19 +109,90 @@ pub(super) const FIELDS: &[Field] = &[
         compat.networkquality.enabled
     ),
     field!(
+        "compat.networkquality.max_flows_per_client",
+        Int,
+        compat.networkquality.max_flows_per_client
+    ),
+    field!(
         "compat.networkquality.max_upload_bytes",
         Size,
         compat.networkquality.max_upload_bytes
     ),
     field!(
-        "compat.networkquality.max_flows_per_client",
-        Int,
-        compat.networkquality.max_flows_per_client
+        "compat.openspeedtest.enabled",
+        Bool,
+        compat.openspeedtest.enabled
     ),
+    field!("limits.max_download_bytes", Size, limits.max_download_bytes),
+    field!(
+        "limits.max_streams_per_client",
+        Int,
+        limits.max_streams_per_client
+    ),
+    field!("limits.max_upload_bytes", Size, limits.max_upload_bytes),
+    field!(
+        "limits.requests_per_minute",
+        Int,
+        limits.requests_per_minute
+    ),
+    field!("limits.tracked_clients", Int, limits.tracked_clients),
     field!("log.format", Text, log.format),
     field!("log.level", Text, log.level),
     field!("metrics.enabled", Bool, metrics.enabled),
     field!("metrics.path", Text, metrics.path),
+    field!("server.base_path", Text, server.base_path),
+    field!(
+        "server.cors.allowed_origins",
+        Origins,
+        server.cors.allowed_origins
+    ),
+    field!("server.display_name", Text, server.display_name),
+    field!("server.labels", Labels, server.labels),
+    field!("server.listen", Listen, server.listen),
+    field!("server.public_url", Origin, server.public_url),
+    field!("server.trusted_proxies", Cidrs, server.trusted_proxies),
+    field!("test_defaults.data_cap", Size, test_defaults.data_cap),
+    field!(
+        "test_defaults.download.max_duration",
+        Duration,
+        test_defaults.download.max_duration
+    ),
+    field!(
+        "test_defaults.download.min_duration",
+        Duration,
+        test_defaults.download.min_duration
+    ),
+    field!(
+        "test_defaults.overhead_compensation_percent",
+        Float,
+        test_defaults.overhead_compensation_percent
+    ),
+    field!("test_defaults.phases", Texts, test_defaults.phases),
+    field!("test_defaults.ping_count", Int, test_defaults.ping_count),
+    field!("test_defaults.preset", Text, test_defaults.preset),
+    field!(
+        "test_defaults.streams.fixed",
+        Int,
+        test_defaults.streams.fixed
+    ),
+    field!("test_defaults.streams.max", Int, test_defaults.streams.max),
+    field!(
+        "test_defaults.streams.mode",
+        Text,
+        test_defaults.streams.mode
+    ),
+    field!("test_defaults.units", Text, test_defaults.units),
+    field!(
+        "test_defaults.upload.max_duration",
+        Duration,
+        test_defaults.upload.max_duration
+    ),
+    field!(
+        "test_defaults.upload.min_duration",
+        Duration,
+        test_defaults.upload.min_duration
+    ),
+    field!("test_defaults.warmup", Warmup, test_defaults.warmup),
 ];
 
 /// The keys of a `server.labels` entry.

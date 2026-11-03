@@ -41,3 +41,44 @@ pub(crate) async fn dial_loopback(address: SocketAddr) -> TcpStream {
         .await
         .unwrap_or_else(|error| panic!("connect to {address}: {error}"))
 }
+
+/// A log writer that keeps what a test logged, for the logger and the configuration reports.
+#[derive(Debug, Clone, Default)]
+pub(crate) struct Capture(std::sync::Arc<std::sync::Mutex<Vec<u8>>>);
+
+impl Capture {
+    /// Everything written so far.
+    pub(crate) fn text(&self) -> String {
+        String::from_utf8(self.0.lock().expect("capture lock").clone()).expect("UTF-8 log lines")
+    }
+
+    /// The written lines, as JSON objects.
+    pub(crate) fn json_lines(&self) -> Vec<serde_json::Value> {
+        self.text()
+            .lines()
+            .map(|line| serde_json::from_str(line).expect("a JSON log line"))
+            .collect()
+    }
+}
+
+impl std::io::Write for Capture {
+    fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+        self.0
+            .lock()
+            .expect("capture lock")
+            .extend_from_slice(bytes);
+        Ok(bytes.len())
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
+impl tracing_subscriber::fmt::MakeWriter<'_> for Capture {
+    type Writer = Self;
+
+    fn make_writer(&self) -> Self {
+        self.clone()
+    }
+}

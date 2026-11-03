@@ -32,6 +32,7 @@ use super::{
     PHASE_DOWNLOAD, PHASE_IDLE, PHASE_UPLOAD, Problem, STREAMS_MODE_AUTO, STREAMS_MODE_FIXED,
     STREAMS_MODE_SINGLE, Server, Size, Streams, TestDefaults, Warmup, preset,
 };
+use crate::logger;
 
 const MIN_PORT: u64 = 1;
 const MAX_PORT: u64 = 65_535;
@@ -56,8 +57,6 @@ const PING_COUNT: (i64, i64) = (6, 200);
 const MAX_OVERHEAD_PERCENT: f64 = 20.0;
 const PRESETS: [&str; 4] = ["quick", "standard", "extended", "continuous"];
 const UNITS: [&str; 2] = ["bits", "bytes"];
-const LOG_FORMATS: [&str; 2] = ["text", "json"];
-const LOG_LEVELS: [&str; 4] = ["debug", "info", "warn", "error"];
 
 /// The sizes a compatibility layer needs the limits to allow while it is enabled: the
 /// OpenSpeedTest layer's fixed download size and upload cap (compatibility.md section 1.1), and
@@ -553,8 +552,8 @@ impl Checker {
     }
 
     fn log(&mut self, log: &Log) {
-        self.one_of("log.format", &log.format, &LOG_FORMATS);
-        self.one_of("log.level", &log.level, &LOG_LEVELS);
+        self.one_of("log.format", &log.format, &logger::FORMATS);
+        self.one_of("log.level", &log.level, &logger::LEVELS);
     }
 
     fn metrics(&mut self, metrics: &Metrics) {

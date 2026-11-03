@@ -23,7 +23,10 @@
 //! The Rust port is built beside the Go module until the cutover (`docs/rust-port.md`); its modules
 //! arrive phase by phase.
 
+pub mod buildinfo;
+pub mod clientip;
 pub mod config;
+pub mod logger;
 pub mod server;
 
 #[cfg(test)]

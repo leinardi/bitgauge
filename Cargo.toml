@@ -103,6 +103,7 @@ tokio = { version = "1.54.1", default-features = false, features = [
 tokio-util = { version = "0.7.20", default-features = false, features = ["rt"] }
 tower-service = "0.3.3"
 tracing = { version = "0.1.44", default-features = false, features = ["std"] }
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "json", "std"] }
 
 [dev-dependencies]
 futures-util = { version = "0.3.34", default-features = false, features = ["sink", "std"] }
@@ -122,6 +123,7 @@ tokio = { version = "1.54.1", default-features = false, features = [
 ] }
 # The test-only echo service's WebSocket, until the real one is ported (phase 10).
 tokio-tungstenite = { version = "0.30.0", default-features = false, features = ["handshake"] }
+serde_json = "1.0.149"
 
 # A second signal ends the process: a child process with the signals blocked in its only thread,
 # so a plain main rather than libtest's threads.

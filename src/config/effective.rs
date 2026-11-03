@@ -44,17 +44,15 @@ pub enum EffectiveValue {
     List(Vec<String>),
 }
 
-/// The configuration as one entry per key, sorted by key.
+/// The configuration as one entry per key, sorted by key (the key table's order).
 #[must_use]
 pub fn effective(config: &Config) -> Vec<(&'static str, EffectiveValue)> {
     // The slots lend mutable access, so they read a copy.
     let mut copy = config.clone();
-    let mut entries: Vec<(&'static str, EffectiveValue)> = FIELDS
+    FIELDS
         .iter()
         .map(|field| (field.key, value((field.slot)(&mut copy))))
-        .collect();
-    entries.sort_by_key(|&(key, _)| key);
-    entries
+        .collect()
 }
 
 fn value(slot: Slot<'_>) -> EffectiveValue {

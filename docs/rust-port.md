@@ -273,6 +273,20 @@ not expect.
   the stderr decision now, and its test is half of `TestInvalidLogKeysReportOnStderr`.
 - **Phase 5, a license.** serde-saphyr's deserialize feature pulls in encoding_rs, whose license
   includes BSD-3-Clause; `deny.toml` allows it.
+- **Phase 6, the startup line.** tracing's macros name every field in the source, and the
+  effective-configuration line has one field per key of the key table (36 with the message), so
+  it has its own static callsite in `src/config/report.rs`, declared the way the macros declare
+  theirs. Sizes are logged in bytes, as Go's line did (a `Size` was an int64 there), and a list is
+  one text field, `[a b]`: Go's text handler wrote the same, while its JSON handler wrote an
+  array. That is row 1.
+- **Phase 6, the client IP middleware moves to phase 12.** `Middleware`, `FromContext`, `WithAddr`
+  and `PeerTrusted` store the derived client in the request, which belongs to the router; phase 6
+  ports `Deriver::derive`, which takes the peer as a `SocketAddr` and returns the address with
+  whether the peer is trusted. `TestMiddlewareStoresTheDerivedAddress` and
+  `TestFromContextWithoutTheMiddleware` move with it, and the derivation half of
+  `TestMiddlewareRecordsWhetherThePeerIsTrusted` is ported now. `TestDeriveUnparsablePeer` has no
+  Rust counterpart: the peer is a `SocketAddr` from the listener, never text, so it cannot fail to
+  parse. A `X-Forwarded-For` line that is not UTF-8 is a malformed chain and gives the peer.
 - **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
   started. The `cargo-machete` pre-commit hook builds its own; `zig` is first needed by phase 15.
 
@@ -283,9 +297,9 @@ Go package to Rust module, filled in by the phase that ports it.
 | Go | Rust | Phase |
 | --- | --- | --- |
 | `internal/config` | `src/config/`: `mod.rs` (`Config`, `Problem`, `EXIT_INVALID_CONFIG`), `load.rs` (`load`, `load_from`, `Loaded`, the environment), `raw.rs` (the raw tree, with each value's location), `decode.rs` (the key table and the walker), `types.rs` (`Size`, `Listen`, `Cidr`, `Origin`, `Warmup`), `validate.rs` (`validate`, `check`), `warn.rs`, `effective.rs`, `preset.rs`, `url.rs` (Go's `url.Parse`), `gofmt.rs`, `printable.rs` (Go's `IsPrint`). `ReportProblems`, `ReportWarnings` and `StderrLogger` move to phase 6 with the logger | 5 |
-| `internal/buildinfo` |  | 6 |
-| `internal/logger` |  | 6 |
-| `internal/clientip` |  | 6 |
+| `internal/buildinfo` | `src/buildinfo.rs` (`info`, `Build`, the `option_env!` stamps) | 6 |
+| `internal/logger` | `src/logger.rs` (`stdout`, `to_writer`, `stderr_text`, `text_to`, `parse_level`, `Format`, `LogError`); `ReportProblems`, `ReportWarnings` and the startup line in `src/config/report.rs` | 6 |
+| `internal/clientip` | `src/clientip.rs` (`address_class`, `suggested_label`, `version`, `Labeler`, `Rule`, `Deriver`, `Client`); the middleware and context helpers move to phase 12 | 6 |
 | `internal/ratelimit` |  | 7 |
 | `internal/metrics` |  | 8 |
 | `internal/handlers` |  | 9, 10 |
@@ -306,7 +320,7 @@ it did not port, with the reason.
 | Go | Rust | Phase |
 | --- | --- | --- |
 | `internal/config` | `src/config/tests/` (`load.rs`, `validate.rs`, `effective.rs`, `types.rs`); `TestReportProblems` and the reporting half of `TestInvalidLogKeysReportOnStderr` move to phase 6 | 5 |
-| `internal/buildinfo`, `internal/logger`, `internal/clientip` |  | 6 |
+| `internal/buildinfo`, `internal/logger`, `internal/clientip` | `src/buildinfo.rs`, `src/logger/tests.rs`, `src/clientip/tests.rs`; `TestReportProblems`, `TestInvalidLogKeysReportOnStderr` and the rendering half of `TestEffective` in `src/config/tests/report.rs`; the middleware tests move to phase 12 | 6 |
 | `internal/ratelimit` |  | 7 |
 | `internal/metrics` |  | 8 |
 | `internal/handlers` |  | 9, 10 |
