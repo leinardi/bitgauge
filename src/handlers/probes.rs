@@ -37,6 +37,17 @@ pub fn ping() -> Response<Body> {
     response
 }
 
+/// 200 with an empty body: `Content-Length: 0`, no `Content-Type` and no-store, the answer of
+/// the compatibility layers' pings, uploads and preflights (compatibility.md section 6).
+#[must_use]
+pub fn empty_ok() -> Response<Body> {
+    let mut response = Response::new(Body::empty());
+    let headers = response.headers_mut();
+    headers.insert(CACHE_CONTROL, NO_STORE);
+    headers.insert(CONTENT_LENGTH, HeaderValue::from_static("0"));
+    response
+}
+
 /// `GET /api/v1/small`: a one-byte body, the HTTP responsiveness probe target and the path B
 /// capability check.
 #[must_use]

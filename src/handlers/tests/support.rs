@@ -45,12 +45,12 @@ use crate::server::timeouts::Timeouts;
 use crate::test_support::dial_loopback;
 
 /// A transfer that counts nothing, for a test that does not look at the metrics.
-pub(super) fn no_transfer() -> Transfer {
+pub(crate) fn no_transfer() -> Transfer {
     Transfer::default()
 }
 
 /// The metrics of a test that looks at them, with the native API's transfer series.
-pub(super) fn meter() -> Metrics {
+pub(crate) fn meter() -> Metrics {
     Metrics::new(
         crate::buildinfo::info(),
         || 0,
@@ -59,7 +59,7 @@ pub(super) fn meter() -> Metrics {
 }
 
 /// A sample of the exposition: the value of the line `series` starts.
-pub(super) fn sample(meter: &Metrics, series: &str) -> String {
+pub(crate) fn sample(meter: &Metrics, series: &str) -> String {
     let exposition = meter.encode().expect("the exposition");
     exposition
         .lines()
@@ -67,13 +67,13 @@ pub(super) fn sample(meter: &Metrics, series: &str) -> String {
         .unwrap_or_default()
 }
 
-pub(super) fn api_transfer(meter: &Metrics, direction: Direction) -> Transfer {
+pub(crate) fn api_transfer(meter: &Metrics, direction: Direction) -> Transfer {
     meter.transfer(Group::Api, direction)
 }
 
 /// What a scripted frame is.
 #[derive(Debug, Clone, Copy)]
-pub(super) enum Outcome {
+pub(crate) enum Outcome {
     /// This many bytes.
     Data(usize),
     /// The client goes away: the body fails.
@@ -82,19 +82,19 @@ pub(super) enum Outcome {
 
 /// One scripted frame, arriving `at` after the body's start.
 #[derive(Debug, Clone, Copy)]
-pub(super) struct Arrival {
-    pub(super) at: Duration,
-    pub(super) outcome: Outcome,
+pub(crate) struct Arrival {
+    pub(crate) at: Duration,
+    pub(crate) outcome: Outcome,
 }
 
-pub(super) const fn data(at_ms: u64, size: usize) -> Arrival {
+pub(crate) const fn data(at_ms: u64, size: usize) -> Arrival {
     Arrival {
         at: Duration::from_millis(at_ms),
         outcome: Outcome::Data(size),
     }
 }
 
-pub(super) const fn gone(at_ms: u64) -> Arrival {
+pub(crate) const fn gone(at_ms: u64) -> Arrival {
     Arrival {
         at: Duration::from_millis(at_ms),
         outcome: Outcome::Gone,
@@ -104,7 +104,7 @@ pub(super) const fn gone(at_ms: u64) -> Arrival {
 /// A request body whose frames arrive at scripted instants of tokio's clock, each awaited by a
 /// sleep, so on a paused clock they arrive exactly then. It counts the frames handed out, and
 /// `stall` makes it wait forever once the script is done instead of ending.
-pub(super) struct ScriptedBody {
+pub(crate) struct ScriptedBody {
     start: Instant,
     arrivals: VecDeque<Arrival>,
     sleep: Option<Pin<Box<Sleep>>>,
@@ -113,7 +113,7 @@ pub(super) struct ScriptedBody {
 }
 
 impl ScriptedBody {
-    pub(super) fn new(start: Instant, arrivals: &[Arrival]) -> Self {
+    pub(crate) fn new(start: Instant, arrivals: &[Arrival]) -> Self {
         Self {
             start,
             arrivals: arrivals.iter().copied().collect(),
@@ -123,13 +123,13 @@ impl ScriptedBody {
         }
     }
 
-    pub(super) fn stalling(mut self) -> Self {
+    pub(crate) fn stalling(mut self) -> Self {
         self.stall = true;
         self
     }
 
     /// The count of frames handed out, which stays readable after the body is consumed.
-    pub(super) fn reads(&self) -> Arc<AtomicUsize> {
+    pub(crate) fn reads(&self) -> Arc<AtomicUsize> {
         Arc::clone(&self.reads)
     }
 }
@@ -166,7 +166,7 @@ impl HttpBody for ScriptedBody {
 }
 
 /// A body that fails the test if it is ever read.
-pub(super) struct UnreadBody;
+pub(crate) struct UnreadBody;
 
 impl HttpBody for UnreadBody {
     type Data = Bytes;
@@ -180,7 +180,7 @@ impl HttpBody for UnreadBody {
     }
 }
 
-pub(super) async fn body_bytes(response: Response<Body>) -> Bytes {
+pub(crate) async fn body_bytes(response: Response<Body>) -> Bytes {
     response
         .into_body()
         .collect()
@@ -189,7 +189,7 @@ pub(super) async fn body_bytes(response: Response<Body>) -> Bytes {
         .to_bytes()
 }
 
-pub(super) fn header<'response>(response: &'response Response<Body>, name: &str) -> &'response str {
+pub(crate) fn header<'response>(response: &'response Response<Body>, name: &str) -> &'response str {
     response
         .headers()
         .get(name)
@@ -198,7 +198,7 @@ pub(super) fn header<'response>(response: &'response Response<Body>, name: &str)
 
 /// Checks an error response, status, the JSON content type, no-store and the code with a
 /// message, and returns its envelope.
-pub(super) async fn envelope(
+pub(crate) async fn envelope(
     response: Response<Body>,
     status: StatusCode,
     code: &str,
@@ -219,13 +219,13 @@ pub(super) async fn envelope(
 }
 
 /// A loopback server running `router` on the real driver with the server's timeouts.
-pub(super) struct Loopback {
-    pub(super) address: SocketAddr,
+pub(crate) struct Loopback {
+    pub(crate) address: SocketAddr,
     lifecycle: Lifecycle,
 }
 
 impl Loopback {
-    pub(super) async fn start(router: axum::Router) -> Self {
+    pub(crate) async fn start(router: axum::Router) -> Self {
         let listener = TcpListener::bind("127.0.0.1:0").await.expect("a listener");
         let address = listener.local_addr().expect("an address");
         let lifecycle = Lifecycle::new();
@@ -245,7 +245,7 @@ impl Loopback {
         Self { address, lifecycle }
     }
 
-    pub(super) async fn connect(&self) -> TcpStream {
+    pub(crate) async fn connect(&self) -> TcpStream {
         dial_loopback(self.address).await
     }
 }
@@ -257,13 +257,13 @@ impl Drop for Loopback {
 }
 
 /// A response read off the wire: the head, lower-cased, and the body of its `Content-Length`.
-pub(super) struct WireResponse {
-    pub(super) head: String,
-    pub(super) body: Vec<u8>,
+pub(crate) struct WireResponse {
+    pub(crate) head: String,
+    pub(crate) body: Vec<u8>,
 }
 
 impl WireResponse {
-    pub(super) fn status(&self) -> u16 {
+    pub(crate) fn status(&self) -> u16 {
         self.head
             .split(' ')
             .nth(1)
@@ -272,7 +272,7 @@ impl WireResponse {
     }
 
     /// A header's value, by its lower-case name.
-    pub(super) fn header(&self, name: &str) -> Option<&str> {
+    pub(crate) fn header(&self, name: &str) -> Option<&str> {
         self.head.lines().find_map(|line| {
             let (key, value) = line.split_once(':')?;
             (key.trim() == name).then(|| value.trim())
@@ -281,7 +281,7 @@ impl WireResponse {
 }
 
 /// Reads one response with a `Content-Length` body.
-pub(super) async fn read_response(stream: &mut TcpStream) -> WireResponse {
+pub(crate) async fn read_response(stream: &mut TcpStream) -> WireResponse {
     let mut buffered = Vec::new();
     let mut chunk = vec![0; 64 * 1024];
     let head_end = loop {
@@ -310,6 +310,6 @@ pub(super) async fn read_response(stream: &mut TcpStream) -> WireResponse {
     response
 }
 
-pub(super) async fn send(stream: &mut TcpStream, bytes: &[u8]) {
+pub(crate) async fn send(stream: &mut TcpStream, bytes: &[u8]) {
     stream.write_all(bytes).await.expect("a write");
 }

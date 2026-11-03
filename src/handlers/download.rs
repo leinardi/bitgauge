@@ -19,12 +19,11 @@
 
 //! `GET /api/v1/download?bytes=N` (wire-protocol.md section 3.1).
 
-use std::borrow::Cow;
-
 use http::header::CONTENT_LENGTH;
 use http::{HeaderValue, Response, StatusCode};
 
 use super::envelope::{CODE_BAD_REQUEST, CODE_BYTES_OUT_OF_RANGE, Details, error_response};
+use super::query::query_value;
 use super::random::RandomSource;
 use super::{Body, OCTET_STREAM, set_type};
 use crate::metrics::Transfer;
@@ -82,57 +81,10 @@ enum Parsed {
     OutOfRange,
 }
 
-/// The first `bytes` parameter of a raw query, found as Go's `url.ParseQuery` would: pairs
-/// holding a semicolon or a malformed escape are skipped, and keys and values are
-/// percent-decoded, a plus as a space.
+/// The first `bytes` parameter of a raw query, found as Go's `url.ParseQuery` would.
 fn parse_bytes(raw_query: &str, max_bytes: u64) -> Parsed {
-    for pair in raw_query.split('&') {
-        if pair.is_empty() || pair.contains(';') {
-            continue;
-        }
-        let (raw_key, raw_value) = pair.split_once('=').unwrap_or((pair, ""));
-        let Some(key) = query_unescape(raw_key) else {
-            continue;
-        };
-        if *key != *BYTES_PARAM {
-            continue;
-        }
-        let Some(value) = query_unescape(raw_value) else {
-            continue;
-        };
-        return parse_count(&value, max_bytes);
-    }
-    Parsed::Invalid
-}
-
-/// Go's `url.QueryUnescape`: `%XX` decoded, `+` read as a space, and `None` for a malformed
-/// escape. A component without either is borrowed.
-fn query_unescape(component: &str) -> Option<Cow<'_, [u8]>> {
-    let bytes = component.as_bytes();
-    if !bytes.iter().any(|&byte| byte == b'%' || byte == b'+') {
-        return Some(Cow::Borrowed(bytes));
-    }
-    let mut decoded = Vec::with_capacity(bytes.len());
-    let mut index = 0;
-    while let Some(&byte) = bytes.get(index) {
-        match byte {
-            b'%' => {
-                let high = char::from(*bytes.get(index + 1)?).to_digit(16)?;
-                let low = char::from(*bytes.get(index + 2)?).to_digit(16)?;
-                decoded.push(u8::try_from(high << 4 | low).ok()?);
-                index += 3;
-            }
-            b'+' => {
-                decoded.push(b' ');
-                index += 1;
-            }
-            _ => {
-                decoded.push(byte);
-                index += 1;
-            }
-        }
-    }
-    Some(Cow::Owned(decoded))
+    query_value(raw_query, BYTES_PARAM)
+        .map_or(Parsed::Invalid, |value| parse_count(&value, max_bytes))
 }
 
 fn parse_count(value: &[u8], max_bytes: u64) -> Parsed {

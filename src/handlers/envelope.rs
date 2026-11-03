@@ -19,7 +19,7 @@
 
 //! The error envelope of wire-protocol.md section 7.
 
-use http::header::{CONNECTION, RETRY_AFTER};
+use http::header::{ALLOW, CONNECTION, RETRY_AFTER};
 use http::{HeaderValue, Response, StatusCode, Version};
 use serde::Serialize;
 
@@ -125,5 +125,21 @@ pub fn refuse(version: Version, refused: &LimitError, meter: &Metrics) -> Respon
         headers.insert(CONNECTION, HeaderValue::from_static("close"));
     }
     headers.insert(RETRY_AFTER, HeaderValue::from(refused.retry_after()));
+    response
+}
+
+/// The 405 of a method a route does not list: the envelope, with `allow`, the route's Allow
+/// value, as Go's routers answer it.
+#[must_use]
+pub fn method_not_allowed(allow: &'static str) -> Response<Body> {
+    let mut response = error_response(
+        StatusCode::METHOD_NOT_ALLOWED,
+        CODE_METHOD_NOT_ALLOWED,
+        "method not allowed",
+        None,
+    );
+    response
+        .headers_mut()
+        .insert(ALLOW, HeaderValue::from_static(allow));
     response
 }

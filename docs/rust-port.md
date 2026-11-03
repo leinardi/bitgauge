@@ -299,7 +299,8 @@ not expect.
   `TestRealClockAfterFunc` is not ported. A release is the permit's `Drop`, which runs exactly
   once, so Go's second call of one release in `TestConcurrencyLimitAndRelease` has no Rust
   spelling; an aborted transfer is a panic or a cancelled task, both in `release_on_abort`.
-- **Phase 7, the limiter middleware moves to phase 12.** `Middleware`, `FlowMiddleware` and
+- **Phase 7, the limiter middleware moves to phase 12** (it came in phase 11 instead, below).
+  `Middleware`, `FlowMiddleware` and
   `Refuse` write the 429 through the handlers' error envelope and wrap route groups, so they come
   with the router; `TestMiddlewareRefusesWith429BeforeReadingTheBody`,
   `TestMiddlewareReleasesOnPanic`, `TestRefuseLogsEveryTableFull`, `TestRefuseOtherErrorsAre500`
@@ -377,6 +378,30 @@ not expect.
   decoder reads them; a value echoed raw is not inspected. The Origin's host is compared with
   the request's ASCII-case-insensitively, where Go folds Unicode case; both are ASCII on the
   wire.
+- **Phase 11, the layers.** Each layer is a module of `src/compat/` with its route-table rows
+  (`ROWS`, a path, its methods and its Allow value) and a `routes` function returning an axum
+  `Router` that phase 12 merges under `server.base_path`. A path is routed with `any` and the
+  layer dispatches on the method, so `HEAD` is served only where a row lists it, as chi did,
+  rather than by axum's implicit `HEAD` on `GET`, and an unlisted method gets the envelope 405
+  with the row's Allow value. Go's `chi.Walk` checks become `assert_rows`, which sends every
+  method to every row. A `HEAD` that axum answers has no body, so a `HEAD` 405 or 429 is
+  checked by status and headers, as Go's tests did. LibreSpeed's `/getIP` body is a struct in
+  Go's field order (`rawIspInfo`, then `processedString`); the server list and the
+  networkQuality config are JSON maps, sorted as Go sorts a map's keys.
+- **Phase 11, the limit holds its slot through the body.** Go's middleware released the slot
+  when the handler returned, after it had written the body. A Rust handler returns before its
+  body streams, so `handlers::Limit` moves the permit into the response body, which hyper drops
+  when it is done (`a_download_holds_its_slot_until_its_body_is_done`). It and the shared
+  `refuse` came with the WebSocket and the layers, ahead of phase 12, so the Go middleware tests
+  came with them to `src/handlers/tests/limit.rs`:
+  `TestMiddlewareRefusesWith429BeforeReadingTheBody`,
+  `TestMiddlewareReleasesOnPanic`, `TestRefuseLogsEveryTableFull` and
+  `TestFlowMiddlewareTakesAFlowSlotNotAStream`. `TestRefuseOtherErrorsAre500` has no
+  counterpart: an acquisition fails only with a `LimitError`. A request without a `Client`
+  shares the budget of the unspecified address, as Go's zero address did. Phase 12 keeps the
+  route groups' wiring.
+- **Phase 11, the query.** `handlers::query_value` is Go's `URL.Query()[name][0]`, moved out
+  of the download handler so LibreSpeed's `ckSize` and `cors` read the same way.
 - **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
   started. The `cargo-machete` pre-commit hook builds its own; `zig` is first needed by phase 15.
 
@@ -390,12 +415,12 @@ Go package to Rust module, filled in by the phase that ports it.
 | `internal/buildinfo` | `src/buildinfo.rs` (`info`, `Build`, the `option_env!` stamps) | 6 |
 | `internal/logger` | `src/logger.rs` (`stdout`, `to_writer`, `stderr_text`, `text_to`, `parse_level`, `Format`, `LogError`); `ReportProblems`, `ReportWarnings` and the startup line in `src/config/report.rs` | 6 |
 | `internal/clientip` | `src/clientip.rs` (`address_class`, `suggested_label`, `version`, `Labeler`, `Rule`, `Deriver`, `Client`); the middleware and context helpers move to phase 12 | 6 |
-| `internal/ratelimit` | `src/ratelimit.rs` (`Limiter`, `Options`, `Permit`, `Limit`, `LimitError`, the codes); `Clock` and `TokioClock` in `src/clock.rs`; the middleware and `Refuse` move to phase 12 | 7 |
+| `internal/ratelimit` | `src/ratelimit.rs` (`Limiter`, `Options`, `Permit`, `Limit`, `LimitError`, the codes); `Clock` and `TokioClock` in `src/clock.rs`; the middleware and `Refuse` are `Limit` in `src/handlers/limit.rs` and `refuse` in `src/handlers/envelope.rs` (phases 10 and 11) | 7 |
 | `internal/metrics` | `src/metrics.rs` (`Metrics`, `Route`, `Transfer`), `src/metrics/labels.rs` (`Group`, `Direction`, `UNMATCHED`, the code slots), `src/metrics/endpoint.rs` (`encode`, `respond`, `CONTENT_TYPE`) | 8 |
 | `internal/handlers` | `src/handlers.rs` and `src/handlers/`: `random.rs` (`RandomSource`, `RandomBody`), `epoch.rs` (`Epoch`, `Grid`), `drain.rs` (`drain_body`, `DrainOptions`, `Abort`), `envelope.rs` (`error_response`, the codes), `json.rs` (Go's `json.Marshal` layout), `origin.rs` (`request_origin`, `valid_host`, `normalize_origin`), `download.rs`, `upload.rs`, `probes.rs` (`ping`, `small`), `info.rs` (`Info`), `ws.rs` and `ws/message.rs` (`WebSockets`, the strict message decode), `refuse` in `envelope.rs` (Go's `ratelimit.Refuse`); the routes move to phase 12 | 9, 10 |
-| `internal/compat/openspeedtest` |  | 11 |
-| `internal/compat/librespeed` |  | 11 |
-| `internal/compat/nq` |  | 11 |
+| `internal/compat/openspeedtest` | `src/compat/openspeedtest.rs` (`routes`, `Deps`, `ROWS`, the sizes and paths); `Row` in `src/compat.rs` | 11 |
+| `internal/compat/librespeed` | `src/compat/librespeed.rs` (`routes`, `Deps`, `ROWS`, `/getIP`, the server list), `src/compat/librespeed/cors.rs` | 11 |
+| `internal/compat/nq` | `src/compat/nq.rs` (`routes`, `Deps`, `ROWS`, the config) | 11 |
 | `internal/server` (`server.go` settings, `shutdown.go`) | `src/server/conn.rs` (`serve`, `drive`, `Lifecycle`, `Outcome`), `src/server/timeouts.rs` (`Timeouts`, `ConnState`, `ConnIo`), `src/server/framing.rs`, `src/server/upgrade.rs`, `src/server/signals.rs`, `src/server/mod.rs` (`finish_process`) | 4 |
 | `internal/server` (router, middleware) |  | 12 |
 | `web/embed*.go` |  | 12 |
@@ -411,10 +436,10 @@ it did not port, with the reason.
 | --- | --- | --- |
 | `internal/config` | `src/config/tests/` (`load.rs`, `validate.rs`, `effective.rs`, `types.rs`); `TestReportProblems` and the reporting half of `TestInvalidLogKeysReportOnStderr` move to phase 6 | 5 |
 | `internal/buildinfo`, `internal/logger`, `internal/clientip` | `src/buildinfo.rs`, `src/logger/tests.rs`, `src/clientip/tests.rs`; `TestReportProblems`, `TestInvalidLogKeysReportOnStderr` and the rendering half of `TestEffective` in `src/config/tests/report.rs`; the middleware tests move to phase 12 | 6 |
-| `internal/ratelimit` | `src/ratelimit/tests.rs`, `src/clock.rs`; the middleware tests move to phase 12 | 7 |
+| `internal/ratelimit` | `src/ratelimit/tests.rs`, `src/clock.rs`; the middleware tests in `src/handlers/tests/limit.rs` (phase 11) | 7 |
 | `internal/metrics` | `src/metrics/tests.rs`; the server's `/metrics` tests stay for phase 12 | 8 |
 | `internal/handlers` | `src/handlers/tests/` (`random.rs`, `epoch.rs`, `envelope.rs`, `json.rs`, `origin.rs`, `drain.rs`, `download.rs`, `probes.rs`, `upload.rs`, `info.rs`, `contract.rs`, `metrics.rs`, `loopback.rs`, `ws.rs`); the route tests move to phase 12 | 9, 10 |
-| `internal/compat/...` |  | 11 |
+| `internal/compat/...` | `src/compat/tests/` (`openspeedtest.rs`, `librespeed.rs`, `nq.rs`) | 11 |
 | `internal/server` |  | 12 |
 | `cmd/bitgauge` |  | 13 |
 | `test/docs`, `test/disturls`, `test/distdemo`, `test/chunksize`, `test/licenseheaders`, `test/toolchain`, `test/deployments`, `test/dockerfiles`, `test/boundary` |  | 16 |
