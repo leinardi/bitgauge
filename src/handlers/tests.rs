@@ -35,3 +35,4 @@ mod probes;
 mod random;
 mod support;
 mod upload;
+mod ws;

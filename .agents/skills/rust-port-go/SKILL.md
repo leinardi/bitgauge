@@ -194,6 +194,11 @@ bugs, never into a guess.
 - A per-test tracing `set_default` is thread-local and races the global callsite-interest cache
   → `current_thread` runtime, a global catch-all subscriber installed once, then
   `rebuild_interest_cache()`. Or inject the logger's sink and skip tracing. (3 of 40 runs lost)
+  The cause: while at most one dispatcher is registered, tracing-core 0.1.36 computes a new
+  callsite's interest from the *calling thread's* default, so a parallel test reaching the
+  callsite first with no subscriber caches it as never enabled. Keeping a second
+  `Dispatch::new(NoSubscriber::default())` alive for the test makes it ask every registered
+  dispatcher instead. (bitgauge ws logs: lost in every parallel run, none after)
 - A nil `[]string` and an empty one log alike in text (`[]`) but not in JSON (`null` against
   `[]`), and a `Vec` cannot tell them apart → a separate nil value kind. A `fmt.Stringer` goes
   through `json.Marshal` (its underlying type decides the shape), not slog's string escaper. (go

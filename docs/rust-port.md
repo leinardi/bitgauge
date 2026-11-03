@@ -349,7 +349,7 @@ not expect.
   checks that every frame is a slice of the shared buffer. `TestWriteErrorUnencodableDetailsAre500`
   cannot be written: `Details` holds JSON values, which always encode (the fallback body
   stays). Go's half-closed and chunked requests are one case each here: a request without
-  `Content-Length`. `TestWebSocketsAreCounted` moves to phase 10 with the WebSocket.
+  `Content-Length`. `TestWebSocketsAreCounted` moved to phase 10 with the WebSocket.
   `NormalizeOrigin` lower-cases a non-ASCII host with Rust's full case mapping, where Go maps
   one rune to one rune (U+0130, a final sigma); both sides of a comparison go through it.
 - **Phase 9, an abort writes nothing.** Go's handler panicked with `http.ErrAbortHandler` so
@@ -360,6 +360,23 @@ not expect.
   when dropped, so phase 12 must not build one for a `HEAD` on download.
 - **Phase 9, a license.** axum, axum-core and tower pull in sync_wrapper, which is Apache-2.0
   only; `deny.toml` allows it.
+- **Phase 10, the WebSocket.** `WebSockets::respond` checks the Origin (a plain 403), the
+  handshake (the 400 envelope with `Sec-WebSocket-Version: 13`) and the limiter (the shared
+  429 of `handlers::refuse`, which phase 12's limiter middleware reuses), then registers the
+  socket's task through phase 4's `spawn_socket_task` with the limiter permit as its guard
+  and returns the 101. The upgraded socket is tokio-tungstenite with a 256-byte message and
+  frame limit. A close the server starts waits up to 5 s for the client's close frame, as Go's
+  library does, and `cut` ends that wait; after a 1009 or a protocol error (1002) the socket
+  is dropped at once, since what follows on the wire cannot be read. Ping and pong control
+  frames do not restart the idle window, as in Go, where the library consumes them. Go's
+  `CloseAll` is the lifecycle's `stop` and `cut`, so `TestWebSocketCloseAll` and
+  `TestWebSocketCloseAllHonoursItsContext` become `stop_closes_every_socket_with_1001` and
+  `cut_ends_a_close_the_client_never_answers`. The idle test runs on the real clock with a
+  400 ms window; Go's check that one timer stays armed has no counterpart, since the window is
+  one `Sleep` reset per message. Duplicate keys are refused at the top level only, where the
+  decoder reads them; a value echoed raw is not inspected. The Origin's host is compared with
+  the request's ASCII-case-insensitively, where Go folds Unicode case; both are ASCII on the
+  wire.
 - **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
   started. The `cargo-machete` pre-commit hook builds its own; `zig` is first needed by phase 15.
 
@@ -375,7 +392,7 @@ Go package to Rust module, filled in by the phase that ports it.
 | `internal/clientip` | `src/clientip.rs` (`address_class`, `suggested_label`, `version`, `Labeler`, `Rule`, `Deriver`, `Client`); the middleware and context helpers move to phase 12 | 6 |
 | `internal/ratelimit` | `src/ratelimit.rs` (`Limiter`, `Options`, `Permit`, `Limit`, `LimitError`, the codes); `Clock` and `TokioClock` in `src/clock.rs`; the middleware and `Refuse` move to phase 12 | 7 |
 | `internal/metrics` | `src/metrics.rs` (`Metrics`, `Route`, `Transfer`), `src/metrics/labels.rs` (`Group`, `Direction`, `UNMATCHED`, the code slots), `src/metrics/endpoint.rs` (`encode`, `respond`, `CONTENT_TYPE`) | 8 |
-| `internal/handlers` | `src/handlers.rs` and `src/handlers/`: `random.rs` (`RandomSource`, `RandomBody`), `epoch.rs` (`Epoch`, `Grid`), `drain.rs` (`drain_body`, `DrainOptions`, `Abort`), `envelope.rs` (`error_response`, the codes), `json.rs` (Go's `json.Marshal` layout), `origin.rs` (`request_origin`, `valid_host`, `normalize_origin`), `download.rs`, `upload.rs`, `probes.rs` (`ping`, `small`), `info.rs` (`Info`); the routes move to phase 12 and the WebSocket to phase 10 | 9, 10 |
+| `internal/handlers` | `src/handlers.rs` and `src/handlers/`: `random.rs` (`RandomSource`, `RandomBody`), `epoch.rs` (`Epoch`, `Grid`), `drain.rs` (`drain_body`, `DrainOptions`, `Abort`), `envelope.rs` (`error_response`, the codes), `json.rs` (Go's `json.Marshal` layout), `origin.rs` (`request_origin`, `valid_host`, `normalize_origin`), `download.rs`, `upload.rs`, `probes.rs` (`ping`, `small`), `info.rs` (`Info`), `ws.rs` and `ws/message.rs` (`WebSockets`, the strict message decode), `refuse` in `envelope.rs` (Go's `ratelimit.Refuse`); the routes move to phase 12 | 9, 10 |
 | `internal/compat/openspeedtest` |  | 11 |
 | `internal/compat/librespeed` |  | 11 |
 | `internal/compat/nq` |  | 11 |
@@ -396,7 +413,7 @@ it did not port, with the reason.
 | `internal/buildinfo`, `internal/logger`, `internal/clientip` | `src/buildinfo.rs`, `src/logger/tests.rs`, `src/clientip/tests.rs`; `TestReportProblems`, `TestInvalidLogKeysReportOnStderr` and the rendering half of `TestEffective` in `src/config/tests/report.rs`; the middleware tests move to phase 12 | 6 |
 | `internal/ratelimit` | `src/ratelimit/tests.rs`, `src/clock.rs`; the middleware tests move to phase 12 | 7 |
 | `internal/metrics` | `src/metrics/tests.rs`; the server's `/metrics` tests stay for phase 12 | 8 |
-| `internal/handlers` | `src/handlers/tests/` (`random.rs`, `epoch.rs`, `envelope.rs`, `json.rs`, `origin.rs`, `drain.rs`, `download.rs`, `probes.rs`, `upload.rs`, `info.rs`, `contract.rs`, `metrics.rs`, `loopback.rs`); the route tests move to phase 12 and the WebSocket tests to phase 10 | 9, 10 |
+| `internal/handlers` | `src/handlers/tests/` (`random.rs`, `epoch.rs`, `envelope.rs`, `json.rs`, `origin.rs`, `drain.rs`, `download.rs`, `probes.rs`, `upload.rs`, `info.rs`, `contract.rs`, `metrics.rs`, `loopback.rs`, `ws.rs`); the route tests move to phase 12 | 9, 10 |
 | `internal/compat/...` |  | 11 |
 | `internal/server` |  | 12 |
 | `cmd/bitgauge` |  | 13 |

@@ -38,6 +38,7 @@ mod origin;
 mod probes;
 mod random;
 mod upload;
+mod ws;
 
 pub use download::download;
 pub use drain::{Abort, DrainOptions, LifetimeExceeded, drain_body};
@@ -45,7 +46,7 @@ pub use envelope::{
     CODE_BAD_REQUEST, CODE_BYTES_OUT_OF_RANGE, CODE_INTERNAL, CODE_LENGTH_REQUIRED,
     CODE_METHOD_NOT_ALLOWED, CODE_NOT_FOUND, CODE_PAYLOAD_TOO_LARGE, CODE_PUBLIC_URL_REQUIRED,
     CODE_RATE_LIMITED, CODE_REQUEST_TIMEOUT, CODE_TABLE_FULL, CODE_TOO_MANY_STREAMS, Details,
-    error_response,
+    error_response, refuse,
 };
 pub use epoch::{BUCKET_MS, Epoch, Grid};
 pub use info::Info;
@@ -54,6 +55,7 @@ pub use origin::{RequestOrigin, normalize_origin, request_origin, valid_host};
 pub use probes::{ping, small};
 pub use random::{BUFFER_SIZE, MAX_FRAME, RandomBody, RandomError, RandomSource};
 pub use upload::upload;
+pub use ws::{IDLE as WEBSOCKET_IDLE, READ_LIMIT as WEBSOCKET_READ_LIMIT, WebSockets};
 
 /// The path the native API is mounted at, under `server.base_path`.
 pub const PREFIX: &str = "/api/v1";

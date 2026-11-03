@@ -82,6 +82,8 @@ path = "src/main.rs"
 # The router (phase 12) and the handlers' request and response body.
 axum = { version = "0.8.9", default-features = false }
 bytes = "1.12.1"
+# The WebSocket's stream and sink.
+futures-util = { version = "0.3.34", default-features = false, features = ["sink", "std"] }
 # The random buffer and the epoch, read once at startup.
 getrandom = "0.4.3"
 http = "1.5.0"
@@ -98,9 +100,11 @@ pin-project-lite = "0.2.17"
 prometheus-client = { version = "0.25.1", default-features = false }
 serde = { version = "1.0.228", default-features = false, features = ["derive", "std"] }
 # The JSON bodies, written through a formatter that matches encoding/json.
-serde_json = { version = "1.0.154", default-features = false, features = ["std"] }
+serde_json = { version = "1.0.154", default-features = false, features = ["raw_value", "std"] }
 serde-saphyr = { version = "2.0.0", default-features = false, features = ["deserialize"] }
 thiserror = "2.0.18"
+# The WebSocket echo on hyper's upgraded connection; the handshake is checked by hand.
+tokio-tungstenite = { version = "0.30.0", default-features = false, features = ["handshake"] }
 tokio = { version = "1.54.1", default-features = false, features = [
     "macros",
     "net",
@@ -116,7 +120,6 @@ tracing = { version = "0.1.44", default-features = false, features = ["std"] }
 tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "json", "std"] }
 
 [dev-dependencies]
-futures-util = { version = "0.3.34", default-features = false, features = ["sink", "std"] }
 # The second-signal test sends its child the signals.
 nix = { version = "0.30.1", default-features = false, features = ["process", "signal"] }
 # The paused clock (start_paused) and the test I/O.
@@ -130,8 +133,6 @@ tokio = { version = "1.54.1", default-features = false, features = [
     "test-util",
     "time",
 ] }
-# The test-only echo service's WebSocket, until the real one is ported (phase 10).
-tokio-tungstenite = { version = "0.30.0", default-features = false, features = ["handshake"] }
 
 # A second signal ends the process: a child process with the signals blocked in its only thread,
 # so a plain main rather than libtest's threads.

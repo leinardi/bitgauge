@@ -19,11 +19,13 @@
 
 //! The error envelope of wire-protocol.md section 7.
 
-use http::{Response, StatusCode};
+use http::header::{CONNECTION, RETRY_AFTER};
+use http::{HeaderValue, Response, StatusCode, Version};
 use serde::Serialize;
 
 use super::{Body, JSON_TYPE, set_type};
-use crate::ratelimit;
+use crate::metrics::Metrics;
+use crate::ratelimit::{self, Limit, LimitError};
 
 /// A malformed request.
 pub const CODE_BAD_REQUEST: &str = "bad_request";
@@ -97,5 +99,31 @@ pub fn error_response(
     let mut response = Response::new(body);
     *response.status_mut() = status;
     set_type(response.headers_mut(), JSON_TYPE);
+    response
+}
+
+/// The 429 of a refused acquisition: counted, the table-full case logged, `Retry-After` set,
+/// and `Connection: close` on HTTP/1.x, as Go's `ratelimit.Refuse` answers.
+#[must_use]
+pub fn refuse(version: Version, refused: &LimitError, meter: &Metrics) -> Response<Body> {
+    meter.refused(refused.limit());
+    if refused.limit() == Limit::TableFull {
+        // Every refusal is counted; this one is also logged (configuration-security.md section
+        // 5), and the line names no client, since client IPs are logged at debug only.
+        tracing::warn!(
+            "rate-limit table full: every tracked client has active work; refusing a new client"
+        );
+    }
+    let mut response = error_response(
+        StatusCode::TOO_MANY_REQUESTS,
+        refused.code(),
+        &refused.to_string(),
+        None,
+    );
+    let headers = response.headers_mut();
+    if version <= Version::HTTP_11 {
+        headers.insert(CONNECTION, HeaderValue::from_static("close"));
+    }
+    headers.insert(RETRY_AFTER, HeaderValue::from(refused.retry_after()));
     response
 }

@@ -92,7 +92,7 @@ pub fn request_origin<B>(request: &Request<B>, public_url: &str, base_path: &str
 
 /// The request's host: the authority of an absolute-form target without its userinfo, as Go's
 /// `URL.Host`, else the `Host` header.
-fn request_host<B>(request: &Request<B>) -> &str {
+pub(super) fn request_host<B>(request: &Request<B>) -> &str {
     request.uri().authority().map_or_else(
         || {
             request
