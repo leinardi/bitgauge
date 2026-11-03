@@ -1,0 +1,5 @@
+# The wire corpus: the smallest request rate and transfer caps.
+limits:
+  requests_per_minute: 60
+  max_download_bytes: 64KiB
+  max_upload_bytes: 64KiB

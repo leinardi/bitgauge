@@ -302,7 +302,9 @@ lifetime, still fall in a bucket.
 
   > **Rust implementation (from the cutover):** no format is negotiated: the response is always
   > OpenMetrics text (`application/openmetrics-text; version=1.0.0; charset=utf-8`), whatever `Accept`
-  > says, never compressed, with the same two headers.
+  > says, never compressed, with the same two headers. Nothing varies with `Accept`, so there is
+  > no `Vary: Accept`, and the exposition goes out as one body with its `Content-Length` rather
+  > than chunked.
   > ([rust-port.md](../../rust-port.md#intended-differences-from-go), row 5.)
 - The endpoint is not rate-limited and not counted by any limit.
 - A failure to gather the metrics answers `500` (`HTTPErrorOnError`) and is logged at `warn`

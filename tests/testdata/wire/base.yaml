@@ -1,0 +1,15 @@
+# The wire corpus: every route under a base path.
+server:
+  display_name: Wire Corpus
+  base_path: /speed
+  public_url: https://speed.example.org
+compat:
+  openspeedtest:
+    enabled: true
+  librespeed:
+    enabled: true
+  networkquality:
+    enabled: true
+metrics:
+  enabled: true
+  path: /stats

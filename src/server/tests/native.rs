@@ -59,6 +59,13 @@ async fn routes_serve_the_native_api() {
     ] {
         let reply = stack.call(method.clone(), path, None).await;
         assert_eq!(reply.status, status, "{method} {path}");
+        // RFC 9110 forbids Content-Length on a 204, and Go sent none, on HEAD as on GET.
+        if status == StatusCode::NO_CONTENT {
+            assert!(
+                !reply.headers.contains_key("content-length"),
+                "{method} {path}"
+            );
+        }
     }
 }
 

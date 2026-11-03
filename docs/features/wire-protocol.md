@@ -356,7 +356,9 @@ Limits are per client IP (§1) and held in a bounded in-memory table
 
   > **Rust implementation (from the cutover):** the response is OpenMetrics text only, whatever
   > `Accept` says, without the Go runtime and process metrics; `bitgauge_build_info` has no
-  > `goversion` label. Family names, types, labels and buckets are kept.
+  > `goversion` label. Since nothing varies with `Accept`, the response has no `Vary: Accept`, and
+  > it is sent with a `Content-Length` rather than chunked. Family names, types, labels and buckets
+  > are kept.
   > ([rust-port.md](../rust-port.md#intended-differences-from-go), row 5.)
 - Exposes server-side counters only: requests and bytes per route group, active streams, client
   aborts, rate-limit rejections, upload lifetime timeouts, WebSocket connections, build

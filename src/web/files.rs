@@ -93,16 +93,18 @@ pub(super) fn serve_file(
         }
         None => ranged(headers, content),
     };
-    let served = matches!(
-        response.status(),
-        StatusCode::OK | StatusCode::PARTIAL_CONTENT
-    );
+    let status = response.status();
+    let served = matches!(status, StatusCode::OK | StatusCode::PARTIAL_CONTENT);
     let response_headers = response.headers_mut();
     if served {
         let content_type = content_type.unwrap_or_else(|| type_of(name));
         response_headers.insert(CONTENT_TYPE, HeaderValue::from_static(content_type));
     }
-    response_headers.insert(CACHE_CONTROL, HeaderValue::from_static(cache));
+    // Go's ServeContent drops the caching headers from the error it writes for a range, but
+    // keeps them on a 304 or 412, which it writes itself.
+    if status != StatusCode::RANGE_NOT_SATISFIABLE {
+        response_headers.insert(CACHE_CONTROL, HeaderValue::from_static(cache));
+    }
     response
 }
 

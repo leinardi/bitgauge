@@ -1,0 +1,3 @@
+# The wire corpus: the defaults, with no layer and no metrics endpoint.
+server:
+  display_name: Wire Corpus

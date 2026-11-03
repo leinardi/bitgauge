@@ -189,7 +189,7 @@ note.
 | 2 | **CLI:** `--config` only (dash-prefixed values allowed); single-dash long forms refused (exit 2); help on stdout. | backend.md §1, §6; configuration.md §1 |
 | 3 | **Durations:** jiff's friendly syntax; Go-only forms (`1µs`, `.5s`) may differ, and `1 minute` is now accepted. | configuration.md §1 |
 | 4 | **Config problem wording:** library-originated texts are Rust's; our own rule texts are kept. | configuration-security.md §1–§2 |
-| 5 | **`/metrics`:** OpenMetrics only; no `go_*` or `process_*`; `bitgauge_build_info{version,commit}` without `goversion`. Family names, types, labels and buckets are kept. | backend.md §7; wire-protocol.md (metrics); api/openapi.yaml; testing.md §1 |
+| 5 | **`/metrics`:** OpenMetrics only, so no `Vary: Accept`, sent with a `Content-Length` rather than chunked; no `go_*` or `process_*`; `bitgauge_build_info{version,commit}` without `goversion`. Family names, types, labels and buckets are kept. | backend.md §7; wire-protocol.md (metrics); api/openapi.yaml; testing.md §1 |
 | 6 | **Malformed requests:** hyper's empty-body 400, 414 and 431; at most 100 headers; an exact 16 KiB header limit. An unsupported `Transfer-Encoding` or HTTP version is a 400 (Go: 501, 505); a malformed `Host` is not rejected before routing. | wire-protocol.md §7; backend.md §3, §5 |
 | 7 | **Stall rule:** 30 s without progress on any write, for every response and upgraded socket. | backend.md §2.1, §5; testing.md §1; edge-cases.md |
 | 8 | **Transfer bytes:** counted when handed to hyper, up to about 400 KB ahead of the socket. | backend.md §7 |
@@ -478,6 +478,44 @@ not expect.
 - **Phase 13, the make targets.** `make rust-bin` builds the release binary after the web build,
   `make rust-run` serves it as `make run` serves Go's, and `make e2e BIN=<path>` runs Playwright
   against a prebuilt binary instead of building the Go one.
+- **Phase 14, the wire corpus.** `tests/testdata/wire/<profile>.json` is what the Go binary
+  answered to 315 requests on five profiles (`default`, `layers`, `base`, `streams`, `rate`, each
+  with its `<profile>.yaml`): every route with each layer on and off, CORS, preflights and
+  `Origin`, `HEAD` and 405, `base_path`, the stream, flow, WebSocket and rate limits, the caps and
+  the metrics headers. A throwaway Go program sent each case's exact request bytes to a Go binary
+  built from a copy of the tree whose `web/dist` was `tests/testdata/wire/spa`, ran every profile
+  twice, and recorded what differed between the runs (random bodies, the epoch, the telemetry's
+  timing) as volatile; the build stamps of `/api/v1/info` and the upload timing were marked
+  volatile by hand. `tests/wire.rs` replays the corpus against the Rust server in process and
+  fails on any difference `ALLOWED` does not list with its row (5, 6 and 12), and on an allowed
+  one that no longer occurs. The corpus outlives the cutover as the API contract test: from then
+  on a deliberate change to an answer edits the corpus by hand, in the commit that changes the
+  spec.
+- **Phase 14, the statuses.** The corpus has every status Go answered to it: 101, 200, 204, 206,
+  304, 400, 403, 404, 405, 411, 412, 413, 416, 429, 431, 501 and 505 (the last two are hyper's
+  400, row 6). Three are not in it: 408, because the upload lifetime is a fixed 120 s and the head
+  deadline 10 s, too long for a contract test (`src/server/tests.rs` and the upload tests cover
+  both on a paused clock or a short timeout); 500, because no route panics (the recovery is
+  tested with a panicking route in `src/server/tests/middleware.rs`); and 414, because a long
+  target answers 431 in both, the request line counting against the 16 KiB head.
+- **Phase 14, timing in the replay.** An open request (the upload that holds the only stream) is
+  followed by a probe sent until it answers 429, in the capture and the replay alike, so the next
+  case never races the server taking the stream. The rate profile's 429s come from a real-clock
+  bucket that refills continuously, a token a second at 60 requests a minute, so a refill can land
+  anywhere in the run: where Go answered the `rate_limited` 429, the replay accepts a 200 by
+  spending one token of a budget of one more than the whole seconds since the server started,
+  in a repeated case and in a single one alike, and compares a repeated case on its last answer
+  with the recorded status. Every other status matches exactly. A 1.1 s pause before the last two
+  cases, forcing a refill, was checked to pass. A server start that loses its released port to
+  another socket is retried on a new one.
+- **Phase 14, the defects it found,** each fixed here with a unit test: a `Connection: close`
+  request got the LibreSpeed `/empty` handler's `keep-alive` with hyper's `close` appended, where
+  Go replaced it, so the middleware drops a handler's `Connection` value on a closing connection;
+  a `HEAD` 204 carried the `Content-Length: 0` axum sets from the empty body, which RFC 9110
+  forbids and Go never sent; and a 416 kept the file's `Cache-Control`, which Go's `ServeContent`
+  drops from its errors (it keeps it on a 304 or 412). Row 5 now names two consequences of
+  serving OpenMetrics only that the corpus showed: no `Vary: Accept`, and a `Content-Length`
+  rather than chunking.
 - **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
   started. The `cargo-machete` pre-commit hook builds its own; `zig` is first needed by phase 15.
 
@@ -519,5 +557,6 @@ it did not port, with the reason.
 | `internal/server` | `src/server/tests/` (`router.rs`, `native.rs`, `headers.rs`, `middleware.rs`, `metrics.rs`, `layers.rs`, `shutdown.rs`, with the whole stack in `stack.rs`); the handlers' route tests in `native.rs` and the client IP middleware tests in `middleware.rs`; the shutdown cases on the echo service in `src/server/tests.rs` (phase 4) | 4, 12 |
 | `web` | `src/web/tests.rs` | 12 |
 | `cmd/bitgauge` | `TestParseArgs` in the `src/cli.rs` tests; `TestHealthcheckAddress` and `TestHealthcheckExitCodes` in `src/healthcheck/tests.rs`; `TestServeExitsTwoOnInvalidConfig` in `src/command/tests.rs` and `tests/cli.rs`; `TestServeAndHealthcheck`, `TestServeExitsOneWithoutTheSPA` and `TestCompatibilityLayersOnTheStartupLine` in `src/command/tests.rs`; the process-mode startup and its signals in `tests/process_mode.rs`; `TestMain` is Cargo's binary build | 13 |
+| (the Go binary) | `tests/wire.rs` replays the Go binary's recorded answers (`tests/testdata/wire/`) | 14 |
 | `test/docs`, `test/disturls`, `test/distdemo`, `test/chunksize`, `test/licenseheaders`, `test/toolchain`, `test/deployments`, `test/dockerfiles`, `test/boundary` |  | 16 |
 | `test/internal/...`, `test/image`, `test/harness` |  | 17 |

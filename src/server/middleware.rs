@@ -41,8 +41,8 @@ use axum::extract::{MatchedPath, Request};
 use axum::middleware::Next;
 use bytes::Bytes;
 use futures_util::FutureExt as _;
-use http::header::CACHE_CONTROL;
-use http::{Method, Response, StatusCode};
+use http::header::{CACHE_CONTROL, CONNECTION, CONTENT_LENGTH};
+use http::{HeaderMap, Method, Response, StatusCode};
 use http_body::{Body as HttpBody, Frame, SizeHint};
 use tokio::time::Instant;
 use tower_service::Service;
@@ -183,6 +183,7 @@ where
             let host = request_host(&request).to_owned();
             let client = client_ip(&shared.deriver, &mut request);
             let method = request.method().clone();
+            let closing = lists_close(request.headers());
             let answer = AssertUnwindSafe(router.call(request)).catch_unwind().await;
             let (mut response, panicked) = match answer {
                 Ok(Ok(response)) => (response, false),
@@ -190,6 +191,8 @@ where
                 Err(panic) => (recovered(&*panic, group, &slot), true),
             };
             set_headers(response.headers_mut(), group, &host);
+            let answered = response.status();
+            framing(response.headers_mut(), answered, closing);
             let status =
                 (response.extensions().get::<Abort>().is_none()).then(|| response.status());
             let observation = Observation {
@@ -210,6 +213,29 @@ where
                 })
             }))
         })
+    }
+}
+
+/// Whether a `Connection` header lists `close`.
+fn lists_close(headers: &HeaderMap) -> bool {
+    headers.get_all(CONNECTION).iter().any(|value| {
+        value.to_str().is_ok_and(|list| {
+            list.split(',')
+                .any(|token| token.trim().eq_ignore_ascii_case("close"))
+        })
+    })
+}
+
+/// The framing headers as Go's server wrote them. A connection that closes after the reply
+/// says only `close`: Go replaced a handler's `Connection` header with it, where hyper appends
+/// its own. A 204 has no `Content-Length`, which RFC 9110 forbids there and axum sets from the
+/// empty body.
+fn framing(headers: &mut HeaderMap, status: StatusCode, closing: bool) {
+    if closing && !lists_close(headers) {
+        headers.remove(CONNECTION);
+    }
+    if status == StatusCode::NO_CONTENT {
+        headers.remove(CONTENT_LENGTH);
     }
 }
 

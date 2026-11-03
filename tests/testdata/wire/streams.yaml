@@ -1,0 +1,13 @@
+# The wire corpus: one stream and one networkQuality flow per client.
+server:
+  public_url: https://speed.example.org
+limits:
+  max_streams_per_client: 1
+test_defaults:
+  streams:
+    max: 1
+    fixed: 1
+compat:
+  networkquality:
+    enabled: true
+    max_flows_per_client: 1

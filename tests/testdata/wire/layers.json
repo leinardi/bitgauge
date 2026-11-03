@@ -1,0 +1,2397 @@
+{
+  "profile": "layers",
+  "config": "layers.yaml",
+  "cases": [
+    {
+      "name": "openspeedtest download",
+      "request": "GET /downloading HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "head",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "*"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "31457280"
+          ],
+          [
+            "content-type",
+            "application/octet-stream"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "none",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "openspeedtest download HEAD",
+      "request": "HEAD /downloading HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "*"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "31457280"
+          ],
+          [
+            "content-type",
+            "application/octet-stream"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "openspeedtest download preflight",
+      "request": "OPTIONS /downloading HTTP/1.1\r\nHost: bitgauge.test\r\nOrigin: https://elsewhere.example\r\nAccess-Control-Request-Method: GET\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "*"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "openspeedtest download POST",
+      "request": "POST /downloading HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 405,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "*"
+          ],
+          [
+            "allow",
+            "GET, HEAD, OPTIONS"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "70"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "error": {
+              "code": "method_not_allowed",
+              "message": "method not allowed"
+            }
+          },
+          "length": 70
+        }
+      }
+    },
+    {
+      "name": "openspeedtest upload ping",
+      "request": "GET /upload HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "*"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "openspeedtest upload ping HEAD",
+      "request": "HEAD /upload HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "*"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "openspeedtest upload",
+      "request": "POST /upload HTTP/1.1\r\nHost: bitgauge.test\r\nContent-Length: 1000\r\nConnection: close\r\n\r\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "*"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "openspeedtest upload preflight",
+      "request": "OPTIONS /upload HTTP/1.1\r\nHost: bitgauge.test\r\nOrigin: https://elsewhere.example\r\nAccess-Control-Request-Method: POST\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "*"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "openspeedtest upload PUT",
+      "request": "PUT /upload HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 405,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "*"
+          ],
+          [
+            "allow",
+            "GET, HEAD, POST, OPTIONS"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "70"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "error": {
+              "code": "method_not_allowed",
+              "message": "method not allowed"
+            }
+          },
+          "length": 70
+        }
+      }
+    },
+    {
+      "name": "librespeed garbage",
+      "request": "GET /garbage.php?ckSize=1 HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "1048576"
+          ],
+          [
+            "content-type",
+            "application/octet-stream"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "bytes",
+          "length": 1048576
+        }
+      }
+    },
+    {
+      "name": "librespeed garbage backend",
+      "request": "GET /backend/garbage?ckSize=1 HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "1048576"
+          ],
+          [
+            "content-type",
+            "application/octet-stream"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "bytes",
+          "length": 1048576
+        }
+      }
+    },
+    {
+      "name": "librespeed garbage cors",
+      "request": "GET /garbage.php?ckSize=1\u0026cors=true HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Encoding, Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST"
+          ],
+          [
+            "access-control-allow-origin",
+            "*"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "1048576"
+          ],
+          [
+            "content-type",
+            "application/octet-stream"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "bytes",
+          "length": 1048576
+        }
+      }
+    },
+    {
+      "name": "librespeed garbage zero",
+      "request": "GET /garbage.php?ckSize=0 HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "78"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "error": {
+              "code": "bad_request",
+              "message": "ckSize must be a positive integer"
+            }
+          },
+          "length": 78
+        }
+      }
+    },
+    {
+      "name": "librespeed garbage not a number",
+      "request": "GET /garbage.php?ckSize=x HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "78"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "error": {
+              "code": "bad_request",
+              "message": "ckSize must be a positive integer"
+            }
+          },
+          "length": 78
+        }
+      }
+    },
+    {
+      "name": "librespeed garbage without size",
+      "request": "GET /garbage.php HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "head",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "4194304"
+          ],
+          [
+            "content-type",
+            "application/octet-stream"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "none",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "librespeed garbage preflight",
+      "request": "OPTIONS /garbage.php HTTP/1.1\r\nHost: bitgauge.test\r\nOrigin: https://elsewhere.example\r\nAccess-Control-Request-Method: GET\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Encoding, Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST"
+          ],
+          [
+            "access-control-allow-origin",
+            "*"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "librespeed garbage POST",
+      "request": "POST /garbage.php HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 405,
+        "headers": [
+          [
+            "allow",
+            "GET, OPTIONS"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "70"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "error": {
+              "code": "method_not_allowed",
+              "message": "method not allowed"
+            }
+          },
+          "length": 70
+        }
+      }
+    },
+    {
+      "name": "librespeed empty",
+      "request": "GET /empty.php HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "librespeed empty cors",
+      "request": "GET /backend/empty.php?cors=true HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Encoding, Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST"
+          ],
+          [
+            "access-control-allow-origin",
+            "*"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "librespeed empty upload",
+      "request": "POST /empty.php HTTP/1.1\r\nHost: bitgauge.test\r\nContent-Length: 1000\r\nConnection: close\r\n\r\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "librespeed empty upload chunked",
+      "request": "POST /empty.php HTTP/1.1\r\nHost: bitgauge.test\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n64\r\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n0\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "librespeed empty preflight",
+      "request": "OPTIONS /empty.php HTTP/1.1\r\nHost: bitgauge.test\r\nOrigin: https://elsewhere.example\r\nAccess-Control-Request-Method: POST\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Encoding, Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST"
+          ],
+          [
+            "access-control-allow-origin",
+            "*"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "librespeed empty PUT",
+      "request": "PUT /empty.php HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 405,
+        "headers": [
+          [
+            "allow",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "70"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "error": {
+              "code": "method_not_allowed",
+              "message": "method not allowed"
+            }
+          },
+          "length": 70
+        }
+      }
+    },
+    {
+      "name": "librespeed getIP",
+      "request": "GET /getIP.php HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "71"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "processedString": "127.0.0.1 - localhost IPv4 access",
+            "rawIspInfo": {}
+          },
+          "length": 71
+        }
+      }
+    },
+    {
+      "name": "librespeed getIP isp",
+      "request": "GET /backend/getIP.php?isp=true HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "71"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "processedString": "127.0.0.1 - localhost IPv4 access",
+            "rawIspInfo": {}
+          },
+          "length": 71
+        }
+      }
+    },
+    {
+      "name": "librespeed getIP cors",
+      "request": "GET /getIP?cors=true HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "71"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "processedString": "127.0.0.1 - localhost IPv4 access",
+            "rawIspInfo": {}
+          },
+          "length": 71
+        }
+      }
+    },
+    {
+      "name": "librespeed getIP POST",
+      "request": "POST /getIP HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 405,
+        "headers": [
+          [
+            "allow",
+            "GET, OPTIONS"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "70"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "error": {
+              "code": "method_not_allowed",
+              "message": "method not allowed"
+            }
+          },
+          "length": 70
+        }
+      }
+    },
+    {
+      "name": "librespeed well-known",
+      "request": "GET /.well-known/librespeed HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "140"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": [
+            {
+              "dlURL": "garbage",
+              "getIpURL": "getIP",
+              "id": 1,
+              "name": "Wire Corpus",
+              "pingURL": "empty",
+              "server": "https://speed.example.org/",
+              "ulURL": "empty"
+            }
+          ],
+          "length": 140
+        }
+      }
+    },
+    {
+      "name": "librespeed well-known HEAD",
+      "request": "HEAD /.well-known/librespeed HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 405,
+        "headers": [
+          [
+            "allow",
+            "GET"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "70"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "networkquality config",
+      "request": "GET /nq/config HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "374"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "urls": {
+              "https_upload_url": "https://speed.example.org/nq/upload",
+              "large_download_url": "https://speed.example.org/nq/large",
+              "large_https_download_url": "https://speed.example.org/nq/large",
+              "small_download_url": "https://speed.example.org/nq/small",
+              "small_https_download_url": "https://speed.example.org/nq/small",
+              "upload_url": "https://speed.example.org/nq/upload"
+            },
+            "version": 1
+          },
+          "length": 374
+        }
+      }
+    },
+    {
+      "name": "networkquality well-known",
+      "request": "GET /.well-known/nq HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "374"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "urls": {
+              "https_upload_url": "https://speed.example.org/nq/upload",
+              "large_download_url": "https://speed.example.org/nq/large",
+              "large_https_download_url": "https://speed.example.org/nq/large",
+              "small_download_url": "https://speed.example.org/nq/small",
+              "small_https_download_url": "https://speed.example.org/nq/small",
+              "upload_url": "https://speed.example.org/nq/upload"
+            },
+            "version": 1
+          },
+          "length": 374
+        }
+      }
+    },
+    {
+      "name": "networkquality config POST",
+      "request": "POST /nq/config HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 405,
+        "headers": [
+          [
+            "allow",
+            "GET"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "70"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "error": {
+              "code": "method_not_allowed",
+              "message": "method not allowed"
+            }
+          },
+          "length": 70
+        }
+      }
+    },
+    {
+      "name": "networkquality small",
+      "request": "GET /nq/small HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "1"
+          ],
+          [
+            "content-type",
+            "application/octet-stream"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "text",
+          "text": "0",
+          "length": 1
+        }
+      }
+    },
+    {
+      "name": "networkquality large",
+      "request": "GET /nq/large HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "head",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "8589934592"
+          ],
+          [
+            "content-type",
+            "application/octet-stream"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "none",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "networkquality large HEAD",
+      "request": "HEAD /nq/large HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 405,
+        "headers": [
+          [
+            "allow",
+            "GET"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "70"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "networkquality upload",
+      "request": "POST /nq/upload HTTP/1.1\r\nHost: bitgauge.test\r\nContent-Length: 1000\r\nConnection: close\r\n\r\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "networkquality upload chunked",
+      "request": "POST /nq/upload HTTP/1.1\r\nHost: bitgauge.test\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n64\r\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n0\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "networkquality upload",
+      "request": "GET /nq/upload HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 405,
+        "headers": [
+          [
+            "allow",
+            "POST"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "70"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "error": {
+              "code": "method_not_allowed",
+              "message": "method not allowed"
+            }
+          },
+          "length": 70
+        }
+      }
+    },
+    {
+      "name": "cors info allowed",
+      "request": "GET /api/v1/ping HTTP/1.1\r\nHost: bitgauge.test\r\nOrigin: https://app.example.org\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 204,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "https://app.example.org"
+          ],
+          [
+            "access-control-expose-headers",
+            "Server-Timing"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "timing-allow-origin",
+            "https://app.example.org"
+          ],
+          [
+            "vary",
+            "Origin"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "cors info other",
+      "request": "GET /api/v1/ping HTTP/1.1\r\nHost: bitgauge.test\r\nOrigin: https://elsewhere.example\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 204,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "cors download allowed",
+      "request": "GET /api/v1/download?bytes=10 HTTP/1.1\r\nHost: bitgauge.test\r\nOrigin: https://app.example.org\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "https://app.example.org"
+          ],
+          [
+            "access-control-expose-headers",
+            "Server-Timing"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "10"
+          ],
+          [
+            "content-type",
+            "application/octet-stream"
+          ],
+          [
+            "timing-allow-origin",
+            "https://app.example.org"
+          ],
+          [
+            "vary",
+            "Origin"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "bytes",
+          "length": 10
+        }
+      }
+    },
+    {
+      "name": "cors error allowed",
+      "request": "GET /api/v1/download?bytes=0 HTTP/1.1\r\nHost: bitgauge.test\r\nOrigin: https://app.example.org\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 400,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "https://app.example.org"
+          ],
+          [
+            "access-control-expose-headers",
+            "Server-Timing"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "timing-allow-origin",
+            "https://app.example.org"
+          ],
+          [
+            "vary",
+            "Origin"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "117"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "error": {
+              "code": "bytes_out_of_range",
+              "details": {
+                "max": 268435456
+              },
+              "message": "bytes must be between 1 and 268435456"
+            }
+          },
+          "length": 117
+        }
+      }
+    },
+    {
+      "name": "cors unknown path allowed",
+      "request": "GET /api/v1/nope HTTP/1.1\r\nHost: bitgauge.test\r\nOrigin: https://app.example.org\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 404,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "https://app.example.org"
+          ],
+          [
+            "access-control-expose-headers",
+            "Server-Timing"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "timing-allow-origin",
+            "https://app.example.org"
+          ],
+          [
+            "vary",
+            "Origin"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "52"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "error": {
+              "code": "not_found",
+              "message": "not found"
+            }
+          },
+          "length": 52
+        }
+      }
+    },
+    {
+      "name": "cors preflight allowed",
+      "request": "OPTIONS /api/v1/upload HTTP/1.1\r\nHost: bitgauge.test\r\nOrigin: https://app.example.org\r\nAccess-Control-Request-Method: POST\r\nAccess-Control-Request-Headers: content-type\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 204,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "https://app.example.org"
+          ],
+          [
+            "access-control-expose-headers",
+            "Server-Timing"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "timing-allow-origin",
+            "https://app.example.org"
+          ],
+          [
+            "vary",
+            "Origin"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "cors preflight other",
+      "request": "OPTIONS /api/v1/upload HTTP/1.1\r\nHost: bitgauge.test\r\nOrigin: https://elsewhere.example\r\nAccess-Control-Request-Method: POST\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 405,
+        "headers": [
+          [
+            "allow",
+            "POST"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "70"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "error": {
+              "code": "method_not_allowed",
+              "message": "method not allowed"
+            }
+          },
+          "length": 70
+        }
+      }
+    },
+    {
+      "name": "cors preflight without origin",
+      "request": "OPTIONS /api/v1/download HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 405,
+        "headers": [
+          [
+            "allow",
+            "GET"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "70"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "error": {
+              "code": "method_not_allowed",
+              "message": "method not allowed"
+            }
+          },
+          "length": 70
+        }
+      }
+    },
+    {
+      "name": "cors preflight unknown path",
+      "request": "OPTIONS /api/v1/nope HTTP/1.1\r\nHost: bitgauge.test\r\nOrigin: https://app.example.org\r\nAccess-Control-Request-Method: GET\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 204,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "https://app.example.org"
+          ],
+          [
+            "access-control-expose-headers",
+            "Server-Timing"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "timing-allow-origin",
+            "https://app.example.org"
+          ],
+          [
+            "vary",
+            "Origin"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "cors upload allowed",
+      "request": "POST /api/v1/upload HTTP/1.1\r\nHost: bitgauge.test\r\nOrigin: https://app.example.org\r\nContent-Length: 10\r\nConnection: close\r\n\r\nxxxxxxxxxx",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "https://app.example.org"
+          ],
+          [
+            "access-control-expose-headers",
+            "Server-Timing"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "server-timing",
+            "bg-recv;dur=0"
+          ],
+          [
+            "timing-allow-origin",
+            "https://app.example.org"
+          ],
+          [
+            "vary",
+            "Origin"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "128"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "volatileHeaders": [
+          "content-length",
+          "server-timing"
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "bucketMs": 100,
+            "buckets": [
+              10
+            ],
+            "bytes": 10,
+            "durationMs": 0,
+            "epoch": "5uX6pWob0GuV",
+            "firstBucket": 3559224269,
+            "startMs": 355922426922
+          },
+          "volatile": [
+            "/buckets",
+            "/durationMs",
+            "/epoch",
+            "/firstBucket",
+            "/startMs"
+          ],
+          "length": 128
+        }
+      }
+    },
+    {
+      "name": "websocket allowed origin",
+      "request": "GET /api/v1/ws HTTP/1.1\r\nHost: bitgauge.test\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\nOrigin: https://app.example.org\r\n\r\n",
+      "mode": "head",
+      "response": {
+        "status": 101,
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "Content-Type"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, POST, OPTIONS"
+          ],
+          [
+            "access-control-allow-origin",
+            "https://app.example.org"
+          ],
+          [
+            "access-control-expose-headers",
+            "Server-Timing"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "connection",
+            "Upgrade"
+          ],
+          [
+            "sec-websocket-accept",
+            "s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
+          ],
+          [
+            "timing-allow-origin",
+            "https://app.example.org"
+          ],
+          [
+            "upgrade",
+            "websocket"
+          ],
+          [
+            "vary",
+            "Origin"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ]
+        ],
+        "body": {
+          "kind": "none",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "websocket public url origin",
+      "request": "GET /api/v1/ws HTTP/1.1\r\nHost: bitgauge.test\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\nOrigin: https://speed.example.org\r\n\r\n",
+      "mode": "head",
+      "response": {
+        "status": 403,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "0"
+          ]
+        ],
+        "body": {
+          "kind": "none",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "info with a label",
+      "request": "GET /api/v1/info HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "725"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "volatileHeaders": [
+          "content-length"
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "client": {
+              "addressClass": "loopback",
+              "ip": "127.0.0.1",
+              "ipVersion": 4,
+              "suggestedLabel": "Loopback lab"
+            },
+            "compat": {
+              "librespeed": true,
+              "networkquality": true,
+              "openspeedtest": true
+            },
+            "defaults": {
+              "dataCapBytes": null,
+              "download": {
+                "maxMs": 20000,
+                "minMs": 10000
+              },
+              "overheadCompensationPercent": 0,
+              "phases": [
+                "idle",
+                "download",
+                "upload"
+              ],
+              "pingCount": 20,
+              "preset": "standard",
+              "streams": {
+                "fixed": 3,
+                "max": 6,
+                "mode": "auto"
+              },
+              "units": "bits",
+              "upload": {
+                "maxMs": 25000,
+                "minMs": 15000
+              },
+              "warmup": "auto"
+            },
+            "limits": {
+              "bucketMs": 100,
+              "maxDownloadBytes": 268435456,
+              "maxStreamsPerClient": 8,
+              "maxUploadBytes": 268435456,
+              "uploadLifetimeMs": 120000
+            },
+            "server": {
+              "basePath": "/",
+              "buildDate": "unknown",
+              "commit": "unknown",
+              "epoch": "5uX6pWob0GuV",
+              "name": "Wire Corpus",
+              "version": "dev"
+            }
+          },
+          "volatile": [
+            "/server/buildDate",
+            "/server/commit",
+            "/server/epoch",
+            "/server/version"
+          ],
+          "length": 725
+        }
+      }
+    },
+    {
+      "name": "info through a forwarding header",
+      "request": "GET /api/v1/ping HTTP/1.1\r\nHost: bitgauge.test\r\nX-Forwarded-For: 203.0.113.9\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 204,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "metrics",
+      "request": "GET /metrics HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "head",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "text/plain; version=0.0.4; charset=utf-8; escaping=underscores"
+          ],
+          [
+            "vary",
+            "Accept"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "transfer-encoding",
+            "chunked"
+          ]
+        ],
+        "body": {
+          "kind": "none",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "metrics HEAD",
+      "request": "HEAD /metrics HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 405,
+        "headers": [
+          [
+            "allow",
+            "GET"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "text/plain; charset=utf-8"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "19"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "metrics POST",
+      "request": "POST /metrics HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 405,
+        "headers": [
+          [
+            "allow",
+            "GET"
+          ],
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "text/plain; charset=utf-8"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "19"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "text",
+          "text": "Method Not Allowed\n",
+          "length": 19
+        }
+      }
+    }
+  ]
+}

@@ -264,6 +264,17 @@ async fn librespeed_routes_take_the_layer_group() {
     // Over HTTP/1.1, /empty asks the client to keep the connection.
     let empty = stack.fetch(Method::GET, "/speed/empty").await;
     assert_eq!(empty.header("connection"), "keep-alive");
+    // A request that closes gets only the close, as Go's server replaced the handler's value.
+    let closing = stack
+        .send(
+            Method::GET,
+            "/speed/empty",
+            &[("connection", "close")],
+            Bytes::new(),
+        )
+        .await;
+    let connection: Vec<_> = closing.headers.get_all("connection").iter().collect();
+    assert_eq!(connection, ["close"]);
     stack.fetch(Method::PUT, "/speed/empty").await;
     let exposition = stack.scrape("/speed/metrics").await;
     for labels in [

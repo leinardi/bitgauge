@@ -412,7 +412,8 @@ async fn a_single_range_is_206() {
     }
 }
 
-/// A range past the end is 416 with the size, and a malformed one 416 without it.
+/// A range past the end is 416 with the size, and a malformed one 416 without it. Neither has
+/// `Cache-Control`: Go's `ServeContent` drops the caching headers from its errors.
 #[tokio::test]
 async fn an_unsatisfiable_range_is_416() {
     for (range, content_range, body) in [
@@ -445,6 +446,7 @@ async fn an_unsatisfiable_range_is_416() {
             content_range,
             "{range}"
         );
+        assert!(!response.headers().contains_key(CACHE_CONTROL), "{range}");
         assert_eq!(text(response).await, body, "{range}");
     }
 }

@@ -1,0 +1,516 @@
+{
+  "profile": "streams",
+  "config": "streams.yaml",
+  "cases": [
+    {
+      "name": "info with one stream",
+      "request": "GET /api/v1/info HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "715"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "volatileHeaders": [
+          "content-length"
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "client": {
+              "addressClass": "loopback",
+              "ip": "127.0.0.1",
+              "ipVersion": 4,
+              "suggestedLabel": "LAN"
+            },
+            "compat": {
+              "librespeed": false,
+              "networkquality": true,
+              "openspeedtest": false
+            },
+            "defaults": {
+              "dataCapBytes": null,
+              "download": {
+                "maxMs": 20000,
+                "minMs": 10000
+              },
+              "overheadCompensationPercent": 0,
+              "phases": [
+                "idle",
+                "download",
+                "upload"
+              ],
+              "pingCount": 20,
+              "preset": "standard",
+              "streams": {
+                "fixed": 1,
+                "max": 1,
+                "mode": "auto"
+              },
+              "units": "bits",
+              "upload": {
+                "maxMs": 25000,
+                "minMs": 15000
+              },
+              "warmup": "auto"
+            },
+            "limits": {
+              "bucketMs": 100,
+              "maxDownloadBytes": 268435456,
+              "maxStreamsPerClient": 1,
+              "maxUploadBytes": 268435456,
+              "uploadLifetimeMs": 120000
+            },
+            "server": {
+              "basePath": "/",
+              "buildDate": "unknown",
+              "commit": "unknown",
+              "epoch": "EAOpZdRqAVyH",
+              "name": "BitGauge",
+              "version": "dev"
+            }
+          },
+          "volatile": [
+            "/server/buildDate",
+            "/server/commit",
+            "/server/epoch",
+            "/server/version"
+          ],
+          "length": 715
+        }
+      }
+    },
+    {
+      "name": "an upload holding the only stream",
+      "settle": {
+        "request": "GET /api/v1/download?bytes=1 HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+        "status": 429
+      },
+      "request": "POST /api/v1/upload HTTP/1.1\r\nHost: bitgauge.test\r\nContent-Length: 1000\r\n\r\nxx",
+      "mode": "open"
+    },
+    {
+      "name": "download over the stream limit",
+      "request": "GET /api/v1/download?bytes=10 HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 429,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "retry-after",
+            "1"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "107"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "error": {
+              "code": "too_many_streams",
+              "message": "too many concurrent throughput requests (retry after 1 s)"
+            }
+          },
+          "length": 107
+        }
+      }
+    },
+    {
+      "name": "upload over the stream limit",
+      "request": "POST /api/v1/upload HTTP/1.1\r\nHost: bitgauge.test\r\nContent-Length: 10\r\nConnection: close\r\n\r\nxxxxxxxxxx",
+      "mode": "full",
+      "response": {
+        "status": 429,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "retry-after",
+            "1"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "107"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "error": {
+              "code": "too_many_streams",
+              "message": "too many concurrent throughput requests (retry after 1 s)"
+            }
+          },
+          "length": 107
+        }
+      }
+    },
+    {
+      "name": "ping is not limited",
+      "request": "GET /api/v1/ping HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "full",
+      "response": {
+        "status": 204,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "empty",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "a large flow",
+      "request": "GET /nq/large HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "hold",
+      "response": {
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-length",
+            "8589934592"
+          ],
+          [
+            "content-type",
+            "application/octet-stream"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "connection",
+            "close"
+          ]
+        ],
+        "body": {
+          "kind": "none",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "a second large flow",
+      "request": "GET /nq/large HTTP/1.1\r\nHost: bitgauge.test\r\nConnection: close\r\n\r\n",
+      "mode": "hold",
+      "response": {
+        "status": 429,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "retry-after",
+            "1"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "97"
+          ]
+        ],
+        "body": {
+          "kind": "none",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "upload flow over the limit",
+      "request": "POST /nq/upload HTTP/1.1\r\nHost: bitgauge.test\r\nContent-Length: 10\r\nConnection: close\r\n\r\nxxxxxxxxxx",
+      "mode": "full",
+      "response": {
+        "status": 429,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "retry-after",
+            "1"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "97"
+          ]
+        ],
+        "body": {
+          "kind": "json",
+          "json": {
+            "error": {
+              "code": "too_many_streams",
+              "message": "too many networkQuality flows (retry after 1 s)"
+            }
+          },
+          "length": 97
+        }
+      }
+    },
+    {
+      "name": "websocket 1",
+      "request": "GET /api/v1/ws HTTP/1.1\r\nHost: bitgauge.test\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+      "mode": "hold",
+      "response": {
+        "status": 101,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "connection",
+            "Upgrade"
+          ],
+          [
+            "sec-websocket-accept",
+            "s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
+          ],
+          [
+            "upgrade",
+            "websocket"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ]
+        ],
+        "body": {
+          "kind": "none",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "websocket 2",
+      "request": "GET /api/v1/ws HTTP/1.1\r\nHost: bitgauge.test\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+      "mode": "hold",
+      "response": {
+        "status": 101,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "connection",
+            "Upgrade"
+          ],
+          [
+            "sec-websocket-accept",
+            "s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
+          ],
+          [
+            "upgrade",
+            "websocket"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ]
+        ],
+        "body": {
+          "kind": "none",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "websocket 3",
+      "request": "GET /api/v1/ws HTTP/1.1\r\nHost: bitgauge.test\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+      "mode": "hold",
+      "response": {
+        "status": 101,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "connection",
+            "Upgrade"
+          ],
+          [
+            "sec-websocket-accept",
+            "s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
+          ],
+          [
+            "upgrade",
+            "websocket"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ]
+        ],
+        "body": {
+          "kind": "none",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "websocket 4",
+      "request": "GET /api/v1/ws HTTP/1.1\r\nHost: bitgauge.test\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+      "mode": "hold",
+      "response": {
+        "status": 101,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "connection",
+            "Upgrade"
+          ],
+          [
+            "sec-websocket-accept",
+            "s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
+          ],
+          [
+            "upgrade",
+            "websocket"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ]
+        ],
+        "body": {
+          "kind": "none",
+          "length": 0
+        }
+      }
+    },
+    {
+      "name": "websocket over the limit",
+      "request": "GET /api/v1/ws HTTP/1.1\r\nHost: bitgauge.test\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+      "mode": "head",
+      "response": {
+        "status": 429,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "retry-after",
+            "1"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "content-length",
+            "87"
+          ]
+        ],
+        "body": {
+          "kind": "none",
+          "length": 0
+        }
+      }
+    }
+  ]
+}
