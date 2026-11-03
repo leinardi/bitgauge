@@ -22,14 +22,15 @@ import { shallowRef, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { Textarea } from '@/components/ui/textarea'
+import { useResultEdit } from '@/components/result/edits'
 import { useDebouncedSave } from '@/composables/useDebouncedSave'
 
 // The note (ui/screens.md section 2, kit ResultDetail.jsx): a text area saved with the result in
 // history as it changes, a moment after the last keystroke, and at once when the field loses focus
-// or the page leaves. Its text is the field's own while it is open, so a save landing late never
-// rewrites what is being typed. A result that is not in history shows the field read-only, with
-// the "No note" placeholder and no hint, described by the header's reason, as the kit's does; an
-// editable one has no placeholder.
+// or the page leaves or is hidden; Download JSON waits for it. Its text is the field's own while it
+// is open, so a save landing late never rewrites what is being typed. A result that is not in
+// history shows the field read-only, with the "No note" placeholder and no hint, described by the
+// header's reason, as the kit's does; an editable one has no placeholder.
 
 const props = defineProps<{
   /** The result the note belongs to; a new one starts the field afresh. */
@@ -37,15 +38,18 @@ const props = defineProps<{
   note: string
   /** The id of the header's reason the note cannot be saved; null when it can. */
   reasonId: string | null
+  /** Saves the note of the result `id`; resolves once it is written. */
+  save: (id: string, note: string) => Promise<unknown>
 }>()
-const emit = defineEmits<{ save: [id: string, note: string] }>()
 
 const { t } = useI18n()
 const fieldId = useId()
 const hintId = useId()
 const text = shallowRef(props.note)
 // Each save names the result it was typed for, which a new result's arrival does not change.
-const { schedule, flush } = useDebouncedSave<{ id: string; note: string }>(({ id, note }) => emit('save', id, note))
+const { schedule, flush } = useDebouncedSave<{ id: string; note: string }>(({ id, note }) => props.save(id, note))
+// Download JSON waits for the note typed (QA-110).
+useResultEdit(flush)
 
 function input(value: string | number): void {
   text.value = String(value)
@@ -55,7 +59,7 @@ function input(value: string | number): void {
 watch(
   () => props.id,
   () => {
-    flush()
+    void flush()
     text.value = props.note
   },
 )
@@ -83,7 +87,7 @@ watch(
       class="min-h-0 field-sizing-fixed resize-y rounded-(--radius-md) border-(--border-default) bg-(--surface-1) px-2.5 py-2 text-(length:--text-sm) leading-(--lh-normal) text-foreground shadow-none read-only:resize-none read-only:border-(--border-subtle) read-only:bg-(--surface-2) read-only:text-muted-foreground md:text-(length:--text-sm)"
       data-testid="note-field"
       @update:model-value="input"
-      @blur="flush"
+      @blur="void flush()"
     />
     <span
       v-if="reasonId === null"

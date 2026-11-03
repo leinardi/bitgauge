@@ -19,7 +19,8 @@
 // @vitest-environment jsdom
 
 // A field saved as it changes: the last value a moment after the typing pauses, and at once on
-// flush, on unmount and when the page leaves.
+// flush, on unmount and when the page leaves or is hidden; flush resolves once every save it
+// started or found running has finished.
 
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -27,8 +28,7 @@ import { defineComponent } from 'vue'
 
 import { useDebouncedSave } from '@/composables/useDebouncedSave'
 
-function harness() {
-  const save = vi.fn<(value: string) => void>()
+function harness(save = vi.fn<(value: string) => Promise<unknown> | void>()) {
   let api: ReturnType<typeof useDebouncedSave<string>> | undefined
   const wrapper = mount(
     defineComponent({
@@ -62,8 +62,8 @@ describe('useDebouncedSave', () => {
     vi.useFakeTimers()
     const { save, api } = harness()
     api.schedule('Home')
-    api.flush()
-    api.flush()
+    void api.flush()
+    void api.flush()
     vi.runAllTimers()
     expect(save.mock.calls).toEqual([['Home']])
   })
@@ -78,5 +78,58 @@ describe('useDebouncedSave', () => {
     window.dispatchEvent(new Event('pagehide'))
     expect(left.save.mock.calls).toEqual([['Garage']])
     left.wrapper.unmount()
+  })
+
+  it('saves what is pending when the page is hidden', () => {
+    const hidden = harness()
+    hidden.api.schedule('Porch')
+    Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' })
+    document.dispatchEvent(new Event('visibilitychange'))
+    Reflect.deleteProperty(document, 'visibilityState')
+    expect(hidden.save.mock.calls).toEqual([['Porch']])
+    hidden.wrapper.unmount()
+  })
+
+  it('resolves flush once the save it starts and the one already running have finished', async () => {
+    const releases: (() => void)[] = []
+    const save = vi.fn((_value: string) => new Promise<void>((resolve) => releases.push(resolve)))
+    vi.useFakeTimers()
+    const { api, wrapper } = harness(save)
+    api.schedule('First')
+    vi.advanceTimersByTime(300)
+    // The first save is running; a second one is pending.
+    api.schedule('Second')
+    let done = false
+    const flushed = api.flush().then(() => {
+      done = true
+    })
+    expect(save.mock.calls).toEqual([['First'], ['Second']])
+    releases[1]?.()
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(done).toBe(false)
+    releases[0]?.()
+    await flushed
+    expect(done).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('resolves flush after a running save even when nothing is pending, and after a failed one', async () => {
+    let release: (() => void) | undefined
+    const save = vi.fn((_value: string) => new Promise<void>((_resolve, reject) => (release = () => reject(new Error('quota')))))
+    vi.useFakeTimers()
+    const { api, wrapper } = harness(save)
+    api.schedule('Only')
+    vi.advanceTimersByTime(300)
+    let done = false
+    const flushed = api.flush().then(() => {
+      done = true
+    })
+    await Promise.resolve()
+    expect(done).toBe(false)
+    release?.()
+    await flushed
+    expect(done).toBe(true)
+    wrapper.unmount()
   })
 })

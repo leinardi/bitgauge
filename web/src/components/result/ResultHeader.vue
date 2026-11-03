@@ -23,6 +23,7 @@ import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
 import AppButton from '@/components/actions/AppButton.vue'
+import { useResultEdit } from '@/components/result/edits'
 import { resultDate } from '@/components/history/rows'
 import { presetName } from '@/components/settings/changes'
 import StatusPill from '@/components/status/StatusPill.vue'
@@ -81,18 +82,30 @@ async function edit(): Promise<void> {
   focusOf(field.value)
 }
 
-async function finish(save: boolean): Promise<void> {
-  if (!editing.value) {
-    return
-  }
+/** Ends the edit, saving the draft when it changed. */
+function commit(save: boolean): void {
   editing.value = false
   const next = draft.value.trim().slice(0, MAX_LABEL)
   if (save && next !== props.result.label) {
     emit('rename', next)
   }
+}
+
+async function finish(save: boolean): Promise<void> {
+  if (!editing.value) {
+    return
+  }
+  commit(save)
   await nextTick()
   focusOf(pencil.value)
 }
+
+// A label being typed is saved before Download JSON exports the result, the focus left where it is.
+useResultEdit(() => {
+  if (editing.value) {
+    commit(true)
+  }
+})
 </script>
 
 <template>

@@ -18,7 +18,7 @@
 -->
 <script setup lang="ts">
 import { Database, Trash2 } from '@lucide/vue'
-import { computed, shallowRef, useId, watch } from 'vue'
+import { computed, provide, shallowRef, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -28,6 +28,7 @@ import ConfidenceCard from '@/components/result/ConfidenceCard.vue'
 import { gradeView, loadRows, responsivenessView } from '@/components/result/load'
 import LoadCard from '@/components/result/LoadCard.vue'
 import { metricTiles } from '@/components/result/metrics'
+import { createResultEdits, RESULT_EDITS } from '@/components/result/edits'
 import NoteField from '@/components/result/NoteField.vue'
 import { parameterGroups } from '@/components/result/parameters'
 import ParametersCard from '@/components/result/ParametersCard.vue'
@@ -138,15 +139,24 @@ const quality = computed(() => (result.value === null ? null : qualityView(resul
 const confidence = computed(() => (result.value === null ? null : confidenceView(result.value, wording.value)))
 const parameters = computed(() => (result.value === null ? [] : parameterGroups(result.value, units.value, wording.value)))
 
-function rename(label: string): void {
-  void history.edit(id.value, { label })
+// The label and note edits, which Download JSON saves and waits for before it exports (QA-110).
+const edits = createResultEdits(() => saved.value)
+provide(RESULT_EDITS, edits)
+
+function rename(label: string): Promise<unknown> {
+  const write = history.edit(id.value, { label })
+  edits.track(write)
+  return write
 }
 
-function saveNote(target: string, note: string): void {
+function saveNote(target: string, note: string): Promise<unknown> {
   const stored = history.results.value.find((result) => result.id === target)
-  if (stored !== undefined && (stored.note ?? '') !== note) {
-    void history.edit(target, { note })
+  if (stored === undefined || (stored.note ?? '') === note) {
+    return Promise.resolve()
   }
+  const write = history.edit(target, { note })
+  edits.track(write)
+  return write
 }
 
 // Delete takes its control away: the focus moves to the deleted state's link to History, and after
@@ -272,7 +282,7 @@ function runAgain(): void {
             :id="result.id"
             :note="result.note ?? ''"
             :reason-id="notSaved === null ? null : reasonId"
-            @save="saveNote"
+            :save="saveNote"
           />
           <SharePanel
             :result="result"

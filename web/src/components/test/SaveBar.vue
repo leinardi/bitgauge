@@ -54,7 +54,7 @@ watch(
     label.value = props.result.label
   },
 )
-const { schedule, flush } = useDebouncedSave<{ id: string; label: string }>(({ id, label: next }) => void history.edit(id, { label: next }))
+const { schedule, flush } = useDebouncedSave<{ id: string; label: string }>(({ id, label: next }) => history.edit(id, { label: next }))
 
 function type(value: string | number): void {
   label.value = String(value).slice(0, MAX_LABEL)
@@ -64,7 +64,7 @@ function type(value: string | number): void {
 function pick(suggestion: string): void {
   label.value = suggestion
   schedule({ id: props.result.id, label: suggestion })
-  flush()
+  void flush()
 }
 
 const suggestions = computed(() => {
@@ -132,7 +132,7 @@ const body = computed(() => {
           class="h-full border-0 bg-transparent p-0 text-(length:--text-sm) text-foreground shadow-none focus-visible:ring-0 dark:bg-transparent md:text-(length:--text-sm)"
           data-testid="result-label-field"
           @update:model-value="type"
-          @blur="flush"
+          @blur="void flush()"
         />
       </label>
       <div

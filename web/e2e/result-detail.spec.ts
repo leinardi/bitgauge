@@ -38,6 +38,79 @@ async function openNewest(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('VPN via 5G')
 }
 
+/** The stored record of `id`, as IndexedDB holds it. */
+async function storedRecord(page: Page, id: string): Promise<Record<string, unknown> | undefined> {
+  return page.evaluate(
+    (key) =>
+      new Promise<Record<string, unknown> | undefined>((resolve, reject) => {
+        const request = indexedDB.open('bitgauge')
+        request.onerror = () => reject(request.error ?? new Error('IndexedDB did not open'))
+        request.onsuccess = () => {
+          const db = request.result
+          const read = db.transaction('results').objectStore('results').get(key)
+          read.onerror = () => reject(read.error ?? new Error('IndexedDB did not read'))
+          read.onsuccess = () => {
+            db.close()
+            resolve(read.result as Record<string, unknown> | undefined)
+          }
+        }
+      }),
+    id,
+  )
+}
+
+// A note save is a write the browser does not wait for on a reload: a reload in the middle of one
+// keeps the note as it was or as typed, never a damaged record. No test here claims that nothing is
+// lost (QA-110).
+test.describe('a note and a reload', () => {
+  const NEWEST = QUICK[0]
+
+  test('a reload while the note’s write is held keeps the record whole, its note old or new', async ({ page }) => {
+    // While the flag is set, every write to the results store holds its transaction open for 2 s,
+    // so the reload lands in the middle of it.
+    await page.addInitScript(() => {
+      const put = IDBObjectStore.prototype.put
+      IDBObjectStore.prototype.put = function hold(this: IDBObjectStore, ...args: Parameters<IDBObjectStore['put']>) {
+        const request = put.apply(this, args)
+        if ((window as Window & { holdPut?: boolean }).holdPut === true) {
+          const until = performance.now() + 2000
+          const spin = (): void => {
+            if (performance.now() < until) {
+              this.count().onsuccess = spin
+            }
+          }
+          spin()
+        }
+        return request
+      }
+    })
+    await openNewest(page)
+    const before = await storedRecord(page, NEWEST?.id ?? '')
+    await page.evaluate(() => {
+      ;(window as Window & { holdPut?: boolean }).holdPut = true
+    })
+    await page.getByTestId('note-field').fill('Typed before the reload')
+    // Past the note's pause: its write has started and is held.
+    await page.waitForTimeout(600)
+    await page.reload()
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('VPN via 5G')
+    const after = await storedRecord(page, NEWEST?.id ?? '')
+    expect(['Typed before the reload', before?.note ?? '']).toContain(after?.note ?? '')
+    const { note: _after, ...rest } = after ?? {}
+    const { note: _before, ...kept } = before ?? {}
+    expect(rest).toEqual(kept)
+    await expect(page.getByTestId('note-field')).toHaveValue(String(after?.note ?? ''))
+  })
+
+  test('a reload after the note’s pause keeps the note', async ({ page }) => {
+    await openNewest(page)
+    await page.getByTestId('note-field').fill('Saved after the pause')
+    await expect.poll(() => storedNotes(page)).toContain('Saved after the pause')
+    await page.reload()
+    await expect(page.getByTestId('note-field')).toHaveValue('Saved after the pause')
+  })
+})
+
 test('shows a stored result and keeps its label and note across a reload', async ({ page }) => {
   await openNewest(page)
   await expect(page.getByTestId('load-grade')).toHaveText('D')

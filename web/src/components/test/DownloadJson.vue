@@ -23,6 +23,7 @@ import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/actions/AppButton.vue'
 import { notify } from '@/components/feedback/notify'
+import { useResultEdits } from '@/components/result/edits'
 import type { Result } from '@/engine/messages'
 import { serializeResult } from '@/export/serialize'
 import { saveFile } from '@/lib/saveFile'
@@ -33,7 +34,8 @@ import { saveFile } from '@/lib/saveFile'
 // warning beside it, `describedBy` names that text instead and there is no tooltip, as on the
 // kit's Result detail, which also confirms the download with a toast (`confirm`, ui/screens.md
 // section 8). A result that fails validation is not exported: the button turns to its error state
-// and says why.
+// and says why. On the Result detail it first saves the label or note being typed and waits for
+// the write, then exports the result as history holds it.
 
 const props = defineProps<{ result: Result; variant?: 'secondary' | 'ghost'; size?: 'sm' | 'md'; describedBy?: string; confirm?: boolean }>()
 
@@ -41,6 +43,7 @@ const { t } = useI18n()
 const tipId = useId()
 const errorId = useId()
 const failed = shallowRef(false)
+const edits = useResultEdits()
 
 // A new result gets a new chance.
 watch(
@@ -50,8 +53,10 @@ watch(
   },
 )
 
-function download(): void {
-  const file = serializeResult(props.result, new Date())
+async function download(): Promise<void> {
+  const stored = edits === null ? null : await edits.flushEdits()
+  const result = stored?.id === props.result.id ? stored : props.result
+  const file = serializeResult(result, new Date())
   failed.value = file === null
   if (file === null) {
     return
@@ -71,7 +76,7 @@ function download(): void {
       :aria-describedby="failed ? `${describedBy ?? tipId} ${errorId}` : (describedBy ?? tipId)"
       :class="{ 'border-(--danger-border) text-(--danger-fg)': failed }"
       data-testid="download-json"
-      @click="download"
+      @click="void download()"
     >
       <component
         :is="failed ? CircleAlert : FileJson"
