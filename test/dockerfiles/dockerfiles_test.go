@@ -38,10 +38,13 @@ import (
 const (
 	shippedDir        = "deployments/docker"
 	shippedDockerfile = "deployments/docker/Dockerfile"
-	releaseWorkflow   = ".github/workflows/release.yaml"
-	workflowsDir      = ".github/workflows"
-	wantPlatforms     = "linux/amd64,linux/arm64"
-	runtimeUser       = "65532:65532"
+	// candidateDockerfile is the Rust candidate image (docs/rust-port.md, Implementation
+	// Identity): test-only until the cutover renames it to the shipped Dockerfile.
+	candidateDockerfile = "deployments/docker/Dockerfile.rust"
+	releaseWorkflow     = ".github/workflows/release.yaml"
+	workflowsDir        = ".github/workflows"
+	wantPlatforms       = "linux/amd64,linux/arm64"
+	runtimeUser         = "65532:65532"
 	// healthcheckCommand ends the runtime stage's HEALTHCHECK: the binary's own subcommand, in
 	// exec form, since the runtime has no shell.
 	healthcheckCommand = ` CMD ["/bitgauge", "healthcheck"]`
@@ -55,7 +58,9 @@ const (
 )
 
 // TestShippedDockerfileIsTheOnlyOne pins that deployments/docker holds exactly the image that
-// ships. A second file there would look shipped to every reader and be built by nothing.
+// ships and, until the cutover, the Rust candidate beside it, which TestOtherDockerfilesAreTestOnly
+// and TestRustCandidateIsTestOnly keep test-only. Any other file there would look shipped to every
+// reader and be built by nothing.
 func TestShippedDockerfileIsTheOnlyOne(t *testing.T) {
 	t.Parallel()
 
@@ -72,8 +77,28 @@ func TestShippedDockerfileIsTheOnlyOne(t *testing.T) {
 		}
 	}
 
-	if !slices.Equal(found, []string{"Dockerfile"}) {
-		t.Errorf("%s holds %v, want exactly [Dockerfile]", shippedDir, found)
+	want := []string{filepath.Base(shippedDockerfile), filepath.Base(candidateDockerfile)}
+	if !slices.Equal(found, want) {
+		t.Errorf("%s holds %v, want exactly %v", shippedDir, found, want)
+	}
+}
+
+// TestRustCandidateIsTestOnly pins that the Rust candidate image is built only by make rust-image
+// as bitgauge:rust-candidate: the walk finds it, so TestOtherDockerfilesAreTestOnly holds it to
+// the pinning rule and keeps the Makefile and the release workflow from naming it, and no
+// workflow names it either, so nothing builds or publishes it before the cutover.
+func TestRustCandidateIsTestOnly(t *testing.T) {
+	t.Parallel()
+
+	if !slices.Contains(allDockerfiles(t), candidateDockerfile) {
+		t.Fatalf("the walk did not find %s", candidateDockerfile)
+	}
+
+	for _, workflow := range workflows(t) {
+		if strings.Contains(readRepoFile(t, workflow), filepath.Base(candidateDockerfile)) {
+			t.Errorf("%s names %s, which no workflow builds or publishes", workflow,
+				candidateDockerfile)
+		}
 	}
 }
 
@@ -840,8 +865,11 @@ func joined(stage dockerfiles.Stage) string {
 	return strings.Join(lines, "\n")
 }
 
+// isDockerfile matches Dockerfile, <name>.Dockerfile and Dockerfile.<name>, but not the
+// Dockerfile.<name>.dockerignore that BuildKit reads beside one.
 func isDockerfile(name string) bool {
-	return name == "Dockerfile" || strings.HasSuffix(name, ".Dockerfile")
+	return name == "Dockerfile" || strings.HasSuffix(name, ".Dockerfile") ||
+		(strings.HasPrefix(name, "Dockerfile.") && !strings.HasSuffix(name, ".dockerignore"))
 }
 
 // allDockerfiles walks the repository for Dockerfiles, skipping installed and generated trees.

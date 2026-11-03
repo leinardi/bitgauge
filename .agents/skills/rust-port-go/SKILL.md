@@ -482,6 +482,11 @@ choice for a Go service built on timers, network I/O and `context` cancellation.
   `required-features` on the test target that needs a daemon. libtest's filter is a substring, so
   `'^TestNode_'` selects nothing and passes → a `harness = false` runner with Go's `-run`
   semantics that fails on zero selected. (10 hidden lint errors)
+- A Go image's `.dockerignore` that drops `tests/` and never had a `target/` to drop breaks the
+  Rust build stage: cargo refuses a manifest whose `[[test]]` target file is missing, and the
+  host's `target/` floods the context → a `Dockerfile.<name>.dockerignore` beside the Rust
+  Dockerfile, which BuildKit reads in place of the root one, re-including `tests/*.rs` and
+  excluding `target`. (bitgauge candidate image)
 - `t.Skip` has no libtest equivalent → a gated test returns early with a note, and an
   environment variable CI sets turns the missing tool into a failure. (ported meta-tests)
 - An integration test that must read kernel state only root may read (the BPF programs attached

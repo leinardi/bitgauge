@@ -202,8 +202,9 @@ note.
 
 ## Reuse Ledger
 
-Reused MIT files carry BitGauge's GPL-3.0-or-later header plus one provenance line: "Adapted from
-\<repo\>/\<path\> at \<commit\>, MIT, Copyright (c) 2026 Roberto Leinardi". Not reused:
+Reused MIT and Apache-2.0 files, both compatible with the GPL, carry BitGauge's GPL-3.0-or-later
+header plus one provenance line: "Adapted from \<repo\>/\<path\> at \<commit\>, \<license\>,
+Copyright (c) \<year\> Roberto Leinardi", with the source's own license and year. Not reused:
 swarm-scheduler-exporter's slog, Prometheus and net/http-wire ports, which keep Go's output byte
 for byte where this port does not.
 
@@ -221,6 +222,8 @@ for byte where this port does not.
 | swarm-scheduler-exporter | `b670952` | `src/server/framing.rs`, `src/server/framing/tests.rs` | Unchanged framing; the module doc names BitGauge's pipelined head |
 | swarm-scheduler-exporter | `b670952` | `src/server/timeouts.rs` | BitGauge's states (head, body, idle, upgraded) in place of Go's four timeouts; a 30 s write stall in place of `WriteTimeout`; the read waker kept so a new deadline is armed at once; the drain on `poll_shutdown`; `wait_until_idle` for shutdown |
 | swarm-device-access | `4cd31c4` | `meta/tests/unsafe_allowlist.rs` | The pattern only, for `meta/tests/lint_exemptions.rs`; no file copied |
+| swarm-scheduler-exporter | `e57d989` | `deployments/docker/Dockerfile` (MIT, 2025) | Became `deployments/docker/Dockerfile.rust`: the shipped Dockerfile's `web` and runtime stages; the same zig, cargo-zigbuild and `rust-std` pins; the `BITGAUGE_*` stamps; the cargo home and `rust-src` remapped as `.mk/rust-release.mk` remaps them |
+| swarm-device-access | `4cd31c4` | `.mk/rust-release.mk` (Apache-2.0) | The same pins and static build; binaries into `dist/rust/`, after `web-build`; `rust-image` for the candidate |
 
 Rows are added by the phase that copies a file.
 
@@ -516,8 +519,25 @@ not expect.
   drops from its errors (it keeps it on a 304 or 412). Row 5 now names two consequences of
   serving OpenMetrics only that the corpus showed: no `Vary: Accept`, and a `Content-Length`
   rather than chunking.
+- **Phase 15, the candidate image.** `deployments/docker/Dockerfile.rust` is the shipped
+  Dockerfile with a zigbuild build stage; `make rust-image` builds it for the host platform as
+  `bitgauge:rust-candidate`, and no workflow or `DOCKER_TARGETS` entry names it. It has its own
+  `Dockerfile.rust.dockerignore`, which BuildKit reads in place of the root one: the root file
+  sent `target/` into the context and left out `tests/`, whose Rust files the manifest's
+  `[[test]]` targets need for cargo to read it. The pins appear twice, in the Dockerfile's build
+  stage and in `.mk/rust-release.mk`; phase 16's toolchain meta-test keeps them equal. The image
+  was checked by hand: 7.2 MB, `-help` refused with exit 2, the revision label set; run read-only
+  with every capability dropped, it answered the ping (204), the SPA (200) and its healthcheck
+  (0), `docker diff` was empty, and `docker stop` ended it with exit 0 after "stopped".
+  `make rust-release-binaries` built both static, stripped binaries into `dist/rust/` with
+  `checksums.txt`, no host path in either, with the pinned zig fetched into the scratchpad by its
+  sha256, since zig is not on `PATH` here. The Go meta-tests learned the candidate:
+  `isDockerfile` matches `Dockerfile.<name>` (not its `.dockerignore`), `deployments/docker` may
+  hold exactly the shipped file and the candidate, and `TestRustCandidateIsTestOnly` finds it and
+  fails if any workflow names it.
 - **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
-  started. The `cargo-machete` pre-commit hook builds its own; `zig` is first needed by phase 15.
+  started. The `cargo-machete` pre-commit hook builds its own; phase 15 fetched the pinned `zig`
+  into the scratchpad.
 
 ## API Map
 
