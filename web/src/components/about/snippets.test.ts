@@ -52,10 +52,10 @@ describe('the snippets', () => {
   })
 
   it('point networkQuality at the config, and its verbose form, as compatibility.md section 3.5 writes them', () => {
-    expect(texts('networkquality', 'https://speed.example.lan')).toEqual(['networkQuality -C https://speed.example.lan/nq/config', 'networkQuality -C https://speed.example.lan/nq/config -v      # verbose, per-flow detail'])
+    expect(texts('networkquality', 'https://speed.example.lan')).toEqual(['networkQuality -C https://speed.example.lan/nq/config', 'networkQuality -C https://speed.example.lan/nq/config -v'])
     const [, verbose] = layerSnippets('networkquality', 'https://speed.example.lan', 'BitGauge home')
-    // The comment keeps the block's own color: --term-comment is under 4.5:1 on the terminal surface.
-    expect(verbose?.lines[0]?.map((part) => part.kind)).toEqual(['command', undefined])
+    // The command alone, so a shell without interactive comments (zsh) runs it as copied.
+    expect(verbose?.lines).toEqual([[{ text: 'networkQuality -C https://speed.example.lan/nq/config -v', kind: 'command' }]])
   })
 
   it('note that networkQuality needs HTTPS on a page that is not https', () => {

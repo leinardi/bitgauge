@@ -186,12 +186,11 @@ From triage clusters `v03-about-librespeed-json` and `v03-about-networkquality-v
 - The kit compresses the librespeed-cli server list to four lines. It should write the JSON one key
   per line, as [compatibility.md](../features/compatibility.md#23-librespeed-cli-server-list)
   does.
-- The kit captions the verbose networkQuality line "Verbose". The line should end with the comment
-  "# verbose, per-flow detail", as
-  [compatibility.md](../features/compatibility.md#35-client-usage) writes it, in place of the
-  caption.
 
-The Vue About page already does both.
+The Vue About page already does this. The kit's verbose networkQuality block, the bare command
+captioned "Verbose", stays as it is: the copied command carries no comment, since zsh, macOS's
+default shell, passes a comment's words on as arguments (QA-67), and the Vue page captions it the
+same way.
 
 ### Settings: the Result label caption names the link parameter
 

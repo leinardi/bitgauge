@@ -58,7 +58,7 @@ describe('the About screen on https under a base path', () => {
       'librespeed-cli --local-json bitgauge.json --server 1 --no-icmp --chunks 8 --json',
       `librespeed-cli --server-json ${BASE}/.well-known/librespeed --server 1 --no-icmp`,
       `networkQuality -C ${BASE}/nq/config`,
-      `networkQuality -C ${BASE}/nq/config -v      # verbose, per-flow detail`,
+      `networkQuality -C ${BASE}/nq/config -v`,
     ])
     expect(page.find('[data-testid="about-https-note"]').exists()).toBe(false)
     expect(page.text()).toContain('networkQuality needs TLS 1.3 and HTTP/2 at the reverse proxy.')

@@ -47,7 +47,7 @@ const labels = computed((): Record<SnippetBlock['key'], { caption: string | null
   localJson: { caption: null, copy: t('about.snippets.localJson.copy') },
   serverJson: { caption: t('about.snippets.serverJson.caption'), copy: t('about.snippets.serverJson.copy') },
   nqConfig: { caption: null, copy: t('about.snippets.nqConfig.copy') },
-  nqVerbose: { caption: null, copy: t('about.snippets.nqVerbose.copy') },
+  nqVerbose: { caption: t('about.snippets.nqVerbose.caption'), copy: t('about.snippets.nqVerbose.copy') },
 }))
 const blocks = computed(() => layerSnippets(props.layer, props.base, props.name).map((block) => ({ ...block, ...labels.value[block.key] })))
 </script>

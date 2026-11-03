@@ -80,7 +80,9 @@ describe('the About screen', () => {
     }
     // The server list names this page's host while the server's name is unknown.
     expect(JSON.parse(blocks(page, 'librespeed')[0] ?? '')).toMatchObject([{ name: window.location.host, server: `${ORIGIN}/` }])
-    expect(blocks(page, 'networkquality')).toEqual([`networkQuality -C ${ORIGIN}/nq/config`, `networkQuality -C ${ORIGIN}/nq/config -v      # verbose, per-flow detail`])
+    expect(blocks(page, 'networkquality')).toEqual([`networkQuality -C ${ORIGIN}/nq/config`, `networkQuality -C ${ORIGIN}/nq/config -v`])
+    // What -v adds is the verbose block's caption, not a comment in the copied command.
+    expect(card(page, 'networkquality').findAll('[data-testid="snippet"]')[1]?.text()).toMatch(/^Verbose\s*networkQuality -C/)
     // This page is http, so the networkQuality snippet says it needs HTTPS.
     expect(card(page, 'networkquality').get('[data-testid="about-https-note"]').text()).toContain('This page is not served over HTTPS.')
 
@@ -116,7 +118,7 @@ describe('the About screen', () => {
     const expected = {
       openspeedtest: [`https://ost.example.lan/?Host=${ORIGIN}`],
       librespeed: [expect.stringContaining('"name": "Basement NAS",'), 'librespeed-cli --local-json bitgauge.json --server 1 --no-icmp --chunks 8 --json', `librespeed-cli --server-json ${ORIGIN}/.well-known/librespeed --server 1 --no-icmp`],
-      networkquality: [`networkQuality -C ${ORIGIN}/nq/config`, `networkQuality -C ${ORIGIN}/nq/config -v      # verbose, per-flow detail`],
+      networkquality: [`networkQuality -C ${ORIGIN}/nq/config`, `networkQuality -C ${ORIGIN}/nq/config -v`],
     }[layer]
     expect(blocks(page, layer)).toEqual(expected)
     if (layer === 'openspeedtest') {

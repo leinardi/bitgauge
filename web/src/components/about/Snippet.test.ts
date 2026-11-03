@@ -38,7 +38,13 @@ describe('a snippet', () => {
     const page = await mountApp(Snippet, '/about', { props: { caption: 'bitgauge.json', copyLabel: 'Copy bitgauge.json', lines: LINES } })
     const pre = page.get('pre')
     expect(pre.attributes('tabindex')).toBe('0')
+    // Named as a region: a name on a generic element is not announced.
+    expect(pre.attributes('role')).toBe('region')
     expect(pre.attributes('aria-label')).toBe('bitgauge.json')
+    // The copy button is opaque on the terminal surface, and each line ends clear of it.
+    expect(page.get('button').classes()).toContain('bg-(--term-bg)')
+    expect(page.get('button').classes()).not.toContain('bg-transparent')
+    expect(pre.classes()).toContain('pr-12')
     expect(pre.classes()).toEqual(expect.arrayContaining(['whitespace-pre', 'overflow-x-auto']))
     expect(pre.text()).toBe('networkQuality -C https://speed.example.lan/nq/config -v      # verbose, per-flow detail\nsecond')
     page.unmount()

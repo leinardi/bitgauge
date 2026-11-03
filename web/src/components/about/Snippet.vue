@@ -27,7 +27,9 @@ import AppButton from '@/components/actions/AppButton.vue'
 // The kit's Snippet (design_system/components/layout Snippet.jsx, layout.css `.snip`): a block on
 // the terminal surface whose lines never wrap; a long line scrolls inside the focusable block, so
 // the page never scrolls sideways (ui/screens.md section 5). Copy writes the block as ShareUrlField
-// does, with the copied state announced and a refused clipboard said.
+// does, with the copied state announced and a refused clipboard said. The block is a named,
+// focusable region; the copy button is opaque on the terminal surface, and the block keeps room for
+// it at the end of each line, so no text shows through it.
 
 defineOptions({ name: 'CodeSnippet' })
 
@@ -74,6 +76,7 @@ onScopeDispose(() => clearTimeout(timer))
     <div class="relative rounded-(--radius-md) border border-(--border-subtle) bg-(--term-bg)">
       <pre
         tabindex="0"
+        role="region"
         :aria-label="label"
         class="m-0 overflow-x-auto overscroll-x-contain py-3 pr-12 pl-3.5 font-mono text-(length:--text-caption) leading-(--lh-relaxed) whitespace-pre text-(--term-fg) focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
       ><template
@@ -87,7 +90,7 @@ onScopeDispose(() => clearTimeout(timer))
       <AppButton
         variant="ghost"
         size="sm"
-        class="absolute top-1.5 right-1.5 w-(--control-h-sm) justify-center px-0 text-(--term-muted)"
+        class="absolute top-1.5 right-1.5 w-(--control-h-sm) justify-center bg-(--term-bg) px-0 text-(--term-muted)"
         :aria-label="copied ? t('about.snippet.copied') : copyLabel"
         :title="copyLabel"
         @click="copy"

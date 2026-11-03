@@ -23,10 +23,7 @@
 
 export type Layer = 'openspeedtest' | 'librespeed' | 'networkquality'
 
-/**
- * A run of a snippet line, in the terminal's command color or its plain text. A shell comment is
- * plain: --term-comment on --term-bg is under 4.5:1 at the caption size.
- */
+/** A run of a snippet line, in the terminal's command color or its plain text. */
 export interface SnippetPart {
   text: string
   kind?: 'command'
@@ -79,7 +76,9 @@ export function layerSnippets(layer: Layer, base: string, name: string): Snippet
     case 'networkquality':
       return [
         { key: 'nqConfig', lines: [command(`networkQuality -C ${base}/nq/config`)] },
-        { key: 'nqVerbose', lines: [[{ text: `networkQuality -C ${base}/nq/config -v`, kind: 'command' }, { text: '      # verbose, per-flow detail' }]] },
+        // The command alone: zsh, macOS's default shell, passes a comment's words on as arguments.
+        // The block's caption says what -v adds.
+        { key: 'nqVerbose', lines: [command(`networkQuality -C ${base}/nq/config -v`)] },
       ]
   }
 }

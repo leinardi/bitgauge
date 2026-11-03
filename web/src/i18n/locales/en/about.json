@@ -38,7 +38,7 @@
       "localJson": { "copy": "Copy librespeed-cli command" },
       "serverJson": { "caption": "Or let the CLI fetch the list from this server", "copy": "Copy librespeed-cli command with server list URL" },
       "nqConfig": { "copy": "Copy networkQuality command" },
-      "nqVerbose": { "copy": "Copy verbose networkQuality command" }
+      "nqVerbose": { "caption": "Verbose", "copy": "Copy verbose networkQuality command" }
     },
     "snippet": {
       "copied": "Copied",
