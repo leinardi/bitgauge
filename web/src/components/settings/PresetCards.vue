@@ -22,6 +22,7 @@ import { RadioGroupItem } from 'reka-ui'
 import { type Component, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import ChangedMark from '@/components/settings/ChangedMark.vue'
 import { presetName } from '@/components/settings/changes'
 import { useSettingsForm } from '@/components/settings/form'
 import { RadioGroup } from '@/components/ui/radio-group'
@@ -91,6 +92,7 @@ function choose(value: unknown): void {
           v-if="card.value === form.defaults.value.preset"
           class="inline-flex h-(--pill-h-sm) items-center rounded-full border border-(--border-default) bg-(--surface-3) px-2 font-(family-name:--font-cond) text-(length:--text-nano) leading-none font-semibold tracking-(--tracking-caps-tight) whitespace-nowrap text-muted-foreground uppercase"
         >{{ t('settings.preset.default') }}</span>
+        <ChangedMark v-if="card.value === form.current.value.preset && form.linked.value.has('preset')">{{ t('settings.fromLink') }}</ChangedMark>
         <span
           class="ml-auto flex size-(--check-size) items-center justify-center rounded-full border-(length:--border-width-strong) border-(--border-strong) group-data-[state=checked]:border-primary"
           aria-hidden="true"

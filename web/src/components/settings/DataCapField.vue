@@ -60,6 +60,7 @@ function commit(text: string): void {
     :title="t('settings.cap.title')"
     :caption="t('settings.cap.caption')"
     :changed="form.changed.value.has('dataCapBytes')"
+    :linked="form.linked.value.has('dataCapBytes')"
   >
     <div class="flex items-start gap-2.5">
       <div class="flex h-(--input-h) items-center">

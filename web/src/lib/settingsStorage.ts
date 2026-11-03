@@ -230,6 +230,14 @@ export function streamsShown(streams: { mode: TestSettings['streams']['mode']; f
 
 /** The value a field has with these stored settings over the defaults. */
 export function valueOf(key: StoredKey, defaults: TestSettings, stored: StoredSettings): unknown {
+  return valueIn(key, storedOver(defaults, stored), stored)
+}
+
+/**
+ * The value a field has in `settings`, the theme, the language, Auto-start and the label read from
+ * `own`, which the settings do not hold.
+ */
+export function valueIn(key: StoredKey, settings: TestSettings, stored: StoredSettings): unknown {
   switch (key) {
     case 'theme':
       return stored.theme ?? 'system'
@@ -240,15 +248,15 @@ export function valueOf(key: StoredKey, defaults: TestSettings, stored: StoredSe
     case 'label':
       return stored.label ?? ''
     case 'streams':
-      return streamsShown(storedOver(defaults, stored).streams)
+      return streamsShown(settings.streams)
     case 'continuousDirection':
-      return storedOver(defaults, stored).continuousDirection ?? null
+      return settings.continuousDirection ?? null
     case 'runLengthS': {
-      const ms = storedOver(defaults, stored).runLengthMs
+      const ms = settings.runLengthMs
       return ms === undefined ? null : ms / SECOND
     }
     default:
-      return storedOver(defaults, stored)[key]
+      return settings[key]
   }
 }
 

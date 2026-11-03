@@ -17,9 +17,13 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { reactive } from 'vue'
+import type { Router } from 'vue-router'
+
 import type { ThemeChoice } from '@/composables/useTheme'
 import type { ConfigureOverride, IgnoredParameter, Preset, TestSettings } from '@/engine/messages'
 import { isSupportedLocale } from '@/i18n'
+import type { UrlParamName } from '@/lib/settingsEdit'
 import { choose, dataCap, labelValue, MAX_DURATION_S, MAX_RUN_LENGTH_S, MIN_DURATION_S, MIN_RUN_LENGTH_S, runFlag, SECOND, streamsValue, type Test, testPhases, unitsValue, wholeNumber } from '@/lib/urlValues'
 
 // The URL parameters of ui/url-params.md: names match case-insensitively, the first occurrence of
@@ -189,10 +193,49 @@ export function urlOverride(params: UrlParams, defaults: TestSettings): { overri
 let pageLoad: UrlParams | null = null
 let runConsumed = false
 
-/** The parameters of this page load, read once. */
+/**
+ * The parameters of this page load, read once, as state every reader shares: a Settings edit drops
+ * the parameters that govern the field it changes (ui/flows.md section 9), and the Test screen's
+ * settings and the next configure follow at once.
+ */
 export function useUrlParams(): UrlParams {
-  pageLoad ??= parseUrlParams(window.location.search)
+  pageLoad ??= reactive(parseUrlParams(window.location.search))
   return pageLoad
+}
+
+/** The fields of UrlParams each droppable parameter sets, with the value it gave. */
+const FIELDS: Record<UrlParamName, { field: keyof UrlParams; given?: 'test' | 'duration' | 'streams' }> = {
+  preset: { field: 'preset' },
+  test: { field: 'test', given: 'test' },
+  duration: { field: 'durationMs', given: 'duration' },
+  streams: { field: 'streams', given: 'streams' },
+  cap: { field: 'dataCapBytes' },
+  units: { field: 'units' },
+  lang: { field: 'lang' },
+  theme: { field: 'theme' },
+  label: { field: 'label' },
+}
+
+/**
+ * Removes `names` from this page load's parameters and from the address together, in one replace
+ * of the query; every occurrence of a name goes, whatever its case.
+ */
+export function dropUrlParams(names: readonly UrlParamName[], router: Router): void {
+  if (names.length === 0) {
+    return
+  }
+  const params = useUrlParams()
+  for (const name of names) {
+    const { field, given } = FIELDS[name]
+    Reflect.deleteProperty(params, field)
+    if (given !== undefined && params.given !== undefined) {
+      const { [given]: _dropped, ...rest } = params.given
+      params.given = rest
+    }
+  }
+  params.ignored = params.ignored.filter((ignored) => !names.includes(ignored.parameter as UrlParamName))
+  const query = Object.fromEntries(Object.entries(router.currentRoute.value.query).filter(([key]) => !names.includes(key.toLowerCase() as UrlParamName)))
+  void router.replace({ query })
 }
 
 /**

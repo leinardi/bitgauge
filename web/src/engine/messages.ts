@@ -30,6 +30,9 @@ export type * from '@/engine/messages/settings'
 /** Checks a value against the result object; the application validates before exporting. */
 export { validateResult } from '@/engine/result/validate'
 
+/** The resolution a run's settings go through; the Settings screen shows the URL parameters through it. */
+export { resolveSettings } from '@/engine/settings'
+
 /** The preset table the engine resolves a preset with; the Settings screen states and applies it. */
 export { type PresetDefinition, PRESETS } from '@/engine/presets'
 

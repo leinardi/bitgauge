@@ -20,6 +20,7 @@
 import { CircleAlert, CircleCheck, Gauge, Layers, Monitor } from '@lucide/vue'
 import { computed, provide, shallowRef, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
 import OfflineNotice from '@/components/OfflineNotice.vue'
 import AdvancedSection from '@/components/settings/AdvancedSection.vue'
@@ -39,9 +40,11 @@ import UnitsField from '@/components/settings/UnitsField.vue'
 import { useInfo } from '@/composables/useInfo'
 import { usePageHeading, usePageTitle } from '@/composables/usePageHeading'
 import { useSettings } from '@/composables/useSettings'
+import { dropUrlParams, useUrlParams } from '@/composables/useUrlParams'
 import type { TestSettings } from '@/engine/messages'
 import { settingsFromDefaults } from '@/lib/defaults'
-import { changedKeys, defaultOf, storedOver, valueOf } from '@/lib/settingsStorage'
+import { applyEdit, linkedKeys, linkedSettings, linkedValueOf, URL_PARAM_NAMES, type UrlParamName } from '@/lib/settingsEdit'
+import { changedKeys, defaultOf, type StoredKey, type StoredSettings, valueOf } from '@/lib/settingsStorage'
 
 // The Settings screen (ui/screens.md section 4, design_system kit Settings.jsx): every change is
 // saved in this browser as it is made and applies to the next test; a value that is not valid
@@ -55,24 +58,64 @@ usePageHeading(() => heading.value)
 usePageTitle(() => t('app.nav.settings'))
 const { info, reachability, refresh } = useInfo()
 const settings = useSettings()
+// The URL parameters of this page load set the fields they name until one is edited here
+// (ui/flows.md section 9).
+const url = useUrlParams()
+const router = useRouter()
 const host = window.location.host
 
 const serverDefaults = computed(() => (info.value === null ? null : settingsFromDefaults(info.value.defaults)))
 const invalid = shallowRef<ReadonlySet<string>>(new Set())
 // Continuous has no durations: its run length shows with the preset in their place.
-const continuous = computed(() => serverDefaults.value !== null && storedOver(serverDefaults.value, settings.stored.value).preset === 'continuous')
+const continuous = computed(() => serverDefaults.value !== null && linkedSettings(serverDefaults.value, settings.stored.value, url).preset === 'continuous')
+
+/**
+ * Stores `fields`, each over the URL parameters that govern it, and drops those parameters; a field
+ * set to undefined returns to its default, as a reset does.
+ */
+function edit(fields: StoredSettings, defaults: TestSettings): void {
+  let next = settings.stored.value
+  const drop = new Set<UrlParamName>()
+  for (const key of Object.keys(fields) as StoredKey[]) {
+    const edited = applyEdit(defaults, next, url, key, fields[key])
+    next = edited.stored
+    edited.drop.forEach((name) => drop.add(name))
+  }
+  settings.replace(next, defaults)
+  if ('theme' in fields) {
+    if (fields.theme === undefined) {
+      settings.reset(['theme'], defaults)
+    } else {
+      settings.set({ theme: fields.theme }, defaults)
+    }
+  }
+  dropUrlParams([...drop], router)
+}
+
+/** Restores `keys` to their defaults over the URL parameters, as edits do. */
+function reset(keys: readonly StoredKey[], defaults: TestSettings): void {
+  edit(Object.fromEntries(keys.map((key) => [key, undefined])) as StoredSettings, defaults)
+}
+
+/** Removes every stored field, and every URL parameter of this page load with them: the server defaults apply. */
+function resetAll(): void {
+  settings.resetAll()
+  dropUrlParams(URL_PARAM_NAMES, router)
+}
 
 function form(defaults: () => TestSettings): SettingsForm {
   return {
     defaults: computed(defaults),
-    current: computed(() => storedOver(defaults(), settings.stored.value)),
+    current: computed(() => linkedSettings(defaults(), settings.stored.value, url)),
     stored: settings.stored,
     changed: computed(() => new Set(changedKeys(defaults(), settings.stored.value))),
-    valueOf: (key) => valueOf(key, defaults(), settings.stored.value),
+    linked: computed(() => linkedKeys(defaults(), settings.stored.value, url)),
+    valueOf: (key) => linkedValueOf(key, defaults(), settings.stored.value, url),
+    storedValueOf: (key) => valueOf(key, defaults(), settings.stored.value),
     defaultOf: (key) => defaultOf(key, defaults(), settings.stored.value),
-    set: (fields) => settings.set(fields, defaults()),
-    reset: (keys) => settings.reset(keys, defaults()),
-    resetAll: () => settings.resetAll(),
+    set: (fields) => edit(fields, defaults()),
+    reset: (keys) => reset(keys, defaults()),
+    resetAll,
     invalid(id, value) {
       const next = new Set(invalid.value)
       if (value) {

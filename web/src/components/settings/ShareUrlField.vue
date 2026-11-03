@@ -26,12 +26,14 @@ import { settingName } from '@/components/settings/changes'
 import { useSettingsForm } from '@/components/settings/form'
 import LabeledCheckbox from '@/components/settings/LabeledCheckbox.vue'
 import SettingsCard from '@/components/settings/SettingsCard.vue'
+import { storedOver } from '@/lib/settingsStorage'
 import { buildSettingsUrl } from '@/lib/shareUrl'
 import { readBasePath } from '@/router/base'
 
 // The shareable settings URL (ui/url-params.md section 3, kit Settings.jsx): a read-only field
 // with Copy, the "include run=1" option, and the "Not in the link" line naming the changed
-// settings no parameter carries.
+// settings no parameter carries. It carries the settings saved here, not the parameters of this
+// page load's own link.
 
 const COPIED_MS = 1500
 // The parameter the auto-start option adds, in the mono face, as the kit sets it.
@@ -45,7 +47,7 @@ const failed = shallowRef(false)
 let timer: ReturnType<typeof setTimeout> | undefined
 
 const base = `${window.location.origin}${readBasePath(document)}`
-const link = computed(() => buildSettingsUrl(base, form.current.value, form.defaults.value, form.stored.value, includeRun.value))
+const link = computed(() => buildSettingsUrl(base, storedOver(form.defaults.value, form.stored.value), form.defaults.value, form.stored.value, includeRun.value))
 const notInLink = computed(() => link.value.notInLink.map((key) => settingName(key, t)).join(', '))
 
 async function copy(): Promise<void> {

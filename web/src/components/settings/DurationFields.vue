@@ -100,6 +100,7 @@ const rows = computed(() => [
             />
             {{ row.label }}
             <ChangedMark v-if="form.changed.value.has(row.direction)">{{ t('settings.custom') }}</ChangedMark>
+            <ChangedMark v-if="form.linked.value.has(row.direction)">{{ t('settings.fromLink') }}</ChangedMark>
           </span>
           <SettingInput
             :id="`settings-${row.direction}-min`"

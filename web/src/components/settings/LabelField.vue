@@ -17,6 +17,7 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useSettingsForm } from '@/components/settings/form'
@@ -29,6 +30,8 @@ import { labelValue, MAX_LABEL } from '@/lib/urlValues'
 
 const { t } = useI18n()
 const form = useSettingsForm()
+// The stored label, or the link's while a `label` parameter sets it.
+const label = computed(() => (form.valueOf('label') as string | undefined) ?? '')
 
 function validate(text: string): string | null {
   return labelValue(text) === undefined ? t('settings.errors.label', { max: MAX_LABEL }) : null
@@ -40,12 +43,13 @@ function validate(text: string): string | null {
     :title="t('settings.label.title')"
     :caption="t('settings.label.caption', { max: MAX_LABEL })"
     :changed="form.changed.value.has('label')"
+    :linked="form.linked.value.has('label')"
   >
     <SettingInput
       id="settings-label"
-      :value="form.stored.value.label ?? ''"
+      :value="label"
       :label="t('settings.label.input')"
-      :restore-text="form.stored.value.label === undefined || form.stored.value.label === '' ? t('settings.label.noLabel') : undefined"
+      :restore-text="label === '' ? t('settings.label.noLabel') : undefined"
       :placeholder="t('settings.label.placeholder')"
       :validate="validate"
       inputmode="text"

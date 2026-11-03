@@ -114,6 +114,7 @@ const orders = computed(() => [
         <span class="flex items-center gap-2 text-(length:--text-sm) font-semibold">
           {{ t('settings.continuous.direction') }}
           <ChangedMark v-if="form.changed.value.has('continuousDirection')" />
+          <ChangedMark v-if="form.linked.value.has('continuousDirection')">{{ t('settings.fromLink') }}</ChangedMark>
         </span>
         <span class="text-(length:--text-caption) leading-(--lh-compact) text-subtle-foreground">{{ t('settings.continuous.directionCaption') }}</span>
       </div>
@@ -135,6 +136,7 @@ const orders = computed(() => [
       <span class="flex items-center gap-2 text-(length:--text-sm) text-muted-foreground">
         <span id="settings-phases">{{ t('settings.phases.title') }}</span>
         <ChangedMark v-if="form.changed.value.has('phases')" />
+        <ChangedMark v-if="form.linked.value.has('phases')">{{ t('settings.fromLink') }}</ChangedMark>
       </span>
       <LabeledCheckbox
         v-for="item in toggles"

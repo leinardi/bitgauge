@@ -136,6 +136,7 @@ function overhead(value: unknown): void {
         :title="t('settings.pings.title')"
         :caption="t('settings.pings.caption', { n: String(form.defaultOf('pingCount')) })"
         :changed="form.changed.value.has('pingCount')"
+        :linked="form.linked.value.has('pingCount')"
       >
         <SettingInput
           id="settings-pings"

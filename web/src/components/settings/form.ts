@@ -27,15 +27,19 @@ import type { StoredKey, StoredSettings } from '@/lib/settingsStorage'
 // whose input is invalid reports it, so the screen's header counts the values not saved.
 
 export interface SettingsForm {
-  /** The settings stored in this browser over the server defaults. */
+  /** The settings a run would use: those stored in this browser over the server defaults, the URL parameters of this page load over them. */
   current: ComputedRef<TestSettings>
   /** The server defaults from GET /info, as the engine's settings. */
   defaults: ComputedRef<TestSettings>
   stored: ComputedRef<StoredSettings>
   /** The stored fields that differ from their default. */
   changed: ComputedRef<ReadonlySet<StoredKey>>
-  /** The value a field has. */
+  /** The settings the URL parameters of this page load set, which show "from the link". */
+  linked: ComputedRef<ReadonlySet<StoredKey>>
+  /** The value a field has, the link's where it sets the field. */
   valueOf(key: StoredKey): unknown
+  /** The value a field has from the stored settings alone, as the changed list names it. */
+  storedValueOf(key: StoredKey): unknown
   /** The value a field has without its stored value. */
   defaultOf(key: StoredKey): unknown
   set(fields: StoredSettings): void

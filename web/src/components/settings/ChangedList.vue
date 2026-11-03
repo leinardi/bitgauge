@@ -39,7 +39,7 @@ const entries = computed(() =>
   SHOWN_ORDER.filter((key) => form.changed.value.has(key)).map((key) => ({
     key,
     name: settingName(key, t),
-    value: settingValue(key, form.valueOf(key), t),
+    value: settingValue(key, form.storedValueOf(key), t),
     byDefault: settingValue(key, form.defaultOf(key), t),
   })),
 )

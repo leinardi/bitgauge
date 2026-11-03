@@ -64,6 +64,7 @@ function choose(tag: unknown): void {
   <SettingRow
     :title="t('settings.theme.title')"
     :changed="form.changed.value.has('theme')"
+    :linked="form.linked.value.has('theme')"
   >
     <SegmentedControl
       v-model="theme"
@@ -75,6 +76,7 @@ function choose(tag: unknown): void {
     :title="t('settings.language.title')"
     :caption="t('settings.language.caption')"
     :changed="form.changed.value.has('lang')"
+    :linked="form.linked.value.has('lang')"
   >
     <Select
       :model-value="locale"

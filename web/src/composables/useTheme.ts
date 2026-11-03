@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { computed, type ComputedRef, effectScope, readonly, type Ref, ref, shallowRef, watchEffect } from 'vue'
+import { computed, type ComputedRef, effectScope, readonly, type Ref, ref, shallowRef, watch, watchEffect } from 'vue'
 
 import { useUrlParams } from '@/composables/useUrlParams'
 import { readStored, type SettingsStorage, type ThemeChoice, writeStored } from '@/lib/settingsStorage'
@@ -26,7 +26,8 @@ import { readStored, type SettingsStorage, type ThemeChoice, writeStored } from 
 // or the Settings screen chooses one. The choice is the stored settings' `theme` field
 // (lib/settingsStorage.ts), written with every other field of that object left as it is. A `theme`
 // URL parameter wins over the stored choice for the page load it appears on, and is not stored
-// (ui/url-params.md section 1).
+// (ui/url-params.md section 1); once a Settings edit or reset drops it, the stored choice applies
+// (ui/flows.md section 9).
 
 export type { ThemeChoice } from '@/lib/settingsStorage'
 
@@ -37,8 +38,8 @@ export interface ThemeEnvironment {
   storage: SettingsStorage
   matchMedia(query: string): MediaQueryList
   root: HTMLElement
-  /** The `theme` URL parameter of this page load. */
-  override?: ThemeChoice
+  /** The `theme` URL parameter of this page load, or a getter of it while it can be dropped. */
+  override?: ThemeChoice | (() => ThemeChoice | undefined)
 }
 
 export interface Theme {
@@ -55,7 +56,12 @@ export interface Theme {
 /** A theme over an environment: tests pass their own, the application uses `useTheme`. */
 export function createTheme(env: ThemeEnvironment): Theme {
   const stored = ref<ThemeChoice | null>(readStored(env.storage).theme ?? null)
-  const choice = ref<ThemeChoice>(env.override ?? stored.value ?? 'system')
+  const { override } = env
+  const linked = typeof override === 'function' ? override : () => override
+  const choice = ref<ThemeChoice>(linked() ?? stored.value ?? 'system')
+  watch(linked, (next) => {
+    choice.value = next ?? stored.value ?? 'system'
+  })
   const query = env.matchMedia(LIGHT_QUERY)
   const systemLight = shallowRef(query.matches)
   query.addEventListener('change', (event) => {
@@ -98,10 +104,8 @@ export function useTheme(): Theme {
       matchMedia: (query) => window.matchMedia(query),
       root: document.documentElement,
     }
-    const { theme } = useUrlParams()
-    if (theme !== undefined) {
-      env.override = theme
-    }
+    const params = useUrlParams()
+    env.override = () => params.theme
     // A detached scope: the theme's effects outlive whichever component asked for it first. A new
     // scope is active, so run always returns the theme.
     shared = effectScope(true).run(() => createTheme(env)) ?? createTheme(env)

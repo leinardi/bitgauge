@@ -19,12 +19,13 @@
 <script setup lang="ts">
 import ChangedMark from '@/components/settings/ChangedMark.vue'
 
-// One row of a settings card (kit Settings.jsx): the setting's title with its changed mark and a
+// One row of a settings card (kit Settings.jsx): the setting's title with its changed mark, and its
+// "from the link" mark while a URL parameter of this page load sets it (ui/flows.md section 9), and a
 // caption, and its control on the right, wrapping beneath on a narrow screen. The Advanced rows set
 // their caption closer to the title (dense), as the kit's do; a row aligned to the top (the
 // durations) leaves a little more room under its caption when it wraps.
 
-defineProps<{ title: string; caption?: string; changed?: boolean; top?: boolean; dense?: boolean }>()
+defineProps<{ title: string; caption?: string; changed?: boolean; linked?: boolean; top?: boolean; dense?: boolean }>()
 </script>
 
 <template>
@@ -39,6 +40,7 @@ defineProps<{ title: string; caption?: string; changed?: boolean; top?: boolean;
       <span class="flex items-center gap-2 text-(length:--text-sm) font-semibold">
         {{ title }}
         <ChangedMark v-if="changed" />
+        <ChangedMark v-if="linked">{{ $t('settings.fromLink') }}</ChangedMark>
       </span>
       <span
         v-if="caption !== undefined || $slots.caption"

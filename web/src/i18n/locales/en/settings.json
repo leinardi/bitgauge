@@ -6,6 +6,7 @@
     "storageRefused": "This browser did not store the change; it applies until the page is closed.",
     "intro": "Changes save automatically in this browser and apply to the next test.",
     "changedMark": "changed",
+    "fromLink": "from the link",
     "custom": "custom",
     "loading": "Loading the server's defaults…",
     "preset": {

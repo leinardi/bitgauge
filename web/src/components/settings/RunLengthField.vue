@@ -52,7 +52,7 @@ const on = computed({
   set: (next: boolean) => {
     armed.value = next
     if (!next) {
-      form.reset(['runLengthS'])
+      form.set({ runLengthS: undefined })
     }
   },
 })
@@ -73,7 +73,7 @@ function validate(text: string): string | null {
 function commit(text: string): void {
   chosen.value = shown.value.unit
   if (text === '') {
-    form.reset(['runLengthS'])
+    form.set({ runLengthS: undefined })
   } else {
     form.set({ runLengthS: runLengthSeconds(text, chosen.value) })
   }
@@ -109,6 +109,7 @@ function unit(next: unknown): void {
       <span class="flex items-center gap-2 text-(length:--text-sm) font-semibold">
         {{ t('settings.continuous.runLength') }}
         <ChangedMark v-if="form.changed.value.has('runLengthS')" />
+        <ChangedMark v-if="form.linked.value.has('runLengthS')">{{ t('settings.fromLink') }}</ChangedMark>
       </span>
       <span class="text-(length:--text-caption) leading-(--lh-compact) text-subtle-foreground">{{ t('settings.continuous.runLengthCaption') }}</span>
     </div>

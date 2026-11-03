@@ -61,6 +61,7 @@ const ramp = computed(() => [...new Set(RAMP_SEQUENCE.map((count) => Math.min(co
     :title="t('settings.streams.title')"
     :caption="t('settings.streams.caption', { ramp, max: streams.max })"
     :changed="form.changed.value.has('streams')"
+    :linked="form.linked.value.has('streams')"
   >
     <div class="flex flex-wrap items-center gap-2">
       <SegmentedControl

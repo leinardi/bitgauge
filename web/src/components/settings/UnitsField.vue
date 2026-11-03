@@ -44,6 +44,7 @@ const options = computed(() => [
   <SettingRow
     :title="t('settings.units.title')"
     :changed="form.changed.value.has('units')"
+    :linked="form.linked.value.has('units')"
   >
     <SegmentedControl
       v-model="units"

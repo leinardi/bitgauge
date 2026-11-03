@@ -39,6 +39,8 @@ export interface Settings {
   set(fields: StoredSettings, defaults: TestSettings): void
   /** Removes the stored `keys`: each returns to its default. */
   reset(keys: readonly StoredKey[], defaults: TestSettings): void
+  /** Stores `next` in place of the stored settings but the theme, as an edit over the URL parameters computes them. */
+  replace(next: StoredSettings, defaults: TestSettings): void
   /** Removes every stored field this version knows; fields it does not know stay. */
   resetAll(): void
 }
@@ -87,6 +89,11 @@ export function createSettings(env: SettingsEnvironment): Settings {
         Reflect.deleteProperty(next, key)
       }
       write(pruned(defaults, next))
+    },
+    replace(next, defaults) {
+      // The theme is the theme's own field, set through `set` alone.
+      const { theme: _theme, ...rest } = next
+      write(pruned(defaults, rest))
     },
     resetAll() {
       env.theme.resetTheme()
