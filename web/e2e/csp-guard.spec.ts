@@ -75,6 +75,18 @@ test('mounts the toaster with its stylesheet and style bindings under the policy
   }
 })
 
+// reka-ui's select inserts one fixed <style> that hides its list's scrollbar, which the policy
+// allows by its hash (security.md section 5): the language select opens, its list's scrollbar is
+// hidden by that style, and the guard sees no violation.
+test('opens a select whose inline style the policy allows by its hash', async ({ page }) => {
+  await page.goto('/settings')
+  await page.getByRole('combobox', { name: 'Language' }).click()
+  const viewport = page.locator('[data-reka-select-viewport]')
+  await expect(viewport).toBeVisible()
+  expect(await viewport.evaluate((element) => getComputedStyle(element).scrollbarWidth)).toBe('none')
+  await page.keyboard.press('Escape')
+})
+
 // History and the share image under the policy: the History page loads and imports an export; the
 // canvas reads the dark palette, loads the embedded fonts and exports a PNG through a blob: URL, and
 // the toast that confirms it shows; the guard sees no violation. No run is needed.

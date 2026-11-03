@@ -63,9 +63,14 @@ func (g Group) metricsGroup() metrics.Group {
 }
 
 const (
+	// styleHash allows the one inline style the SPA inserts, the fixed <style> of reka-ui's
+	// SelectViewport that hides the list's scrollbar, by its SHA-256, so 'unsafe-inline' stays out
+	// (security.md section 5). web/src/lib/csp.test.ts hashes the installed package's text, so an
+	// upgrade that changes it fails until this is updated.
+	styleHash = "'sha256-60LHlRjW/B3CtzIoE/Lf1/NEDvko9efWMFaGVhHu/cs='"
 	// cspStart and cspEnd surround the WebSocket sources of connect-src; together they are
 	// the Content-Security-Policy of security.md section 5, on one line.
-	cspStart = "default-src 'none'; script-src 'self'; style-src 'self'; " +
+	cspStart = "default-src 'none'; script-src 'self'; style-src 'self' " + styleHash + "; " +
 		"img-src 'self' data: blob:; font-src 'self'; connect-src 'self'"
 	cspEnd = "; worker-src 'self'; manifest-src 'self'; base-uri 'none'; " +
 		"form-action 'none'; frame-ancestors 'none'"

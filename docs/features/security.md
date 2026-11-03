@@ -126,7 +126,8 @@ The LibreSpeed-compatible `/getIP` uses the same rule as every other consumer of
 The SPA document and its assets are served with:
 
 ```text
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self';
+Content-Security-Policy: default-src 'none'; script-src 'self';
+  style-src 'self' 'sha256-60LHlRjW/B3CtzIoE/Lf1/NEDvko9efWMFaGVhHu/cs=';
   img-src 'self' data: blob:; font-src 'self'; connect-src 'self' ws://<host> wss://<host>;
   worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none';
   frame-ancestors 'none'
@@ -144,11 +145,10 @@ X-Frame-Options: DENY
   need for `'unsafe-inline'` is a decision for
   [technical-stack/decisions.md](technical-stack/decisions.md), not a quiet change.
 - **One hashed inline style.** The select component (reka-ui's `SelectViewport`) inserts a fixed
-  `<style>` element that hides the list's scrollbar. Its text never changes, so `style-src` is to
-  allow exactly that text by its SHA-256 hash,
-  `'sha256-60LHlRjW/B3CtzIoE/Lf1/NEDvko9efWMFaGVhHu/cs='`, which the header above gains with the
-  code that serves it, rather than `'unsafe-inline'`, which stays forbidden. A test hashes the
-  text in the installed package, so an upgrade that changes it fails until the hash is updated.
+  `<style>` element that hides the list's scrollbar. Its text never changes, so `style-src`
+  allows exactly that text by its SHA-256 hash, the one in the header above, rather than
+  `'unsafe-inline'`, which stays forbidden. A test hashes the text in the installed package, so an
+  upgrade that changes it fails until the hash is updated.
 - `connect-src` names the WebSocket scheme for the request's own `Host` explicitly, because older
   Safari versions do not match `ws:`/`wss:` with `'self'`. The value only ever reflects the host
   the browser itself asked for.
