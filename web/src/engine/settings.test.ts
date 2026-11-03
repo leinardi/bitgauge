@@ -184,6 +184,11 @@ describe('Continuous', () => {
     expect(kept.ok && kept.settings.runLengthMs).toBe(3_600_000)
   })
 
+  it('takes the direction and run length the override names on a switch from a bounded preset', () => {
+    const resolution = resolveSettings(STANDARD, { preset: 'continuous', continuousDirection: 'upload', runLengthMs: 7_200_000 })
+    expect(resolution.ok && resolution.settings).toMatchObject({ preset: 'continuous', continuousDirection: 'upload', runLengthMs: 7_200_000, download: { minMs: null, maxMs: null } })
+  })
+
   it('drops its fields on a switch back to a bounded preset', () => {
     const continuous = settings({ preset: 'continuous', durationMs: 120_000 })
     const resolution = resolveSettings(continuous, { preset: 'quick' })

@@ -19,7 +19,7 @@
 
 import { urlOverride, type UrlParams } from '@/composables/useUrlParams'
 import { resolveSettings, type TestSettings } from '@/engine/messages'
-import { type StoredKey, type StoredSettings, storedOver, valueIn } from '@/lib/settingsStorage'
+import { storedContinuous, type StoredKey, type StoredSettings, storedOver, valueIn } from '@/lib/settingsStorage'
 import { SECOND } from '@/lib/urlValues'
 
 // A Settings edit over the URL parameters of the page load (ui/flows.md section 9, D-9): a field a
@@ -57,7 +57,7 @@ const CONTINUOUS_ONLY: ReadonlySet<StoredKey> = new Set(['continuousDirection', 
 /** The settings a run would use: the stored settings over the defaults, the URL parameters over them. */
 export function linkedSettings(defaults: TestSettings, stored: StoredSettings, url: UrlParams): TestSettings {
   const base = storedOver(defaults, stored)
-  const resolved = resolveSettings(base, urlOverride(url, base).override)
+  const resolved = resolveSettings(base, urlOverride(url, base, storedContinuous(stored)).override)
   if (!resolved.ok) {
     return base
   }
@@ -68,11 +68,11 @@ export function linkedSettings(defaults: TestSettings, stored: StoredSettings, u
 /** The parameters that apply over these stored settings, each only where it changes a setting. */
 function inEffect(defaults: TestSettings, stored: StoredSettings, url: UrlParams): Set<UrlParamName> {
   const base = storedOver(defaults, stored)
-  const { override } = urlOverride(url, base)
+  const { override } = urlOverride(url, base, storedContinuous(stored))
   const on = new Set<UrlParamName>()
   const add = (name: UrlParamName, applies: boolean) => applies && on.add(name)
   add('preset', override.preset !== undefined && override.preset !== base.preset)
-  add('test', override.phases !== undefined || override.continuousDirection !== undefined)
+  add('test', url.test !== undefined && (override.phases !== undefined || override.continuousDirection !== undefined))
   add('duration', override.durationMs !== undefined)
   add('streams', override.streams !== undefined)
   add('cap', override.dataCapBytes !== undefined)
@@ -119,7 +119,7 @@ export function linkedValueOf(key: StoredKey, defaults: TestSettings, stored: St
 
 /** The stored settings with `preset` and the values it brings over them, as the engine resolves it. */
 function materialized(defaults: TestSettings, stored: StoredSettings, preset: NonNullable<UrlParams['preset']>): StoredSettings {
-  const resolved = resolveSettings(storedOver(defaults, stored), { preset })
+  const resolved = resolveSettings(storedOver(defaults, stored), { preset, ...(preset === 'continuous' ? storedContinuous(stored) : {}) })
   if (!resolved.ok) {
     return { ...stored, preset }
   }

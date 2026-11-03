@@ -118,6 +118,15 @@ describe('an edit under Continuous', () => {
     expect(run.continuousDirection).toBe('upload')
   })
 
+  it('keeps the stored direction and run length over a bounded stored preset when it stores the link preset', () => {
+    const url = parseUrlParams('?preset=continuous')
+    const stored: StoredSettings = { preset: 'quick', continuousDirection: 'upload', runLengthS: 7200 }
+    expect(linkedSettings(DEFAULTS, stored, url)).toMatchObject({ preset: 'continuous', continuousDirection: 'upload', runLengthMs: 7_200_000 })
+    const edited = applyEdit(DEFAULTS, stored, url, 'pingCount', 30)
+    expect(edited.drop).toEqual(['preset'])
+    expect(edited.stored).toMatchObject({ preset: 'continuous', continuousDirection: 'upload', runLengthS: 7200, pingCount: 30 })
+  })
+
   it('marks the direction, the run length and the preset as from the link', () => {
     expect([...linkedKeys(DEFAULTS, STORED, parseUrlParams(link))].sort()).toEqual(['continuousDirection', 'pingCount', 'preset', 'runLengthS', 'streams'])
   })

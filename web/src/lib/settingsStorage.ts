@@ -193,6 +193,18 @@ function unused(key: StoredKey, preset: Preset): boolean {
 }
 
 /**
+ * The stored Continuous direction and run length, kept under a bounded stored preset too: a
+ * `preset=continuous` link runs with them, as choosing Continuous in Settings does, since a URL
+ * preset brings only its durations, ping count and stream mode (ui/url-params.md section 1).
+ */
+export function storedContinuous(stored: StoredSettings): Pick<TestSettings, 'continuousDirection' | 'runLengthMs'> {
+  return {
+    ...(stored.continuousDirection === undefined ? {} : { continuousDirection: stored.continuousDirection }),
+    ...(stored.runLengthS === undefined ? {} : { runLengthMs: stored.runLengthS * SECOND }),
+  }
+}
+
+/**
  * The stored settings over the server defaults: a stored preset brings its values, the other
  * stored fields win over them, those the preset does not use aside: Continuous keeps its absent
  * bounds and a bounded preset has no direction or run length. A fixed stream mode whose count is

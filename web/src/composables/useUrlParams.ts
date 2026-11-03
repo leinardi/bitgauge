@@ -146,12 +146,22 @@ export function parseUrlParams(search: string): UrlParams {
  * engine resolves. A bounded preset runs the phases a `test` value names, idle latency first and
  * the directions in the configured order, and takes a `duration` of 5–600 s. Continuous runs the
  * direction `test` names, download for `all`, ignoring `latency`, with idle latency as the stored
- * phases say, and takes a `duration` of 60–604800 s as its run length.
+ * phases say, and takes a `duration` of 60–604800 s as its run length. A `preset=continuous` over a
+ * bounded preset runs `kept`, the stored direction and run length, where `test` and `duration` do
+ * not name their own.
  */
-export function urlOverride(params: UrlParams, defaults: TestSettings): { override: ConfigureOverride; ignored: IgnoredParameter[] } {
+export function urlOverride(
+  params: UrlParams,
+  defaults: TestSettings,
+  kept: Pick<TestSettings, 'continuousDirection' | 'runLengthMs'> = {},
+): { override: ConfigureOverride; ignored: IgnoredParameter[] } {
   const override: ConfigureOverride = {}
   const ignored = [...params.ignored]
   const continuous = (params.preset ?? defaults.preset) === 'continuous'
+  if (continuous && defaults.preset !== 'continuous') {
+    // A link's Continuous over a bounded stored preset keeps the stored direction and run length.
+    Object.assign(override, kept)
+  }
   if (params.test !== undefined) {
     if (!continuous) {
       override.phases = testPhases(params.test, defaults.phases)

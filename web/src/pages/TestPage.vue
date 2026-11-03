@@ -53,7 +53,7 @@ import { consumeAutoRun, urlOverride, useUrlParams } from '@/composables/useUrlP
 import { browserIdentity, type Preset } from '@/engine/messages'
 import { continuousDirection, runPhases } from '@/lib/continuous'
 import { moveFocus } from '@/lib/focus'
-import { DEFAULT_AUTO_START } from '@/lib/settingsStorage'
+import { DEFAULT_AUTO_START, storedContinuous } from '@/lib/settingsStorage'
 import { SECOND } from '@/lib/urlValues'
 
 // The Test screen (ui/screens.md section 1, kit TestScreen.jsx): idle, the auto-start countdown,
@@ -66,7 +66,7 @@ import { SECOND } from '@/lib/urlValues'
 const { info, reachability, refresh, nextCheckS } = useInfo()
 const url = useUrlParams()
 const { stored } = useSettings()
-const run = useRun({ base: (serverDefaults) => effectiveSettings(url, serverDefaults, stored.value).settings, override: (base) => urlOverride(url, base).override })
+const run = useRun({ base: (serverDefaults) => effectiveSettings(url, serverDefaults, stored.value).settings, override: (base) => urlOverride(url, base, storedContinuous(stored.value)).override })
 const { defaults, settings } = run
 // The stored Auto-start's countdown length; a later change applies from the next page load.
 const countdown = useCountdown((stored.value.autoStart?.countdownS ?? DEFAULT_AUTO_START.countdownS) * SECOND)

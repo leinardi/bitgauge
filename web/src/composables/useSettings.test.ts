@@ -28,7 +28,7 @@ import { describe, expect, it } from 'vitest'
 import { createSettings, effectiveSettings } from '@/composables/useSettings'
 import { createTheme } from '@/composables/useTheme'
 import { parseUrlParams } from '@/composables/useUrlParams'
-import type { TestSettings } from '@/engine/messages'
+import { resolveSettings, type TestSettings } from '@/engine/messages'
 import { settingsFromDefaults } from '@/lib/defaults'
 import { SETTINGS_KEY, type SettingsStorage } from '@/lib/settingsStorage'
 import { infoFixture } from '@/test/fixtures'
@@ -130,6 +130,30 @@ describe('the effective settings', () => {
     })
     expect(settings.units).toBe('bytes')
     expect(override).toEqual({ streams: { mode: 'fixed', fixed: 2, max: 6 }, units: 'bits', phases: ['idle', 'upload'] })
+  })
+
+  it('keep the stored Continuous direction and run length under a preset=continuous link over a bounded stored preset', () => {
+    const stored = { preset: 'quick', continuousDirection: 'upload', runLengthS: 7200 } as const
+    const { settings, override } = effectiveSettings(parseUrlParams('?preset=continuous'), DEFAULTS, stored)
+    expect(settings.preset).toBe('quick')
+    expect(override).toEqual({ preset: 'continuous', continuousDirection: 'upload', runLengthMs: 7_200_000 })
+    const resolved = resolveSettings(settings, override)
+    expect(resolved.ok && resolved.settings).toMatchObject({ preset: 'continuous', continuousDirection: 'upload', runLengthMs: 7_200_000 })
+  })
+
+  it('let test and duration name their own Continuous direction and run length over the stored ones', () => {
+    const stored = { preset: 'quick', continuousDirection: 'upload', runLengthS: 7200 } as const
+    const { settings, override } = effectiveSettings(parseUrlParams('?preset=continuous&test=download&duration=600'), DEFAULTS, stored)
+    const resolved = resolveSettings(settings, override)
+    expect(resolved.ok && resolved.settings).toMatchObject({ preset: 'continuous', continuousDirection: 'download', runLengthMs: 600_000 })
+  })
+
+  it('keep no Continuous fields when none is stored: download, until stopped', () => {
+    const { settings, override } = effectiveSettings(parseUrlParams('?preset=continuous'), DEFAULTS, { preset: 'quick' })
+    expect(override).toEqual({ preset: 'continuous' })
+    const resolved = resolveSettings(settings, override)
+    expect(resolved.ok && resolved.settings.continuousDirection).toBe('download')
+    expect(resolved.ok && resolved.settings).not.toHaveProperty('runLengthMs')
   })
 
   it('check a fixed URL stream count against the server maximum', () => {

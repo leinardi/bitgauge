@@ -22,7 +22,7 @@ import { computed, type ComputedRef, readonly, type Ref, shallowRef } from 'vue'
 import { type Theme, useTheme } from '@/composables/useTheme'
 import { urlOverride, type UrlParams } from '@/composables/useUrlParams'
 import type { ConfigureOverride, IgnoredParameter, TestSettings } from '@/engine/messages'
-import { pruned, readStored, type SettingsStorage, type StoredKey, type StoredSettings, storedOver, writeStored } from '@/lib/settingsStorage'
+import { pruned, readStored, type SettingsStorage, storedContinuous, type StoredKey, type StoredSettings, storedOver, writeStored } from '@/lib/settingsStorage'
 
 // The user's settings (frontend.md section 4, ui/screens.md section 4): the sparse object stored
 // in this browser, shared with the theme, which keeps its own field. Each change is saved as it is
@@ -125,5 +125,5 @@ export function effectiveSettings(
   stored: StoredSettings,
 ): { settings: TestSettings; override: ConfigureOverride; ignored: IgnoredParameter[] } {
   const settings = storedOver(defaults, stored)
-  return { settings, ...urlOverride(params, settings) }
+  return { settings, ...urlOverride(params, settings, storedContinuous(stored)) }
 }
