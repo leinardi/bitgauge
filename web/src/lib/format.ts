@@ -132,6 +132,17 @@ function fixedDigits(digits: number, locale: string): Intl.NumberFormat {
   return new Intl.NumberFormat(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits })
 }
 
+/**
+ * A latency as {@link latencyNumber} shows it, as a number: whole from 10 ms or at a coarse timer,
+ * one decimal below; below the timer resolution, the resolution, as both read "< resolution".
+ */
+export function roundedLatency(ms: number, resolutionMs = 0): number {
+  if (ms < resolutionMs) {
+    return resolutionMs
+  }
+  return Number(ms.toFixed(latencyDigits(ms, resolutionMs)))
+}
+
 /** A latency with its unit: 9.4 ms, 51 ms, < 1 ms. */
 export function formatLatency(ms: number, locale: string, resolutionMs = 0): string {
   return `${latencyNumber(ms, locale, resolutionMs)}${NBSP}ms`

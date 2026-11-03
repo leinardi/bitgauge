@@ -18,7 +18,8 @@
  */
 
 import type { Direction, LoadedLatency, MeasuringPhase, PhaseState, Responsiveness, Result } from '@/engine/messages'
-import { type GradeView, loadRow, type LoadRow, gradeView, plannedResponsivenessView, responsivenessView, type ResponsivenessView, ungradedReason } from '@/components/result/load'
+import { type GradeView, loadRow, type LoadRow, gradeView, plannedResponsivenessView, responsivenessView, type ResponsivenessView } from '@/components/result/load'
+import { ungradedReason } from '@/components/result/ungraded'
 import type { Wording } from '@/components/test/wording'
 import type { AnsweredPings } from '@/composables/useLoadedSeries'
 import type { RunStatus } from '@/composables/useRunState'

@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { type UngradedReason, ungradedReason } from '@/components/result/load'
+import { type UngradedReason, ungradedReason } from '@/components/result/ungraded'
 import { EXPERIENCES, type ExperienceName, experienceText, scoreBasis } from '@/components/result/qualityList'
 import { latencyStopView, noticeViews } from '@/components/test/notices'
 import type { RunView } from '@/components/test/screen/states'

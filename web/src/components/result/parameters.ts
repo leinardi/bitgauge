@@ -62,7 +62,7 @@ export function directions(result: Result): Direction[] {
   return runPhases(result.settings).filter((phase): phase is Direction => phase !== 'idle' && result[phase] !== undefined && result[phase].status !== 'skipped')
 }
 
-function directionName(direction: Direction, { t }: Wording): string {
+export function directionName(direction: Direction, { t }: Wording): string {
   return direction === 'download' ? t('result.parameters.download') : t('result.parameters.upload')
 }
 
@@ -149,16 +149,23 @@ function warmup(result: Result, wording: Wording): string {
   return stopped.length === 0 ? t('result.parameters.warmupEnded', { mode, ends: list(ends) }) : t('result.parameters.warmupEndedStopped', { mode, ends: list(ends), stopped: list(stopped) })
 }
 
-export function parameterGroups(result: Result, units: 'bits' | 'bytes', wording: Wording): ParameterGroup[] {
-  const { t, locale } = wording
-  const { settings, client, server } = result
-  const continuous = settings.preset === 'continuous'
-  const phases = runPhases(settings).map((phase) => {
+/** The phases the run ran, in its order: "Idle latency → Download → Upload". */
+export function phasesText(result: Result, wording: Wording, then = wording.t('result.parameters.then')): string {
+  const { t } = wording
+  const continuous = result.settings.preset === 'continuous'
+  const phases = runPhases(result.settings).map((phase) => {
     if (phase === 'idle') {
       return t('result.parameters.idle')
     }
     return continuous ? t('result.parameters.continuousPhase', { direction: directionName(phase, wording) }) : directionName(phase, wording)
   })
+  return phases.join(then)
+}
+
+export function parameterGroups(result: Result, units: 'bits' | 'bytes', wording: Wording): ParameterGroup[] {
+  const { t, locale } = wording
+  const { settings, client, server } = result
+  const continuous = settings.preset === 'continuous'
   // A Continuous run has a run length in place of the durations.
   const durations = continuous
     ? [row('run-length', t('result.parameters.runLength'), runLength(result, wording))]
@@ -174,7 +181,7 @@ export function parameterGroups(result: Result, units: 'bits' | 'bytes', wording
     {
       key: 'test',
       title: t('result.parameters.test'),
-      rows: [row('preset', t('result.parameters.preset'), presetName(settings.preset, t)), row('phases', t('result.parameters.phases'), phases.join(t('result.parameters.then'))), row('streams', t('result.parameters.streams'), streams(result, wording))],
+      rows: [row('preset', t('result.parameters.preset'), presetName(settings.preset, t)), row('phases', t('result.parameters.phases'), phasesText(result, wording)), row('streams', t('result.parameters.streams'), streams(result, wording))],
     },
     {
       key: 'limits',

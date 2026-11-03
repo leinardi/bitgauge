@@ -22,7 +22,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { clockTime, formatAgo, formatBytes, formatDuration, formatLatency, formatPercent, formatRate, formatSpan, latencyAxisLabels, latencyNumber, rateAxisLabels, rateParts, spokenBytes, spokenLatency, spokenRate } from '@/lib/format'
+import { clockTime, formatAgo, formatBytes, formatDuration, formatLatency, formatPercent, formatRate, formatSpan, latencyAxisLabels, latencyNumber, rateAxisLabels, rateParts, roundedLatency, spokenBytes, spokenLatency, spokenRate } from '@/lib/format'
 
 describe('formatBytes', () => {
   it.each([
@@ -94,6 +94,14 @@ describe('formatRate', () => {
 
   it('gives the number and the unit apart, in the locale', () => {
     expect(rateParts(94_100_000, 'bits', 'de')).toEqual({ number: '94,1', unit: 'Mbit/s' })
+  })
+})
+
+describe('roundedLatency', () => {
+  it('is the number latencyNumber shows', () => {
+    expect([roundedLatency(11.01), roundedLatency(9.96), roundedLatency(9.94), roundedLatency(1.04), roundedLatency(2.45, 1)]).toEqual([11, 10, 9.9, 1, 2])
+    // Below the timer resolution both read "< resolution", so they compare as it.
+    expect([roundedLatency(0.3, 1), roundedLatency(0.8, 1)]).toEqual([1, 1])
   })
 })
 

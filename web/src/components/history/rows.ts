@@ -20,6 +20,7 @@
 import type { useI18n } from 'vue-i18n'
 
 import { directionQualifiers, qualifiedRate } from '@/components/result/qualifiers'
+import { ungradedText } from '@/components/result/ungraded'
 import type { Wording } from '@/components/test/wording'
 import type { Bufferbloat, Direction, Result, ResultStatus } from '@/engine/messages'
 import { runPhases } from '@/lib/continuous'
@@ -28,7 +29,7 @@ import { protocolLabel } from '@/lib/protocol'
 
 // A stored result as the History list and the Test screen's last-result line show it (ui/screens.md
 // sections 1 and 3): its start in the active locale, the headline numbers in the chosen units, the
-// grade and the status; an absent number is null, which the views show as a dash. Each speed
+// grade, or "Not graded" with its one reason, and the status; an absent number is null, which the views show as a dash. Each speed
 // carries its qualifiers (status, confidence, overhead compensation), shown as a caption under it.
 
 export interface RateView {
@@ -58,6 +59,8 @@ export interface RowView {
   latency: string | null
   jitter: string | null
   grade: Bufferbloat['grade'] | null
+  /** Without a grade, the one reason it has none (ui/screens.md section 6). */
+  ungraded: string | null
 }
 
 /** A direction's number and qualifiers; a direction the run did not include has neither. */
@@ -97,6 +100,7 @@ export function rowView(result: Result, units: 'bits' | 'bytes', wording: Wordin
     latency: idle?.medianMs === undefined ? null : latencyNumber(idle.medianMs, locale, resolution),
     jitter: idle?.jitterMs === undefined ? null : latencyNumber(idle.jitterMs, locale, resolution),
     grade: result.bufferbloat?.grade ?? null,
+    ungraded: result.bufferbloat === undefined ? ungradedText(result, wording.t) : null,
   }
 }
 

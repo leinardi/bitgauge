@@ -90,6 +90,7 @@ const name = computed(() => (props.row.label === '' ? t('history.table.noLabel')
         />
         <GradeBadge
           :grade="row.grade"
+          :ungraded="row.ungraded"
           large
         />
       </span>

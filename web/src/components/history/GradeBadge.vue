@@ -24,12 +24,12 @@ import { gradeWord } from '@/components/history/rows'
 import type { Bufferbloat } from '@/engine/messages'
 
 // The bufferbloat grade as the History list shows it (kit History.jsx): the letter in a box of the
-// grade's tone, named in full for assistive technology; a dash without a grade.
+// grade's tone, named in full for assistive technology; without a grade, "Not graded" and its one
+// reason, as every screen words it (ui/screens.md section 6).
 
-const props = withDefaults(defineProps<{ grade: Bufferbloat['grade'] | null; large?: boolean }>(), { large: false })
+const props = withDefaults(defineProps<{ grade: Bufferbloat['grade'] | null; ungraded: string | null; large?: boolean }>(), { large: false })
 
 const { t } = useI18n()
-const DASH = '—'
 
 const TONES = {
   ok: 'border-(--ok-border) bg-(--ok-bg) text-(--ok-fg)',
@@ -54,15 +54,21 @@ const tone = computed(() => {
   }
 })
 
-const name = computed(() => (props.grade === null ? t('history.table.noGrade') : t('history.table.grade', { grade: props.grade, word: gradeWord(props.grade, t) })))
+const name = computed(() => (props.grade === null ? '' : t('history.table.grade', { grade: props.grade, word: gradeWord(props.grade, t) })))
 </script>
 
 <template>
   <span
+    v-if="grade === null"
+    class="text-(length:--text-caption) text-subtle-foreground"
+    data-testid="grade-ungraded"
+  >{{ t('history.table.notGraded', { reason: ungraded ?? '' }) }}</span>
+  <span
+    v-else
     role="img"
     :aria-label="name"
     :title="name"
     class="inline-flex items-center justify-center rounded-(--radius-sm) border font-mono text-(length:--text-caption) font-semibold"
     :class="[tone, large ? 'h-6 w-7' : 'h-5.5 w-6.5']"
-  >{{ grade ?? DASH }}</span>
+  >{{ grade }}</span>
 </template>

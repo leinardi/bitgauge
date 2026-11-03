@@ -217,7 +217,10 @@ const contextIcon = (context: string) => (context === 'LAN' ? House : context ==
             >{{ t('history.table.ms') }}</span>
           </TableCell>
           <TableCell :class="[CELL, 'text-center']">
-            <GradeBadge :grade="row.grade" />
+            <GradeBadge
+              :grade="row.grade"
+              :ungraded="row.ungraded"
+            />
           </TableCell>
           <TableCell
             :class="CELL"

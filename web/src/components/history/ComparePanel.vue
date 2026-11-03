@@ -132,7 +132,8 @@ const CELL = 'border-b border-(--border-subtle) px-3.5 py-(--density-cell-paddin
               aria-hidden="true"
               class="mt-0.5 flex-none text-(--warn)"
             />
-            <span><b class="font-semibold text-(--warn-fg)">{{ t('history.compare.apart') }}</b> {{ comparison.warning }}</span>
+            <!-- An unbroken label wraps anywhere rather than run past the box. -->
+            <span class="min-w-0 wrap-anywhere"><b class="font-semibold text-(--warn-fg)">{{ t('history.compare.apart') }}</b> {{ comparison.warning }}</span>
           </div>
           <table class="hidden w-full table-fixed border-collapse tablet:table">
             <thead>

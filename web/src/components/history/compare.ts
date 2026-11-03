@@ -19,12 +19,13 @@
 
 import type { useI18n } from 'vue-i18n'
 
-import { gradeWord } from '@/components/history/rows'
+import { gradeCell, idleCell, type LatencyCell, loadedCell, measuredApart } from '@/components/history/compareCells'
+import { compareSettings } from '@/components/history/compareSettings'
 import { browserText, directions, overheadText } from '@/components/result/parameters'
 import { directionQualifiers, qualifiedRate } from '@/components/result/qualifiers'
 import { bandName, EXPERIENCES, experienceName } from '@/components/result/qualityList'
 import { presetName } from '@/components/settings/changes'
-import type { Bufferbloat, Direction, DirectionResult, Responsiveness, Result, ScoreBand } from '@/engine/messages'
+import type { Bufferbloat, Direction, Responsiveness, Result, ScoreBand } from '@/engine/messages'
 import { formatBytes, formatDuration, formatLatency, formatPercent, formatRate, rpmNumber } from '@/lib/format'
 import { runPhases } from '@/lib/continuous'
 import { protocolLabel } from '@/lib/protocol'
@@ -32,11 +33,14 @@ import { protocolLabel } from '@/lib/protocol'
 // Compare two results (ui/screens.md section 3, ui/flows.md section 6): the
 // older by start is A and the newer B, and each change is B's against A. A rate within ±2 % of A's
 // and a latency within 1 ms of A's read "same"; grades compare by their order, A+ best; any other
-// difference is better or worse. A metric absent on either side is not comparable. Probe timeouts,
-// data used and duration show both values without a judgment. The results are not directly
-// comparable when they differ in preset, protocol, label or overhead compensation; a speed cell
-// carries its direction's qualifiers, and the speed rows read not comparable when the overhead
-// compensation differs, since their change would be the compensation's. The HTTP loaded responsiveness of each
+// difference is better or worse, a latency judged on its value as shown. A metric absent on either
+// side is not comparable. Probe timeouts, data used and duration show both values without a
+// judgment. The results are not directly comparable when they differ in preset, protocol, label or
+// overhead compensation; a speed cell carries its direction's qualifiers, and the speed rows read
+// not comparable when the overhead compensation differs, since their change would be the
+// compensation's. Latency and the grade carry theirs (compareCells.ts), and a row whose sides
+// differ in idle path, loaded-latency source or grade basis reads not comparable, named in the
+// warning. The HTTP loaded responsiveness of each
 // direction compares its RPM as a rate is, only when both sides are measured, and each
 // quality-score experience compares by band order, great best.
 
@@ -71,7 +75,8 @@ export function latencyChange(a: number | undefined, b: number | undefined): { v
   if (a === undefined || b === undefined) {
     return { verdict: 'not-comparable' }
   }
-  const deltaMs = b - a
+  // To the tenth the cells show, so a change shown as 1.0 ms is not 1.0000000000000002 ms.
+  const deltaMs = Math.round((b - a) * 10) / 10
   return { verdict: Math.abs(deltaMs) <= SAME_LATENCY_MS ? 'same' : deltaMs < 0 ? 'better' : 'worse', deltaMs }
 }
 
@@ -131,11 +136,6 @@ export interface Comparison {
 
 const DASH = '—'
 
-function loaded(direction: DirectionResult | undefined): number | undefined {
-  const latency = direction?.loadedLatency
-  return latency !== undefined && !('status' in latency) ? latency.medianMs : undefined
-}
-
 function rpmStateWord(block: Responsiveness, t: Translate): string {
   switch (block.state) {
     case 'measured':
@@ -193,13 +193,14 @@ export function compare(x: Result, y: Result, units: 'bits' | 'bytes', locale: s
   const wording = { t, locale }
   // A speed with its direction's qualifiers, so insufficient data, an error or a partial number
   // reads as such rather than as a bare dash.
-  const rate = (value: number | undefined, result: Result, direction: Direction) => {
+  // A Continuous peak is the p90 of the last hour (ui/screens.md section 6).
+  const rate = (value: number | undefined, result: Result, direction: Direction, peak = false) => {
     const text = value === undefined ? DASH : formatRate(value, units, locale)
     const part = result[direction]
-    const qualifiers = part === undefined || !runPhases(result.settings).includes(direction) ? [] : directionQualifiers(qualifiedRate(part), result.settings.overheadCompensationPercent, wording)
-    return qualifiers.length === 0 ? text : t('history.compare.qualified', { value: text, qualifiers: qualifiers.map((qualifier) => qualifier.text).join('; ') })
+    const qualifiers = part === undefined || !runPhases(result.settings).includes(direction) ? [] : directionQualifiers(qualifiedRate(part), result.settings.overheadCompensationPercent, wording).map((qualifier) => qualifier.text)
+    const all = peak && value !== undefined && result.settings.preset === 'continuous' ? [t('history.compare.peakLastHour'), ...qualifiers] : qualifiers
+    return all.length === 0 ? text : t('history.compare.qualified', { value: text, qualifiers: all.join('; ') })
   }
-  const latency = (value: number | undefined, result: Result) => (value === undefined ? DASH : formatLatency(value, locale, result.client.timerResolutionMs))
   const signed = (value: number, text: string) => `${value > 0 ? '+' : value < 0 ? '−' : '±'}${text}`
 
   const label = (result: Result) => (result.label === '' ? t('history.table.noLabel') : result.label)
@@ -221,6 +222,7 @@ export function compare(x: Result, y: Result, units: 'bits' | 'bytes', locale: s
     parameter('label', t('history.compare.label'), label, true),
     parameter('context', t('history.compare.context'), (result) => result.client.contextLabel || DASH),
     parameter('preset', t('history.compare.preset'), (result) => presetName(result.settings.preset, t), true),
+    ...compareSettings(a, b, wording).map((row) => parameter(row.key, row.name, row.of)),
     parameter('protocol', t('history.compare.protocol'), (result) => protocolLabel(result.client.protocol) ?? t('result.parameters.protocolNotReported'), true),
     parameter('streams', t('history.compare.streams'), streams),
     parameter('cap', t('history.compare.cap'), cap),
@@ -229,8 +231,8 @@ export function compare(x: Result, y: Result, units: 'bits' | 'bytes', locale: s
   ]
 
   const compensated = kinds.includes('overhead')
-  const rateRow = (key: string, name: string, direction: Direction, of: (result: Result) => number | undefined): CompareRow => {
-    const [ra, rb] = [rate(of(a), a, direction), rate(of(b), b, direction)]
+  const rateRow = (key: string, name: string, direction: Direction, of: (result: Result) => number | undefined, peak = false): CompareRow => {
+    const [ra, rb] = [rate(of(a), a, direction, peak), rate(of(b), b, direction, peak)]
     if (compensated) {
       return { key, name, a: ra, b: rb, verdict: 'not-comparable' }
     }
@@ -238,33 +240,46 @@ export function compare(x: Result, y: Result, units: 'bits' | 'bytes', locale: s
     const percent = change.percent === undefined ? undefined : signed(change.percent, formatPercent(Math.abs(change.percent), locale))
     return { key, name, a: ra, b: rb, verdict: change.verdict, ...(percent === undefined ? {} : { change: percent }) }
   }
-  const latencyRow = (key: string, name: string, of: (result: Result) => number | undefined): CompareRow => {
-    const change = latencyChange(of(a), of(b))
+  // Judged on the numbers as shown, and only when both sides are measured the same way: the same
+  // idle path, or the same loaded-latency source and idle path (ui/screens.md section 3).
+  const apartMetrics: string[] = []
+  const latencyRow = (key: string, name: string, of: (result: Result) => LatencyCell, warn = true): CompareRow => {
+    const [x, y] = [of(a), of(b)]
+    const measured = x.value !== undefined && y.value !== undefined
+    if (measured && measuredApart(x, y)) {
+      if (warn) {
+        apartMetrics.push(t('history.compare.differentBasis', { name, a: x.basis, b: y.basis }))
+      }
+      return { key, name, a: x.text, b: y.text, verdict: 'not-comparable' }
+    }
+    const change = latencyChange(x.value, y.value)
     const delta = change.deltaMs === undefined ? undefined : signed(change.deltaMs, formatLatency(Math.abs(change.deltaMs), locale))
-    return { key, name, a: latency(of(a), a), b: latency(of(b), b), verdict: change.verdict, ...(delta === undefined ? {} : { change: delta }) }
+    return { key, name, a: x.text, b: y.text, verdict: change.verdict, ...(delta === undefined ? {} : { change: delta }) }
   }
-  const grade = (result: Result) => result.bufferbloat?.grade
-  const gradeText = (result: Result) => {
-    const value = grade(result)
-    return value === undefined ? DASH : `${value} · ${gradeWord(value, t)}`
-  }
+  const [gradeA, gradeB] = [gradeCell(a, t), gradeCell(b, t)]
+  const gradeName = t('history.compare.grade')
+  const gradeApart = gradeA.grade !== undefined && gradeB.grade !== undefined && gradeA.basis !== gradeB.basis
   const loss = (result: Result) => (result.idle === undefined ? DASH : formatPercent(result.idle.lossPercent, locale))
   const metrics: CompareRow[] = [
     rateRow('download', t('history.compare.download'), 'download', (result) => result.download?.bitsPerSecond),
     rateRow('upload', t('history.compare.upload'), 'upload', (result) => result.upload?.bitsPerSecond),
-    rateRow('peakDownload', t('history.compare.peakDownload'), 'download', (result) => result.download?.peakBitsPerSecond),
-    rateRow('peakUpload', t('history.compare.peakUpload'), 'upload', (result) => result.upload?.peakBitsPerSecond),
-    latencyRow('idle', t('history.compare.idle'), (result) => result.idle?.medianMs),
-    latencyRow('jitter', t('history.compare.jitter'), (result) => result.idle?.jitterMs),
-    latencyRow('loadedDownload', t('history.compare.loadedDownload'), (result) => loaded(result.download)),
-    latencyRow('loadedUpload', t('history.compare.loadedUpload'), (result) => loaded(result.upload)),
-    { key: 'grade', name: t('history.compare.grade'), a: gradeText(a), b: gradeText(b), verdict: gradeChange(grade(a), grade(b)) },
+    rateRow('peakDownload', t('history.compare.peakDownload'), 'download', (result) => result.download?.peakBitsPerSecond, true),
+    rateRow('peakUpload', t('history.compare.peakUpload'), 'upload', (result) => result.upload?.peakBitsPerSecond, true),
+    latencyRow('idle', t('history.compare.idle'), (result) => idleCell(result, (idle) => idle.medianMs, true, locale, t)),
+    // The jitter is over the idle path too; the idle row's warning names it.
+    latencyRow('jitter', t('history.compare.jitter'), (result) => idleCell(result, (idle) => idle.jitterMs, false, locale, t), false),
+    latencyRow('loadedDownload', t('history.compare.loadedDownload'), (result) => loadedCell(result, 'download', locale, t)),
+    latencyRow('loadedUpload', t('history.compare.loadedUpload'), (result) => loadedCell(result, 'upload', locale, t)),
+    { key: 'grade', name: gradeName, a: gradeA.text, b: gradeB.text, verdict: gradeApart ? 'not-comparable' : gradeChange(gradeA.grade, gradeB.grade) },
     ...loadedQualityRows(a, b, locale, t),
     { key: 'loss', name: t('history.compare.loss'), a: loss(a), b: loss(b), verdict: null },
     { key: 'data', name: t('history.compare.data'), a: formatBytes(a.dataUsedBytes, locale), b: formatBytes(b.dataUsedBytes, locale), verdict: null },
     { key: 'duration', name: t('history.compare.duration'), a: formatDuration(a.durationMs, locale), b: formatDuration(b.durationMs, locale), verdict: null },
   ]
 
+  if (gradeApart) {
+    apartMetrics.push(t('history.compare.differentBasis', { name: gradeName, a: gradeA.basis, b: gradeB.basis }))
+  }
   const different = (row: CompareRow) => {
     const values = { a: row.a, b: row.b }
     switch (row.key) {
@@ -279,7 +294,8 @@ export function compare(x: Result, y: Result, units: 'bits' | 'bytes', locale: s
     }
   }
   const apart = parameters.filter((row) => row.differs === 'apart' && kinds.includes(row.key as Difference))
-  const warning = apart.length === 0 ? null : apart.map(different).join('; ')
+  const named = [...apart.map(different), ...apartMetrics]
+  const warning = named.length === 0 ? null : named.join('; ')
   return { a, b, warning, parameters, metrics }
 }
 

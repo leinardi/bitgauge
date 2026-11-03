@@ -18,6 +18,7 @@
  */
 
 import { gradeWord } from '@/components/history/rows'
+import { ungradedText } from '@/components/result/ungraded'
 import type { Wording } from '@/components/test/wording'
 import type { Bufferbloat, Direction, LoadedLatency, LoadedLatencyReason, LoadedSource, Responsiveness, Result } from '@/engine/messages'
 import { continuousDirection } from '@/lib/continuous'
@@ -83,7 +84,7 @@ export function sourceName(source: LoadedSource, t: Wording['t']): string {
   }
 }
 
-function reasonText(reason: LoadedLatencyReason, t: Wording['t']): string {
+export function reasonText(reason: LoadedLatencyReason, t: Wording['t']): string {
   switch (reason) {
     case 'no-steady-window':
       return t('result.load.reasons.noSteadyWindow')
@@ -137,32 +138,6 @@ const increaseOf = (result: Result, direction: Direction) => {
   return loaded === undefined || 'status' in loaded ? undefined : loaded.increaseMs
 }
 
-/** Why a result has no grade (ui/screens.md section 6), the same on the Test screen and the Result detail. */
-export type UngradedReason = 'no-idle' | 'no-loaded' | 'no-gradable' | 'incomplete'
-
-/**
- * The one reason a result has no grade, from what it holds: no idle latency, or a measured loaded
- * latency without its increase over it; else, when an error ended the run before any direction
- * measured its loaded latency, an incomplete test; else no direction with a loaded latency; else
- * none of them gradable (measurement.md section 11.3, ui/screens.md section 6).
- */
-export function ungradedReason(result: Result): UngradedReason {
-  if (result.idle?.medianMs === undefined) {
-    return 'no-idle'
-  }
-  const loaded = (['download', 'upload'] as const).flatMap((direction) => result[direction]?.loadedLatency ?? [])
-  // An error before any direction measured its loaded latency is an incomplete test: an unavailable
-  // block is no measured loaded latency. Without an error, an unavailable one is not gradable.
-  if (result.status === 'error' && loaded.every((value) => 'status' in value)) {
-    return 'incomplete'
-  }
-  if (loaded.length === 0) {
-    return 'no-loaded'
-  }
-  // A measured loaded latency without its increase had no idle median to compare with.
-  return loaded.some((value) => !('status' in value) && value.increaseMs === undefined) ? 'no-idle' : 'no-gradable'
-}
-
 /**
  * The grade, its words and its basis; without a grade, what it needs. `brief`, as the Test screen
  * shows it, names the basis without its increases, as the kit's Test screen does.
@@ -170,9 +145,7 @@ export function ungradedReason(result: Result): UngradedReason {
 export function gradeView(result: Result, { t, locale }: Wording, brief = false): GradeView {
   const bufferbloat = result.bufferbloat
   if (bufferbloat === undefined) {
-    const reason = ungradedReason(result)
-    const basis = { 'no-idle': t('result.load.ungraded.noIdle'), 'no-loaded': t('result.load.ungraded.noLoaded'), 'no-gradable': t('result.load.ungraded.noGradable'), incomplete: t('result.load.ungraded.incomplete') }[reason]
-    return { grade: null, words: t('result.load.notGraded'), basis }
+    return { grade: null, words: t('result.load.notGraded'), basis: ungradedText(result, t) }
   }
   const ms = (value: number) => latencyNumber(value, locale, result.client.timerResolutionMs)
   const increase = ms(bufferbloat.increaseMs)

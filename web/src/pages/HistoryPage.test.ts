@@ -122,6 +122,8 @@ describe('the states', () => {
     expect(page.get('[aria-sort="descending"]').text()).toBe('Date')
     expect(page.findAll('[aria-sort="none"]')).toHaveLength(9)
     expect(page.get('[data-testid="history-trend"]').text()).toContain('8 results')
+    // A result without a grade names why, in the row and on its card alike.
+    expect(page.findAll('[data-testid="grade-ungraded"]').map((cell) => cell.text())).toEqual(['Not graded · Test incomplete', 'Not graded · Test incomplete'])
     page.unmount()
   })
 
@@ -369,6 +371,8 @@ describe('Compare', () => {
     expect(panel.text()).toContain('Compare results')
     // A is the older of the two, on HTTP/2; B the newer, on HTTP/1.1.
     expect(panel.get('[data-testid="compare-warning"]').text()).toBe('Not directly comparable: different protocol (HTTP/2 vs HTTP/1.1)')
+    // Long unbroken labels wrap inside the warning rather than run past it (QA-58).
+    expect(panel.get('[data-testid="compare-warning"] > span').classes()).toEqual(expect.arrayContaining(['min-w-0', 'wrap-anywhere']))
     expect(panel.get('[data-testid="compare-row-download"]').text()).toContain('better')
     expect(panel.get('[data-testid="compare-row-grade"]').text()).toContain('same')
     page.unmount()

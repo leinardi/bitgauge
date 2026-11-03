@@ -173,7 +173,7 @@ describe('the pair', () => {
     const text = comparisonText(compare(older, newer, 'bits', 'en', t), { a: 'A side', b: 'B side' }, t)
     expect(text.split('\n').slice(0, 3)).toEqual(['Compare results', 'A: A side', 'B: B side'])
     expect(text).toContain('Download: 612 Mbit/s → 612 Mbit/s (±0.0 %, same)')
-    expect(text).toContain('Bufferbloat grade: — → — (not comparable)')
+    expect(text).toContain('Bufferbloat grade: Not graded · No loaded latency → Not graded · No loaded latency (not comparable)')
     expect(text).toContain('Data used: ')
   })
 })
@@ -221,6 +221,100 @@ describe('the loaded-quality rows', () => {
       ['quality-gaming', 'not scored', 'not-comparable'],
       ['quality-rtc', 'not scored', 'not-comparable'],
     ])
+  })
+})
+
+describe('latency and the grade with their qualifiers (D-18)', () => {
+  const at = (id: string, startedAt: string, changes: (base: Result) => Partial<Result>): Result => {
+    const base = resultFixture({ id, startedAt })
+    return { ...base, ...changes(base) }
+  }
+  const measured = (source: 'websocket' | 'http-h2', medianMs: number, idleSource?: 'websocket' | 'http') => ({ source, ...(idleSource === undefined ? {} : { idleSource }), samples: 40, skippedTicks: 0, lost: 0, medianMs, p90Ms: medianMs + 5, increaseMs: medianMs - 3, series: [] })
+  const loaded = (result: Result, download: ReturnType<typeof measured>, basis: 'download' | 'download+upload'): Partial<Result> => ({
+    download: { ...result.download!, loadedLatency: download },
+    upload: { ...result.upload!, loadedLatency: basis === 'download' ? { status: 'unavailable', reason: 'no-steady-window', samples: 0, skippedTicks: 0, lost: 0 } : measured('websocket', 20) },
+    bufferbloat: { grade: basis === 'download' ? 'C' : 'A+', basis, increaseMs: 30 },
+  })
+  const row = (comparison: ReturnType<typeof compare>, key: string) => comparison.metrics.find((item) => item.key === key)
+
+  it('qualifies idle latency with its path, loaded latency with its source and the grade with its basis', () => {
+    const a = at('a', '2026-09-26T16:20:00.000Z', (base) => loaded(base, measured('http-h2', 31, 'websocket'), 'download'))
+    const b = at('b', '2026-10-02T07:05:00.000Z', (base) => loaded(base, measured('http-h2', 27, 'websocket'), 'download'))
+    const comparison = compare(a, b, 'bits', 'en', t)
+    expect(plain(row(comparison, 'idle')?.a)).toBe('3.1 ms (WebSocket)')
+    expect(plain(row(comparison, 'loadedDownload')?.a)).toBe('31 ms (HTTP/2 probe; vs idle over WebSocket)')
+    expect(row(comparison, 'loadedDownload')).toMatchObject({ verdict: 'better' })
+    expect(plain(row(comparison, 'loadedUpload')?.a)).toBe('— (no steady window)')
+    expect(row(comparison, 'grade')).toMatchObject({ a: 'C · Moderate (download only)', verdict: 'same' })
+    expect(comparison.warning).toBeNull()
+  })
+
+  it('reads a different path, source or basis as not comparable and names it in the warning and the copied text', () => {
+    const a = at('a', '2026-09-26T16:20:00.000Z', (base) => loaded(base, measured('http-h2', 31, 'websocket'), 'download'))
+    const b = at('b', '2026-10-02T07:05:00.000Z', (base) => ({ ...loaded(base, measured('websocket', 2.7), 'download+upload'), idle: { ...base.idle!, path: 'http' as const } }))
+    const comparison = compare(a, b, 'bits', 'en', t)
+    for (const key of ['idle', 'jitter', 'loadedDownload', 'grade']) {
+      expect([key, row(comparison, key)?.verdict, row(comparison, key)?.change]).toEqual([key, 'not-comparable', undefined])
+    }
+    expect(row(comparison, 'grade')?.b).toBe('A+ · Minimal (worse of download and upload)')
+    expect(comparison.warning).toBe(
+      'Idle latency measured differently (WebSocket vs HTTP); Loaded latency · download measured differently (HTTP/2 probe, idle over WebSocket vs WebSocket); Bufferbloat grade measured differently (download only vs worse of download and upload)',
+    )
+    const text = plain(comparisonText(comparison, { a: 'A side', b: 'B side' }, t))
+    expect(text).toContain(`Not directly comparable: ${comparison.warning ?? ''}`)
+    expect(text).toContain('Loaded latency · download: 31 ms (HTTP/2 probe; vs idle over WebSocket) → 2.7 ms (WebSocket) (not comparable)')
+    expect(text).toContain('Bufferbloat grade: C · Moderate (download only) → A+ · Minimal (worse of download and upload) (not comparable)')
+  })
+
+  it('judges a latency on its value as shown (QA-109)', () => {
+    const idle = (id: string, startedAt: string, medianMs: number, jitterMs: number) => at(id, startedAt, (base) => ({ idle: { ...base.idle!, medianMs, jitterMs } }))
+    const comparison = compare(idle('a', '2026-09-26T16:20:00.000Z', 10, 1.04), idle('b', '2026-10-02T07:05:00.000Z', 11.01, 2.04), 'bits', 'en', t)
+    expect(plain(row(comparison, 'idle')?.b)).toBe('11 ms (WebSocket)')
+    expect(row(comparison, 'idle')).toMatchObject({ verdict: 'same', change: '+1.0\u00a0ms' })
+    // 1.0 → 2.0 shown: +1.0 ms, the same, though the raw values are just over 1 ms apart.
+    expect(row(comparison, 'jitter')).toMatchObject({ verdict: 'same', change: '+1.0\u00a0ms' })
+    // Rounded values below 10 ms differ by their tenths, not by a float's last bit: 1.2 → 2.2 is +1.0.
+    expect(latencyChange(1.2, 2.2)).toEqual({ verdict: 'same', deltaMs: 1 })
+    expect(latencyChange(3.2, 4.2)).toEqual({ verdict: 'same', deltaMs: 1 })
+  })
+
+  it('compares two loaded latencies of one source when only one has an idle median to be over', () => {
+    const a = at('a', '2026-09-26T16:20:00.000Z', (base) => loaded(base, measured('http-h2', 31, 'websocket'), 'download'))
+    const { increaseMs: _increase, ...noIdle } = measured('http-h2', 27)
+    const b = at('b', '2026-10-02T07:05:00.000Z', (base) => ({ download: { ...base.download!, loadedLatency: noIdle } }))
+    const comparison = compare(a, b, 'bits', 'en', t)
+    expect(row(comparison, 'loadedDownload')).toMatchObject({ verdict: 'better' })
+    expect(comparison.warning ?? '').not.toContain('Loaded latency')
+  })
+
+  it('reads a missing grade as Not graded with its one reason (QA-111)', () => {
+    const a = at('a', '2026-09-26T16:20:00.000Z', (base) => ({ idle: { ...base.idle!, medianMs: undefined } }))
+    const b = at('b', '2026-10-02T07:05:00.000Z', (base) => loaded(base, measured('websocket', 20), 'download+upload'))
+    expect(row(compare(a, b, 'bits', 'en', t), 'grade')).toMatchObject({ a: 'Not graded · No idle latency', verdict: 'not-comparable' })
+  })
+
+  it('qualifies a Continuous peak as the p90 of the last hour', () => {
+    const continuous = (id: string, startedAt: string) => ({ ...continuousResult({ endMs: 7_200_000, bucketMs: 60_000 }), id, startedAt })
+    const comparison = compare(continuous('a', '2026-09-26T16:20:00.000Z'), continuous('b', '2026-10-02T07:05:00.000Z'), 'bits', 'en', t)
+    expect(plain(row(comparison, 'peakDownload')?.a)).toMatch(/^\S+ \S+ \(p90, last hour\)$/u)
+    expect(row(comparison, 'download')?.a).not.toContain('last hour')
+  })
+
+  it('lists the phases, the durations, the warm-up and the ping count among the parameters', () => {
+    const a = at('a', '2026-09-26T16:20:00.000Z', (base) => ({ settings: { ...base.settings, download: { minMs: 8000, maxMs: 15000 }, upload: { minMs: 8000, maxMs: 15000 } } }))
+    const b = at('b', '2026-10-02T07:05:00.000Z', (base) => ({ settings: { ...base.settings, phases: ['idle', 'upload'], download: { minMs: 8000, maxMs: 15000 }, upload: { minMs: 8000, maxMs: 30000 }, warmup: 2000, pingCount: 40 } }))
+    const comparison = compare(a, b, 'bits', 'en', t)
+    const parameter = (key: string) => {
+      const item = comparison.parameters.find((entry) => entry.key === key)
+      return [item?.name, item?.a, item?.b, item?.differs]
+    }
+    expect(parameter('phases')).toEqual(['Phases and order', 'Idle latency, Download, Upload', 'Idle latency, Upload', 'differs'])
+    expect(parameter('duration-download')).toEqual(['Duration · download', '8–15 s', '8–15 s', null])
+    expect(parameter('duration-upload')).toEqual(['Duration · upload', '8–15 s', '8–30 s', 'differs'])
+    expect(plain(String(parameter('warmup')[2]))).toBe('Fixed · 2.0 s')
+    expect(parameter('pings')).toEqual(['Ping count', '20', '40', 'differs'])
+    // They show the difference without keeping the results apart.
+    expect(comparison.warning).toBeNull()
   })
 })
 

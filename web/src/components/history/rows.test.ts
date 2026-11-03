@@ -42,6 +42,14 @@ describe('a History row', () => {
     expect([upload.download.value, upload.upload.value]).toEqual([null, { number: '921', unit: 'Mbit/s' }])
   })
 
+  it('names a missing grade by its one reason, as the Result detail does', () => {
+    const base = resultFixture()
+    expect([rowView(base, 'bits', wording).grade, rowView(base, 'bits', wording).ungraded]).toEqual([null, 'No loaded latency'])
+    const noIdle = { ...base, idle: { ...base.idle!, medianMs: undefined } }
+    expect(rowView(noIdle, 'bits', wording).ungraded).toBe('No idle latency')
+    expect(rowView(continuousResult({ endMs: 7_200_000, bucketMs: 60_000 }), 'bits', wording).ungraded).toBeNull()
+  })
+
   it.each([
     ['h2', 'HTTP/2'],
     ['http/1.1', 'HTTP/1.1'],

@@ -144,7 +144,7 @@
       "delete": "Delete",
       "noLabel": "No label",
       "ms": "ms",
-      "noGrade": "No grade",
+      "notGraded": "Not graded · {reason}",
       "grade": "Grade {grade} · {word} bufferbloat",
       "columns": {
         "startedAt": "Date",
@@ -257,6 +257,19 @@
       "differentProtocol": "different protocol ({a} vs {b})",
       "differentOverhead": "different overhead compensation ({a} vs {b})",
       "qualified": "{value} ({qualifiers})",
+      "durationOf": "Duration · {direction}",
+      "bounds": "{min}–{max} s",
+      "then": ", ",
+      "vsIdle": "vs idle over {path}",
+      "sourceIdle": "{source}, idle over {path}",
+      "lastHour": "last hour",
+      "peakLastHour": "p90, last hour",
+      "basis": {
+        "download": "download only",
+        "upload": "upload only",
+        "both": "worse of download and upload"
+      },
+      "differentBasis": "{name} measured differently ({a} vs {b})",
       "copyField": "Comparison as text",
       "copyManual": "The browser didn't allow copying: select the text below and copy it."
     }
