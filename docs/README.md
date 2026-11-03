@@ -10,7 +10,8 @@ prior art behind the design:
 | [`engineering/`](engineering/README.md) | How the project is run rather than what it does: harness runbooks, checklists, audits | Working notes, not a contract. Nothing here constrains the product. |
 | [`research/`](research/README.md) | How other speed tests work and which ideas BitGauge takes | Background, ideas only. Where it disagrees with `features/`, `features/` wins. |
 
-How releases are made: [`release.md`](release.md).
+How releases are made: [`release.md`](release.md). The Go-to-Rust port in progress:
+[`rust-port.md`](rust-port.md).
 
 ## Design Export
 

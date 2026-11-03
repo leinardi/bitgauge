@@ -111,3 +111,7 @@ counts as `fix:`), so avoid a word ending in `feat` or `fix` right before a colo
 
 Read the matching skill in `.agents/skills/` before editing an area it covers; each skill's
 description says when it applies.
+
+**Rust port in progress** ([`docs/rust-port.md`](docs/rust-port.md)): load
+`.agents/skills/rust-port-go` for any Rust work, and record each new Go-to-Rust trap there in the
+commit that finds it. It is a temporary copy of a user skill and moves back after the port.
