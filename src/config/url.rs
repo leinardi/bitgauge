@@ -28,33 +28,33 @@ use super::types::parse_addr;
 
 /// The components of a parsed URL that the origin rule reads.
 #[derive(Debug, Default, PartialEq, Eq)]
-pub(super) struct Url {
+pub(crate) struct Url {
     /// The scheme, lowercased.
-    pub(super) scheme: String,
+    pub(crate) scheme: String,
     /// The rootless part after `scheme:` when there is no `//`.
-    pub(super) opaque: String,
+    pub(crate) opaque: String,
     /// Whether the authority has user information.
-    pub(super) has_user: bool,
+    pub(crate) has_user: bool,
     /// The host and optional port, unescaped, an IPv6 literal bracketed.
-    pub(super) host: String,
+    pub(crate) host: String,
     /// The path, unescaped.
-    pub(super) path: String,
+    pub(crate) path: String,
     /// The query, as written.
-    pub(super) raw_query: String,
+    pub(crate) raw_query: String,
     /// Whether the URL ends in a `?` with nothing after it.
-    pub(super) force_query: bool,
+    pub(crate) force_query: bool,
     /// The fragment, unescaped.
-    pub(super) fragment: String,
+    pub(crate) fragment: String,
 }
 
 impl Url {
     /// The host without its port and without the brackets of an IPv6 literal.
-    pub(super) fn hostname(&self) -> &str {
+    pub(crate) fn hostname(&self) -> &str {
         self.split_host_port().0
     }
 
     /// The port, empty when there is none.
-    pub(super) fn port(&self) -> &str {
+    pub(crate) fn port(&self) -> &str {
         self.split_host_port().1
     }
 
@@ -87,7 +87,7 @@ enum Mode {
 }
 
 /// Parses `raw` as Go's `url.Parse` does, or says why it refuses it.
-pub(super) fn parse(raw: &str) -> Result<Url, String> {
+pub(crate) fn parse(raw: &str) -> Result<Url, String> {
     let (before_fragment, fragment) = raw.split_once('#').unwrap_or((raw, ""));
     let mut url = parse_without_fragment(before_fragment)?;
     if !fragment.is_empty() {

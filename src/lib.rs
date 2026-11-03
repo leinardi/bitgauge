@@ -27,6 +27,7 @@ pub mod buildinfo;
 pub mod clientip;
 pub mod clock;
 pub mod config;
+pub mod handlers;
 pub mod logger;
 pub mod metrics;
 pub mod ratelimit;

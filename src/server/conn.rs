@@ -50,9 +50,16 @@ use tokio_util::task::TaskTracker;
 use tower_service::Service;
 
 use super::timeouts::{ConnIo, ConnState, Timeouts};
+use crate::handlers::Abort;
 
 /// The error type a connection's service may fail with.
 pub type BoxError = Box<dyn StdError + Send + Sync>;
+
+/// The service error for a response carrying [`Abort`]: hyper closes the connection on it
+/// without writing a status line.
+#[derive(Debug, thiserror::Error)]
+#[error("the client went away mid-body")]
+pub struct Aborted;
 
 /// How long the tracker is given after `cut`, before the runtime's own backstop.
 pub const CUT_WAIT: Duration = Duration::from_secs(1);
@@ -289,7 +296,8 @@ where
     }
 }
 
-/// The connection's service: tells the [`ConnState`] where each request starts and ends.
+/// The connection's service: tells the [`ConnState`] where each request starts and ends, and
+/// fails a response carrying [`Abort`] so that nothing is written for it.
 #[derive(Debug, Clone)]
 struct Tracked<S> {
     inner: S,
@@ -317,6 +325,9 @@ where
                 .await
                 .map_err(Into::into)?;
             let response = inner.call(request).await.map_err(Into::into)?;
+            if response.extensions().get::<Abort>().is_some() {
+                return Err(Aborted.into());
+            }
             if response.status() == StatusCode::SWITCHING_PROTOCOLS {
                 state.on_upgraded();
             }

@@ -323,6 +323,43 @@ not expect.
   `TestMetricsEndpointIsNotRateLimited`, `TestRequestsAreLabeledByOwner`,
   `TestPanickingRequestsAreCounted`) need the router and stay for phase 12; the endpoint half
   of `TestMetricsEndpoint` is in `endpoint_writes_open_metrics`.
+- **Phase 9, the handlers as functions.** Each native handler is a plain function from a
+  request to a `Response<axum::body::Body>`; the router of phase 12 mounts them with the method
+  tables, the 404 and 405 answers and the limiter, so `routes.go` and its tests
+  (`TestRoutesServeTheNativeAPI`, `TestRoutesWrongMethodIs405WithAllow`,
+  `TestRoutesUnknownPathIs404Envelope`) move there. `Info` resolves what the configuration,
+  the build and the epoch decide once, at startup, and adds the client per request; the
+  bytes are the same. The client comes from the `Client` the client IP middleware stores in
+  the request's extensions, as Go read it from the context.
+- **Phase 9, the JSON bytes.** serde_json writes `<`, `>`, `&`, `\b` and `\f` and whole floats
+  differently from `encoding/json`, so `src/handlers/json.rs` is a `Formatter` with Go's
+  escapes and float layout: the info body of a display name holding `<`, and
+  `overheadCompensationPercent: 0`, read as Go's.
+- **Phase 9, the deadlines.** A write stall is the connection driver's 30 s rule (row 7), so
+  `TestWriteRandomNeedsWriteDeadlines` and `TestWriteRandomCutsAStalledReader` map to phase
+  4's `stalled_reader_is_cut_after_the_write_stall_timeout`. The upload lifetime is a
+  `timeout_at(entry + lifetime)` on every frame instead of a connection read deadline, so
+  nothing can fail to set it and `TestUploadWithoutReadDeadlinesIs500` has no counterpart;
+  the grid's injected `Clock` and that timer are both tokio's, so a paused clock moves both.
+  Go's read that began in one cell and returned in the next is a frame that arrived in the
+  next: a frame has no beginning (row 10).
+- **Phase 9, the Go handler tests not ported as they were.**
+  `TestDownloadAllocatesOnlyTheContentLength` and `TestProbesAllocateNothing` need a counting
+  allocator, which needs `unsafe`; row 9 replaces the rule, and `random_body_bounds_each_frame`
+  checks that every frame is a slice of the shared buffer. `TestWriteErrorUnencodableDetailsAre500`
+  cannot be written: `Details` holds JSON values, which always encode (the fallback body
+  stays). Go's half-closed and chunked requests are one case each here: a request without
+  `Content-Length`. `TestWebSocketsAreCounted` moves to phase 10 with the WebSocket.
+  `NormalizeOrigin` lower-cases a non-ASCII host with Rust's full case mapping, where Go maps
+  one rune to one rune (U+0130, a final sigma); both sides of a comparison go through it.
+- **Phase 9, an abort writes nothing.** Go's handler panicked with `http.ErrAbortHandler` so
+  that a client gone mid-body got no status line. Here the drainer answers with an empty
+  response carrying the `Abort` extension, and the connection driver's service fails such a
+  response, on which hyper closes the connection without writing
+  (`an_aborted_upload_writes_nothing`). A `RandomBody` that is never polled counts an abort
+  when dropped, so phase 12 must not build one for a `HEAD` on download.
+- **Phase 9, a license.** axum, axum-core and tower pull in sync_wrapper, which is Apache-2.0
+  only; `deny.toml` allows it.
 - **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
   started. The `cargo-machete` pre-commit hook builds its own; `zig` is first needed by phase 15.
 
@@ -338,7 +375,7 @@ Go package to Rust module, filled in by the phase that ports it.
 | `internal/clientip` | `src/clientip.rs` (`address_class`, `suggested_label`, `version`, `Labeler`, `Rule`, `Deriver`, `Client`); the middleware and context helpers move to phase 12 | 6 |
 | `internal/ratelimit` | `src/ratelimit.rs` (`Limiter`, `Options`, `Permit`, `Limit`, `LimitError`, the codes); `Clock` and `TokioClock` in `src/clock.rs`; the middleware and `Refuse` move to phase 12 | 7 |
 | `internal/metrics` | `src/metrics.rs` (`Metrics`, `Route`, `Transfer`), `src/metrics/labels.rs` (`Group`, `Direction`, `UNMATCHED`, the code slots), `src/metrics/endpoint.rs` (`encode`, `respond`, `CONTENT_TYPE`) | 8 |
-| `internal/handlers` |  | 9, 10 |
+| `internal/handlers` | `src/handlers.rs` and `src/handlers/`: `random.rs` (`RandomSource`, `RandomBody`), `epoch.rs` (`Epoch`, `Grid`), `drain.rs` (`drain_body`, `DrainOptions`, `Abort`), `envelope.rs` (`error_response`, the codes), `json.rs` (Go's `json.Marshal` layout), `origin.rs` (`request_origin`, `valid_host`, `normalize_origin`), `download.rs`, `upload.rs`, `probes.rs` (`ping`, `small`), `info.rs` (`Info`); the routes move to phase 12 and the WebSocket to phase 10 | 9, 10 |
 | `internal/compat/openspeedtest` |  | 11 |
 | `internal/compat/librespeed` |  | 11 |
 | `internal/compat/nq` |  | 11 |
@@ -359,7 +396,7 @@ it did not port, with the reason.
 | `internal/buildinfo`, `internal/logger`, `internal/clientip` | `src/buildinfo.rs`, `src/logger/tests.rs`, `src/clientip/tests.rs`; `TestReportProblems`, `TestInvalidLogKeysReportOnStderr` and the rendering half of `TestEffective` in `src/config/tests/report.rs`; the middleware tests move to phase 12 | 6 |
 | `internal/ratelimit` | `src/ratelimit/tests.rs`, `src/clock.rs`; the middleware tests move to phase 12 | 7 |
 | `internal/metrics` | `src/metrics/tests.rs`; the server's `/metrics` tests stay for phase 12 | 8 |
-| `internal/handlers` |  | 9, 10 |
+| `internal/handlers` | `src/handlers/tests/` (`random.rs`, `epoch.rs`, `envelope.rs`, `json.rs`, `origin.rs`, `drain.rs`, `download.rs`, `probes.rs`, `upload.rs`, `info.rs`, `contract.rs`, `metrics.rs`, `loopback.rs`); the route tests move to phase 12 and the WebSocket tests to phase 10 | 9, 10 |
 | `internal/compat/...` |  | 11 |
 | `internal/server` |  | 12 |
 | `cmd/bitgauge` |  | 13 |

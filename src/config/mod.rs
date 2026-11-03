@@ -39,7 +39,7 @@ mod printable;
 mod raw;
 mod report;
 mod types;
-mod url;
+pub(crate) mod url;
 mod validate;
 mod warn;
 

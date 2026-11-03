@@ -150,6 +150,12 @@ bugs, never into a guess.
   case-insensitively (last wins), reads `null` as "leave it", and `Decode` ignores trailing data
   → for device input collect entries with a `MapAccess` visitor, lowercase keys, decode with
   defaults; `Deserializer::from_reader(r).into_iter::<T>().next()`. (go program)
+- `encoding/json` also writes `\b` and `\f` as `\u0008` and `\u000c`, escapes map keys like
+  values, and lays floats out with `'f'` between `1e-6` and `1e21` (`0`, `20`, `5.13`) and
+  `'e'` outside it (`1e+21`, `1e-7`), where serde_json writes `0.0` and `1e21` → a
+  `serde_json::ser::Formatter` overriding `write_string_fragment`, `write_char_escape` and
+  `write_f64`; Rust's `{}` for `f64` is Go's `'f'` with the shortest digits. (bitgauge
+  handlers, go1.26 `json.Marshal`)
 - A Go named string type with constants is **open**: any string converts to it, so
   `rust-port`'s closed-set enum does not fit → an `Other(String)` variant with hand-written
   serde. `omitempty` → `skip_serializing_if`, but never on a field Go always emits. "Zero means

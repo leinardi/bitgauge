@@ -51,6 +51,9 @@ allow = [
     # encoding_rs, (Apache-2.0 OR MIT) AND BSD-3-Clause: through encoding_rs_io, which
     # serde-saphyr's deserialize feature always pulls in for its reader API.
     "BSD-3-Clause",
+    # sync_wrapper, Apache-2.0 only: through axum, axum-core and tower. Apache-2.0 is compatible
+    # with GPL-3.0.
+    "Apache-2.0",
 ]
 confidence-threshold = 0.9
 
