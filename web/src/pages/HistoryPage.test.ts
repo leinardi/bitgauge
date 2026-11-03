@@ -460,7 +460,22 @@ describe('the import', () => {
     const done = await settled(() => page.get('[data-testid="import-done"]'))
     expect(done.text()).toContain('Imported bitgauge-history.json')
     expect(done.text()).toContain('5 added, 2 skipped as duplicates, 1 rejected: result 3: schema version 3 is newer than this app')
+    // A rejected record warns, though others were added (D-13).
+    expect(done.attributes('data-tone')).toBe('warn')
     expect(rows(page)).toHaveLength(7)
+    page.unmount()
+  })
+
+  it('warns with Nothing imported when every record is rejected, and is ok when it only adds and skips', async () => {
+    const page = await open('/history', RESULTS.slice(0, 2))
+    await choose(page, 'bad.json', EXPORT([{ ...RESULTS[2], schemaVersion: 3 } as unknown as Result]))
+    const none = await settled(() => page.get('[data-testid="import-done"]'))
+    expect(none.attributes('data-tone')).toBe('warn')
+    expect(none.text()).toContain('Nothing imported from bad.json')
+    expect(none.text()).not.toContain('Imported bad.json')
+    await choose(page, 'good.json', EXPORT(RESULTS.slice(1, 4) as Result[]))
+    await settled(() => expect(page.get('[data-testid="import-done"]').text()).toContain('Imported good.json'))
+    expect(page.get('[data-testid="import-done"]').attributes('data-tone')).toBe('ok')
     page.unmount()
   })
 
@@ -550,6 +565,10 @@ describe('the export menu', () => {
     await page.get('[data-testid="export-menu"]').trigger('keydown', { key: 'Enter' })
     await settle()
     expect(body().text()).toContain('Contains client IP addresses, labels and notes.')
+    // The warning is no menu item, which the arrow keys move between: it is the menu's description.
+    const warning = body().get('[data-testid="export-warning"]')
+    expect(body().get('[role="menu"]').attributes('aria-describedby')).toBe(warning.attributes('id'))
+    expect(warning.text()).toBe('Contains client IP addresses, labels and notes. Files are created in your browser.')
     await body().get('[data-testid="export-json-all"]').trigger('click')
     await settle()
     expect(clicked[0]).toMatch(/^bitgauge-history-\d{4}-\d{2}-\d{2}-\d{4}\.json$/)

@@ -17,7 +17,7 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { CircleCheck, FileJson, Upload, X } from '@lucide/vue'
+import { CircleCheck, FileJson, TriangleAlert, Upload, X } from '@lucide/vue'
 import { computed, shallowRef, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -49,6 +49,11 @@ const REFUSALS = { 'not-json': 'notJson', 'not-history': 'notHistory', 'too-larg
 const { t } = useI18n()
 const input = useTemplateRef<HTMLInputElement>('input')
 const state = shallowRef<ImportState | null>(null)
+
+// An import with any rejected record warns, titled "Nothing imported" when it added none; one that
+// only added records or skipped duplicates is ok (ui/screens.md section 3, D-13).
+const doneTone = computed(() => (state.value?.kind === 'done' && state.value.rejected.length > 0 ? 'warn' : 'ok'))
+const nothingAdded = computed(() => state.value?.kind === 'done' && state.value.rejected.length > 0 && state.value.added === 0)
 
 /** Whether an import is reading or writing; the page's Import buttons wait for it. */
 const busy = computed(() => state.value?.kind === 'busy')
@@ -217,14 +222,14 @@ function refusal(reason: Refusal): string {
   </NoticeBox>
   <NoticeBox
     v-else-if="state?.kind === 'done'"
-    tone="ok"
-    :icon="CircleCheck"
-    :title="t('history.import.doneTitle', { file: state.file })"
+    :tone="doneTone"
+    :icon="doneTone === 'ok' ? CircleCheck : TriangleAlert"
+    :title="nothingAdded ? t('history.import.noneTitle', { file: state.file }) : t('history.import.doneTitle', { file: state.file })"
     data-testid="import-done"
   >
     <template #title>
       <MonoTitle
-        keypath="history.import.doneTitle"
+        :keypath="nothingAdded ? 'history.import.noneTitle' : 'history.import.doneTitle'"
         name="file"
         :value="state.file"
       />

@@ -19,6 +19,7 @@
 <script setup lang="ts">
 import { ChevronDown, Download, FileJson, FileText, TriangleAlert } from '@lucide/vue'
 import { DropdownMenuItem } from 'reka-ui'
+import { useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/actions/AppButton.vue'
@@ -29,7 +30,8 @@ import { tokenPx } from '@/lib/tokenPx'
 
 // The Export menu (ui/screens.md section 3; kit History.jsx): JSON or CSV, each for all results or
 // the current filter, with the warning that the files hold client IPs, labels and notes. JSON keeps
-// the full samples and imports again; CSV is a summary, one row per test.
+// the full samples and imports again; CSV is a summary, one row per test. Arrow keys move between
+// the menu's items only, so the warning is the menu's description: announced as it opens.
 
 const props = defineProps<{ all: readonly Result[]; filtered: readonly Result[] }>()
 const emit = defineEmits<{ invalid: [] }>()
@@ -37,6 +39,7 @@ const emit = defineEmits<{ invalid: [] }>()
 const { t } = useI18n()
 // Kept a --space-4 inside the screen's edges, as the kit's floating panels are.
 const edge = tokenPx('--space-4')
+const warningId = useId()
 
 function json(results: readonly Result[]): void {
   if (!saveJson(results)) {
@@ -72,6 +75,7 @@ const FORMATS = [
       align="end"
       :side-offset="6"
       :collision-padding="edge"
+      :aria-describedby="warningId"
       class="flex w-80 flex-col gap-0.5 rounded-(--radius-lg) border-(--border-default) bg-(--surface-2) p-1.5 shadow-(--shadow-pop)"
     >
       <DropdownMenuGroup
@@ -122,7 +126,11 @@ const FORMATS = [
         </div>
       </DropdownMenuGroup>
       <DropdownMenuSeparator class="mx-0.5 my-1 bg-(--border-subtle)" />
-      <p class="flex items-start gap-2 px-2.5 pt-1.5 pb-1">
+      <p
+        :id="warningId"
+        class="flex items-start gap-2 px-2.5 pt-1.5 pb-1"
+        data-testid="export-warning"
+      >
         <span class="mt-px flex flex-none text-(--warn)">
           <TriangleAlert
             :size="13"

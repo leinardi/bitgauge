@@ -18,6 +18,7 @@
       "progressLabel": "Import progress",
       "cancel": "Cancel",
       "doneTitle": "Imported {file}",
+      "noneTitle": "Nothing imported from {file}",
       "summary": "{added} added, {skipped} skipped as duplicates, {rejected} rejected",
       "added": "{n} added",
       "skipped": "{n} skipped",
