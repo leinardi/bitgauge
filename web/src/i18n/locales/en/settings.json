@@ -126,6 +126,7 @@
     "pings": {
       "title": "Ping count",
       "caption": "Used for idle latency and jitter. Preset default: {n}.",
+      "captionServer": "Used for idle latency and jitter. Server default: {n}.",
       "input": "Ping count",
       "suffix": "pings"
     },

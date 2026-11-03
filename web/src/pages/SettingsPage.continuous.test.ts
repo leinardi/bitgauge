@@ -138,6 +138,15 @@ describe('the Continuous preset', () => {
     page.unmount()
   })
 
+  it('shows a run length that is not a whole number of minutes whole, the input as wide as its text', async () => {
+    const page = await open({ preset: 'continuous', runLengthS: 90_061 })
+    const input = page.get('#settings-run-length').element as HTMLInputElement
+    expect(input.value).toBe('1501.02')
+    // Seven characters and one for the caret, in the mono face.
+    expect(input.style.width).toBe('8ch')
+    page.unmount()
+  })
+
   it('keeps the number when the unit changes, within the unit’s range', async () => {
     const page = await open({ preset: 'continuous', runLengthS: 7200 })
     await pick(page, 'minutes')

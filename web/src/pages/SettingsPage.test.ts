@@ -154,6 +154,64 @@ describe('an invalid label', () => {
   })
 })
 
+describe('a bound held back by the other', () => {
+  it('is saved once the other bound makes it valid, its error gone', async () => {
+    const page = await open()
+    const min = page.get('#settings-download-min')
+    await min.setValue('25')
+    await min.trigger('blur')
+    expect(min.attributes('aria-invalid')).toBe('true')
+    expect(stored()).toEqual({})
+    const max = page.get('#settings-download-max')
+    await max.setValue('30')
+    await max.trigger('blur')
+    await flushPromises()
+    expect(stored()).toEqual({ download: { minMs: 25_000, maxMs: 30_000 } })
+    expect(min.attributes('aria-invalid')).toBeUndefined()
+    expect(page.find('#settings-download-min-error').exists()).toBe(false)
+    expect((min.element as HTMLInputElement).value).toBe('25')
+    page.unmount()
+  })
+})
+
+describe('the server defaults', () => {
+  async function serve(defaults: Partial<ReturnType<typeof infoFixture>['defaults']>): Promise<void> {
+    const base = infoFixture()
+    vi.mocked(getInfo).mockResolvedValueOnce({ ...base, defaults: { ...base.defaults, ...defaults } })
+    await useInfo().refresh()
+  }
+
+  afterEach(async () => {
+    await useInfo().refresh()
+  })
+
+  it('show on the default preset’s card and in the ping count’s caption as the server’s', async () => {
+    await serve({ preset: 'quick', streams: { mode: 'fixed', fixed: 2, max: 6 }, pingCount: 15 })
+    const page = await open()
+    expect(page.get('[data-testid="preset-quick"]').text()).toContain('Fixed 2 streams')
+    await page.findAll('button').find((button) => button.text().startsWith('Advanced'))?.trigger('click')
+    expect(page.text()).toContain('Used for idle latency and jitter. Server default: 15.')
+    await page.get('[data-testid="preset-standard"]').trigger('click')
+    expect(page.text()).toContain('Used for idle latency and jitter. Preset default: 20.')
+    page.unmount()
+  })
+
+  it('keep a data cap that is not a whole number of MB when it is typed back as shown', async () => {
+    await serve({ dataCapBytes: 50 * 1024 * 1024 })
+    const page = await open()
+    const cap = page.get('#settings-cap')
+    expect((cap.element as HTMLInputElement).value).toBe('52.429')
+    await cap.setValue('52.429')
+    await cap.trigger('blur')
+    expect(cap.attributes('aria-invalid')).toBeUndefined()
+    expect(stored()).toEqual({})
+    await cap.setValue('52.5')
+    await cap.trigger('blur')
+    expect(cap.attributes('aria-invalid')).toBe('true')
+    page.unmount()
+  })
+})
+
 describe('the changed list', () => {
   it('resets all after confirmation, keeping fields this version does not know', async () => {
     localStorage.setItem('bitgauge.settings.v1', JSON.stringify({ future: 1 }))

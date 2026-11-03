@@ -26,11 +26,14 @@ import ChangedMark from '@/components/settings/ChangedMark.vue'
 import { presetName } from '@/components/settings/changes'
 import { useSettingsForm } from '@/components/settings/form'
 import { RadioGroup } from '@/components/ui/radio-group'
-import { type DurationBounds, type NoBounds, type Preset, PRESETS, type PresetDefinition } from '@/engine/messages'
+import type { DurationBounds, Preset, TestSettings } from '@/engine/messages'
+import { storedOver } from '@/lib/settingsStorage'
 
 // The preset picker (ui/screens.md section 4, kit Settings.jsx and ChoiceCard in forms): one card
 // per preset with the streams, durations and ping count it runs, the server's default marked;
-// Continuous runs one direction until stopped, or for its run length.
+// Continuous runs one direction until stopped, or for its run length. Each card reads what the
+// preset runs on this server: the server's default preset with the server's own values, the fixed
+// stream count within the server's maximum.
 
 const { t } = useI18n()
 const form = useSettingsForm()
@@ -39,25 +42,27 @@ function range({ minMs, maxMs }: DurationBounds): string {
   return t('settings.values.range', { min: minMs / 1000, max: maxMs / 1000 })
 }
 
-function line(table: PresetDefinition<DurationBounds>): string {
-  const streams = table.streams.mode === 'fixed' ? t('settings.preset.streamsFixed', table.streams.fixed) : t('settings.preset.streamsAuto')
-  const durations =
-    table.download.minMs === table.upload.minMs && table.download.maxMs === table.upload.maxMs
-      ? t('settings.preset.same', { range: range(table.download) })
-      : t('settings.preset.split', { download: range(table.download), upload: range(table.upload) })
-  return t('settings.preset.line', { streams, durations, pings: t('settings.preset.pings', table.pingCount) })
+function streamsText(settings: TestSettings): string {
+  return settings.streams.mode === 'fixed' ? t('settings.preset.streamsFixed', settings.streams.fixed) : t('settings.preset.streamsAuto')
 }
 
-function continuousLine(table: PresetDefinition<NoBounds>): string {
-  return t('settings.preset.continuous', { streams: t('settings.preset.streamsAuto'), pings: t('settings.preset.pings', table.pingCount) })
+function line(settings: TestSettings): string {
+  const { download, upload } = settings
+  if (download.minMs === null || upload.minMs === null) {
+    return t('settings.preset.continuous', { streams: streamsText(settings), pings: t('settings.preset.pings', settings.pingCount) })
+  }
+  const durations =
+    download.minMs === upload.minMs && download.maxMs === upload.maxMs
+      ? t('settings.preset.same', { range: range(download) })
+      : t('settings.preset.split', { download: range(download), upload: range(upload) })
+  return t('settings.preset.line', { streams: streamsText(settings), durations, pings: t('settings.preset.pings', settings.pingCount) })
 }
 
 const ICONS: Record<Preset, Component> = { quick: Zap, standard: Gauge, extended: Timer, continuous: InfinityIcon }
 
-const cards = computed(() => [
-  ...(['quick', 'standard', 'extended'] as const).map((preset) => ({ value: preset, title: presetName(preset, t), text: line(PRESETS[preset]) })),
-  { value: 'continuous' as const, title: presetName('continuous', t), text: continuousLine(PRESETS.continuous) },
-])
+const cards = computed(() =>
+  (['quick', 'standard', 'extended', 'continuous'] as const).map((preset) => ({ value: preset, title: presetName(preset, t), text: line(storedOver(form.defaults.value, { preset })) })),
+)
 
 function choose(value: unknown): void {
   if (value === 'quick' || value === 'standard' || value === 'extended' || value === 'continuous') {

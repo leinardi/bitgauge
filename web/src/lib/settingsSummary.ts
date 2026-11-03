@@ -18,6 +18,7 @@
  */
 
 import type { DurationBounds, MeasuringPhase, TestSettings } from '@/engine/messages'
+import { runPhases } from '@/lib/continuous'
 import { same, storedOver } from '@/lib/settingsStorage'
 
 // The settings summary of the Test screen (ui/screens.md section 1): the settings that differ from
@@ -52,7 +53,8 @@ const bounded = (bounds: TestSettings['download']): bounds is DurationBounds => 
 /**
  * The parts whose value differs from the defaults, in a fixed order. The defaults are taken under
  * the run's preset, so a preset's own durations, streams and ping count are no change; Continuous
- * has its direction and run length and no durations, and runs its direction whatever the phases.
+ * has its direction and run length and no durations, and lists its phases, as the phases it runs,
+ * when idle latency is on or off against the default.
  */
 export function changedParts(settings: TestSettings, defaults: TestSettings): SummaryPart[] {
   const changed: SummaryPart[] = []
@@ -68,6 +70,10 @@ export function changedParts(settings: TestSettings, defaults: TestSettings): Su
     }
     if (settings.runLengthMs !== base.runLengthMs) {
       changed.push({ kind: 'runLength', ms: settings.runLengthMs ?? null })
+    }
+    // Continuous runs its one direction whatever the phases list: only idle latency can change.
+    if (settings.phases.includes('idle') !== base.phases.includes('idle')) {
+      changed.push({ kind: 'phases', phases: runPhases(settings) })
     }
   } else if (!same(settings.phases, base.phases)) {
     changed.push({ kind: 'phases', phases: [...settings.phases] })

@@ -18,7 +18,7 @@
 -->
 <script setup lang="ts">
 import { ArrowDown, ArrowUp } from '@lucide/vue'
-import { computed, reactive } from 'vue'
+import { computed, reactive, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import ChangedMark from '@/components/settings/ChangedMark.vue'
@@ -31,7 +31,9 @@ import { MAX_DURATION_S, MIN_DURATION_S, SECOND, wholeNumber } from '@/lib/urlVa
 
 // The duration of each direction (ui/screens.md section 4, kit Settings.jsx): a minimum and a
 // maximum in whole seconds, 5–600 s, the minimum at most the maximum; "custom" once they differ
-// from the preset's. A field's error shows under its direction's row, as the kit's does.
+// from the preset's. A field's error shows under its direction's row, as the kit's does. A bound
+// held back because of the other is checked again whenever the other changes, and saved once it is
+// valid.
 
 type Bound = 'minMs' | 'maxMs'
 
@@ -66,6 +68,13 @@ function validate(direction: Direction, bound: Bound, text: string): string | nu
 function commit(direction: Direction, bound: Bound, text: string): void {
   form.set({ [direction]: { ...form.current.value[direction], [bound]: Number(text) * SECOND } })
 }
+
+const inputs = useTemplateRef<{ recheck(): void }[]>('inputs')
+watch(
+  () => [form.current.value.download.minMs, form.current.value.download.maxMs, form.current.value.upload.minMs, form.current.value.upload.maxMs],
+  () => inputs.value?.forEach((input) => input.recheck()),
+  { flush: 'post' },
+)
 
 const rows = computed(() => [
   { direction: 'download' as const, label: t('settings.phases.download'), icon: ArrowDown, color: 'var(--series-download)', min: t('settings.duration.downloadMin'), max: t('settings.duration.downloadMax') },
@@ -104,6 +113,7 @@ const rows = computed(() => [
           </span>
           <SettingInput
             :id="`settings-${row.direction}-min`"
+            ref="inputs"
             :value="String(seconds(row.direction, 'minMs') ?? '')"
             :label="row.min"
             :suffix="t('settings.values.secondsUnit')"
@@ -117,6 +127,7 @@ const rows = computed(() => [
           <span class="text-subtle-foreground">{{ t('settings.duration.to') }}</span>
           <SettingInput
             :id="`settings-${row.direction}-max`"
+            ref="inputs"
             :value="String(seconds(row.direction, 'maxMs') ?? '')"
             :label="row.max"
             :suffix="t('settings.values.secondsUnit')"

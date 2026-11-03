@@ -77,6 +77,12 @@ describe('the settings summary', () => {
     expect(wrapper.findAll('span.rounded-full').map((part) => part.text())).toEqual([chip])
   })
 
+  it('shows the Continuous phases when idle latency is off', async () => {
+    const continuous = storedOver(DEFAULTS, { preset: 'continuous' })
+    const wrapper = await summary({ ...continuous, phases: ['download'] })
+    expect(wrapper.findAll('span.rounded-full').map((chip) => chip.text())).toEqual(['Continuous', 'Phases · Download'])
+  })
+
   it('shows the Continuous direction and run length, and no durations or phases', async () => {
     const continuous = storedOver(DEFAULTS, { preset: 'continuous' })
     const wrapper = await summary({ ...continuous, continuousDirection: 'upload', runLengthMs: 3_600_000, phases: ['idle', 'download'] })

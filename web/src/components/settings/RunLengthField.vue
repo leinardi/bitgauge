@@ -127,7 +127,8 @@ function unit(next: unknown): void {
           :validate="validate"
           :restore-text="restoreText"
           mono
-          class="w-18"
+          fit
+          class="min-w-18"
           @commit="commit"
         />
         <!-- The kit's Select in the Input shell, as a menu: a native select styles itself inline. -->

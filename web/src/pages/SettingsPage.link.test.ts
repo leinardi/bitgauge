@@ -59,11 +59,11 @@ function stored(): Record<string, unknown> {
 }
 
 /** The application at Settings, opened from the link, as a fresh page load. */
-async function openFromLink(link = LINK): Promise<{ app: VueWrapper; router: Router }> {
+async function openFromLink(link = LINK, info = infoFixture()): Promise<{ app: VueWrapper; router: Router }> {
   window.history.replaceState(null, '', `/settings?${link}`)
   vi.resetModules()
   vi.stubGlobal('Worker', StubWorker)
-  vi.mocked(getInfo).mockResolvedValue(infoFixture())
+  vi.mocked(getInfo).mockResolvedValue(info)
   const { useInfo } = await import('@/composables/useInfo')
   await useInfo().refresh()
   const { RouterView } = await import('vue-router')
@@ -137,6 +137,31 @@ describe('a field the link sets', () => {
     expect(row(app, '#settings-cap', 'Data cap').text()).toContain('from the link')
     // The changed list names the stored settings alone.
     expect(app.get('[data-testid="changed-preset"]').text()).toContain('Extended')
+    app.unmount()
+  })
+})
+
+describe('the ping count caption under a link preset', () => {
+  // The server runs Quick by default, with its own ping count.
+  const base = infoFixture()
+  const quick15 = { ...base, defaults: { ...base.defaults, preset: 'quick' as const, pingCount: 15 } }
+
+  async function caption(app: VueWrapper): Promise<string> {
+    await app.findAll('button').find((button) => button.text().startsWith('Advanced'))?.trigger('click')
+    return app.text()
+  }
+
+  it('names the link preset’s own default over the server’s preset', async () => {
+    localStorage.clear()
+    const { app } = await openFromLink('preset=standard', quick15)
+    expect(await caption(app)).toContain('Used for idle latency and jitter. Preset default: 20.')
+    app.unmount()
+  })
+
+  it('names the server’s default when the link sets the server’s preset over another stored one', async () => {
+    localStorage.setItem('bitgauge.settings.v1', JSON.stringify({ preset: 'standard' }))
+    const { app } = await openFromLink('preset=quick', quick15)
+    expect(await caption(app)).toContain('Used for idle latency and jitter. Server default: 15.')
     app.unmount()
   })
 })

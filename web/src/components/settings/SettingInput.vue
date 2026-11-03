@@ -44,6 +44,8 @@ const props = defineProps<{
   detachedError?: boolean
   /** What Escape restores, worded, when the saved value is not one to show: "no run length". */
   restoreText?: string
+  /** The input grows with its text, in characters of its mono face, so a long value shows whole. */
+  fit?: boolean
 }>()
 const emit = defineEmits<{ commit: [text: string]; error: [message: string | null] }>()
 // The width and the rest of the caller's attributes go to the shell, not to the column around it.
@@ -54,6 +56,10 @@ const form = useSettingsForm()
 const draft = shallowRef<string | null>(null)
 const error = shallowRef<string | null>(null)
 const errorId = computed(() => `${props.id}-error`)
+// One character more than the text or the placeholder, for the caret; never narrower than a short
+// value.
+const FIT_MIN_CH = 3
+const fitWidth = computed(() => (props.fit ? { width: `${Math.max((draft.value ?? props.value).length, props.placeholder?.length ?? 0, FIT_MIN_CH) + 1}ch` } : undefined))
 const restores = computed(() => props.restoreText ?? (props.suffix === undefined ? props.value : `${props.value} ${props.suffix}`))
 
 function show(message: string | null): void {
@@ -103,6 +109,18 @@ function key(event: KeyboardEvent): void {
   }
 }
 
+/**
+ * Checks a held edit again, once what it was checked against has changed: saved when it is now
+ * valid, its error reworded when it still is not. A field without a held error is left alone.
+ */
+function recheck(): void {
+  if (draft.value !== null && error.value !== null) {
+    check()
+  }
+}
+
+defineExpose({ recheck })
+
 // A value changed elsewhere, a reset, replaces the edit.
 watch(() => props.value, restore)
 onScopeDispose(() => form.invalid(props.id, false))
@@ -127,8 +145,9 @@ onScopeDispose(() => form.invalid(props.id, false))
         :placeholder="placeholder"
         :inputmode="inputmode ?? 'numeric'"
         autocomplete="off"
-        class="h-full w-full min-w-0 flex-1 border-none bg-transparent text-inherit outline-none placeholder:text-subtle-foreground disabled:cursor-not-allowed"
-        :class="mono ? 'font-mono' : 'font-sans'"
+        class="h-full min-w-0 border-none bg-transparent text-inherit outline-none placeholder:text-subtle-foreground disabled:cursor-not-allowed"
+        :class="[mono ? 'font-mono' : 'font-sans', fit ? 'flex-none' : 'w-full flex-1']"
+        :style="fitWidth"
         @input="edit"
         @blur="check"
         @keydown="key"

@@ -27,7 +27,7 @@ import SettingInput from '@/components/settings/SettingInput.vue'
 import SettingRow from '@/components/settings/SettingRow.vue'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { MAX_PINGS, MAX_WARMUP_S, MIN_PINGS, MIN_WARMUP_S } from '@/lib/settingsStorage'
+import { MAX_PINGS, MAX_WARMUP_S, MIN_PINGS, MIN_WARMUP_S, storedOver } from '@/lib/settingsStorage'
 import { SECOND, wholeNumber } from '@/lib/urlValues'
 
 // The advanced settings (ui/screens.md section 4, kit Settings.jsx), collapsed by default: the
@@ -41,6 +41,13 @@ const { t } = useI18n()
 const form = useSettingsForm()
 const open = shallowRef(false)
 const current = computed(() => form.current.value)
+// The ping count's default under the preset in effect, the link's included: the server's under the
+// server's own preset, the preset's otherwise.
+const pingsCaption = computed(() => {
+  const { preset } = current.value
+  const n = String(storedOver(form.defaults.value, { preset }).pingCount)
+  return preset === form.defaults.value.preset ? t('settings.pings.captionServer', { n }) : t('settings.pings.caption', { n })
+})
 const lastWarmup = shallowRef(typeof current.value.warmup === 'number' ? current.value.warmup : FIRST_WARMUP_S * SECOND)
 
 const warmupMode = computed({
@@ -134,7 +141,7 @@ function overhead(value: unknown): void {
       <SettingRow
         dense
         :title="t('settings.pings.title')"
-        :caption="t('settings.pings.caption', { n: String(form.defaultOf('pingCount')) })"
+        :caption="pingsCaption"
         :changed="form.changed.value.has('pingCount')"
         :linked="form.linked.value.has('pingCount')"
       >

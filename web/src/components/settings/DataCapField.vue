@@ -29,7 +29,7 @@ import { wholeNumber } from '@/lib/urlValues'
 
 // The data cap per test (ui/screens.md section 4, kit Settings.jsx): none, or a whole number of
 // decimal megabytes from 2 to 100000. A server default that is not a whole number of MB shows with
-// up to three decimals until the user changes it. Switched off, the field keeps the last size, the
+// up to three decimals until the user changes it; typed back as shown, it is kept. Switched off, the field keeps the last size, the
 // kit's 500 MB at first, for when it is switched on again.
 
 const FIRST_MB = 500
@@ -45,11 +45,22 @@ const on = computed({
 })
 const shown = computed(() => String(Number(((cap.value ?? last.value) / MB).toFixed(3))))
 
+// A size that is not a whole number of MB, typed back as shown, is no change: it stays.
+function unchanged(text: string): boolean {
+  return cap.value !== null && cap.value % MB !== 0 && text === shown.value
+}
+
 function validate(text: string): string | null {
+  if (unchanged(text)) {
+    return null
+  }
   return wholeNumber(text, MIN_CAP_MB, MAX_CAP_MB) === undefined ? t('settings.errors.range', { min: MIN_CAP_MB, max: MAX_CAP_MB }) : null
 }
 
 function commit(text: string): void {
+  if (unchanged(text)) {
+    return
+  }
   last.value = Number(text) * MB
   form.set({ dataCapBytes: last.value })
 }
