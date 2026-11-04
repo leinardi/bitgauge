@@ -43,10 +43,13 @@ MK_COMMON_WEB_INCLUDED := 1
 # Paths / files (override these in your repo if needed)
 WEB_DIR ?= $(REPO_ROOT)/web
 
-# What `make build` makes once the app is built: a binary that embeds it (go-build from go.mk by
-# default). Built from the recipe rather than as a second prerequisite, which make -j could start
-# alongside web-build, before the app it embeds exists.
-WEB_BUILD_NEXT ?= go-build
+# What `make build` makes once the app is built: a binary that embeds it. The default is go-build
+# when go.mk is included, rust-dist when rust.mk is, and nothing otherwise, so a project that
+# builds its binary another way names its own target rather than inheriting one it does not have.
+# Recursive, so a snippet counts wherever it sits in MK_COMMON_FILES. Built from the recipe rather
+# than as a second prerequisite, which make -j could start alongside web-build, before the app it
+# embeds exists.
+WEB_BUILD_NEXT ?= $(if $(MK_COMMON_GO_INCLUDED),go-build,$(if $(MK_COMMON_RUST_INCLUDED),rust-dist))
 
 WEB_INSTALLED := $(WEB_DIR)/node_modules/.package-lock.json
 
@@ -94,7 +97,14 @@ api-types: $(WEB_INSTALLED) ## Regenerate the typed API client (the api-types np
 	npm --prefix "$(WEB_DIR)" run api-types
 
 .PHONY: build
-build: web-build ## Build the web app, then WEB_BUILD_NEXT (go-build by default), which embeds it
-	$(MAKE) $(WEB_BUILD_NEXT)
+build: web-build ## Build the web app, then WEB_BUILD_NEXT, which embeds it (go-build or rust-dist)
+	$(MAKE) $(or $(strip $(WEB_BUILD_NEXT)),web-build-next-unset)
+
+# What build runs when no WEB_BUILD_NEXT is set: a refusal naming the variable, rather than a
+# "No rule to make target" for an empty goal. A target of its own so make -n prints it and runs
+# nothing, as for any other WEB_BUILD_NEXT.
+.PHONY: web-build-next-unset
+web-build-next-unset:
+	@echo "build: set WEB_BUILD_NEXT to the target that builds the binary embedding the web app" >&2; exit 2
 
 endif  # MK_COMMON_WEB_INCLUDED

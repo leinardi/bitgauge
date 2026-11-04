@@ -21,7 +21,7 @@ release waits for the manual steps of [`docs/release.md`](docs/release.md#how-to
 
 - `web/src/api/types.gen.ts`: run `make api-types` after editing `api/openapi.yaml`.
 - `web/src/components/ui/`: vendored shadcn-vue; extend by composition.
-- `.mk/{docker,help,pre-commit,web,parity}.mk`: from make-common (`make mk-common-update`);
+- `.mk/{docker,help,pre-commit,web,parity,rust}.mk`: from make-common (`make mk-common-update`);
   repo-local snippets are the other `.mk/` files. Never add recipes to `Makefile` itself.
 - The vendored skills in `skills-lock.json` (hashed).
 - `docs/design_system/` except `features/`: `docs/features/{product.md,principles.md,measurement.md,ui/}`

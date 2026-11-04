@@ -1,58 +1,89 @@
 #
-# This file is part of BitGauge.
+# MIT License
 #
 # Copyright (c) 2026 Roberto Leinardi
 #
-# BitGauge is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# BitGauge is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
-# You should have received a copy of the GNU General Public License
-# along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 #
 
-# Adapted from swarm-scheduler-exporter/.mk/rust.mk at 722b8a3, MIT, Copyright (c) 2026 Roberto Leinardi
+ifndef MK_COMMON_RUST_INCLUDED
+MK_COMMON_RUST_INCLUDED := 1
 
+# A Cargo project or workspace. Every command runs workspace-wide (one package is a workspace of
+# one), so a lint set declared once in [workspace.lints] reaches every member, and --locked
+# everywhere: Cargo.lock is the pin, and a command that rewrote it would build a dependency graph
+# nobody reviewed.
 
-ifndef MK_LOCAL_RUST_INCLUDED
-MK_LOCAL_RUST_INCLUDED := 1
+CARGO    ?= cargo
+BIN_NAME ?= app
+DIST_DIR ?= dist
 
-# Local snippet (NOT part of make-common): the Rust workspace, the server and its test crates
-# (docs/rust-port.md). Every lint and test command runs workspace-wide, so the meta and
-# testenv crates are held to the same lints and tests as the server: the lint set lives once in the
-# root [workspace.lints], and a command scoped to one package would leave the others unchecked.
-# --locked everywhere: Cargo.lock is the pin, and a command that rewrote it would test a dependency
-# graph nobody reviewed. cargo deny takes --workspace for the same reason. Build and clippy take
-# --all-features, so the code behind testenv's Docker features is compiled and linted like the
-# rest; the tests do not, since those suites need Docker.
+# Version metadata (generic, derived from git when available), as go.mk has it.
+GIT_COMMIT  ?= $(shell git rev-parse --short=12 HEAD 2>/dev/null || echo "none")
+GIT_VERSION ?= $(shell git describe --tags --dirty --always 2>/dev/null || echo "v0.0.0")
+BUILD_DATE  ?= $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-CARGO ?= cargo
+# RUST_STAMP_PREFIX: the binary reads its version at compile time from <prefix>_VERSION,
+# <prefix>_COMMIT and <prefix>_DATE (option_env! or env!), e.g. RUST_STAMP_PREFIX := MYAPP.
+# Empty: no stamps. Only the builds and rust-run stamp, so the tests see the binary's defaults.
+# RUST_VERSION_ENV is the assignment list, for a consumer's own recipes.
+RUST_STAMP_PREFIX ?=
+RUST_VERSION_ENV = $(if $(strip $(RUST_STAMP_PREFIX)), \
+  $(RUST_STAMP_PREFIX)_VERSION="$(GIT_VERSION)" \
+  $(RUST_STAMP_PREFIX)_COMMIT="$(GIT_COMMIT)" \
+  $(RUST_STAMP_PREFIX)_DATE="$(BUILD_DATE)")
 
-# The version stamps the binary reads at compile time (BITGAUGE_VERSION, _COMMIT, _DATE), the same
-# values the image and the release stamp (GIT_VERSION, GIT_COMMIT and BUILD_DATE in the Makefile).
-# Only the builds stamp, so the tests see the defaults.
-RUST_VERSION_ENV = \
-  BITGAUGE_VERSION="$(GIT_VERSION)" \
-  BITGAUGE_COMMIT="$(GIT_COMMIT)" \
-  BITGAUGE_DATE="$(BUILD_DATE)"
+# The features rust-build, rust-clippy and rust-doc compile; empty for the default features. The
+# tests take the default features, so a feature whose tests need more than cargo (Docker, a
+# device) stays out of rust-test while its code is still built and linted.
+RUST_FEATURES ?= --all-features
+
+# cargo-deny's scope; --workspace checks every member's graph, not only the root package's.
+RUST_DENY_ARGS ?= --workspace
+
+# rust-run's binary, for a package with more than one; empty lets cargo pick the only one.
+RUST_RUN_BIN ?=
+
+# Where cargo puts its output, so rust-dist finds the binary under a custom CARGO_TARGET_DIR.
+RUST_TARGET_DIR ?= $(or $(CARGO_TARGET_DIR),target)
 
 .PHONY: rust-build
-rust-build: ## Build the Rust workspace, with the version stamps
-	$(RUST_VERSION_ENV) $(CARGO) build --workspace --all-targets --all-features --locked
+rust-build: ## Build the Rust workspace, every target, with the version stamps
+	$(RUST_VERSION_ENV) $(CARGO) build --workspace --all-targets $(RUST_FEATURES) --locked
+
+.PHONY: rust-dist
+rust-dist: ## Build the release binary BIN_NAME, with the version stamps, into DIST_DIR
+	$(RUST_VERSION_ENV) $(CARGO) build --release --locked --bin "$(BIN_NAME)"
+	@mkdir -p "$(DIST_DIR)"
+	cp "$(RUST_TARGET_DIR)/release/$(BIN_NAME)" "$(DIST_DIR)/$(BIN_NAME)"
+
+.PHONY: rust-run
+rust-run: ## Run the binary with the version stamps (ARGS="...")
+	$(RUST_VERSION_ENV) $(CARGO) run --locked $(if $(strip $(RUST_RUN_BIN)),--bin "$(RUST_RUN_BIN)") -- $(ARGS)
 
 .PHONY: rust-test
-rust-test: ## Run the Rust tests, meta-tests included
+rust-test: ## Run the Rust tests
 	$(CARGO) test --workspace --locked
 
 .PHONY: rust-clippy
 rust-clippy: ## Lint the Rust workspace with clippy, warnings as errors
-	$(CARGO) clippy --workspace --all-targets --all-features --locked -- -D warnings
+	$(CARGO) clippy --workspace --all-targets $(RUST_FEATURES) --locked -- -D warnings
 
 .PHONY: rust-fmt
 rust-fmt: ## Format the Rust code
@@ -64,24 +95,13 @@ rust-fmt-check: ## Fail if the Rust code needs formatting
 
 .PHONY: rust-doc
 rust-doc: ## Check the Rust documentation, warnings as errors
-	RUSTDOCFLAGS="$(RUSTDOCFLAGS) -D warnings" $(CARGO) doc --workspace --all-features --no-deps --locked
+	RUSTDOCFLAGS="$(RUSTDOCFLAGS) -D warnings" $(CARGO) doc --workspace $(RUST_FEATURES) --no-deps --locked
 
 .PHONY: rust-deny
-rust-deny: ## Check the Rust dependencies with cargo-deny (advisories, licenses, bans, sources; network)
-	$(CARGO) deny --workspace check
-
-# The release binary, with the SPA web-build leaves in web/dist embedded (build.rs makes cargo
-# re-embed it whenever it changes), copied to dist/bitgauge, the binary make e2e, make run and the
-# end-to-end fixtures (web/e2e/fixtures/server.ts) start.
-RUST_BIN ?= $(REPO_ROOT)/$(DIST_DIR)/$(BIN_NAME)
-
-.PHONY: rust-bin
-rust-bin: web-build ## Build the web app, then the release binary that embeds it, with the version stamps, into dist/
-	$(RUST_VERSION_ENV) $(CARGO) build --release --locked --bin $(BIN_NAME)
-	mkdir -p "$(dir $(RUST_BIN))"
-	cp "$(REPO_ROOT)/target/release/$(BIN_NAME)" "$(RUST_BIN)"
+rust-deny: ## Check the Rust dependencies with cargo-deny (advisories, licences, bans, sources; network)
+	$(CARGO) deny $(RUST_DENY_ARGS) check
 
 .PHONY: verify-rust
 verify-rust: rust-build rust-fmt-check rust-clippy rust-test rust-doc ## Verify the Rust code (build, fmt, clippy, tests, docs)
 
-endif  # MK_LOCAL_RUST_INCLUDED
+endif  # MK_COMMON_RUST_INCLUDED

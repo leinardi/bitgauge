@@ -30,7 +30,7 @@ fixed.
 2. List every finding a commit fixed since the last round (`git log --grep 'QA-'`). Each is
    re-checked in its area and reported as holds, partly or regressed.
 3. Note the commit under test (`git log -1`) and that the worktree is clean, then build once
-   (`make rust-bin`, the web app and the release binary): every stack below runs that
+   (`make build`, the web app and the release binary): every stack below runs that
    `./dist/bitgauge` or the demo build of the same commit. Install the browsers once too (`make e2e-browsers`):
    `playwright cli` drives the ones the end-to-end tests use.
 

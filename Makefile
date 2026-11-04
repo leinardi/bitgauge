@@ -26,10 +26,10 @@ MK_COMMON_VERSION ?= v1
 MK_COMMON_DIR := $(REPO_ROOT)/.mk
 
 # Shared snippets coming from make-common
-MK_COMMON_FILES := docker.mk help.mk pre-commit.mk web.mk parity.mk
+MK_COMMON_FILES := docker.mk help.mk pre-commit.mk web.mk parity.mk rust.mk
 
 # Repo-local snippets that are NOT in make-common
-MK_LOCAL_FILES := run.mk e2e.mk verify.mk rust.mk rust-release.mk audit-deps.mk docker-run.mk image-test.mk harness.mk idle-measure.mk
+MK_LOCAL_FILES := run.mk e2e.mk verify.mk rust-release.mk audit-deps.mk docker-run.mk image-test.mk harness.mk idle-measure.mk
 
 MK_COMMON_BOOTSTRAP_SCRIPT := $(REPO_ROOT)/scripts/bootstrap-mk-common.sh
 
@@ -50,13 +50,16 @@ DIST_DIR ?= dist
 # HEAD is exactly a tag and the tree is clean, and otherwise dev, what an unstamped binary reports
 # (src/buildinfo.rs); the commit is a fixed 7-character prefix; the date is the build's, in UTC. A
 # local build's About screen then reads "dev · 34c88f5 · <date>". rust.mk hands the three to the
-# binary as BITGAUGE_VERSION, BITGAUGE_COMMIT and BITGAUGE_DATE, docker.mk to the image.
+# binary as BITGAUGE_VERSION, BITGAUGE_COMMIT and BITGAUGE_DATE (RUST_STAMP_PREFIX), docker.mk to
+# the image.
 GIT_VERSION ?= $(or $(patsubst v%,%,$(filter-out %-dirty,$(shell git describe --tags --exact-match --dirty 2>/dev/null))),dev)
 GIT_COMMIT  ?= $(or $(shell git rev-parse HEAD 2>/dev/null | cut -c1-7),none)
 BUILD_DATE  ?= $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
+RUST_STAMP_PREFIX := BITGAUGE
 
-# What `make build` builds once web.mk has built the app: the Rust workspace, which embeds it.
-WEB_BUILD_NEXT := rust-build
+# The release binary make build leaves (web.mk's web-build, then rust.mk's rust-dist), the one
+# make e2e, make run and the end-to-end fixtures (web/e2e/fixtures/server.ts) start.
+DIST_BIN := $(REPO_ROOT)/$(DIST_DIR)/$(BIN_NAME)
 
 # Docker image coordinates: one image, built from the shipped Dockerfile.
 IMAGE_REPO     ?= ghcr.io/leinardi/bitgauge

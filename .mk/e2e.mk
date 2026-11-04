@@ -32,10 +32,10 @@ E2E_PORT ?= 18080
 E2E_MAX_STREAMS ?= 64
 # make's wildcard reads ** as *, so it would miss a spec two folders down; find does not.
 E2E_SPECS := $(shell [ -d "$(REPO_ROOT)/web/e2e" ] && find "$(REPO_ROOT)/web/e2e" -name '*.spec.ts' -type f)
-# The binary under test: empty builds the release binary of make rust-bin, which embeds the web app
-# it builds first; BIN=<path> runs a binary built beforehand.
+# The binary under test: empty runs make build (the web app, then the release binary that embeds
+# it); BIN=<path> runs a binary built beforehand.
 BIN ?=
-E2E_BIN = $(if $(strip $(BIN)),$(BIN),$(RUST_BIN))
+E2E_BIN = $(if $(strip $(BIN)),$(BIN),$(DIST_BIN))
 
 .PHONY: e2e
 e2e: ## Run the Playwright end-to-end tests against a host-built binary, or the prebuilt BIN
@@ -43,7 +43,7 @@ ifeq ($(strip $(E2E_SPECS)),)
 	@echo "e2e is dormant: web/e2e/ holds no *.spec.ts yet." >&2
 	@exit 1
 else
-	$(if $(strip $(BIN)),test -x "$(BIN)" || { echo "BIN=$(BIN) is not an executable" >&2; exit 1; },$(MAKE) rust-bin)
+	$(if $(strip $(BIN)),test -x "$(BIN)" || { echo "BIN=$(BIN) is not an executable" >&2; exit 1; },$(MAKE) build)
 	export BITGAUGE_SERVER__LISTEN="127.0.0.1:$(E2E_PORT)" \
 	  BITGAUGE_LIMITS__MAX_STREAMS_PER_CLIENT="$(E2E_MAX_STREAMS)"; \
 	  "$(E2E_BIN)" serve & server=$$!; \

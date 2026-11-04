@@ -598,9 +598,10 @@ not expect.
   was tested then.
 - **After the loop.** `meta::transition`, left with a single `Done` stage nothing branched on, is
   gone; the shipped Dockerfile's path is `meta::SHIPPED_DOCKERFILE`. The repository copy of
-  `rust-port-go` went back to the user skills. The make-common `web.mk` default that still named
-  `go-build` is fixed upstream (leinardi/make-common pull request 28) and arrives with the next
-  `make mk-common-update`; the Makefile sets `WEB_BUILD_NEXT` either way.
+  `rust-port-go` went back to the user skills. make-common's `web.mk` defaults `WEB_BUILD_NEXT`
+  to `go-build` only beside `go.mk` (leinardi/make-common pull request 28), and the local `rust.mk`
+  became make-common's shared one (pull request 29): `RUST_STAMP_PREFIX := BITGAUGE` sets the
+  stamps, `make build` is the web app and then `rust-dist`, and it replaces `rust-bin`.
 - **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
   started. The `cargo-machete` pre-commit hook builds its own; phase 15 fetched the pinned `zig`
   into the scratchpad.

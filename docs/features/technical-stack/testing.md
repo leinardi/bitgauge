@@ -143,7 +143,7 @@ vitest with `@vue/test-utils` and jsdom:
 
 ## 4. Playwright End-to-End
 
-Run against the real binary (the built image or the release binary `make rust-bin` builds) on
+Run against the real binary (the built image or the release binary `make build` builds) on
 **Chromium, Firefox and WebKit**:
 
 - The nine flows of [../ui/flows.md](../ui/flows.md): first run, auto-run from URL, slow mobile VPN

@@ -535,40 +535,54 @@ const RUST_MK: &str = ".mk/rust.mk";
 #[test]
 fn release_binaries_are_stamped() {
     assert_no_problems(&release::make_stamp_problems(
+        &repo::read(MAKEFILE),
         &repo::read(RUST_MK),
         &repo::read(RUST_RELEASE_MK),
     ));
 }
 
-/// The negative control of `release_binaries_are_stamped`: a stamp set from another variable or
-/// dropped, or the static build without the stamps.
+/// The negative control of `release_binaries_are_stamped`: another stamp prefix or none, a stamp
+/// set from another variable or dropped, or the static build without the stamps.
 #[test]
 fn make_stamp_checks_refuse_mutations() {
+    let makefile = repo::read(MAKEFILE);
+    let rust_mk = repo::read(RUST_MK);
     let release_mk = repo::read(RUST_RELEASE_MK);
     assert_refuses(
+        MAKEFILE,
+        &makefile,
+        |text| release::make_stamp_problems(text, &rust_mk, &release_mk),
+        &[
+            literal(
+                "another prefix",
+                "RUST_STAMP_PREFIX := BITGAUGE",
+                "RUST_STAMP_PREFIX := OTHER",
+            ),
+            literal("no prefix", "RUST_STAMP_PREFIX := BITGAUGE", ""),
+        ],
+    );
+    assert_refuses(
         RUST_MK,
-        &repo::read(RUST_MK),
-        |text| release::make_stamp_problems(text, &release_mk),
+        &rust_mk,
+        |text| release::make_stamp_problems(&makefile, text, &release_mk),
         &[
             literal(
                 "the commit from another variable",
-                r#"BITGAUGE_COMMIT="$(GIT_COMMIT)""#,
-                r#"BITGAUGE_COMMIT="$(COMMIT)""#,
+                r#"$(RUST_STAMP_PREFIX)_COMMIT="$(GIT_COMMIT)""#,
+                r#"$(RUST_STAMP_PREFIX)_COMMIT="$(COMMIT)""#,
             ),
             literal(
                 "the date dropped",
-                r#" \
-  BITGAUGE_DATE="$(BUILD_DATE)""#,
+                r#"$(RUST_STAMP_PREFIX)_DATE="$(BUILD_DATE)""#,
                 "",
             ),
             literal("no stamps at all", "RUST_VERSION_ENV =", "RUST_ENV ="),
         ],
     );
-    let rust_mk = repo::read(RUST_MK);
     assert_refuses(
         RUST_RELEASE_MK,
         &release_mk,
-        |text| release::make_stamp_problems(&rust_mk, text),
+        |text| release::make_stamp_problems(&makefile, &rust_mk, text),
         &[literal(
             "the static build unstamped",
             r#"RUSTFLAGS="$(RUST_RELEASE_RUSTFLAGS)" $(RUST_VERSION_ENV)"#,

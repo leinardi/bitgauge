@@ -152,17 +152,36 @@ fn stamp_problems(content: &str) -> Vec<String> {
 }
 
 static VERSION_ENV: LazyLock<Regex> =
-    LazyLock::new(|| pattern(r"(?m)^RUST_VERSION_ENV\s*=\s*\\\n((?:.*\\\n)*.*)$"));
+    LazyLock::new(|| pattern(r"(?m)^RUST_VERSION_ENV\s*=(.*\\\n(?:.*\\\n)*.*)$"));
+static STAMP_PREFIX: LazyLock<Regex> =
+    LazyLock::new(|| pattern(r"(?m)^RUST_STAMP_PREFIX\s*:?=\s*(\S+)\s*$"));
 
-/// The make side of the stamps: `.mk/rust.mk`'s `RUST_VERSION_ENV` sets each `BITGAUGE_*`
-/// variable from its [`STAMP_VARIABLES`] make variable, and `.mk/rust-release.mk`'s static build,
-/// the one `rust-release-binaries` runs, carries it.
-pub fn make_stamp_problems(rust_mk: &str, release_mk: &str) -> Vec<String> {
+/// The make side of the stamps: the `Makefile` names the stamps' prefix (`RUST_STAMP_PREFIX`, the
+/// `BITGAUGE` of [`STAMP_VARIABLES`]), make-common's `.mk/rust.mk` sets `<prefix>_VERSION`,
+/// `_COMMIT` and `_DATE` from their [`STAMP_VARIABLES`] make variables in `RUST_VERSION_ENV`, and
+/// `.mk/rust-release.mk`'s static build, the one `rust-release-binaries` runs, carries it.
+pub fn make_stamp_problems(makefile: &str, rust_mk: &str, release_mk: &str) -> Vec<String> {
     let mut problems = Vec::new();
+    let mut prefixes = STAMP_VARIABLES
+        .iter()
+        .filter_map(|(_, stamp)| stamp.rsplit_once('_').map(|(prefix, _)| prefix));
+    let want_prefix = prefixes.next().unwrap_or_default();
+    match STAMP_PREFIX
+        .captures(makefile)
+        .and_then(|found| found.get(1))
+    {
+        Some(prefix) if prefix.as_str() == want_prefix => {}
+        Some(prefix) => problems.push(format!(
+            "Makefile: RUST_STAMP_PREFIX is {}, not {want_prefix}",
+            prefix.as_str()
+        )),
+        None => problems.push("Makefile sets no RUST_STAMP_PREFIX".to_owned()),
+    }
     match VERSION_ENV.captures(rust_mk).and_then(|found| found.get(1)) {
         Some(assignments) => {
             for (variable, stamp) in STAMP_VARIABLES {
-                let want = format!(r#"{stamp}="$({variable})""#);
+                let suffix = stamp.rsplit_once('_').map_or(stamp, |(_, suffix)| suffix);
+                let want = format!(r#"$(RUST_STAMP_PREFIX)_{suffix}="$({variable})""#);
                 if !assignments.as_str().contains(&want) {
                     problems.push(format!(".mk/rust.mk: RUST_VERSION_ENV does not set {want}"));
                 }
