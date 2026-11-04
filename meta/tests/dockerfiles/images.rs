@@ -19,9 +19,8 @@
 
 //! The image rules of build-packaging.md section 1, each a function from a Dockerfile's text
 //! (and the files it must agree with) to the problems found, so a negative control can run it on
-//! a mutated copy: the stage layout and base pinning, the build stages, the runtime posture, the
-//! version stamps of the Go and the Rust builds, the Rust build stage's toolchain pins, and the
-//! stages the Rust Dockerfile shares with the shipped one.
+//! a mutated copy: the stage layout and base pinning, the build stages, the runtime posture, and
+//! the Rust build stage's toolchain pins and version stamps.
 
 use std::collections::BTreeMap;
 use std::sync::LazyLock;
@@ -35,15 +34,11 @@ pub const RUNTIME_USER: &str = "65532:65532";
 /// The end of the runtime stage's HEALTHCHECK: the binary's own subcommand, in exec form, since
 /// the runtime has no shell.
 pub const HEALTHCHECK_COMMAND: &str = r#" CMD ["/bitgauge", "healthcheck"]"#;
-/// The base of the Go build stage.
-pub const GO_BUILD_REPOSITORY: &str = "dhi.io/golang";
 /// The base of the Rust build stage.
 pub const RUST_BUILD_REPOSITORY: &str = "dhi.io/rust";
 /// The variant of the Rust build base: debian, whose upstream toolchain takes the upstream musl
 /// standard libraries, where the alpine variant's rustc is Alpine's own build.
 const RUST_BUILD_VARIANT: &str = "debian13-dev";
-/// The stages the Rust Dockerfile takes from the shipped one unchanged.
-pub const SHARED_STAGES: [&str; 2] = ["web", "runtime"];
 
 fn pattern(text: &str) -> Regex {
     Regex::new(text).unwrap_or_else(|error| panic!("pattern {text}: {error}"))
@@ -226,42 +221,6 @@ fn label_problems(path: &str, runtime: &Stage) -> Vec<String> {
     if labels.len() != want.len() {
         problems.push(format!(
             "{path}: the runtime stage carries labels {labels:?}, want exactly the seven OCI labels"
-        ));
-    }
-    problems
-}
-
-/// The version stamps of the Go build: each internal/buildinfo field set with `-X`, and no stamp
-/// of main.version, which no main package declares. A file that stamped package main would ship
-/// a binary reporting "dev".
-pub fn go_stamp_problems(path: &str, content: &str) -> Vec<String> {
-    let mut problems = Vec::new();
-    for field in ["version", "commit", "date"] {
-        let flag = format!("github.com/leinardi/bitgauge/internal/buildinfo.{field}=");
-        if !content.contains(&format!("-X {flag}")) && !content.contains(&format!("-X '{flag}")) {
-            problems.push(format!("{path} does not stamp internal/buildinfo.{field}"));
-        }
-    }
-    if content.contains("main.version") {
-        problems.push(format!(
-            "{path} stamps main.version, which no main package declares"
-        ));
-    }
-    problems
-}
-
-/// The version stamps of the Rust build: the build reads `BITGAUGE_VERSION`, `BITGAUGE_COMMIT`
-/// and `BITGAUGE_DATE` at compile time, and a Go link-time stamp would set nothing.
-pub fn rust_stamp_problems(path: &str, content: &str) -> Vec<String> {
-    let mut problems = Vec::new();
-    for variable in ["BITGAUGE_VERSION", "BITGAUGE_COMMIT", "BITGAUGE_DATE"] {
-        if !content.contains(&format!("{variable}=")) {
-            problems.push(format!("{path} does not set {variable}"));
-        }
-    }
-    if content.contains("internal/buildinfo") {
-        problems.push(format!(
-            "{path} stamps internal/buildinfo, which the Rust build does not have"
         ));
     }
     problems
@@ -560,54 +519,6 @@ fn cargo_build_problems(
         if !args.contains_key(arg) {
             problems.push(format!(
                 "{path}: the build stage does not declare ARG {arg}"
-            ));
-        }
-    }
-    problems
-}
-
-/// The stages the Rust Dockerfile shares with the shipped one, instruction for instruction: the
-/// same SPA build, and the same runtime with its labels, user, healthcheck, binary path and
-/// entrypoint, so the images differ only in how the binary is built.
-pub fn shared_stage_problems(
-    shipped_path: &str,
-    shipped: &str,
-    rust_path: &str,
-    rust: &str,
-) -> Vec<String> {
-    let (shipped_stages, rust_stages) =
-        match (stages(shipped_path, shipped), stages(rust_path, rust)) {
-            (Ok(shipped), Ok(rust)) => (shipped, rust),
-            (Err(problems), _) | (_, Err(problems)) => return problems,
-        };
-    let mut problems = Vec::new();
-    for name in SHARED_STAGES {
-        let (want, got) = match (
-            named(shipped_path, &shipped_stages, name),
-            named(rust_path, &rust_stages, name),
-        ) {
-            (Ok(want), Ok(got)) => (want, got),
-            (Err(problem), _) | (_, Err(problem)) => {
-                problems.push(problem);
-                continue;
-            }
-        };
-        if (&got.platform, &got.image) != (&want.platform, &want.image) {
-            problems.push(format!(
-                "{rust_path}: stage {name} is FROM --platform={:?} {}, want {shipped_path}'s \
-                 --platform={:?} {}",
-                got.platform, got.image, want.platform, want.image
-            ));
-        }
-        let longest = want.instructions.len().max(got.instructions.len());
-        if let Some(index) =
-            (0..longest).find(|&index| want.instructions.get(index) != got.instructions.get(index))
-        {
-            problems.push(format!(
-                "{rust_path}: stage {name}'s instruction {} is {:?}, want {shipped_path}'s {:?}",
-                index + 1,
-                got.instructions.get(index),
-                want.instructions.get(index)
             ));
         }
     }

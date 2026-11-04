@@ -6,21 +6,12 @@
     "allow": [
       "Bash(make check)",
       "Bash(make check-stage)",
-      "Bash(make go-build)",
-      "Bash(make go-test)",
-      "Bash(make go-vet)",
-      "Bash(make go-lint)",
       "Bash(make verify)",
-      "Bash(make verify-go)",
       "Bash(make verify-web)",
       "Bash(make web-lint)",
       "Bash(make web-test)",
       "Bash(make web-build)",
       "Bash(make api-types)",
-      "Bash(go test *)",
-      "Bash(go build *)",
-      "Bash(go vet *)",
-      "Bash(gofmt *)",
       "Bash(make verify-rust)",
       "Bash(make rust-build)",
       "Bash(make rust-test)",
@@ -36,7 +27,6 @@
       "Bash(cargo doc *)",
       "Bash(rustfmt *)",
       "Bash(pre-commit run *)",
-      "Bash(golangci-lint run *)",
       "Bash(npm --prefix web run lint)",
       "Bash(npm --prefix web run typecheck)",
       "Bash(npm --prefix web run test)",
@@ -56,10 +46,6 @@
       {
         "matcher": "Edit|Write",
         "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/hooks/gofmt-on-edit.sh"
-          },
           {
             "type": "command",
             "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/hooks/rustfmt-on-edit.sh"

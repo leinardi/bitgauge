@@ -19,7 +19,7 @@
 
 //! The third-party images of the harness topology, each pinned by digest so a run means the same
 //! thing tomorrow. Dependabot cannot see pins in source, so they are refreshed by hand in each
-//! health audit, here and in `test/harness/images.go` together while both exist. The tools image
+//! health audit. The tools image
 //! is not here: it is built from `test/harness/tools.Dockerfile`, whose own base is pinned.
 
 /// The browsers of exactly the `@playwright/test` version `web/package.json` pins; the client
@@ -83,22 +83,5 @@ mod tests {
             "the Playwright image {PLAYWRIGHT_IMAGE} is not the @playwright/test {version} the \
              workspace installs"
         );
-    }
-
-    /// The pins are the Go harness's own while both harnesses exist.
-    #[test]
-    fn images_match_the_go_harness() {
-        let go = std::fs::read_to_string(
-            Path::new(env!("CARGO_MANIFEST_DIR")).join("../test/harness/images.go"),
-        )
-        .expect("test/harness/images.go");
-        let compact: String = go.split_whitespace().collect();
-        for image in images() {
-            let (name, digest) = image.split_once('@').expect("a digest");
-            assert!(
-                compact.contains(&format!("\"{name}\"+\"@{digest}\"")),
-                "{image} is not pinned in test/harness/images.go"
-            );
-        }
     }
 }

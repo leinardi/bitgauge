@@ -566,6 +566,28 @@ not expect.
   `rust-port-go`). Neither image is byte-reproducible across rebuilds of one commit from a dirty
   tree; the identity check compares the copied binary against the image's own layer, so it is
   unaffected.
+- **Phase 18, the cutover.** `Dockerfile.rust` became the shipped `Dockerfile`,
+  `Transition::Done` holds the meta-tests to the shipped image alone, and the Go server, its
+  tests, its toolchain pins, its hooks and its workflows are gone. Release binaries are the static
+  musl builds of `make rust-release-binaries`, with zig and cargo-zigbuild installed by
+  `make rust-zigbuild-install` from the pins in `.mk/rust-release.mk`; the tag annotation records
+  `Rust: X.Y.Z`, which `recover-toolchains.sh` reinstalls for a recovery. Idle footprint, measured
+  with `scripts/idle-measure.sh windows` (five 60 s windows after a 30 s warm-up, no Docker
+  census) on one host, both binaries at once on loopback with the default configuration: the Go
+  binary built from the last Go tree (its server code unchanged since the loop was armed) held a
+  median VmRSS of 18.92 MiB (18.39–19.11, peak 19.11), the Rust binary 12.12 MiB (flat, peak
+  12.12); both used 0.00 % of one core. No Go value had been recorded before arming, so the Go
+  figure is that rebuild's. The binaries are 17.1 MB (Go, unstripped `-trimpath` build) and
+  5.4 MB (Rust release). The precondition re-run of the phase 17 Rust gates on the candidate
+  image passed the image suite and failed the CI tier on two runs: ci-500k-300ms in Chromium,
+  where the ICMP reference rose to 1–1.6 s in released batches already before the test (a host
+  stall; BitGauge's own figures matched Firefox and WebKit), and ci-100m-50ms-caddy-h2 in Firefox,
+  where an upload ramp that went to four streams left a 3.9 s window and no path B sample. Both
+  are recorded in that run's report. On the shipped image, on a quiet host, the image suite and
+  all 21 CI-tier runs passed at the first attempt, with every netguard counter at zero and that
+  Firefox h2 upload measured on 51 path B samples. Found at the cutover:
+  `web/src/lib/csp.test.ts` read the style hash from the Go source; it reads
+  `src/server/classify.rs` now.
 - **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
   started. The `cargo-machete` pre-commit hook builds its own; phase 15 fetched the pinned `zig`
   into the scratchpad.

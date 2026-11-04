@@ -90,9 +90,10 @@ explicit version to force one." The one exception is a recovery: when `svu next`
 tag that already sits on `HEAD`, the run treats it as a recovery of that version, not as "nothing
 to bump", so re-running a failed run that derived its version works.
 
-Dependabot's Go module and runtime npm updates are committed as `fix(deps)`, so a dependency bump
-alone is enough for a patch release. Its `docker`, `github-actions` and `pre-commit` updates, and
-npm devDependency updates, stay `chore(deps)` and bump nothing. **A base-image security fix
+Dependabot's Cargo dependency and runtime npm updates are committed as `fix(deps)`, so a
+dependency bump alone is enough for a patch release. Its `docker`, `github-actions` and
+`pre-commit` updates, and Cargo dev-dependency and npm devDependency updates, stay `chore(deps)`
+and bump nothing. **A base-image security fix
 therefore needs an explicit version to ship**, whether `dhi.io` republished it under the tag the
 Dockerfile names (no commit at all; the next release build picks it up) or a Dependabot tag bump
 brought it in: there is no rebuild of a published version, and the
@@ -147,20 +148,22 @@ Every run starts the same way:
    not `refs/heads/main`, and every other job waits on it. `workflow_dispatch` lets the caller pick
    any branch, and the release job holds `contents: write`, `packages: write` and an OIDC
    identity.
-2. **Verify.** `go-test` and `web` (the same reusable workflows `ci.yaml` calls, run again at this
+2. **Verify.** `rust` and `web` (the same reusable workflows `ci.yaml` calls, run again at this
    commit, so a release never depends on which pull request last ran CI) and `audit`
    (`make audit-deps`). Then the `release` job runs, in the `release` environment, with
    `contents: write`, `packages: write`, `id-token: write` and `attestations: write`.
 3. **Resolve the version**, as in [Versioning](#versioning).
 4. **Check the tag.** If `refs/tags/vX.Y.Z` already exists on the remote, the run continues only
    when it points at `HEAD`, as a recovery; pointing anywhere else is a hard failure. A new tag is
-   created **locally only**, annotated with the exact Go and Node versions the binaries are built
-   with (`Go: go1.26.N`, `Node: v24.N.N`). `.go-version` names a Go line and the web app is built
-   with a Node major, and both resolve to the newest patch on the day of the run; a recovery reads
-   the annotation and switches to the recorded versions before building, which is what makes its
-   binaries byte-identical to the first attempt's.
+   created **locally only**, annotated with the exact Rust and Node versions the binaries are
+   built with (`Rust: 1.N.N`, `Node: v24.N.N`). The web app is built with a Node major, which
+   resolves to the newest patch on the day of the run, and a toolchain bump can land between a
+   first attempt and its recovery; a recovery reads the annotation and switches to the recorded
+   versions before building, which is what makes its binaries byte-identical to the first
+   attempt's.
    [`recover-toolchains.sh`](../.github/scripts/recover-toolchains.sh) makes the switch after the
-   setup actions: it selects the recorded Go toolchain and the recorded Node release, checked
+   setup actions: it installs the recorded Rust toolchain with rustup and selects it through
+   `RUSTUP_TOOLCHAIN`, selects the recorded Node release, checked
    against that release's `SHASUMS256.txt`, checks both versions, and only then hands them to the
    later steps, which check them once more before the build. A tag whose annotation records
    neither version (a tag made outside this workflow) is reported as a warning and rebuilt with the
@@ -408,7 +411,7 @@ Monthly update pull requests for five ecosystems:
 
 | Ecosystem | Scope | Commit prefix |
 | --- | --- | --- |
-| `gomod` | Go modules | `fix(deps)`, so a dependency fix alone is enough for a patch release |
+| `cargo` | dependencies `fix(deps)` (the `meta` and `testenv` crates' included), dev-dependencies `chore(deps)` | as listed; a dependency fix alone is enough for a patch release |
 | `npm` (`web/`) | runtime dependencies `fix(deps)`, devDependencies `chore(deps)` | as listed |
 | `docker` | stage image tags in the Dockerfile | `chore(deps)`; a security fix ships with an explicit version ([Versioning](#versioning)) |
 | `github-actions` | actions pinned by commit SHA | `chore(deps)` |
@@ -427,7 +430,7 @@ either is a pull request there.
 
 The one required check is `ci-result`, set there as `default_branch_required_checks =
 ["ci-result"]`. It needs every other job of `ci.yaml` (`pre-commit-all`, `conventional-commits`,
-`repo-gates`, `release-scripts`, `go-test`, `web`, `audit`, `credentials`, `image` and `e2e`; the
+`repo-gates`, `release-scripts`, `rust`, `web`, `audit`, `credentials`, `image` and `e2e`; the
 accuracy harness is dispatched by hand) and fails unless each one succeeded, so a new job becomes
 required by joining `ci-result`'s `needs`, not the ruleset. GitHub counts a skipped required job as
 passing, which is why the jobs themselves are not listed. The reviewdog annotation jobs are not

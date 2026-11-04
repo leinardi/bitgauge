@@ -18,7 +18,7 @@
 #
 # Adapted from swarm-scheduler-exporter/Cargo.toml at 722b8a3, MIT, Copyright (c) 2026 Roberto Leinardi
 
-# The Rust port of BitGauge (docs/rust-port.md), built beside the Go module until the cutover.
+# BitGauge's server, the shipped binary, and its test crates (meta, testenv).
 
 [workspace]
 # Listed explicitly, never as a glob: meta/tests/lint_inheritance.rs checks each member's manifest.

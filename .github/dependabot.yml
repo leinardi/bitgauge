@@ -57,44 +57,25 @@ updates:
     open-pull-requests-limit: 5
     labels: ["dependencies", "ci"]
     ignore:
-      # The web stage stays on a Node LTS line, the single Node line test/toolchain/pins_test.go
+      # The web stage stays on a Node LTS line, the single Node line meta/tests/toolchain.rs
       # holds every file to. Dependabot cannot tell an LTS line from a Current one, so the line is
       # capped here: once a newer even line reaches LTS, move every file by hand and raise this cap
       # with them. The tag floats within its line, so patch releases still arrive.
       - dependency-name: "node"
         versions: [">= 25"]
-      # The build stage stays on the Go line decisions.md locks (1.26, as .go-version and go.mod
-      # say); moving it is a decision, not a dependency bump. Take patch releases of the current
-      # line only; move to a new minor by bumping .go-version, go.mod and this image together, by
-      # hand.
-      - dependency-name: "golang"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # The build stage's Rust release is rust-toolchain.toml's, and meta/tests/toolchain.rs holds
+      # the image tag, rust-toolchain.toml, the Cargo rust-version and the rust-std pins to one
+      # release, so a bump of the tag alone could only fail. Move them together, by hand.
+      - dependency-name: "rust"
     groups:
       docker-base-images:
         patterns:
           - "*"
 
-  - package-ecosystem: "gomod"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-    cooldown:
-      default-days: 7
-    # fix, not chore: the release version is derived from commit types, so a Go dependency bump
-    # (security fixes included) produces a patch release. The same holds for web/ below, whose
-    # build ships inside the binary.
-    commit-message:
-      prefix: "fix(deps)"
-    open-pull-requests-limit: 5
-    labels: ["dependencies", "ci"]
-    groups:
-      go-modules:
-        patterns:
-          - "*"
-
-  # The Rust workspace, built beside the Go module until the cutover (docs/rust-port.md). chore,
-  # not fix: no Rust code ships until then, so a bump releases nothing. The cutover makes it
-  # fix(deps), as gomod is.
+  # The Rust workspace. fix, not chore: the release version is derived from commit types, so a
+  # dependency bump (security fixes included) produces a patch release. The server's
+  # dev-dependencies ship nothing, so they are chore(deps); the meta and testenv crates' own
+  # dependencies count as regular ones here, a patch release more than needed, never one less.
   - package-ecosystem: "cargo"
     directory: "/"
     schedule:
@@ -102,7 +83,8 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: "chore(deps)"
+      prefix: "fix(deps)"
+      prefix-development: "chore(deps)"
     open-pull-requests-limit: 5
     labels: ["dependencies", "ci"]
     groups:

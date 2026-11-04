@@ -15,7 +15,7 @@ desktop.ini
 *.swp
 *~
 
-# Go build and test outputs (root dist/ only, so web/dist/.gitkeep survives)
+# Build and test outputs (root dist/ only, so web/dist/.gitkeep survives)
 /dist/
 /bin/
 /build/
@@ -30,11 +30,6 @@ profile.*
 
 # Cargo build outputs
 /target/
-
-# Go workspaces and vendoring
-go.work
-go.work.sum
-vendor/
 
 # Node: any node_modules/ anywhere in the repository
 node_modules/

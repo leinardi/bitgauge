@@ -32,7 +32,7 @@ RUN_PORT      ?= 8080
 RUN_LOG_LEVEL ?= debug
 
 .PHONY: run
-run: build ## Build the SPA and the binary, then serve them on the LAN until Ctrl+C (RUN_BIND, RUN_PORT, ARGS)
+run: rust-bin ## Build the SPA and the release binary, then serve them on the LAN until Ctrl+C (RUN_BIND, RUN_PORT, ARGS)
 	@if [ "$(RUN_BIND)" = "0.0.0.0" ]; then \
 	  echo "BitGauge: http://localhost:$(RUN_PORT)/"; \
 	  if command -v ip >/dev/null 2>&1; then \
@@ -46,6 +46,6 @@ run: build ## Build the SPA and the binary, then serve them on the LAN until Ctr
 	fi
 	BITGAUGE_SERVER__LISTEN="$(RUN_BIND):$(RUN_PORT)" \
 	  BITGAUGE_LOG__LEVEL="$(RUN_LOG_LEVEL)" \
-	  "$(DIST_DIR)/$(BIN_NAME)" serve $(ARGS)
+	  "$(RUST_BIN)" serve $(ARGS)
 
 endif  # MK_LOCAL_RUN_INCLUDED

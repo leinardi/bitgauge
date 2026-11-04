@@ -14,15 +14,15 @@ never complete; client-side upload progress runs seconds ahead of the link.
 **Behavior.** Requests start at 64 KiB and are sized to about 1 s at the observed per-stream rate,
 down to a 16 KiB floor; the ramp starts at one stream and skips trials that would make requests too
 thin (`floor-limited`); upload is server-timed; phases extend up to their maximum; idle-latency
-timeouts scale with the running median and cap at 10 s. The slow-link budget is worked out in
+timeouts scale with the running median and cap at 10 s. On the server, a slow link is never cut by
+the 30 s stall rule as long as each write makes progress; the rule holds for every write of every
+response and of an upgraded WebSocket ([technical-stack/backend.md
+§2.1](technical-stack/backend.md#21-download-and-every-response-that-streams-random-bytes)). The
+slow-link budget is worked out in
 [measurement.md §19.1](measurement.md#191-slow-link-budget-300-kbits-300-ms-rtt-standard).
 
 **User sees.** `test extended` when a phase extends; `insufficient data` with an offer
 of the next larger preset when even the maximum is not enough; data used is always shown.
-
-> **Rust implementation (from the cutover):** a slow link is never cut by the 30 s stall rule as
-> long as each write makes progress; the rule holds for every write of every response and of an
-> upgraded WebSocket. ([rust-port.md](../rust-port.md#intended-differences-from-go), row 7.)
 
 ## 2. Mobile Browsers Throttling Background Tabs and Workers
 

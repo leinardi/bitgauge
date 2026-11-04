@@ -22,12 +22,9 @@
 //! stamps, which Dockerfiles may be built and by what, the release platforms, and what
 //! `release.yaml` publishes and how.
 //!
-//! The assertions are transitional (`docs/rust-port.md`, Implementation Identity): they read the
-//! Dockerfiles through [`meta::transition`]. Before the cutover the shipped Dockerfile is the Go
-//! build, held to every check the Go tests make, and `Dockerfile.rust` is the test-only Rust
-//! candidate, held to the Rust build's pins and to the shipped web and runtime stages; after it,
-//! the Rust Dockerfile is the shipped one and the Go checks fall away. Every check is a function
-//! of the text, and each is also run on input built to break it.
+//! The shipped Dockerfile is the Rust build; the Go build and the Rust candidate it replaced are
+//! gone (`docs/rust-port.md`). Every check is a function of the text, and each is also run on
+//! input built to break it.
 
 #[path = "dockerfiles/images.rs"]
 mod images;
@@ -41,12 +38,10 @@ use std::fs;
 use std::sync::LazyLock;
 
 use meta::repo;
-use meta::transition::{
-    SHIPPED_DOCKERFILE, TRANSITION, Transition, go_dockerfile, rust_dockerfile,
-};
+use meta::transition::SHIPPED_DOCKERFILE;
 use regex::Regex;
 
-use images::{GO_BUILD_REPOSITORY, RUST_BUILD_REPOSITORY};
+use images::RUST_BUILD_REPOSITORY;
 use release::{RELEASE_IMAGE, RELEASE_WORKFLOW, WANT_PLATFORMS};
 
 const SHIPPED_DIR: &str = "deployments/docker";
@@ -61,21 +56,6 @@ fn pattern(text: &str) -> Regex {
 
 fn base_name(path: &str) -> &str {
     path.rsplit_once('/').map_or(path, |(_, name)| name)
-}
-
-/// The Rust candidate, while there is one: the Rust Dockerfile when it is not the shipped one.
-fn candidate(transition: Transition) -> Option<&'static str> {
-    Some(rust_dockerfile(transition)).filter(|path| *path != SHIPPED_DOCKERFILE)
-}
-
-/// The image Dockerfiles at `transition`, each with the repository its build stage starts from:
-/// the Rust one always, and the Go one while it exists.
-fn image_dockerfiles(transition: Transition) -> Vec<(&'static str, &'static str)> {
-    let mut images = vec![(rust_dockerfile(transition), RUST_BUILD_REPOSITORY)];
-    if let Some(go) = go_dockerfile(transition) {
-        images.push((go, GO_BUILD_REPOSITORY));
-    }
-    images
 }
 
 /// Matches Dockerfile, `<name>.Dockerfile` and `Dockerfile.<name>`, but not the
@@ -116,15 +96,10 @@ fn rust_pins() -> images::RustPins {
         .unwrap_or_else(|error| panic!("read the Rust release pins: {error}"))
 }
 
-/// What `deployments/docker` may hold at `transition`: the shipped Dockerfile and, until the
-/// cutover, the Rust candidate beside it. `names` are the Dockerfiles found there.
-fn docker_dir_problems(transition: Transition, names: &[String]) -> Vec<String> {
-    let mut want: Vec<&str> = [Some(SHIPPED_DOCKERFILE), candidate(transition)]
-        .into_iter()
-        .flatten()
-        .map(base_name)
-        .collect();
-    want.sort_unstable();
+/// What `deployments/docker` may hold: the shipped Dockerfile alone. `names` are the Dockerfiles
+/// found there.
+fn docker_dir_problems(names: &[String]) -> Vec<String> {
+    let want = [base_name(SHIPPED_DOCKERFILE)];
     let mut found: Vec<&str> = names.iter().map(String::as_str).collect();
     found.sort_unstable();
     if found == want {
@@ -218,17 +193,6 @@ fn test_image_problems(
         }
     }
     problems
-}
-
-/// A workflow that names the candidate would build or publish it before the cutover.
-fn candidate_workflow_problems(workflow: &str, content: &str, candidate: &str) -> Vec<String> {
-    if content.contains(base_name(candidate)) {
-        vec![format!(
-            "{workflow} names {candidate}, which no workflow builds or publishes"
-        )]
-    } else {
-        Vec::new()
-    }
 }
 
 static PLATFORM_DECLARATION: LazyLock<Regex> =
@@ -332,8 +296,7 @@ fn assert_no_problems(problems: &[String]) {
 }
 
 /// Go: `TestShippedDockerfileIsTheOnlyOne`. `deployments/docker` holds exactly the image that
-/// ships and, until the cutover, the Rust candidate beside it. Any other file there would look
-/// shipped to every reader and be built by nothing.
+/// ships. Any other file there would look shipped to every reader and be built by nothing.
 #[test]
 fn shipped_dockerfile_is_the_only_one() {
     let names: Vec<String> = fs::read_dir(repo::path(SHIPPED_DIR))
@@ -347,98 +310,51 @@ fn shipped_dockerfile_is_the_only_one() {
         })
         .filter(|name| is_dockerfile(name))
         .collect();
-    assert_no_problems(&docker_dir_problems(TRANSITION, &names));
-}
-
-/// Go: `TestRustCandidateIsTestOnly`. The candidate image is built only by make rust-image: the
-/// search finds it, so `other_dockerfiles_are_test_only` holds it to the pinning rule and keeps
-/// the Makefile and the release workflow from naming it, and no workflow names it either, so
-/// nothing builds or publishes it before the cutover. After the cutover there is no candidate.
-#[test]
-fn rust_candidate_is_test_only() {
-    let Some(candidate) = candidate(TRANSITION) else {
-        return;
-    };
-    assert!(
-        all_dockerfiles().iter().any(|path| path == candidate),
-        "the search did not find {candidate}"
-    );
-    let problems: Vec<String> = workflows()
-        .iter()
-        .flat_map(|workflow| {
-            candidate_workflow_problems(workflow, &repo::read(workflow), candidate)
-        })
-        .collect();
-    assert_no_problems(&problems);
+    assert_no_problems(&docker_dir_problems(&names));
 }
 
 /// Go: `TestSyntaxDirectiveIsPinned`. Each Dockerfile's `BuildKit` frontend, when it names one, is
-/// docker/dockerfile pinned by digest (build-packaging.md section 1); the image Dockerfiles, the
-/// shipped one and the Rust one, must name one.
+/// docker/dockerfile pinned by digest (build-packaging.md section 1); the shipped one must name
+/// one.
 #[test]
 fn syntax_directive_is_pinned() {
-    let images = image_dockerfiles(TRANSITION);
     let problems: Vec<String> = all_dockerfiles()
         .iter()
-        .flat_map(|path| {
-            let required = images.iter().any(|(image, _)| image == path);
-            syntax_problems(path, &repo::read(path), required)
-        })
+        .flat_map(|path| syntax_problems(path, &repo::read(path), path == SHIPPED_DOCKERFILE))
         .collect();
     assert_no_problems(&problems);
 }
 
 /// Go: `TestShippedStages`. The three named stages, in order, each from a literal dhi.io base
-/// pinned by an explicit tag and no digest; held for the Rust Dockerfile too, which becomes the
-/// shipped one at the cutover.
+/// pinned by an explicit tag and no digest.
 #[test]
 fn shipped_stages() {
-    let problems: Vec<String> = image_dockerfiles(TRANSITION)
-        .iter()
-        .flat_map(|(path, _)| images::layout_problems(path, &repo::read(path)))
-        .collect();
-    assert_no_problems(&problems);
+    assert_no_problems(&images::layout_problems(
+        SHIPPED_DOCKERFILE,
+        &repo::read(SHIPPED_DOCKERFILE),
+    ));
 }
 
 /// Go: `TestBuildStages`. Both build stages run on the build platform, web from dhi.io/node and
-/// build from dhi.io/golang in the Go Dockerfile and dhi.io/rust in the Rust one. The tags'
-/// toolchain lines are the toolchain pins' (meta/tests/toolchain.rs).
+/// build from dhi.io/rust. The tags' toolchain lines are the toolchain pins'
+/// (meta/tests/toolchain.rs).
 #[test]
 fn build_stages() {
-    let problems: Vec<String> = image_dockerfiles(TRANSITION)
-        .iter()
-        .flat_map(|(path, repository)| {
-            images::build_stage_problems(path, &repo::read(path), repository)
-        })
-        .collect();
-    assert_no_problems(&problems);
+    assert_no_problems(&images::build_stage_problems(
+        SHIPPED_DOCKERFILE,
+        &repo::read(SHIPPED_DOCKERFILE),
+        RUST_BUILD_REPOSITORY,
+    ));
 }
 
 /// Go: `TestRuntimeStage`. The posture of the image that ships: no shell, nothing to write to,
-/// an unprivileged numeric user, the healthcheck in exec form and the seven OCI labels; held for
-/// the Rust Dockerfile too.
+/// an unprivileged numeric user, the healthcheck in exec form and the seven OCI labels.
 #[test]
 fn runtime_stage() {
-    let problems: Vec<String> = image_dockerfiles(TRANSITION)
-        .iter()
-        .flat_map(|(path, _)| images::runtime_problems(path, &repo::read(path)))
-        .collect();
-    assert_no_problems(&problems);
-}
-
-/// Go: `TestBuildinfoIsStamped`. While the Go build exists, the version comes from
-/// internal/buildinfo, in its image and in make go-build alike; a path that stamped package main
-/// would ship a binary reporting "dev". The Rust build's stamps are `rust_build_stage`'s.
-#[test]
-fn buildinfo_is_stamped() {
-    let Some(go) = go_dockerfile(TRANSITION) else {
-        return;
-    };
-    let problems: Vec<String> = [go, MAKEFILE]
-        .iter()
-        .flat_map(|path| images::go_stamp_problems(path, &repo::read(path)))
-        .collect();
-    assert_no_problems(&problems);
+    assert_no_problems(&images::runtime_problems(
+        SHIPPED_DOCKERFILE,
+        &repo::read(SHIPPED_DOCKERFILE),
+    ));
 }
 
 /// The Makefile and release.yaml, the files that build and release the product image.
@@ -483,25 +399,22 @@ fn platforms() {
 /// actions and images it runs are pinned.
 #[test]
 fn release_workflow() {
-    assert_no_problems(&release::release_problems(
-        TRANSITION,
-        &repo::read(RELEASE_WORKFLOW),
-    ));
+    assert_no_problems(&release::release_problems(&repo::read(RELEASE_WORKFLOW)));
 }
 
-/// The mutations of `release_checks_refuse_mutations`, one broken rule each: the stamp of the
-/// build that ships at `TRANSITION`, then the Go-era list.
+/// The mutations of `release_checks_refuse_mutations`, one broken rule each.
 fn release_mutations() -> Vec<Mutation> {
-    let stamp = match TRANSITION {
-        Transition::Candidate => literal(
-            "buildinfo.commit stamped elsewhere",
-            "internal/buildinfo.commit=",
-            "main.commit=",
-        ),
-        Transition::Done => literal("BITGAUGE_COMMIT unset", "BITGAUGE_COMMIT=", "COMMIT="),
-    };
     vec![
-        stamp,
+        literal(
+            "the commit not passed to the build",
+            r#"GIT_COMMIT="${COMMIT}""#,
+            r#"COMMIT="${COMMIT}""#,
+        ),
+        literal(
+            "the binaries built without the stamps",
+            "make rust-release-binaries GIT_VERSION=",
+            "make rust-release-binaries VERSION=",
+        ),
         literal(
             "a third platform",
             format!("PLATFORMS: {WANT_PLATFORMS}"),
@@ -568,6 +481,16 @@ fn release_mutations() -> Vec<Mutation> {
             "uses: ${1}@v7",
         ),
         regex(
+            "another action by its branch",
+            r"(uses: actions/checkout@[0-9a-f]{40}) # v[\d.]+",
+            "${1} # master",
+        ),
+        regex(
+            "the branch-pinned action by tag",
+            r"uses: dtolnay/rust-toolchain@[0-9a-f]{40}",
+            "uses: dtolnay/rust-toolchain@v1",
+        ),
+        regex(
             "an action with no version comment",
             r"uses: ([\w./-]+@[0-9a-f]{40}) # v[\d.]+",
             "uses: ${1}",
@@ -587,7 +510,7 @@ fn release_mutations() -> Vec<Mutation> {
 fn release_checks_refuse_mutations() {
     let mutations = release_mutations();
     let check = |text: &str| {
-        let problems = release::release_problems(TRANSITION, text);
+        let problems = release::release_problems(text);
         // A mutation that broke the YAML would pass on the parse error alone, checking no rule.
         assert!(
             !problems
@@ -605,6 +528,56 @@ fn release_checks_refuse_mutations() {
     );
 }
 
+const RUST_MK: &str = ".mk/rust.mk";
+
+/// The make side of the release binaries' stamps: the make variables release.yaml passes reach
+/// the static build as `BITGAUGE_VERSION`, `BITGAUGE_COMMIT` and `BITGAUGE_DATE`, which the Rust
+/// build reads at compile time (`release_workflow` holds release.yaml to passing them).
+#[test]
+fn release_binaries_are_stamped() {
+    assert_no_problems(&release::make_stamp_problems(
+        &repo::read(RUST_MK),
+        &repo::read(RUST_RELEASE_MK),
+    ));
+}
+
+/// The negative control of `release_binaries_are_stamped`: a stamp set from another variable or
+/// dropped, or the static build without the stamps.
+#[test]
+fn make_stamp_checks_refuse_mutations() {
+    let release_mk = repo::read(RUST_RELEASE_MK);
+    assert_refuses(
+        RUST_MK,
+        &repo::read(RUST_MK),
+        |text| release::make_stamp_problems(text, &release_mk),
+        &[
+            literal(
+                "the commit from another variable",
+                r#"BITGAUGE_COMMIT="$(GIT_COMMIT)""#,
+                r#"BITGAUGE_COMMIT="$(COMMIT)""#,
+            ),
+            literal(
+                "the date dropped",
+                r#" \
+  BITGAUGE_DATE="$(BUILD_DATE)""#,
+                "",
+            ),
+            literal("no stamps at all", "RUST_VERSION_ENV =", "RUST_ENV ="),
+        ],
+    );
+    let rust_mk = repo::read(RUST_MK);
+    assert_refuses(
+        RUST_RELEASE_MK,
+        &release_mk,
+        |text| release::make_stamp_problems(&rust_mk, text),
+        &[literal(
+            "the static build unstamped",
+            r#"RUSTFLAGS="$(RUST_RELEASE_RUSTFLAGS)" $(RUST_VERSION_ENV)"#,
+            r#"RUSTFLAGS="$(RUST_RELEASE_RUSTFLAGS)""#,
+        )],
+    );
+}
+
 const DIGEST: &str = "@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
 /// The pinning predicates of the reader on references that must pass and must not.
@@ -613,7 +586,7 @@ fn assert_reference_rules() {
         ("a tag only", "dhi.io/static:20250419".to_owned()),
         (
             "a variable tag",
-            format!("dhi.io/golang:${{GO_LINE}}-alpine3.23-dev{DIGEST}"),
+            format!("dhi.io/rust:${{RUST_VERSION}}-debian13-dev{DIGEST}"),
         ),
         ("a variable image", format!("$BASE{DIGEST}")),
         (
@@ -642,7 +615,7 @@ fn assert_reference_rules() {
         ),
         (
             "a variable tag",
-            "dhi.io/golang:${GO_LINE}-alpine3.23-dev".to_owned(),
+            "dhi.io/rust:${RUST_VERSION}-debian13-dev".to_owned(),
         ),
         ("a variable image", "$BASE".to_owned()),
         ("an empty tag", "dhi.io/static:".to_owned()),
@@ -654,7 +627,7 @@ fn assert_reference_rules() {
         );
     }
     assert!(
-        reader::tag_pinned("dhi.io/golang:1.26-alpine3.23-dev"),
+        reader::tag_pinned("dhi.io/rust:1.98.1-debian13-dev"),
         "a literal explicit tag does not pass as tag-pinned"
     );
     for (image, want) in [
@@ -732,204 +705,164 @@ fn parse_rejects_what_the_assertions_must_not_miss() {
     );
 }
 
-/// The negative control of `shipped_stages`: an image Dockerfile with a stage unpinned, from
+/// The negative control of `shipped_stages`: the shipped Dockerfile with a stage unpinned, from
 /// another registry, unnamed or renamed.
 #[test]
 fn layout_checks_refuse_mutations() {
-    for (path, _) in image_dockerfiles(TRANSITION) {
-        let content = repo::read(path);
-        let runtime = "dhi.io/static:20250419";
-        assert_refuses(
-            path,
-            &content,
-            |text| images::layout_problems(path, text),
-            &[
-                literal("a stage by digest", runtime, format!("{runtime}{DIGEST}")),
-                literal("a stage by latest", runtime, "dhi.io/static:latest"),
-                literal(
-                    "a stage from Docker Hub",
-                    runtime,
-                    format!("docker.io/library/busybox:1.37{DIGEST}"),
-                ),
-                literal("an unnamed stage", " AS runtime", ""),
-                literal("a renamed stage", " AS web", " AS assets"),
-            ],
-        );
-    }
+    let path = SHIPPED_DOCKERFILE;
+    let content = repo::read(path);
+    let runtime = "dhi.io/static:20250419";
+    assert_refuses(
+        path,
+        &content,
+        |text| images::layout_problems(path, text),
+        &[
+            literal("a stage by digest", runtime, format!("{runtime}{DIGEST}")),
+            literal("a stage by latest", runtime, "dhi.io/static:latest"),
+            literal(
+                "a stage from Docker Hub",
+                runtime,
+                format!("docker.io/library/busybox:1.37{DIGEST}"),
+            ),
+            literal("an unnamed stage", " AS runtime", ""),
+            literal("a renamed stage", " AS web", " AS assets"),
+        ],
+    );
 }
 
 /// The negative control of `build_stages`: a build stage emulated or from another base.
 #[test]
 fn build_stage_checks_refuse_mutations() {
-    for (path, repository) in image_dockerfiles(TRANSITION) {
-        let content = repo::read(path);
-        assert_refuses(
-            path,
-            &content,
-            |text| images::build_stage_problems(path, text, repository),
-            &[
-                literal(
-                    "the web stage emulated",
-                    "--platform=$BUILDPLATFORM dhi.io/node",
-                    "dhi.io/node",
-                ),
-                literal(
-                    "the web stage from another base",
-                    "dhi.io/node:",
-                    "dhi.io/bun:",
-                ),
-                regex(
-                    "the build stage emulated",
-                    r"--platform=\$BUILDPLATFORM (dhi\.io/(?:golang|rust))",
-                    "${1}",
-                ),
-                regex(
-                    "the build stage from another base",
-                    r"dhi\.io/(?:golang|rust):",
-                    "dhi.io/gcc:",
-                ),
-            ],
-        );
-    }
+    let (path, repository) = (SHIPPED_DOCKERFILE, RUST_BUILD_REPOSITORY);
+    let content = repo::read(path);
+    assert_refuses(
+        path,
+        &content,
+        |text| images::build_stage_problems(path, text, repository),
+        &[
+            literal(
+                "the web stage emulated",
+                "--platform=$BUILDPLATFORM dhi.io/node",
+                "dhi.io/node",
+            ),
+            literal(
+                "the web stage from another base",
+                "dhi.io/node:",
+                "dhi.io/bun:",
+            ),
+            regex(
+                "the build stage emulated",
+                r"--platform=\$BUILDPLATFORM (dhi\.io/rust)",
+                "${1}",
+            ),
+            regex(
+                "the build stage from another base",
+                r"dhi\.io/rust:",
+                "dhi.io/gcc:",
+            ),
+        ],
+    );
 }
 
 /// The negative control of `runtime_stage`: a runtime stage broken one way at a time.
 #[test]
 fn runtime_checks_refuse_mutations() {
-    for (path, _) in image_dockerfiles(TRANSITION) {
-        let content = repo::read(path);
-        assert_refuses(
-            path,
-            &content,
-            |text| images::runtime_problems(path, text),
-            &[
-                literal("a shell base", "dhi.io/static:", "dhi.io/busybox:"),
-                literal(
-                    "a pinned platform",
-                    "FROM dhi.io/static",
-                    "FROM --platform=linux/amd64 dhi.io/static",
-                ),
-                literal("root", "USER 65532:65532", "USER 0:0"),
-                literal("a second port", "EXPOSE 8080", "EXPOSE 8080 9090"),
-                literal(
-                    "a shell entrypoint",
-                    r#"ENTRYPOINT ["/bitgauge"]"#,
-                    "ENTRYPOINT /bitgauge",
-                ),
-                literal(
-                    "the binary elsewhere",
-                    "/out/bitgauge /bitgauge",
-                    "/out/bitgauge /usr/bin/bitgauge",
-                ),
-                literal("a volume", "EXPOSE 8080", "EXPOSE 8080\nVOLUME /data"),
-                literal(
-                    "a shell healthcheck",
-                    r#"CMD ["/bitgauge", "healthcheck"]"#,
-                    "CMD /bitgauge healthcheck",
-                ),
-                literal(
-                    "a second healthcheck",
-                    "ENTRYPOINT",
-                    "HEALTHCHECK NONE\nENTRYPOINT",
-                ),
-                literal(
-                    "a wrong revision label",
-                    r#"revision="${COMMIT}""#,
-                    r#"revision="${VERSION}""#,
-                ),
-                literal(
-                    "no description",
-                    "org.opencontainers.image.description=",
-                    "org.opencontainers.image.summary=",
-                ),
-                literal(
-                    "an extra label",
-                    "org.opencontainers.image.licenses=",
-                    "org.example.extra=1 org.opencontainers.image.licenses=",
-                ),
-            ],
-        );
-    }
+    let path = SHIPPED_DOCKERFILE;
+    let content = repo::read(path);
+    assert_refuses(
+        path,
+        &content,
+        |text| images::runtime_problems(path, text),
+        &[
+            literal("a shell base", "dhi.io/static:", "dhi.io/busybox:"),
+            literal(
+                "a pinned platform",
+                "FROM dhi.io/static",
+                "FROM --platform=linux/amd64 dhi.io/static",
+            ),
+            literal("root", "USER 65532:65532", "USER 0:0"),
+            literal("a second port", "EXPOSE 8080", "EXPOSE 8080 9090"),
+            literal(
+                "a shell entrypoint",
+                r#"ENTRYPOINT ["/bitgauge"]"#,
+                "ENTRYPOINT /bitgauge",
+            ),
+            literal(
+                "the binary elsewhere",
+                "/out/bitgauge /bitgauge",
+                "/out/bitgauge /usr/bin/bitgauge",
+            ),
+            literal("a volume", "EXPOSE 8080", "EXPOSE 8080\nVOLUME /data"),
+            literal(
+                "a shell healthcheck",
+                r#"CMD ["/bitgauge", "healthcheck"]"#,
+                "CMD /bitgauge healthcheck",
+            ),
+            literal(
+                "a second healthcheck",
+                "ENTRYPOINT",
+                "HEALTHCHECK NONE\nENTRYPOINT",
+            ),
+            literal(
+                "a wrong revision label",
+                r#"revision="${COMMIT}""#,
+                r#"revision="${VERSION}""#,
+            ),
+            literal(
+                "no description",
+                "org.opencontainers.image.description=",
+                "org.opencontainers.image.summary=",
+            ),
+            literal(
+                "an extra label",
+                "org.opencontainers.image.licenses=",
+                "org.example.extra=1 org.opencontainers.image.licenses=",
+            ),
+        ],
+    );
 }
 
 /// The negative control of `syntax_directive_is_pinned` on the image Dockerfiles: no
 /// directive, one by tag alone, or another frontend.
 #[test]
 fn syntax_checks_refuse_mutations() {
-    for (path, _) in image_dockerfiles(TRANSITION) {
-        let content = repo::read(path);
-        assert_refuses(
-            path,
-            &content,
-            |text| syntax_problems(path, text, true),
-            &[
-                regex("no directive", r"\A# syntax=\S+\n", ""),
-                regex(
-                    "the directive by tag",
-                    r"\A(# syntax=docker/dockerfile:1\.7)@sha256:[0-9a-f]+",
-                    "${1}",
-                ),
-                literal(
-                    "another frontend",
-                    "# syntax=docker/dockerfile:",
-                    "# syntax=example/dockerfile:",
-                ),
-            ],
-        );
-    }
-}
-
-/// The negative control of `buildinfo_is_stamped`: a Go build file with a field unstamped, one
-/// stamped in package main, or a stamp of main.version beside the real ones.
-#[test]
-fn buildinfo_checks_refuse_mutations() {
-    if let Some(go) = go_dockerfile(TRANSITION) {
-        for path in [go, MAKEFILE] {
-            assert_refuses(
-                path,
-                &repo::read(path),
-                |text| images::go_stamp_problems(path, text),
-                &[
-                    literal(
-                        "the version unstamped",
-                        "internal/buildinfo.version=",
-                        "internal/buildinfo.release=",
-                    ),
-                    literal(
-                        "the date stamped in main",
-                        "github.com/leinardi/bitgauge/internal/buildinfo.date=",
-                        "main.date=",
-                    ),
-                    regex(
-                        "main.version stamped too",
-                        r"-X '?github",
-                        "-X main.version=dev ${0}",
-                    ),
-                ],
-            );
-        }
-    }
+    let path = SHIPPED_DOCKERFILE;
+    let content = repo::read(path);
+    assert_refuses(
+        path,
+        &content,
+        |text| syntax_problems(path, text, true),
+        &[
+            regex("no directive", r"\A# syntax=\S+\n", ""),
+            regex(
+                "the directive by tag",
+                r"\A(# syntax=docker/dockerfile:1\.7)@sha256:[0-9a-f]+",
+                "${1}",
+            ),
+            literal(
+                "another frontend",
+                "# syntax=docker/dockerfile:",
+                "# syntax=example/dockerfile:",
+            ),
+        ],
+    );
 }
 
 /// The negative control of `shipped_dockerfile_is_the_only_one`: `deployments/docker` with
 /// another Dockerfile, or without one it must hold.
 #[test]
 fn docker_dir_checks_refuse_mutations() {
-    let mut names: Vec<String> = [Some(SHIPPED_DOCKERFILE), candidate(TRANSITION)]
-        .into_iter()
-        .flatten()
-        .map(|path| base_name(path).to_owned())
-        .collect();
-    assert_no_problems(&docker_dir_problems(TRANSITION, &names));
+    let mut names = vec![base_name(SHIPPED_DOCKERFILE).to_owned()];
+    assert_no_problems(&docker_dir_problems(&names));
     let mut extra = names.clone();
     extra.push("Dockerfile.debug".to_owned());
     assert!(
-        !docker_dir_problems(TRANSITION, &extra).is_empty(),
+        !docker_dir_problems(&extra).is_empty(),
         "{SHIPPED_DIR} passes with a Dockerfile.debug in it"
     );
     let dropped = names.pop();
     assert!(
-        !docker_dir_problems(TRANSITION, &names).is_empty(),
+        !docker_dir_problems(&names).is_empty(),
         "{SHIPPED_DIR} passes without {dropped:?}"
     );
 }
@@ -962,7 +895,7 @@ fn makefile_checks_refuse_mutations() {
 #[test]
 fn test_image_checks_refuse_mutations() {
     let referrers = referrers();
-    let fixture = "test/image/fixture/probe.Dockerfile";
+    let fixture = "testenv/tests/image/testdata/probe.Dockerfile";
     let pinned =
         format!("FROM dhi.io/static:20250419 AS one\nFROM docker.io/library/alpine:3.23{DIGEST}\n");
     assert_refuses(
@@ -990,26 +923,6 @@ fn test_image_checks_refuse_mutations() {
         !test_image_problems(fixture, &pinned, &building).is_empty(),
         "a test Dockerfile the Makefile builds passes"
     );
-}
-
-/// The negative control of `rust_candidate_is_test_only`: each workflow with the candidate
-/// named in it.
-#[test]
-fn candidate_workflow_checks_refuse_mutations() {
-    if let Some(candidate) = candidate(TRANSITION) {
-        for workflow in workflows() {
-            assert_refuses(
-                &workflow,
-                &repo::read(&workflow),
-                |text| candidate_workflow_problems(&workflow, text, candidate),
-                &[regex(
-                    "the candidate named",
-                    r"\A",
-                    format!("# builds {candidate}\n"),
-                )],
-            );
-        }
-    }
 }
 
 /// The negative control of `platforms`: release.yaml with a third platform, one platform, or
@@ -1041,7 +954,7 @@ fn platform_checks_refuse_mutations() {
     );
 }
 
-/// The Rust Dockerfile's build stage: FROM `dhi.io/rust:<channel>-debian13-dev`, the channel
+/// The shipped Dockerfile's build stage: FROM `dhi.io/rust:<channel>-debian13-dev`, the channel
 /// being rust-toolchain.toml's, on the build platform; zig, cargo-zigbuild and the musl rust-std
 /// downloaded at the releases `.mk/rust-release.mk` pins and checked against exactly its sha256
 /// values, the rust-std release being the image's own toolchain; and the binary built by
@@ -1049,7 +962,7 @@ fn platform_checks_refuse_mutations() {
 /// VERSION, COMMIT and DATE build arguments.
 #[test]
 fn rust_build_stage() {
-    let path = rust_dockerfile(TRANSITION);
+    let path = SHIPPED_DOCKERFILE;
     assert_no_problems(&images::rust_build_problems(
         path,
         &repo::read(path),
@@ -1057,10 +970,10 @@ fn rust_build_stage() {
     ));
 }
 
-/// The negative control of `rust_build_stage`: the Rust Dockerfile broken one way at a time.
+/// The negative control of `rust_build_stage`: the shipped Dockerfile broken one way at a time.
 #[test]
 fn rust_build_checks_refuse_mutations() {
-    let path = rust_dockerfile(TRANSITION);
+    let path = SHIPPED_DOCKERFILE;
     let pins = rust_pins();
     let channel = regex::escape(&pins.channel);
     let tag = format!(r"dhi\.io/rust:{channel}-debian13-dev");
@@ -1157,67 +1070,6 @@ fn rust_build_checks_refuse_mutations() {
                 r#"cp "target/${triple}/release/bitgauge" /out/bitgauge"#,
                 "true",
             ),
-        ],
-    );
-}
-
-/// The Rust Dockerfile's web and runtime stages are the shipped Dockerfile's, instruction for
-/// instruction, so the two images differ only in how the binary is built: the same labels, user,
-/// healthcheck, binary path and entrypoint. After the cutover the two are one file.
-#[test]
-fn rust_dockerfile_shares_web_and_runtime_stages() {
-    let rust = rust_dockerfile(TRANSITION);
-    assert_no_problems(&images::shared_stage_problems(
-        SHIPPED_DOCKERFILE,
-        &repo::read(SHIPPED_DOCKERFILE),
-        rust,
-        &repo::read(rust),
-    ));
-}
-
-/// The negative control of `rust_dockerfile_shares_web_and_runtime_stages`: a Rust Dockerfile
-/// whose web or runtime stage differs from the shipped one's by one instruction or its base.
-#[test]
-fn shared_stage_checks_refuse_mutations() {
-    let rust = rust_dockerfile(TRANSITION);
-    let shipped = repo::read(SHIPPED_DOCKERFILE);
-    assert_refuses(
-        rust,
-        &repo::read(rust),
-        |text| images::shared_stage_problems(SHIPPED_DOCKERFILE, &shipped, rust, text),
-        &[
-            literal(
-                "another runtime user",
-                "USER 65532:65532",
-                "USER 65532:65533",
-            ),
-            literal(
-                "an extra runtime instruction",
-                "EXPOSE 8080",
-                "EXPOSE 8080\nSTOPSIGNAL SIGINT",
-            ),
-            literal("a runtime instruction dropped", "EXPOSE 8080\n", ""),
-            literal(
-                "another runtime base",
-                "FROM dhi.io/static:20250419",
-                "FROM dhi.io/static:20250101",
-            ),
-            literal(
-                "another label",
-                r#"licenses="GPL-3.0-or-later""#,
-                r#"licenses="MIT""#,
-            ),
-            literal(
-                "another web install",
-                "npm ci --no-audit --no-fund",
-                "npm ci --no-fund",
-            ),
-            literal(
-                "the web stage emulated",
-                "--platform=$BUILDPLATFORM dhi.io/node",
-                "dhi.io/node",
-            ),
-            literal("no runtime stage", " AS runtime", " AS final"),
         ],
     );
 }

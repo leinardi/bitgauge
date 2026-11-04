@@ -212,7 +212,7 @@ The native `POST /api/v1/upload` answers `200` with exactly this object
 
 Table-driven `net/http/httptest` tests, `go test -race`, a fake clock for every lifetime and
 deadline, never a sleep. Native handler tests:
-[testing.md §1](../../../docs/features/technical-stack/testing.md#1-go-handler-tests). Layer tests,
+[testing.md §1](../../../docs/features/technical-stack/testing.md#1-server-tests). Layer tests,
 spelled out from compatibility.md and its
 [§6 shared rules](../../../docs/features/compatibility.md#6-rules-every-layer-shares):
 

@@ -2,32 +2,29 @@
 
 [Feature index](../README.md) / [Technical Stack](README.md) / Configuration and Security
 
-How the `internal/config`, security-header, `internal/clientip` and `internal/ratelimit` packages
+How the `config`, security-header, `clientip` and `ratelimit` modules of the `bitgauge` package
 implement [../configuration.md](../configuration.md) and [../security.md](../security.md).
 
 ## 1. Loading Order
 
-`internal/config` builds one koanf instance in three layers, each overriding only the keys it sets:
+`config` reads three layers, each overriding only the keys it sets:
 
-1. **Defaults**: a Go struct of default values, loaded with koanf's struct provider.
-2. **File**: `/etc/bitgauge/config.yaml`, or the `--config` path, through the file provider and the
-   YAML parser. A missing default path is skipped; a missing explicit path is an error.
-3. **Environment**: the env provider with prefix `BITGAUGE_` and a transform that keeps only
-   variables containing `__`, strips the prefix, lowercases the rest and replaces `__` with `.`.
-   Single underscores stay inside key names. Comma-separated values become lists for list keys,
-   and for `server.labels` each item is split at its first `=` into a `{cidr, label}` entry; an
-   item without `=` is a validation problem.
+1. **Defaults**: the configuration struct's default values, which every key the other layers do
+   not set keeps.
+2. **File**: `/etc/bitgauge/config.yaml`, or the `--config` path, parsed with serde-saphyr into a
+   raw tree, each value keeping its line and column. A missing default path is skipped; a missing
+   explicit path is an error.
+3. **Environment**: BitGauge's own merge of the variables with prefix `BITGAUGE_` into that tree. It
+   keeps only variables containing `__`, strips the prefix, lowercases the rest and replaces `__`
+   with `.`. Single underscores stay inside key names. Comma-separated values become lists for list
+   keys, and for `server.labels` each item is split at its first `=` into a `{cidr, label}` entry;
+   an item without `=` is a validation problem.
 
-The merged map is decoded into the configuration struct with every unknown key, null and value
-that does not parse collected as an error of its own (unknown keys from the decoder's metadata of
-unused keys), then validated.
-
-> **Rust implementation (from the cutover):** there is no koanf. The file is parsed with
-> serde-saphyr into a tree that keeps each value's position, the environment is merged into it by
-> BitGauge's own code under the same `__` rule, and a typed walker reads the tree and collects every
-> problem, unknown keys and nulls included. Texts that come from a library, such as a YAML syntax
-> error, are Rust's; BitGauge's own rule texts are kept.
-> ([rust-port.md](../../rust-port.md#intended-differences-from-go), row 4.)
+A typed walker then reads the merged tree into the configuration struct, with every unknown key,
+null and value that does not parse collected as a problem of its own; a key that does not decode
+keeps its default, so validation does not report it a second time. Then the configuration is
+validated. Texts that come from a library, such as a YAML syntax error, are that library's;
+BitGauge's own rule texts are fixed.
 
 **Env mapping examples:**
 
@@ -45,19 +42,13 @@ unused keys), then validated.
 
 - Validation runs over the whole decoded configuration and **collects every error** before
   reporting, so one run shows all problems.
-- Each error is one log line with `key`, `value` and `rule` attributes; then the process exits with
+- Each error is one log line with `key`, `value` and `rule` fields; then the process exits with
   status 2 before opening the listener. If `log.*` itself is invalid, errors are printed as text to
   stderr.
 - Nothing is corrected silently: no clamping, no fallback to a default for an invalid value.
 - The rules are those of [../configuration.md §4](../configuration.md#4-fail-closed-validation),
   including the route-collision check for `metrics.path`, which reuses the router's own route list.
 - Warnings (valid but suspicious settings) are logged at `warn` and do not stop startup.
-
-> **Rust implementation (from the cutover):** the problem lines are tracing events in
-> tracing-subscriber's rendering, with the same `key`, `value` and `rule` fields; library-originated
-> texts are Rust's and BitGauge's own rule texts are kept. Invalid `log.*` settings still print the
-> problems as text on stderr. ([rust-port.md](../../rust-port.md#intended-differences-from-go), rows
-> 1, 4.)
 
 ## 3. Security Headers Middleware
 
@@ -122,8 +113,8 @@ return leftmost parsed entry, or peer if there were no entries
   removed when a new client arrives at a full table. Entries with active work are never evicted, so
   their counters cannot be lost; if every entry is active, the new client is refused with `429`
   (`table_full` in metrics) and a `warn` log line, failing closed.
-- **Release:** counters are decremented in `defer` when a request, WebSocket or flow ends, so an
-  aborted transfer always frees its slot.
+- **Release:** each slot is held by a guard whose drop decrements the counter when the request,
+  WebSocket or flow ends, so an aborted transfer always frees its slot.
 - **Concurrency:** one mutex around the map and list; each operation is constant time. At expected
   request rates (≈ 10 per second per active client) contention is negligible.
 - `429` responses carry `Retry-After` in whole seconds, rounded up and at least 1: 1 s for
@@ -132,7 +123,8 @@ return leftmost parsed entry, or peer if there were no entries
 
 ## 6. What Is Logged and Never Logged
 
-**Logged** (stdout/stderr, `log.format`):
+**Logged** (stdout/stderr, in tracing-subscriber's text or JSON rendering per `log.format`, with
+UTC timestamps):
 
 - At `info`: startup (version, listen address, base path, the `compatibility_layers` field listing
   the enabled layers or `none`, metrics on/off), the
@@ -152,11 +144,6 @@ return leftmost parsed entry, or peer if there were no entries
 
 No log file is ever written ([../configuration.md
 §5](../configuration.md#5-read-only-configuration-and-the-no-write-guarantee)).
-
-> **Rust implementation (from the cutover):** the lines are written by tracing-subscriber in its
-> text or JSON rendering, with UTC timestamps; what is logged and never logged, the messages, fields
-> and levels are unchanged. ([rust-port.md](../../rust-port.md#intended-differences-from-go), row
-> 1.)
 
 ## Related
 

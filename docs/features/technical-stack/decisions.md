@@ -19,19 +19,16 @@
 
 Decided before the implementation started.
 
-### 1. Delivery — One Go 1.26 binary with the SPA embedded
+### 1. Delivery — One Rust binary with the SPA embedded
 
-Module `github.com/leinardi/bitgauge`. The Vue SPA is built at image build time and embedded with
-`embed.FS`; one binary, one container image, one port. Simple to deploy next to other homelab
-services, nothing to keep in sync between a frontend and a backend deployment.
+The Cargo package `bitgauge`, built with the toolchain pinned in `rust-toolchain.toml` (1.98.1).
+The Vue SPA is built at image build time and embedded with `include_dir`; one binary, one container
+image, one port. Simple to deploy next to other homelab services, nothing to keep in sync between a
+frontend and a backend deployment. The server was first written in Go and then ported to Rust; the
+port and its reasons are recorded in [rust-port.md](../../rust-port.md).
 
 **Not chosen:** separate frontend container or static hosting (two artifacts and a CORS setup for
 no benefit).
-
-> **Rust implementation (from the cutover):** one Rust binary, built with the toolchain pinned in
-> `rust-toolchain.toml` (1.98.1), from the Cargo package `bitgauge`; the SPA is embedded with
-> `include_dir`. One binary, one image and one port are unchanged.
-> ([rust-port.md](../../rust-port.md).)
 
 ### 2. Server state — Stateless; history in the browser only
 
@@ -43,20 +40,16 @@ of privacy, backup and migration concerns and makes the container trivially safe
 **Not chosen:** SQLite (or any) server-side history (state, volumes, migrations, and results
 leaving the browser).
 
-### 3. HTTP and API — `net/http` + `go-chi/chi`, REST + OpenAPI 3
+### 3. HTTP and API — axum on hyper, REST + OpenAPI 3
 
 Plain HTTP and JSON under `/api/v1`; the contract is `api/openapi.yaml`, and the SPA's types are
-generated with `openapi-typescript`. chi gives route groups and middleware on top of `net/http`
-without hiding the `ResponseWriter` the throughput handlers need.
+generated with `openapi-typescript`. axum 0.8 routes and tower middleware run on hyper 1's HTTP/1
+server, driven by BitGauge's own hyper-util accept loop and connection wrapper; axum is built
+without its `ws` and `http2` features. They give route groups and middleware without hiding the
+body frames the throughput handlers write directly.
 
 **Not chosen:** ConnectRPC/gRPC (codegen and framing for six endpoints); heavier frameworks that
-abstract the response writer.
-
-> **Rust implementation (from the cutover):** axum 0.8 routes and tower middleware on hyper 1's
-> HTTP/1 server, driven by BitGauge's own hyper-util accept loop and connection wrapper; axum is
-> built without its `ws` and `http2` features. REST, `/api/v1` and `api/openapi.yaml` are unchanged.
-> The throughput handlers write hyper body frames directly, which is what the `ResponseWriter`
-> argument above asked for. ([rust-port.md](../../rust-port.md).)
+abstract the response body.
 
 ### 4. Throughput transport — HTTP requests, timed by the browser (download) and the server (upload)
 
@@ -68,60 +61,45 @@ proxy.
 the user's HTTP traffic and needs message-level framing); server-side `TCP_INFO` (behind a proxy it
 describes the proxy-to-server hop, not the user's link).
 
-### 5. Configuration — `knadh/koanf`
+### 5. Configuration — serde-saphyr and a typed walker
 
 YAML file plus `BITGAUGE_` environment overrides with `__` as the nesting separator, exactly like
 Runhold; defaults < file < env; fail-closed validation ([configuration.md](../configuration.md)).
+serde-saphyr parses the file into a tree that keeps each value's position, BitGauge's own code
+merges the `BITGAUGE_` environment into it, and a typed walker reads it and collects every problem.
 
-**Not chosen:** Viper (heavier, case-insensitive keys); flags-only configuration (not IaC-friendly).
+**Not chosen:** serde derive straight into the configuration struct (it stops at the first error,
+and validation must report every problem); flags-only configuration (not IaC-friendly).
 
-> **Rust implementation (from the cutover):** no koanf: serde-saphyr parses the file into a tree
-> that keeps each value's position, BitGauge's own code merges the `BITGAUGE_` environment into it,
-> and a typed walker reads it and collects every problem, which serde derive cannot do (it stops at
-> the first error). The layering, the `__` rule and fail-closed validation are unchanged.
-> ([rust-port.md](../../rust-port.md).)
+### 6. Logging — tracing and tracing-subscriber
 
-### 6. Logging — `internal/logger` package (slog wrapper)
+tracing and tracing-subscriber, with its `fmt` text and `json` renderings and UTC timestamps,
+built by the `logger` module for format and level. Logs go to stdout/stderr only.
 
-`log/slog` with a small wrapper for format and level, as in Runhold. Logs go to stdout/stderr only.
+### 7. Metrics — `prometheus-client`, root `/metrics`, off by default
 
-**Not chosen:** zerolog/zap (no need beyond slog).
-
-> **Rust implementation (from the cutover):** tracing and tracing-subscriber, with its `fmt` text
-> and `json` renderings and UTC timestamps. Logs still go to stdout/stderr only.
-> ([rust-port.md](../../rust-port.md).)
-
-### 7. Metrics — Prometheus `client_golang`, root `/metrics`, off by default
-
-Server-side counters only; path configurable; disabled unless enabled, because it is
-unauthenticated. Root placement follows Prometheus convention and Runhold, not `/api/v1`.
+Server-side counters only, written as OpenMetrics text only, with no runtime or process
+collectors; path configurable; disabled unless enabled, because it is unauthenticated. Root
+placement follows Prometheus convention and Runhold, not `/api/v1`.
 
 **Not chosen:** `/api/v1/metrics` (mixes an operations endpoint into the versioned API).
 
-> **Rust implementation (from the cutover):** `prometheus-client`, writing OpenMetrics text only,
-> with no Go runtime or process collectors. Root `/metrics`, the configurable path and off by
-> default are unchanged. ([rust-port.md](../../rust-port.md).)
+### 8. WebSocket — tokio-tungstenite
 
-### 8. WebSocket — `coder/websocket`
+tokio-tungstenite on `hyper::upgrade::on`, with the handshake checked by hand and the accept key
+from `derive_accept_key`; used only for the latency echo at `/api/v1/ws`.
 
-Minimal, context-aware, maintained; used only for the latency echo at `/api/v1/ws`.
+**Not chosen:** axum's `ws` feature (the handshake checks and the order of their answers stay in
+BitGauge's own code).
 
-**Not chosen:** `gorilla/websocket` (heavier API surface for a ping/pong echo).
+### 9. Lint policy — clippy with the workspace lints
 
-> **Rust implementation (from the cutover):** tokio-tungstenite on `hyper::upgrade::on`, with the
-> handshake checked by hand as in Go and the accept key from `derive_accept_key`.
-> ([rust-port.md](../../rust-port.md).)
-
-### 9. Lint policy — golangci-lint v2 with `default: all`
-
-Every linter enabled, with justified, documented exclusions only, as in Runhold.
-
-> **Rust implementation (from the cutover):** clippy on the whole workspace with `--all-targets
-> --all-features`, the lints set once in `[workspace.lints]` (unsafe code forbidden) and inherited
-> by every crate; an exclusion is an `#[expect(lint, reason = "…")]` on one item, never an `allow`.
-> rustfmt formats, cargo-deny checks licenses, advisories and banned crates, and cargo-machete finds
-> unused dependencies. The lint boundary that keeps the server stateless and silent is in
-> [rust-port.md](../../rust-port.md#lint-boundary). ([rust-port.md](../../rust-port.md).)
+clippy on the whole workspace with `--all-targets --all-features`, the lints set once in
+`[workspace.lints]` (unsafe code forbidden) and inherited by every crate; an exclusion is an
+`#[expect(lint, reason = "…")]` on one item, never an `allow`. rustfmt formats, cargo-deny checks
+licenses, advisories and banned crates, and cargo-machete finds unused dependencies. The lint
+boundary that keeps the server stateless and silent is in
+[rust-port.md](../../rust-port.md#lint-boundary).
 
 ### 10. Frontend — Vue 3 + Vite + TypeScript + Tailwind 4 + shadcn-vue (Reka UI)
 
@@ -244,8 +222,8 @@ container).
 
 ### 26. Image — Multi-stage build on `dhi.io/static`
 
-The `web` stage (`dhi.io/node`) builds the SPA, the `build` stage (`dhi.io/golang`) builds a
-static binary, both dev images; runtime is `dhi.io/static` as user `65532:65532`, no shell,
+The `web` stage (`dhi.io/node`) builds the SPA, the `build` stage (`dhi.io/rust`) builds a static
+musl binary, both dev images; runtime is `dhi.io/static` as user `65532:65532`, no shell,
 read-only root filesystem, `healthcheck` subcommand ([build-packaging.md](build-packaging.md)).
 Every `dhi.io` base is pinned by an explicit tag, never `latest`, and not by digest: `dhi.io`
 republishes its tags with security fixes, so a build picks them up and the release scan checks
@@ -256,12 +234,6 @@ swarm-scheduler-exporter.
 **Not chosen:** digest-pinned `dhi.io` bases (every republish of a tag becomes a Dependabot pull
 request, and the security fixes it carries wait for that pull request to merge).
 
-> **Rust implementation (from the cutover):** the `build` stage is `dhi.io/rust` at the
-> `rust-toolchain.toml` line (`-debian13-dev`), with cargo-zigbuild and each target's `rust-std`
-> pinned by sha256, building static musl binaries for amd64 and arm64. The `web` and `runtime`
-> stages, the user, the labels and the `healthcheck` are unchanged.
-> ([rust-port.md](../../rust-port.md).)
-
 ### 27. Platforms — linux/amd64 and linux/arm64 only
 
 `dhi.io/static` has no arm/v7; arm64 covers Raspberry Pi 3, 3B+, 4, 5 and Zero 2 W on a 64-bit OS.
@@ -271,7 +243,7 @@ only).
 
 ### 28. Registry and supply chain — GHCR only, cosign keyless, SBOM, provenance
 
-Dependabot monthly (`gomod`, `npm`, `docker`, `github-actions`, `pre-commit`). Trivy scans every
+Dependabot monthly (`cargo`, `npm`, `docker`, `github-actions`, `pre-commit`). Trivy scans every
 platform image in `release.yaml` before anything is pushed, and the release binaries carry build
 provenance attestations. A version tag, git or image, never moves: base-image fixes ship as a new
 release, and the release model follows swarm-scheduler-exporter's, which has shipped releases

@@ -21,14 +21,15 @@
 # Usage: recover-toolchains.sh <annotation-file> <install-dir>
 #
 # The recovery's switch to the tag's toolchains in release.yaml (docs/release.md, "Check the tag"):
-# a release tag's annotation records the exact Go and Node versions its binaries were built with,
+# a release tag's annotation records the exact Rust and Node versions its binaries were built with,
 #
-#   Go: go1.26.N
+#   Rust: 1.98.N
 #   Node: v24.N.N
 #
-# while .go-version and the Node major resolve to the newest patch on the day of the run. A
-# recovery rebuilds with exactly the recorded versions, so its binaries are byte-identical to the
-# first attempt's and the published assets can be checked by SHA-256.
+# while the Node major resolves to the newest patch on the day of the run, and rust-toolchain.toml
+# may have moved on since the tag. A recovery rebuilds with exactly the recorded versions, so its
+# binaries are byte-identical to the first attempt's and the published assets can be checked by
+# SHA-256.
 #
 # <annotation-file> holds the annotation of the existing release tag, as
 # `git tag -l --format='%(contents)' vX.Y.Z` prints it. A fresh release has nothing to recover, and
@@ -37,14 +38,14 @@
 #
 # For each tool whose current version differs from the recorded one, the script first selects the
 # recorded version in its own process:
-#   - Go: GOTOOLCHAIN=go1.26.N is exported, so the go command fetches exactly that toolchain from
-#     the module proxy and checks it against the checksum database;
+#   - Rust: RUSTUP_TOOLCHAIN=1.98.N is exported, which outranks rust-toolchain.toml, and rustup
+#     installs that release with both musl targets the release builds for;
 #   - Node: node-v24.N.N-linux-x64.tar.xz is downloaded from https://nodejs.org/dist/v24.N.N/,
 #     checked against that release's SHASUMS256.txt, unpacked under <install-dir>, and its bin
 #     directory is put at the front of PATH. The release job runs on an x64 runner.
-# It then checks, in that same process, that `go version` and `node --version` print the recorded
-# versions, and only then persists the switch for the later steps of the job: GOTOOLCHAIN=go1.26.N
-# is appended to the file named by GITHUB_ENV, the Node bin directory to the file named by
+# It then checks, in that same process, that `rustc --version` and `node --version` print the
+# recorded versions, and only then persists the switch for the later steps of the job:
+# RUSTUP_TOOLCHAIN=1.98.N is appended to the file named by GITHUB_ENV, the Node bin directory to the file named by
 # GITHUB_PATH. Any failure (a malformed annotation, a download or checksum failure, a version that
 # does not match after the switch) exits non-zero and persists nothing.
 #
@@ -87,33 +88,33 @@ recorded() {
 	echo "$matches"
 }
 
-want_go=$(recorded 'Go: (go[0-9]+\.[0-9]+(\.[0-9]+)?)')
+want_rust=$(recorded 'Rust: ([0-9]+\.[0-9]+\.[0-9]+)')
 want_node=$(recorded 'Node: (v[0-9]+\.[0-9]+\.[0-9]+)')
 
-if [ -z "$want_go" ] && [ -z "$want_node" ]; then
+if [ -z "$want_rust" ] && [ -z "$want_node" ]; then
 	if [ -s "$annotation_file" ]; then
-		echo "::warning::The tag annotation records no Go and no Node version, so the binaries are rebuilt with the current toolchains. If they differ from the published assets, the asset check stops the run for a human - docs/release.md."
+		echo "::warning::The tag annotation records no Rust and no Node version, so the binaries are rebuilt with the current toolchains. If they differ from the published assets, the asset check stops the run for a human - docs/release.md."
 	else
 		echo "No tag annotation: a fresh release, nothing to recover."
 	fi
 	exit 0
 fi
 
-if [ -z "$want_go" ] || [ -z "$want_node" ]; then
-	fail "the annotation records only one of the Go and Node versions (Go: '${want_go}', Node: '${want_node}')"
+if [ -z "$want_rust" ] || [ -z "$want_node" ]; then
+	fail "the annotation records only one of the Rust and Node versions (Rust: '${want_rust}', Node: '${want_node}')"
 fi
 
-go_version() {
-	go version | awk '{print $3}'
+rust_version() {
+	rustc --version | awk '{print $2}'
 }
 
-current_go=$(go_version)
+current_rust=$(rust_version)
 current_node=$(node --version)
-echo "Recorded: $want_go and Node $want_node. Current: $current_go and Node $current_node."
+echo "Recorded: Rust $want_rust and Node $want_node. Current: Rust $current_rust and Node $current_node."
 
-switch_go=false
-if [ "$current_go" != "$want_go" ]; then
-	switch_go=true
+switch_rust=false
+if [ "$current_rust" != "$want_rust" ]; then
+	switch_rust=true
 fi
 
 switch_node=false
@@ -121,7 +122,7 @@ if [ "$current_node" != "$want_node" ]; then
 	switch_node=true
 fi
 
-if [ "$switch_go" = false ] && [ "$switch_node" = false ]; then
+if [ "$switch_rust" = false ] && [ "$switch_node" = false ]; then
 	echo "Both toolchains are already the recorded ones: nothing to switch."
 	exit 0
 fi
@@ -131,8 +132,10 @@ if [ -z "${GITHUB_ENV:-}" ] || [ -z "${GITHUB_PATH:-}" ]; then
 	fail "GITHUB_ENV and GITHUB_PATH must name the files the switch is persisted to"
 fi
 
-if [ "$switch_go" = true ]; then
-	export GOTOOLCHAIN="$want_go"
+if [ "$switch_rust" = true ]; then
+	rustup toolchain install "$want_rust" --profile minimal \
+		--target x86_64-unknown-linux-musl --target aarch64-unknown-linux-musl
+	export RUSTUP_TOOLCHAIN="$want_rust"
 fi
 
 node_bin=""
@@ -167,20 +170,20 @@ fi
 
 # The same process that selected them must see exactly the recorded versions before anything is
 # persisted: a switch that did not take would otherwise reach the build.
-got_go=$(go_version)
-if [ "$got_go" != "$want_go" ]; then
-	fail "after the switch, go version prints $got_go, not the recorded $want_go"
+got_rust=$(rust_version)
+if [ "$got_rust" != "$want_rust" ]; then
+	fail "after the switch, rustc --version prints $got_rust, not the recorded $want_rust"
 fi
 got_node=$(node --version)
 if [ "$got_node" != "$want_node" ]; then
 	fail "after the switch, node --version prints $got_node, not the recorded $want_node"
 fi
 
-if [ "$switch_go" = true ]; then
-	echo "GOTOOLCHAIN=$want_go" >>"$GITHUB_ENV"
+if [ "$switch_rust" = true ]; then
+	echo "RUSTUP_TOOLCHAIN=$want_rust" >>"$GITHUB_ENV"
 fi
 if [ "$switch_node" = true ]; then
 	echo "$node_bin" >>"$GITHUB_PATH"
 fi
 
-echo "Switched to $want_go and Node $want_node for the rest of the job."
+echo "Switched to Rust $want_rust and Node $want_node for the rest of the job."

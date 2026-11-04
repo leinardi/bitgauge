@@ -49,8 +49,10 @@ permissions:
   contents: read
 
 env:
-  # Pinned by hand: Dependabot does not track a `go install` argument.
+  # Pinned by hand, with the sha256 of the linux_amd64 archive from the release's checksums.txt:
+  # Dependabot does not track a release download. Bump both together.
   SVU_VERSION: v3.4.1
+  SVU_SHA256: 7ee8c91998c15109130638dc661a912d5f426e2f8642f6f6c04e6502be920770
   # The one definition of a release tag: vMAJOR.MINOR.PATCH, strict SemVer core with no leading
   # zeros, no pre-release and no build metadata. Every lookup below filters the full tag list
   # through this with grep -E, never through a glob: `v[0-9]*.[0-9]*.[0-9]*` also matches
@@ -59,7 +61,7 @@ env:
   RELEASE_TAG_REGEX: '^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
   # The one image, built from deployments/docker/Dockerfile. GHCR is the only registry published.
   IMAGE: ghcr.io/leinardi/bitgauge
-  # The binaries, bitgauge-linux-<arch> for each platform, built from ./cmd/bitgauge.
+  # The binaries, bitgauge-linux-<arch> for each platform: make rust-release-binaries names them.
   BINARY: bitgauge
   # The workflow every published artifact must come from. The guard job makes every run of this
   # file a run on refs/heads/main, so the keyless cosign identity a sign in this run produces is
@@ -106,10 +108,10 @@ jobs:
           fi
 
   # The verify jobs are the ones ci.yaml runs, called again at this commit rather than trusted from
-  # whichever pull request last ran CI: the Go tests with the race detector, and the web checks.
-  go-test:
+  # whichever pull request last ran CI: the Rust checks and static builds, and the web checks.
+  rust:
     needs: guard
-    uses: ./.github/workflows/go-test.yaml
+    uses: ./.github/workflows/rust.yaml
     permissions:
       contents: read
 
@@ -119,7 +121,7 @@ jobs:
     permissions:
       contents: read
 
-  # govulncheck over every Go package and npm audit of web/, as CI's audit job runs them. Pinning
+  # cargo deny over the workspace's graph and npm audit of web/, as CI's audit job runs them. Pinning
   # the scanners does not pin what they know: the vulnerability databases are fetched at run time.
   audit:
     needs: guard
@@ -130,12 +132,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
-          go-version-file: .go-version
-          check-latest: true
-          cache: false
+          toolchain: 1.98.1
+
+      - name: Set up cargo-deny
+        uses: ./.github/actions/setup-cargo-deny
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -148,7 +151,7 @@ jobs:
   release:
     needs:
       - guard
-      - go-test
+      - rust
       - web
       - audit
     runs-on: ubuntu-latest
@@ -171,15 +174,14 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      # The newest patch of the Go line in .go-version and of the Node major, as every other job
-      # uses. A recovery switches to the exact versions recorded in the tag, after the tag check
-      # below and before anything is built.
-      - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      # The Rust release rust-toolchain.toml pins, with both musl targets, and the newest patch of
+      # the Node major, as every other job uses. A recovery switches to the exact versions recorded
+      # in the tag, after the tag check below and before anything is built.
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
-          go-version-file: .go-version
-          check-latest: true
-          cache: true
+          toolchain: 1.98.1
+          targets: x86_64-unknown-linux-musl, aarch64-unknown-linux-musl
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -189,7 +191,15 @@ jobs:
           cache-dependency-path: web/package-lock.json
 
       - name: Install svu
-        run: go install "github.com/caarlos0/svu/v3@${SVU_VERSION}"
+        run: |
+          set -euo pipefail
+          archive="${RUNNER_TEMP}/svu.tar.gz"
+          curl -fsSL --proto '=https' --tlsv1.2 -o "${archive}" \
+            "https://github.com/caarlos0/svu/releases/download/${SVU_VERSION}/svu_${SVU_VERSION#v}_linux_amd64.tar.gz"
+          echo "${SVU_SHA256}  ${archive}" | sha256sum --check --strict -
+          mkdir -p "${RUNNER_TEMP}/svu"
+          tar -xzf "${archive}" -C "${RUNNER_TEMP}/svu" svu
+          echo "${RUNNER_TEMP}/svu" >>"${GITHUB_PATH}"
 
       - name: Resolve the version to release
         id: version
@@ -320,10 +330,11 @@ jobs:
       # commit, and the run continues without pushing it again) or a different commit, which
       # nothing here may overwrite.
       #
-      # The annotation of a new tag records the exact Go and Node versions the binaries are built
-      # with, as the pinned setup resolved them: .go-version and the Node major name a line, not a
-      # patch, so a recovery days later would otherwise build different bytes than the assets the
-      # first run published. A recovery hands the existing tag's annotation to the next step, which
+      # The annotation of a new tag records the exact Rust and Node versions the binaries are built
+      # with, as the setup resolved them: the Node major names a line, not a patch, so a recovery
+      # days later would otherwise build different bytes than the assets the first run published,
+      # and the Rust line is recorded so a recovery after a toolchain bump still builds with the
+      # release the tag was made with. A recovery hands the existing tag's annotation to the next step, which
       # switches to the recorded versions; a fresh release hands it an empty file.
       - name: Check the tag
         id: tag
@@ -348,7 +359,7 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
-          GO_VERSION=$(go version | awk '{print $3}')
+          RUST_VERSION=$(rustc --version | awk '{print $2}')
           NODE_VERSION=$(node --version)
           ANNOTATION="$RUNNER_TEMP/tag-annotation.txt"
           : > "$ANNOTATION"
@@ -364,27 +375,27 @@ jobs:
             else
               echo "$TAG is a lightweight tag with no annotation." > "$ANNOTATION"
             fi
-            RECORDED_GO=$(sed -n 's/^Go: \(go[0-9][0-9.]*\)$/\1/p' "$ANNOTATION")
+            RECORDED_RUST=$(sed -n 's/^Rust: \([0-9][0-9.]*\)$/\1/p' "$ANNOTATION")
             RECORDED_NODE=$(sed -n 's/^Node: \(v[0-9][0-9.]*\)$/\1/p' "$ANNOTATION")
-            if [ -n "$RECORDED_GO" ] && [ -n "$RECORDED_NODE" ]; then
-              GO_VERSION="$RECORDED_GO"
+            if [ -n "$RECORDED_RUST" ] && [ -n "$RECORDED_NODE" ]; then
+              RUST_VERSION="$RECORDED_RUST"
               NODE_VERSION="$RECORDED_NODE"
             fi
           else
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            printf 'bitgauge %s\n\nGo: %s\nNode: %s\n' "$TAG" "$GO_VERSION" "$NODE_VERSION" \
+            printf 'bitgauge %s\n\nRust: %s\nNode: %s\n' "$TAG" "$RUST_VERSION" "$NODE_VERSION" \
               | git tag -a "$TAG" -F -
           fi
-          echo "Building with $GO_VERSION and Node $NODE_VERSION."
+          echo "Building with Rust $RUST_VERSION and Node $NODE_VERSION."
           {
             echo "annotation=$ANNOTATION"
-            echo "go_version=$GO_VERSION"
+            echo "rust_version=$RUST_VERSION"
             echo "node_version=$NODE_VERSION"
           } >> "$GITHUB_OUTPUT"
 
-      # A no-op for a fresh release. A recovery selects the tag's Go toolchain (GOTOOLCHAIN, fetched
-      # through the checksum database) and Node release (from nodejs.org, checked against its
+      # A no-op for a fresh release. A recovery selects the tag's Rust release (RUSTUP_TOOLCHAIN,
+      # installed by rustup with the musl targets) and Node release (from nodejs.org, checked against its
       # SHASUMS256.txt), checks them in the script's own process, and only then persists them for
       # the later steps through GITHUB_ENV and GITHUB_PATH.
       - name: Switch to the tag's toolchains
@@ -510,44 +521,41 @@ jobs:
       # tag records, or the run stops here, before anything is built.
       - name: Check the toolchains are the tag's
         env:
-          WANT_GO: ${{ steps.tag.outputs.go_version }}
+          WANT_RUST: ${{ steps.tag.outputs.rust_version }}
           WANT_NODE: ${{ steps.tag.outputs.node_version }}
         run: |
           set -euo pipefail
-          GOT_GO=$(go version | awk '{print $3}')
+          GOT_RUST=$(rustc --version | awk '{print $2}')
           GOT_NODE=$(node --version)
-          if [ "$GOT_GO" != "$WANT_GO" ] || [ "$GOT_NODE" != "$WANT_NODE" ]; then
-            echo "This job builds with $GOT_GO and Node $GOT_NODE, but the tag records $WANT_GO and Node $WANT_NODE. Nothing was built." >&2
+          if [ "$GOT_RUST" != "$WANT_RUST" ] || [ "$GOT_NODE" != "$WANT_NODE" ]; then
+            echo "This job builds with Rust $GOT_RUST and Node $GOT_NODE, but the tag records Rust $WANT_RUST and Node $WANT_NODE. Nothing was built." >&2
             exit 1
           fi
-          echo "Building with $GOT_GO and Node $GOT_NODE, as the tag records."
+          echo "Building with Rust $GOT_RUST and Node $GOT_NODE, as the tag records."
 
-      # Fresh step 2. The binary serves the SPA from web/dist through go:embed, so the web app is
-      # built first, as the image's web stage builds it. Lint, typecheck and tests ran in the web
-      # job.
-      - name: Build the web app
+      # Fresh step 2. The binary embeds the SPA from web/dist (build.rs), so the web app is built
+      # first, as the image's web stage builds it; make rust-release-binaries runs web-build itself.
+      # Lint, typecheck and tests ran in the web job. zig and cargo-zigbuild are the releases
+      # .mk/rust-release.mk pins, each checked by sha256.
+      - name: Install zig and cargo-zigbuild
         run: |
           set -euo pipefail
-          npm ci --prefix web --no-audit --no-fund
-          npm --prefix web run build
+          make rust-zigbuild-install RUST_RELEASE_TOOLS_DIR="${RUNNER_TEMP}/zigbuild"
+          echo "${RUNNER_TEMP}/zigbuild/bin" >>"${GITHUB_PATH}"
 
+      # The version stamps reach the binary as BITGAUGE_VERSION, BITGAUGE_COMMIT and BITGAUGE_DATE
+      # (.mk/rust.mk), from the three make variables set here.
       - name: Build the static binaries (linux/amd64, linux/arm64)
         env:
-          CGO_ENABLED: "0"
           VERSION: ${{ steps.version.outputs.version }}
           COMMIT: ${{ steps.version.outputs.short_sha }}
           DATE: ${{ steps.version.outputs.build_date }}
         run: |
           set -euo pipefail
-          mkdir -p dist
-          LDFLAGS="-s -w -X 'github.com/leinardi/bitgauge/internal/buildinfo.version=${VERSION}' -X 'github.com/leinardi/bitgauge/internal/buildinfo.commit=${COMMIT}' -X 'github.com/leinardi/bitgauge/internal/buildinfo.date=${DATE}'"
-          FILES=()
+          make rust-release-binaries GIT_VERSION="${VERSION}" GIT_COMMIT="${COMMIT}" BUILD_DATE="${DATE}"
           for platform in ${PLATFORMS//,/ }; do
-            GOOS="${platform%%/*}" GOARCH="${platform#*/}" go build -trimpath -buildvcs=false -ldflags="$LDFLAGS" \
-              -o "dist/$BINARY-${platform%%/*}-${platform#*/}" ./cmd/bitgauge
-            FILES+=("$BINARY-${platform%%/*}-${platform#*/}")
+            test -x "dist/$BINARY-${platform%%/*}-${platform#*/}"
           done
-          (cd dist && sha256sum -- "${FILES[@]}" > checksums.txt)
           cat dist/checksums.txt
 
       # The run attempt is part of the name: "Re-run failed jobs" re-runs this job inside the same
@@ -566,7 +574,7 @@ jobs:
         with:
           driver-opts: network=host
 
-      # The build stages pull dhi.io/golang and dhi.io/node, the runtime stage dhi.io/static.
+      # The build stages pull dhi.io/rust and dhi.io/node, the runtime stage dhi.io/static.
       - name: Log in to Docker Hardened Images (dhi.io)
         if: steps.mode.outputs.build == 'true'
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
@@ -727,7 +735,7 @@ jobs:
           MODE: ${{ steps.mode.outputs.mode }}
           DIGEST: ${{ steps.build.outputs.digest }}
           SCANNED: ${{ steps.scan.outputs.platforms }}
-          GO_VERSION: ${{ steps.tag.outputs.go_version }}
+          RUST_VERSION: ${{ steps.tag.outputs.rust_version }}
           NODE_VERSION: ${{ steps.tag.outputs.node_version }}
         run: |
           set -euo pipefail
@@ -735,7 +743,7 @@ jobs:
             echo "# Dry run: $TAG"
             echo
             echo "Previous tag: ${PREVIOUS:-none}. Explicit version: $EXPLICIT. A real run would take the $MODE mode."
-            echo "Built with $GO_VERSION and Node $NODE_VERSION."
+            echo "Built with Rust $RUST_VERSION and Node $NODE_VERSION."
             echo
             echo "No tag was created and nothing was published. The image index was built into a job-local registry,"
             echo "its platform images were scanned, and it was copied to a second local registry with its digest and"
@@ -1072,14 +1080,14 @@ jobs:
           LATEST: ${{ steps.publish.outputs.latest }}
           VERIFIED: ${{ steps.assets.outputs.verified }}
           UPLOADED: ${{ steps.assets.outputs.uploaded }}
-          GO_VERSION: ${{ steps.tag.outputs.go_version }}
+          RUST_VERSION: ${{ steps.tag.outputs.rust_version }}
           NODE_VERSION: ${{ steps.tag.outputs.node_version }}
         run: |
           set -euo pipefail
           {
             echo "# Released $TAG"
             echo
-            echo "Previous tag: ${PREVIOUS:-none}. Recovery: $RECOVERY. Mode: $MODE. Built with $GO_VERSION and Node $NODE_VERSION."
+            echo "Previous tag: ${PREVIOUS:-none}. Recovery: $RECOVERY. Mode: $MODE. Built with Rust $RUST_VERSION and Node $NODE_VERSION."
             echo
             echo "- [Release](https://github.com/leinardi/bitgauge/releases/tag/$TAG): marked latest: $LATEST"
             echo "- [Image](https://github.com/leinardi/bitgauge/pkgs/container/bitgauge): \`$IMAGE:$VERSION\` (\`$DIGEST\`, $MODE); :latest moved: $MOVED"

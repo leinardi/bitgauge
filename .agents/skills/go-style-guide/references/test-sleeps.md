@@ -6,7 +6,7 @@ time, a wait in a test, or a `time.Sleep` in a `_test.go` file.
 BitGauge measures time for a living, so its tests treat time as an input. The testing strategy is
 written around fakes: the Go handler tests use a fake monotonic clock, and the engine runs against
 a fake `Clock` replaying synthetic timelines
-([testing.md §1 and §2](../../../../docs/features/technical-stack/testing.md#1-go-handler-tests)).
+([testing.md §1 and §2](../../../../docs/features/technical-stack/testing.md#1-server-tests)).
 A sleep in a unit test is a sign that a clock was not injected.
 
 ## The production side: take the clock as an input
@@ -68,8 +68,8 @@ containers and real networks. There is no clock to inject, so a positive eventua
 condition until a deadline, fails naming what it waited for, and stops early when the test context
 ends. Reuse the existing helpers rather than writing a new loop:
 
-- `eventually(t, what, check)` in [`test/image/main_test.go`](../../../../test/image/main_test.go);
-- `poll(ctx, check)` in [`test/harness/topology.go`](../../../../test/harness/topology.go).
+- `eventually(t, what, check)` in [`testenv/tests/image/main.rs`](../../../../testenv/tests/image/main.rs);
+- `poll(ctx, check)` in [`testenv/src/harness/bringup.rs`](../../../../testenv/src/harness/bringup.rs).
 
 Both wait between attempts with `select` on the context and `time.After`, not with `time.Sleep`,
 so a cancelled run does not sit out the interval. A poll loop belongs only in these tagged tests;

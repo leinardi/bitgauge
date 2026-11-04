@@ -30,7 +30,6 @@ use std::env;
 use std::fmt;
 use std::fs;
 use std::io::ErrorKind;
-use std::os::unix::fs::PermissionsExt as _;
 use std::path::{Path, PathBuf};
 
 /// The variable that turns a missing tool from a note into a failure.
@@ -40,8 +39,6 @@ pub const REQUIRE_ENV: &str = "BITGAUGE_REQUIRE_TOOLS";
 /// effect of a new test.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Tool {
-    /// golangci-lint, on `PATH`.
-    GolangciLint,
     /// eslint, from `web/node_modules`.
     Eslint,
     /// fallow, from `web/node_modules`.
@@ -50,23 +47,14 @@ pub enum Tool {
 
 impl Tool {
     /// Every tool.
-    pub const ALL: [Self; 3] = [Self::GolangciLint, Self::Eslint, Self::Fallow];
+    pub const ALL: [Self; 2] = [Self::Eslint, Self::Fallow];
 
     /// The tool's program name.
     #[must_use]
     pub const fn name(self) -> &'static str {
         match self {
-            Self::GolangciLint => "golangci-lint",
             Self::Eslint => "eslint",
             Self::Fallow => "fallow",
-        }
-    }
-
-    /// Whether `npm ci` in `web/` installs it, rather than `PATH` holding it.
-    const fn installed_by_npm(self) -> bool {
-        match self {
-            Self::GolangciLint => false,
-            Self::Eslint | Self::Fallow => true,
         }
     }
 }
@@ -93,8 +81,8 @@ impl fmt::Display for Required {
 
 impl std::error::Error for Required {}
 
-/// The path of `tool`: on `PATH`, or for a web tool `web/node_modules/.bin/<tool>` in the
-/// nearest ancestor of the working directory that has one. `None`, after a note on stderr, when
+/// The path of `tool`: `web/node_modules/.bin/<tool>` in the nearest ancestor of the working
+/// directory that has one. `None`, after a note on stderr, when
 /// it is missing and the test should return early.
 ///
 /// # Panics
@@ -104,23 +92,16 @@ impl std::error::Error for Required {}
 pub fn lookup(tool: Tool) -> Option<PathBuf> {
     let start = env::current_dir().unwrap_or_default();
     let required = env::var_os(REQUIRE_ENV).is_some_and(|value| value == "1");
-    let path = env::var_os("PATH").unwrap_or_default();
-    lookup_in(tool, &start, &path, required).unwrap_or_else(|error| panic!("{error}"))
+    lookup_in(tool, &start, required).unwrap_or_else(|error| panic!("{error}"))
 }
 
-/// [`lookup`] from the directory `start`, with `path` as `PATH` and `required` for
-/// [`REQUIRE_ENV`].
+/// [`lookup`] from the directory `start`, with `required` for [`REQUIRE_ENV`].
 ///
 /// # Errors
 ///
 /// [`Required`] when the tool is missing and `required` is set.
-pub fn lookup_in(
-    tool: Tool,
-    start: &Path,
-    path: &std::ffi::OsStr,
-    required: bool,
-) -> Result<Option<PathBuf>, Required> {
-    match find(tool, start, path) {
+pub fn lookup_in(tool: Tool, start: &Path, required: bool) -> Result<Option<PathBuf>, Required> {
+    match find(tool, start) {
         Ok(found) => Ok(Some(found)),
         Err(reason) if required => Err(Required { tool, reason }),
         Err(reason) => {
@@ -139,14 +120,8 @@ pub fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("..")
 }
 
-fn find(tool: Tool, start: &Path, path: &std::ffi::OsStr) -> Result<PathBuf, String> {
+fn find(tool: Tool, start: &Path) -> Result<PathBuf, String> {
     let name = tool.name();
-    if !tool.installed_by_npm() {
-        return env::split_paths(path)
-            .map(|dir| dir.join(name))
-            .find(|candidate| is_executable(candidate))
-            .ok_or_else(|| format!("look up {name} on PATH: executable file not found in $PATH"));
-    }
     for dir in start.ancestors() {
         let candidate = dir.join("web/node_modules/.bin").join(name);
         match fs::metadata(&candidate) {
@@ -160,61 +135,36 @@ fn find(tool: Tool, start: &Path, path: &std::ffi::OsStr) -> Result<PathBuf, Str
     ))
 }
 
-/// Go's `exec.LookPath` test: a regular file with an execute bit.
-fn is_executable(candidate: &Path) -> bool {
-    fs::metadata(candidate)
-        .is_ok_and(|meta| meta.is_file() && meta.permissions().mode() & 0o111 != 0)
-}
-
 #[cfg(test)]
 mod tests {
-    use std::ffi::OsStr;
     use std::fs;
-    use std::os::unix::fs::PermissionsExt as _;
 
     use super::{Tool, lookup_in, repo_root};
 
-    /// A tool is found on `PATH` or under `web/node_modules`, a missing one is `None` unless
+    /// A tool is found under the nearest `web/node_modules`, a missing one is `None` unless
     /// required, and then it is an error naming the variable. (Go's `toolgate` has no test of
-    /// its own; `test/toolchain` pins its list.)
+    /// its own; `test/toolchain` pinned its list.)
     #[test]
     fn lookup_finds_or_gates() {
         let dir = tempfile::tempdir().unwrap();
-        let bin = dir.path().join("bin");
-        fs::create_dir(&bin).unwrap();
-        let lint = bin.join("golangci-lint");
-        fs::write(&lint, "#!/bin/sh\n").unwrap();
-        fs::set_permissions(&lint, fs::Permissions::from_mode(0o755)).unwrap();
-        let path = bin.as_os_str();
-        assert_eq!(
-            lookup_in(Tool::GolangciLint, dir.path(), path, true).unwrap(),
-            Some(lint.clone())
-        );
-        fs::set_permissions(&lint, fs::Permissions::from_mode(0o644)).unwrap();
-        assert_eq!(
-            lookup_in(Tool::GolangciLint, dir.path(), path, false).unwrap(),
-            None
-        );
+        assert_eq!(lookup_in(Tool::Eslint, dir.path(), false).unwrap(), None);
         let web = dir.path().join("web/node_modules/.bin");
         fs::create_dir_all(&web).unwrap();
         fs::write(web.join("eslint"), "").unwrap();
         let nested = dir.path().join("a/b");
         fs::create_dir_all(&nested).unwrap();
         assert_eq!(
-            lookup_in(Tool::Eslint, &nested, OsStr::new(""), true).unwrap(),
+            lookup_in(Tool::Eslint, &nested, true).unwrap(),
             Some(web.join("eslint"))
         );
-        let error = lookup_in(Tool::Fallow, &nested, OsStr::new(""), true).unwrap_err();
+        let error = lookup_in(Tool::Fallow, &nested, true).unwrap_err();
         assert!(
             error
                 .to_string()
                 .starts_with("fallow is required (BITGAUGE_REQUIRE_TOOLS=1) but was not found"),
             "{error}"
         );
-        assert_eq!(
-            Tool::ALL.map(Tool::name),
-            ["golangci-lint", "eslint", "fallow"]
-        );
+        assert_eq!(Tool::ALL.map(Tool::name), ["eslint", "fallow"]);
         assert!(repo_root().join("testenv/Cargo.toml").is_file());
     }
 }

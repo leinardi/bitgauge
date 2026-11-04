@@ -26,11 +26,9 @@
 use std::collections::BTreeMap;
 use std::sync::LazyLock;
 
-use meta::transition::Transition;
 use regex::Regex;
 use serde::Deserialize;
 
-use super::images::{go_stamp_problems, rust_stamp_problems};
 use super::reader;
 
 /// The workflow these rules read.
@@ -112,19 +110,87 @@ impl ReleaseStep {
     }
 }
 
-/// Every way release.yaml `content` breaks the release rules at `transition`. The binaries are
-/// Go's before the cutover, stamped through internal/buildinfo, and Rust's after it, stamped
-/// through the `BITGAUGE_*` variables the Rust build reads. A parse error is the only problem
+/// The make variables the release passes to `make rust-release-binaries`, which
+/// [`make_stamp_problems`] holds the make side to turn into the build's `BITGAUGE_*` stamps.
+pub const STAMP_VARIABLES: [(&str, &str); 3] = [
+    ("GIT_VERSION", "BITGAUGE_VERSION"),
+    ("GIT_COMMIT", "BITGAUGE_COMMIT"),
+    ("BUILD_DATE", "BITGAUGE_DATE"),
+];
+
+static RELEASE_BINARIES: LazyLock<Regex> =
+    LazyLock::new(|| pattern(r"(?m)^\s*make rust-release-binaries\b(.*)$"));
+
+/// The binaries carry the release's version stamps: release.yaml builds them with one
+/// `make rust-release-binaries` that passes every [`STAMP_VARIABLES`] make variable, and no Go
+/// link-time stamp, which would set nothing.
+fn stamp_problems(content: &str) -> Vec<String> {
+    let builds: Vec<&str> = RELEASE_BINARIES
+        .captures_iter(content)
+        .filter_map(|found| found.get(1).map(|arguments| arguments.as_str()))
+        .collect();
+    let mut problems = Vec::new();
+    let [arguments] = builds.as_slice() else {
+        return vec![format!(
+            "{RELEASE_WORKFLOW} runs make rust-release-binaries {} times, want once",
+            builds.len()
+        )];
+    };
+    for (variable, _) in STAMP_VARIABLES {
+        if !pattern(&format!(r"(?:^|\s){variable}=\S")).is_match(arguments) {
+            problems.push(format!(
+                "{RELEASE_WORKFLOW}: make rust-release-binaries is not given {variable}"
+            ));
+        }
+    }
+    if content.contains("buildinfo") || content.contains("-ldflags") {
+        problems.push(format!(
+            "{RELEASE_WORKFLOW} stamps the Go way, which the Rust build does not read"
+        ));
+    }
+    problems
+}
+
+static VERSION_ENV: LazyLock<Regex> =
+    LazyLock::new(|| pattern(r"(?m)^RUST_VERSION_ENV\s*=\s*\\\n((?:.*\\\n)*.*)$"));
+
+/// The make side of the stamps: `.mk/rust.mk`'s `RUST_VERSION_ENV` sets each `BITGAUGE_*`
+/// variable from its [`STAMP_VARIABLES`] make variable, and `.mk/rust-release.mk`'s static build,
+/// the one `rust-release-binaries` runs, carries it.
+pub fn make_stamp_problems(rust_mk: &str, release_mk: &str) -> Vec<String> {
+    let mut problems = Vec::new();
+    match VERSION_ENV.captures(rust_mk).and_then(|found| found.get(1)) {
+        Some(assignments) => {
+            for (variable, stamp) in STAMP_VARIABLES {
+                let want = format!(r#"{stamp}="$({variable})""#);
+                if !assignments.as_str().contains(&want) {
+                    problems.push(format!(".mk/rust.mk: RUST_VERSION_ENV does not set {want}"));
+                }
+            }
+        }
+        None => problems.push(".mk/rust.mk defines no RUST_VERSION_ENV".to_owned()),
+    }
+    let carries = release_mk
+        .lines()
+        .skip_while(|line| !line.starts_with("rust_static_build ="))
+        .take_while(|line| !line.trim().is_empty())
+        .any(|line| line.contains("$(RUST_VERSION_ENV)"));
+    if !carries {
+        problems.push(
+            ".mk/rust-release.mk: rust_static_build does not carry RUST_VERSION_ENV".to_owned(),
+        );
+    }
+    problems
+}
+
+/// Every way release.yaml `content` breaks the release rules. A parse error is the only problem
 /// when the text is not YAML, and it starts with "parse ".
-pub fn release_problems(transition: Transition, content: &str) -> Vec<String> {
+pub fn release_problems(content: &str) -> Vec<String> {
     let doc: ReleaseDoc = match serde_saphyr::from_str(content) {
         Ok(doc) => doc,
         Err(error) => return vec![format!("parse {RELEASE_WORKFLOW}: {error}")],
     };
-    let mut problems = match transition {
-        Transition::Candidate => go_stamp_problems(RELEASE_WORKFLOW, content),
-        Transition::Done => rust_stamp_problems(RELEASE_WORKFLOW, content),
-    };
+    let mut problems = stamp_problems(content);
     problems.extend(platform_problems(&doc, content));
     problems.extend(reference_problems(&doc, content));
     problems.extend(step_problems(&doc));
@@ -312,6 +378,11 @@ static PINNED_ACTION: LazyLock<Regex> =
     LazyLock::new(|| pattern(r"^[\w.-]+/[\w./-]+@[0-9a-f]{40}$"));
 static VERSION_COMMENT: LazyLock<Regex> =
     LazyLock::new(|| pattern(r"^[ \t]+#[ \t]*v\d+(?:\.\d+)*[ \t]*$"));
+/// The actions that publish no version tags, only branches, so their commit is named by the
+/// branch it was taken from: dtolnay/rust-toolchain, whose toolchain is its `toolchain` input
+/// (pinned by `meta/tests/toolchain.rs`).
+const BRANCH_PINNED_ACTIONS: [&str; 1] = ["dtolnay/rust-toolchain"];
+static BRANCH_COMMENT: LazyLock<Regex> = LazyLock::new(|| pattern(r"^[ \t]+#[ \t]*master[ \t]*$"));
 static EXACT_VERSION: LazyLock<Regex> = LazyLock::new(|| pattern(r"^v\d+\.\d+\.\d+$"));
 
 /// svu and Trivy at exact versions, the images the job runs pinned by digest, and every action
@@ -342,10 +413,18 @@ fn pin_problems(doc: &ReleaseDoc, content: &str) -> Vec<String> {
         if action.starts_with("./") {
             continue;
         }
-        if !PINNED_ACTION.is_match(action) || !VERSION_COMMENT.is_match(rest) {
+        let branch_pinned = BRANCH_PINNED_ACTIONS.iter().any(|name| {
+            action
+                .split_once('@')
+                .is_some_and(|(base, _)| base == *name)
+        });
+        let commented =
+            VERSION_COMMENT.is_match(rest) || (branch_pinned && BRANCH_COMMENT.is_match(rest));
+        if !PINNED_ACTION.is_match(action) || !commented {
             problems.push(format!(
                 "{RELEASE_WORKFLOW} uses {action}{rest}; want a full commit SHA and a trailing \
-                 # vX.Y.Z comment"
+                 # vX.Y.Z comment (# master for {})",
+                BRANCH_PINNED_ACTIONS.join(", ")
             ));
         }
     }

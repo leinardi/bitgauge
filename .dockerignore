@@ -1,3 +1,7 @@
+# The build context of deployments/docker/Dockerfile. target/ is the host's own build, never an
+# input. tests/ stays out except its Rust files, since the manifest's [[test]] targets must exist
+# for cargo to read it; their data is not needed.
+
 # VCS
 .git
 .gitignore
@@ -10,7 +14,9 @@
 .serena
 docs
 test
-tests
+tests/**
+!tests/*.rs
+!tests/support/**
 *.md
 # Except the design export's tokens, element defaults, fonts, icons and manifest, which the web
 # stage builds in (frontend.md section 8).
@@ -22,6 +28,7 @@ tests
 dist
 coverage.out
 coverage.html
+target
 
 # Editor/IDE
 .idea
@@ -37,6 +44,6 @@ web/playwright-report
 .fallow
 
 # A developer's local frontend build must never be what an image embeds; the web stage builds its
-# own. The tracked .gitkeep stays, so the embed directory exists for the Go build.
+# own. The tracked .gitkeep stays, so the embed directory exists for build.rs.
 web/dist/*
 !web/dist/.gitkeep

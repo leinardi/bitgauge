@@ -169,7 +169,7 @@ test when `epoch` differs from the one `GET /info` reported at test start.
 ```
 
 - `server.name` is `server.display_name`; `version`, `commit` and `buildDate` are the build
-  information stamped into the binary (`internal/buildinfo`), shown on the About screen;
+  information stamped into the binary at build time, shown on the About screen;
   `basePath` lets the SPA build URLs when it is served under a sub-path.
 - **Context label inputs.** `client.addressClass` is one of `loopback`, `private` (RFC 1918),
   `link-local`, `ula` (fc00::/7), `cgnat` (100.64.0.0/10) or `public`. `client.suggestedLabel` is
@@ -206,17 +206,14 @@ test when `epoch` differs from the one `GET /info` reported at test start.
   { "type": "pong", "seq": 17, "t": 48213.512 }
   ```
 
-- The server MUST echo `seq` and `t` unchanged and immediately; `t` is the client's
+- The server MUST echo `seq` and `t` unchanged and immediately, byte for byte as the raw JSON the
+  client sent, `null` included; `t` is the client's
   `performance.now()` at send time and is opaque to the server. The server keeps no state per
   connection beyond the connection itself.
 - A message larger than 256 bytes MUST cause the server to close the connection with status 1009
   (message too big); a binary frame with 1003 (unsupported data); malformed JSON with 1007 (invalid
-  payload). Unknown `type` values are ignored.
-
-  > **Rust implementation (from the cutover):** keys are matched case-sensitively, and a duplicate
-  > key, a top-level `null` or invalid UTF-8 also closes with 1007; `seq` and `t` are echoed byte for
-  > byte as the raw JSON the client sent, `null` included.
-  > ([rust-port.md](../rust-port.md#intended-differences-from-go), row 11.)
+  payload). Keys are matched case-sensitively, and a duplicate key, a top-level `null` or invalid
+  UTF-8 also closes with 1007. Unknown `type` values are ignored.
 - The server closes a connection that has received no message for 120 s (status 1000), so an idle
   tab does not hold resources.
 - At most 4 WebSocket connections per client IP; the fifth handshake answers `429`.
@@ -265,22 +262,15 @@ never echo request bodies or headers.
 
 Two kinds of response have no envelope:
 
-- **Rejected by `net/http` before routing:** plain text with `Connection: close`. This is `400`
-  for a malformed `Content-Length` (`abc`, `-5`), conflicting `Content-Length` headers (identical
-  duplicates are accepted) or a malformed `Host`; `431` for headers over `net/http`'s enforced
-  limit (which adds a read-buffer allowance on top of the configured maximum, so it is not a fixed
-  number); `501` for an unsupported `Transfer-Encoding`; and `505` for an unsupported HTTP
-  version. No handler sees these requests, so nothing can attach the envelope, and a browser's
-  `fetch` or `XMLHttpRequest` cannot send them
+- **Rejected by hyper before routing:** an empty body with `Connection: close`. This is `400` for
+  a malformed request line, header or `Content-Length` (`abc`, `-5`), conflicting
+  `Content-Length` headers (identical duplicates are accepted), an unsupported
+  `Transfer-Encoding` or an unsupported HTTP version; `414` for an over-long request target; and
+  `431` for a head over exactly 16 KiB or with more than 100 headers. hyper does not check `Host`:
+  a malformed `Host` is not rejected before routing and reaches the router like any other request.
+  No handler sees these requests, so nothing can attach the envelope, and a browser's `fetch` or
+  `XMLHttpRequest` cannot send them
   ([technical-stack/backend.md §3](technical-stack/backend.md#3-middleware-chain-order)).
-
-  > **Rust implementation (from the cutover):** these are hyper's answers, each with an empty body:
-  > a `400` for a malformed request line, header or `Content-Length`, conflicting `Content-Length`
-  > headers, an unsupported `Transfer-Encoding` (no more `501`) and an unsupported HTTP version (no
-  > more `505`); `414` for an over-long request target; and `431` for a head over exactly 16 KiB or
-  > with more than 100 headers. hyper does not check `Host`: a malformed `Host` is not rejected
-  > before routing and reaches the router like any other request.
-  > ([rust-port.md](../rust-port.md#intended-differences-from-go), row 6.)
 - **WebSocket handshake with a foreign `Origin`:** a plain `403` with no body. A browser's
   WebSocket API cannot read the handshake status, so an envelope would tell nobody anything.
 
@@ -288,12 +278,10 @@ Two kinds of response have no envelope:
 
 - **Caching.** Every `/api/v1` response and `/metrics` MUST carry `Cache-Control: no-store`. SPA
   assets with content-hashed names are served with `Cache-Control: public, max-age=31536000,
-  immutable`; `index.html` with `Cache-Control: no-cache`.
-
-  > **Rust implementation (from the cutover):** the SPA's routes also answer `HEAD`, a file with an
-  > extension outside the fixed content-type table is served as `application/octet-stream`, and a
-  > request with more than one range gets `200` with the whole file.
-  > ([rust-port.md](../rust-port.md#intended-differences-from-go), row 12.)
+  immutable`; `index.html` with `Cache-Control: no-cache`. The SPA's routes answer `GET` and
+  `HEAD`; a file with an extension outside the fixed content-type table is served as
+  `application/octet-stream`, and a request with more than one range gets `200` with the whole
+  file.
 - **CORS.** The native API is same-origin: the SPA is served by the same binary. By default no CORS
   headers are sent. Origins listed in `server.cors.allowed_origins` receive
   `Access-Control-Allow-Origin: <origin>`, `Vary: Origin`, `Access-Control-Allow-Methods: GET, POST,
@@ -350,19 +338,12 @@ Limits are per client IP (§1) and held in a bounded in-memory table
   gated.
 - `GET` only, mounted under `server.base_path`; any other method answers a plain `405` with
   `Allow: GET`. The endpoint is not rate-limited (§9).
-- The format is negotiated from `Accept`: the Prometheus text exposition by default, OpenMetrics
-  when the scraper asks for it. The response is never compressed and carries
-  `Cache-Control: no-store` and `X-Content-Type-Options: nosniff`.
-
-  > **Rust implementation (from the cutover):** the response is OpenMetrics text only, whatever
-  > `Accept` says, without the Go runtime and process metrics; `bitgauge_build_info` has no
-  > `goversion` label. Since nothing varies with `Accept`, the response has no `Vary: Accept`, and
-  > it is sent with a `Content-Length` rather than chunked. Family names, types, labels and buckets
-  > are kept.
-  > ([rust-port.md](../rust-port.md#intended-differences-from-go), row 5.)
+- The response is OpenMetrics text only, whatever `Accept` says; since nothing varies with
+  `Accept`, it has no `Vary: Accept`. It is sent as one body with a `Content-Length`, never
+  compressed, and carries `Cache-Control: no-store` and `X-Content-Type-Options: nosniff`.
 - Exposes server-side counters only: requests and bytes per route group, active streams, client
-  aborts, rate-limit rejections, upload lifetime timeouts, WebSocket connections, build
-  information, Go runtime and process metrics. No per-client label, no client IP, and no measured
+  aborts, rate-limit rejections, upload lifetime timeouts, WebSocket connections and build
+  information; no runtime or process metrics. No per-client label, no client IP, and no measured
   result ever appears, because results never reach the server. The metric set, its labels and its
   buckets are in [technical-stack/backend.md
   §7](technical-stack/backend.md#7-prometheus-metric-set).

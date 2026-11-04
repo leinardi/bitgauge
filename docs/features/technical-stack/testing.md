@@ -6,21 +6,37 @@ BitGauge's product is its methodology, so most of the testing effort goes into p
 deterministic engine tests with synthetic timelines, and an accuracy harness that compares real
 browser runs with iperf3 over shaped links.
 
-## 1. Go Handler Tests
+The Rust tests live in three places of the Cargo workspace:
 
-Table-driven `net/http/httptest` tests per package, run with `go test -race ./...`:
+- **The `bitgauge` package:** unit tests beside each module (`src/**/tests.rs` and
+  `src/**/tests/`) and integration tests under `tests/`, run with `cargo test --workspace --locked`
+  (`make rust-test`), which also runs the meta-tests. They need no Docker.
+- **The `meta` crate** (`meta/tests/`): the repository meta-tests, among them the docs link and
+  facts check, the lint exemptions, the production dependency graph and the license headers.
+- **The `testenv` crate:** the Docker suites, compiled only with a feature. `image` builds the
+  image suite and the netguard tests, run by `make rust-test-image`; `harness` builds the accuracy
+  harness runners, run by `make harness-ci` and the other harness targets (§5). Every Docker suite
+  names the implementation it tests, `BITGAUGE_TEST_IMPL=rust`, with no default, and fails before
+  any test when the image is not that implementation at the expected commit.
+
+## 1. Server Tests
+
+`#[test]` and `#[tokio::test]` tests per module; where a test needs a fake clock it runs on a
+paused tokio clock, which the server's clock follows:
 
 - **download:** exact byte count and `Content-Length`; no `Content-Encoding`; `no-store`; `400` for
-  missing, zero, negative, non-integer and over-cap `bytes`; buffer wrap-around; no allocation per
-  request (`testing.AllocsPerRun`); a client that stops reading is disconnected by the per-write
-  deadline.
+  missing, zero, negative, non-integer and over-cap `bytes`; buffer wrap-around; every frame a
+  slice of the shared buffer, so there is no per-request data buffer; a client that stops reading
+  is disconnected by the 30 s stall rule, which the connection holds on every response and on an
+  upgraded socket.
 - **upload:** body drained before the response; `411` without `Content-Length`; `413` over the cap
-  without reading; a lying `Content-Length` bounded by `MaxBytesReader`; grid counts with a fake
-  monotonic clock (reads in known cells, `firstBucket = floor(startMs / 100)`, `Σ buckets == bytes`,
+  without reading; a lying `Content-Length` bounded by the per-frame cap check; grid counts on the
+  paused clock (frames in known cells, `firstBucket = floor(startMs / 100)`, `Σ buckets == bytes`,
   at most 1201 entries); `Server-Timing` value equals `durationMs`; `408` with no telemetry after
-  the 120 s lifetime (fake clock); epoch stable within a process and different across instances.
-- **ping / small:** `204` and `200` with one byte; no allocation.
-- **ws:** echo of `seq` and `t`; 1009 above 256 bytes, 1003 on binary, 1007 on malformed JSON;
+  the 120 s lifetime (paused clock); epoch stable within a process and different across instances.
+- **ping / small:** `204` and `200` with one byte; no per-request data buffer.
+- **ws:** echo of `seq` and `t` byte for byte; 1009 above 256 bytes, 1003 on binary, 1007 on
+  malformed JSON, a duplicate key, a top-level `null` and invalid UTF-8;
   `403` for a foreign `Origin`, accepted for same host and port with a different scheme, for an
   allowed origin and for no `Origin`; `429` for the fifth connection; idle close after 120 s.
 - **info:** field shapes against the OpenAPI schema; address class and suggested label for each
@@ -39,21 +55,13 @@ Table-driven `net/http/httptest` tests per package, run with `go test -race ./..
 - **server:** middleware order, security headers per group, graceful shutdown closing WebSockets
   with 1001, `healthcheck` exit codes.
 - **metrics:** every metric name, type and label set of [backend.md
-  §7](backend.md#7-prometheus-metric-set) against a gathered registry; every rate-limit refusal
-  mapped to its `limit`; transfer bytes, aborts and upload timeouts counted by the handlers that
-  cause them, with the download and probe allocation tests unchanged; the endpoint `404` when
-  disabled and `200` when enabled, a plain `405` with `Allow: GET` for another method,
-  `Cache-Control: no-store` and `X-Content-Type-Options: nosniff`, no `Content-Encoding` when the
-  scraper sends `Accept-Encoding: gzip`, never rate-limited, mounted under `base_path`, and the
-  `group` label of each route owner.
-
-> **Rust implementation (from the cutover):** these become Rust `#[test]` and `#[tokio::test]`
-> tests, each naming the Go test it replaces, with a paused tokio clock where a fake clock is used.
-> The download and probe tests check that every frame is a slice of the shared buffer in place of
-> `testing.AllocsPerRun`; the stall test covers every response and an upgraded socket at the
-> connection level; ws also checks 1007 for a duplicate key, a top-level `null` and invalid UTF-8,
-> and the byte-for-byte echo; metrics reads OpenMetrics text with no `go_*` or `process_*` family.
-> ([rust-port.md](../../rust-port.md#intended-differences-from-go), rows 5, 7, 9, 11.)
+  §7](backend.md#7-prometheus-metric-set) against the encoded OpenMetrics text, with no `go_*` or
+  `process_*` family; every rate-limit refusal mapped to its `limit`; transfer bytes, aborts and
+  upload timeouts counted by the handlers that cause them, with the download and probe buffer tests
+  unchanged; the endpoint `404` when disabled and `200` when enabled, a plain `405` with
+  `Allow: GET` for another method, `Cache-Control: no-store` and `X-Content-Type-Options: nosniff`,
+  no `Content-Encoding` when the scraper sends `Accept-Encoding: gzip`, never rate-limited, mounted
+  under `base_path`, and the `group` label of each route owner.
 
 ## 2. Engine Tests With Synthetic Timelines
 
@@ -135,7 +143,8 @@ vitest with `@vue/test-utils` and jsdom:
 
 ## 4. Playwright End-to-End
 
-Run against the real binary (built image or `go run`) on **Chromium, Firefox and WebKit**:
+Run against the real binary (the built image or the release binary `make rust-bin` builds) on
+**Chromium, Firefox and WebKit**:
 
 - The nine flows of [../ui/flows.md](../ui/flows.md): first run, auto-run from URL, slow mobile VPN
   run (with a shaped link), cancel mid-test, error mid-test (server stopped), history review and
@@ -341,12 +350,13 @@ and anything about networks the project does not target.
 
 ### 5.1 Implementation
 
-- **Location.** Go tests in `test/harness/` drive the topology over the Docker CLI on the host
-  daemon; the browser side is a Playwright driver in `web/harness/` that opens the URL with the
-  preset's parameters, waits for the result and downloads its JSON. Pure logic (the profile table,
-  report rendering) is untagged and runs with `go test ./...`; the runners build with
-  `-tags=harness`. Shared pieces live in `test/internal/testenv` (environment IDs, labels, scoped
-  cleanup) and `test/internal/netguard`.
+- **Location.** The runners of the `testenv` crate (`testenv/tests/harness/`, built with the
+  `harness` feature) drive the topology over the Docker CLI on the host daemon; the browser side is
+  a Playwright driver in `web/harness/` that opens the URL with the preset's parameters, waits for
+  the result and downloads its JSON. Pure logic (the profile table, report rendering, under
+  `testenv/src/harness/`) needs no feature and runs with `cargo test`. Shared pieces live in
+  `testenv/src/` (environment IDs, labels, scoped cleanup, netguard). Every harness target requires
+  `BITGAUGE_TEST_IMPL=rust` and builds the shipped image first.
 - **Preflight.** A runner refuses a daemon it cannot trust before it builds BitGauge's image or
   starts a topology; a refusal fails the invocation, never skips it. The client's CPU and memory
   are its container's own cgroup v2 counters, and a daemon without per-container cgroups (a
@@ -417,7 +427,7 @@ and anything about networks the project does not target.
 
 | Suite | Where | When |
 | --- | --- | --- |
-| Go tests, lint, govulncheck | `ci.yaml` | every PR and push |
+| Rust tests and meta-tests, rustfmt, clippy, cargo-deny | `ci.yaml` | every PR and push |
 | Engine and component tests (vitest), ESLint, `vue-tsc` | `ci.yaml` | every PR and push |
 | Playwright E2E (three browsers) | `ci.yaml` | every PR and push |
 | Accuracy harness, CI tier | `harness.yaml`, dispatched by hand, or `make harness-ci`; a nightly schedule may be added once the repository is public ([going-public.md §3](../../engineering/going-public.md#3-restore-the-scheduled-scan)) | by hand, and before each release |

@@ -569,7 +569,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OpenMetrics text (application/openmetrics-text; version=1.0.0; charset=utf-8), whatever the Accept header says, from the Rust implementation (from the cutover). Until the cutover the Go binary negotiates: the Prometheus text exposition (text/plain) by default, OpenMetrics when the Accept header asks for it. */
+            /** @description OpenMetrics text (application/openmetrics-text; version=1.0.0; charset=utf-8), whatever the Accept header says. */
             200: {
                 headers: {
                     "Cache-Control": components["headers"]["CacheControlNoStore"];

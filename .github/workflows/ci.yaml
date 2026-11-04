@@ -18,10 +18,9 @@ permissions:
   contents: read
 
 jobs:
-  # The authoritative lint gate: every pre-commit hook over every file. The Go test hooks are skipped
-  # because the go-test job below runs the product tests with -race, and repo-gates the meta-tests
-  # with every tool installed; cargo-test and cargo-deny (which needs the network) because the rust
-  # job runs them.
+  # The authoritative lint gate: every pre-commit hook over every file. The meta-tests hook is
+  # skipped because repo-gates runs the meta-tests with every tool installed; cargo-test and
+  # cargo-deny (which needs the network) because the rust job runs them.
   pre-commit-all:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -29,13 +28,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version-file: .go-version
-          check-latest: true
-          cache: false
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -81,11 +73,11 @@ jobs:
 
       - name: Run every pre-commit hook on every file
         env:
-          SKIP: go-test-product,meta-tests,cargo-test,cargo-deny
+          SKIP: meta-tests,cargo-test,cargo-deny
         run: pre-commit run --all-files --show-diff-on-failure
 
       # pre-commit fails a hook that modifies a tracked file, which covers the auto-fixing hooks
-      # (markdownlint fix, prettier, golangci-lint fmt); this also fails on a file a hook creates,
+      # (markdownlint fix, prettier); this also fails on a file a hook creates,
       # which its diff check does not see, so no fix can pass silently.
       - name: Fail if a hook modified a file
         run: |
@@ -129,13 +121,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version-file: .go-version
-          check-latest: true
-          cache: false
-
       # droast's ShellCheck bridge runs the shellcheck on PATH: the pinned one, not the runner's.
       - name: Set up ShellCheck
         uses: ./.github/actions/setup-shellcheck
@@ -155,9 +140,6 @@ jobs:
             check-toml
             check-added-large-files
             droast
-            golangci-lint-config-verify
-            golangci-lint-fmt
-            golangci-lint-full
 
   markdownlint:
     if: github.event_name == 'pull_request'
@@ -240,8 +222,8 @@ jobs:
           from-ref: ${{ github.event.pull_request.base.sha }}
           to-ref: ${{ github.event.pull_request.head.sha }}
 
-  # The meta-tests under test/, with the tools they drive: a missing golangci-lint, eslint or fallow
-  # fails here (BITGAUGE_REQUIRE_TOOLS=1) instead of skipping, and the activation registry runs.
+  # The meta-tests (the meta crate), with the tools they drive: a missing eslint or fallow fails here
+  # (BITGAUGE_REQUIRE_TOOLS=1) instead of skipping.
   repo-gates:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -250,17 +232,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
-          go-version-file: .go-version
-          check-latest: true
-          cache: false
+          toolchain: 1.98.1
 
-      # The binary build gate: cmd/bitgauge must build with the release flags.
-      - name: Build the binary
-        id: go-build
-        run: make go-build
+      - name: Cache the Rust build
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          save-if: ${{ github.event_name == 'pull_request' }}
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -272,18 +252,12 @@ jobs:
       - name: Install web dependencies
         run: npm ci --prefix web
 
-      # The version is the golangci-lint rev in .pre-commit-config.yaml; test/toolchain/pins_test.go
-      # holds the two together.
-      - name: Install golangci-lint
-        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
-        with:
-          install-only: true
-          version: v2.14.0
-
+      # BITGAUGE_REQUIRE_TOOLS: the gated tools (testenv::toolgate) are installed here, so a test
+      # that would skip for a missing one fails instead.
       - name: Run the repository meta-tests
         env:
           BITGAUGE_REQUIRE_TOOLS: "1"
-        run: go test ./test/...
+        run: cargo test --locked -p meta
 
   # The release workflow's helper scripts, tested with a stub gh: no network, no token. They are
   # live before release.yaml exists, so a change to them is tested when it is made.
@@ -301,19 +275,24 @@ jobs:
       - name: Test recover-toolchains.sh
         run: bash .github/scripts/recover-toolchains.test.sh
 
-  # Defined in go-test.yaml so go-cache-warmup runs the identical job on main and saves the cache
-  # that pull requests restore.
-  go-test:
-    uses: ./.github/workflows/go-test.yaml
+  # The workspace checks and the static release builds, defined in rust.yaml so the release workflow
+  # runs the identical jobs at the commit it releases.
+  rust:
+    uses: ./.github/workflows/rust.yaml
     permissions:
       contents: read
 
-  # The Rust workspace, built beside the Go module until the cutover (docs/rust-port.md): format,
-  # clippy over every target and feature, the tests (the Rust meta-tests included), the
-  # documentation and cargo-deny. The toolchain is the one rust-toolchain.toml pins.
-  rust:
+  # Defined in web.yaml so web-cache-warmup runs the identical job on main and saves the cache that
+  # pull requests restore.
+  web:
+    uses: ./.github/workflows/web.yaml
+    permissions:
+      contents: read
+
+  # cargo deny over the workspace's graph and npm audit of web/ (build-packaging.md section 4).
+  audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
@@ -323,60 +302,9 @@ jobs:
         uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
           toolchain: 1.98.1
-          components: clippy, rustfmt
-          targets: x86_64-unknown-linux-musl, aarch64-unknown-linux-musl
 
-      - name: Cache the Rust build
-        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-        with:
-          save-if: ${{ github.event_name == 'pull_request' }}
-
-      - name: Check formatting
-        run: make rust-fmt-check
-
-      # --all-features: the code behind testenv's Docker features is linted too.
-      - name: Lint with clippy
-        run: make rust-clippy
-
-      - name: Run the tests
-        run: make rust-test
-
-      - name: Check the Rust documentation
-        run: make rust-doc
-
-      - name: Check dependencies with cargo-deny
-        uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
-        with:
-          # The root is a package as well as the workspace, so without --workspace cargo-deny
-          # would check the server's graph only, not the meta and testenv crates.
-          arguments: --workspace
-          command: check
-
-  # Defined in web.yaml so web-cache-warmup runs the identical job on main and saves the cache that
-  # pull requests restore.
-  web:
-    uses: ./.github/workflows/web.yaml
-    permissions:
-      contents: read
-
-  # govulncheck over every Go package and npm audit of web/ (build-packaging.md section 4).
-  audit:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      # check-latest: .go-version names only the 1.26 line, and without it setup-go takes whatever
-      # 1.26 patch the runner image has cached, which can lag the newest release by weeks; every
-      # setup-go here sets it, so the code is built, tested and audited on the newest patch.
-      - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version-file: .go-version
-          check-latest: true
-          cache: false
+      - name: Set up cargo-deny
+        uses: ./.github/actions/setup-cargo-deny
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -435,17 +363,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
-          go-version-file: .go-version
-          check-latest: true
-          cache: false
+          toolchain: 1.98.1
+
+      - name: Cache the Rust build
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          save-if: ${{ github.event_name == 'pull_request' }}
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
-      # The build stages pull dhi.io/golang and dhi.io/node, the runtime stage dhi.io/static.
+      # The build stages pull dhi.io/rust and dhi.io/node, the runtime stage dhi.io/static.
       - name: Log in to Docker Hardened Images (dhi.io)
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
@@ -462,11 +393,10 @@ jobs:
             -f deployments/docker/Dockerfile \
             .
 
-      - name: Build the host-platform image
-        run: make docker-build
-
+      # Builds the host-platform image as bitgauge:test, checks its identity (the Rust build at this
+      # commit, holding the binary it copies out) and runs the image suite and the netguard tests.
       - name: Test the image
-        run: make go-test-image
+        run: make rust-test-image BITGAUGE_TEST_IMPL=rust
 
   # The accuracy harness is not part of CI: it takes up to two hours, so it runs by hand
   # (harness.yaml, workflow_dispatch, or make harness-ci) and before a release.
@@ -482,12 +412,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
-          go-version-file: .go-version
-          check-latest: true
-          cache: false
+          toolchain: 1.98.1
+
+      - name: Cache the Rust build
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          save-if: ${{ github.event_name == 'pull_request' }}
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -541,7 +474,6 @@ jobs:
       - conventional-commits
       - repo-gates
       - release-scripts
-      - go-test
       - rust
       - audit
       - web

@@ -23,8 +23,8 @@
 ifndef MK_LOCAL_RUST_INCLUDED
 MK_LOCAL_RUST_INCLUDED := 1
 
-# Local snippet (NOT part of make-common): the Rust workspace, built beside the Go module until the
-# cutover (docs/rust-port.md). Every lint and test command runs workspace-wide, so the meta and
+# Local snippet (NOT part of make-common): the Rust workspace, the server and its test crates
+# (docs/rust-port.md). Every lint and test command runs workspace-wide, so the meta and
 # testenv crates are held to the same lints and tests as the server: the lint set lives once in the
 # root [workspace.lints], and a command scoped to one package would leave the others unchecked.
 # --locked everywhere: Cargo.lock is the pin, and a command that rewrote it would test a dependency
@@ -35,7 +35,7 @@ MK_LOCAL_RUST_INCLUDED := 1
 CARGO ?= cargo
 
 # The version stamps the binary reads at compile time (BITGAUGE_VERSION, _COMMIT, _DATE), the same
-# values the Go build stamps (GIT_VERSION and GIT_COMMIT in the Makefile, BUILD_DATE in go.mk).
+# values the image and the release stamp (GIT_VERSION, GIT_COMMIT and BUILD_DATE in the Makefile).
 # Only the builds stamp, so the tests see the defaults.
 RUST_VERSION_ENV = \
   BITGAUGE_VERSION="$(GIT_VERSION)" \
@@ -71,19 +71,15 @@ rust-deny: ## Check the Rust dependencies with cargo-deny (advisories, licenses,
 	$(CARGO) deny --workspace check
 
 # The release binary, with the SPA web-build leaves in web/dist embedded (build.rs makes cargo
-# re-embed it whenever it changes). make e2e BIN=$(RUST_BIN) runs the end-to-end suite against it.
-RUST_BIN ?= $(REPO_ROOT)/target/release/bitgauge
+# re-embed it whenever it changes), copied to dist/bitgauge, the binary make e2e, make run and the
+# end-to-end fixtures (web/e2e/fixtures/server.ts) start.
+RUST_BIN ?= $(REPO_ROOT)/$(DIST_DIR)/$(BIN_NAME)
 
 .PHONY: rust-bin
-rust-bin: web-build ## Build the web app, then the release Rust binary that embeds it, with the version stamps
-	$(RUST_VERSION_ENV) $(CARGO) build --release --locked --bin bitgauge
-
-.PHONY: rust-run
-rust-run: rust-bin ## Build the web app and the Rust binary, then serve them on the LAN until Ctrl+C (RUN_BIND, RUN_PORT, ARGS)
-	@echo "BitGauge (Rust): http://$(RUN_BIND):$(RUN_PORT)/"
-	BITGAUGE_SERVER__LISTEN="$(RUN_BIND):$(RUN_PORT)" \
-	  BITGAUGE_LOG__LEVEL="$(RUN_LOG_LEVEL)" \
-	  "$(RUST_BIN)" serve $(ARGS)
+rust-bin: web-build ## Build the web app, then the release binary that embeds it, with the version stamps, into dist/
+	$(RUST_VERSION_ENV) $(CARGO) build --release --locked --bin $(BIN_NAME)
+	mkdir -p "$(dir $(RUST_BIN))"
+	cp "$(REPO_ROOT)/target/release/$(BIN_NAME)" "$(RUST_BIN)"
 
 .PHONY: verify-rust
 verify-rust: rust-build rust-fmt-check rust-clippy rust-test rust-doc ## Verify the Rust code (build, fmt, clippy, tests, docs)

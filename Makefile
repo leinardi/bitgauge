@@ -26,7 +26,7 @@ MK_COMMON_VERSION ?= v1
 MK_COMMON_DIR := $(REPO_ROOT)/.mk
 
 # Shared snippets coming from make-common
-MK_COMMON_FILES := docker.mk help.mk go.mk pre-commit.mk web.mk parity.mk
+MK_COMMON_FILES := docker.mk help.mk pre-commit.mk web.mk parity.mk
 
 # Repo-local snippets that are NOT in make-common
 MK_LOCAL_FILES := run.mk e2e.mk verify.mk rust.mk rust-release.mk audit-deps.mk docker-run.mk image-test.mk harness.mk idle-measure.mk
@@ -45,23 +45,18 @@ MK_COMMON_BOOTSTRAP := $(shell "$(MK_COMMON_BOOTSTRAP_SCRIPT)" \
 # -----------------------------------------------------------------------------
 BIN_NAME ?= bitgauge
 DIST_DIR ?= dist
-GO_PKG   ?= ./...
-GO_CMD   ?= ./cmd/bitgauge
 
-# Stamped the way release.yaml stamps a release, overriding go.mk's git describe defaults: the
-# version is the tag without its v only when HEAD is exactly a tag and the tree is clean, and
-# otherwise dev, what an unstamped binary reports (internal/buildinfo); the commit is a fixed
-# 7-character prefix. A local build's About screen then reads "dev · 34c88f5 · <date>" instead of
-# repeating the commit in the version.
+# Stamped the way release.yaml stamps a release: the version is the tag without its v only when
+# HEAD is exactly a tag and the tree is clean, and otherwise dev, what an unstamped binary reports
+# (src/buildinfo.rs); the commit is a fixed 7-character prefix; the date is the build's, in UTC. A
+# local build's About screen then reads "dev · 34c88f5 · <date>". rust.mk hands the three to the
+# binary as BITGAUGE_VERSION, BITGAUGE_COMMIT and BITGAUGE_DATE, docker.mk to the image.
 GIT_VERSION ?= $(or $(patsubst v%,%,$(filter-out %-dirty,$(shell git describe --tags --exact-match --dirty 2>/dev/null))),dev)
 GIT_COMMIT  ?= $(or $(shell git rev-parse HEAD 2>/dev/null | cut -c1-7),none)
+BUILD_DATE  ?= $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-# The binary reads its build from internal/buildinfo, not from package main, so the version is
-# stamped there. Recursive (=) because GIT_VERSION and friends are defined by go.mk, included below.
-GO_LDFLAGS = -s -w \
-  -X github.com/leinardi/bitgauge/internal/buildinfo.version=$(GIT_VERSION) \
-  -X github.com/leinardi/bitgauge/internal/buildinfo.commit=$(GIT_COMMIT) \
-  -X github.com/leinardi/bitgauge/internal/buildinfo.date=$(BUILD_DATE)
+# What `make build` builds once web.mk has built the app: the Rust workspace, which embeds it.
+WEB_BUILD_NEXT := rust-build
 
 # Docker image coordinates: one image, built from the shipped Dockerfile.
 IMAGE_REPO     ?= ghcr.io/leinardi/bitgauge
@@ -84,7 +79,7 @@ PARITY_PROTOTYPE_PAGE := ui_kits/app/index.html
 PARITY_DEMO_PORT ?= 5182
 PARITY_PROTO_PORT ?= 5183
 
-# Drop-in runtime defaults for `make go-run`
+# The arguments `make run` hands to serve.
 ARGS ?=
 
 # -----------------------------------------------------------------------------

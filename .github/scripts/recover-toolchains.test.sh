@@ -18,11 +18,12 @@
 # along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# Tests for recover-toolchains.sh. Plain bash, no network: stub go, node and curl lead a temporary
-# PATH. The stub go answers the newer default patch unless GOTOOLCHAIN is exported to it, and the
-# stub node on PATH answers the newer default too; only the node inside the unpacked tarball answers
-# the recorded version, so a switch counts only when the script selected both in its own process.
-# The stub curl serves the tarball and SHASUMS256.txt from a fixture directory, per Node version.
+# Tests for recover-toolchains.sh. Plain bash, no network: stub rustc, rustup, node and curl lead a
+# temporary PATH. The stub rustc answers the newer default release unless RUSTUP_TOOLCHAIN is
+# exported to it, and the stub node on PATH answers the newer default too; only the node inside the
+# unpacked tarball answers the recorded version, so a switch counts only when the script selected
+# both in its own process. The stub rustup logs what it is asked to install. The stub curl serves the
+# tarball and SHASUMS256.txt from a fixture directory, per Node version.
 #
 # Run: bash .github/scripts/recover-toolchains.test.sh
 
@@ -32,11 +33,11 @@ here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 script="$here/recover-toolchains.sh"
 
 # The test must not inherit a switch from the shell that runs it.
-unset GOTOOLCHAIN GITHUB_ENV GITHUB_PATH
+unset RUSTUP_TOOLCHAIN GITHUB_ENV GITHUB_PATH
 
-default_go=go1.26.9
+default_rust=1.99.0
 default_node=v24.99.0
-recorded_go=go1.26.3
+recorded_rust=1.98.1
 recorded_node=v24.1.0
 
 work=$(mktemp -d)
@@ -44,20 +45,33 @@ trap 'rm -rf "$work"' EXIT
 
 mkdir "$work/bin" "$work/fixtures"
 
-cat >"$work/bin/go" <<'STUB'
+cat >"$work/bin/rustc" <<'STUB'
 #!/usr/bin/env bash
-# Stub go: `go version` prints GOTOOLCHAIN when it is exported (unless STUB_GO_IGNORES_TOOLCHAIN
-# is set, a toolchain switch that does not take), and the default patch otherwise.
+# Stub rustc: `rustc --version` prints RUSTUP_TOOLCHAIN when it is exported (unless
+# STUB_RUST_IGNORES_TOOLCHAIN is set, a toolchain switch that does not take), and the default
+# release otherwise.
 set -euo pipefail
-if [ "$*" != "version" ]; then
-	echo "stub go: unexpected call: $*" >&2
+if [ "$*" != "--version" ]; then
+	echo "stub rustc: unexpected call: $*" >&2
 	exit 98
 fi
-version=$STUB_GO_DEFAULT
-if [ -n "${GOTOOLCHAIN:-}" ] && [ -z "${STUB_GO_IGNORES_TOOLCHAIN:-}" ]; then
-	version=$GOTOOLCHAIN
+version=$STUB_RUST_DEFAULT
+if [ -n "${RUSTUP_TOOLCHAIN:-}" ] && [ -z "${STUB_RUST_IGNORES_TOOLCHAIN:-}" ]; then
+	version=$RUSTUP_TOOLCHAIN
 fi
-echo "go version $version linux/amd64"
+echo "rustc $version (0000000000 2026-01-01)"
+STUB
+
+cat >"$work/bin/rustup" <<'STUB'
+#!/usr/bin/env bash
+# Stub rustup: logs every call to STUB_RUSTUP_LOG, and fails like a failed download when
+# STUB_RUSTUP_FAILS is set.
+set -euo pipefail
+echo "$*" >>"$STUB_RUSTUP_LOG"
+if [ -n "${STUB_RUSTUP_FAILS:-}" ]; then
+	echo "error: could not download the toolchain" >&2
+	exit 1
+fi
 STUB
 
 cat >"$work/bin/node" <<'STUB'
@@ -105,12 +119,13 @@ fi
 cp "$STUB_FIXTURES/$path" "$out"
 STUB
 
-chmod +x "$work/bin/go" "$work/bin/node" "$work/bin/curl"
+chmod +x "$work/bin/rustc" "$work/bin/rustup" "$work/bin/node" "$work/bin/curl"
 
 export PATH="$work/bin:$PATH"
 export STUB_LOG="$work/curl.log"
 export STUB_FIXTURES="$work/fixtures"
-export STUB_GO_DEFAULT="$default_go"
+export STUB_RUSTUP_LOG="$work/rustup.log"
+export STUB_RUST_DEFAULT="$default_rust"
 export STUB_NODE_DEFAULT="$default_node"
 
 # release <version> <prints> builds the fixture of a Node release whose bin/node prints <prints>,
@@ -159,6 +174,7 @@ run() {
 	: >"$work/github_env"
 	: >"$work/github_path"
 	: >"$STUB_LOG"
+	: >"$STUB_RUSTUP_LOG"
 	status=0
 	out=$(GITHUB_ENV="$work/github_env" GITHUB_PATH="$work/github_path" \
 		"$script" "$work/annotation" "$work/install" 2>&1) || status=$?
@@ -176,7 +192,7 @@ expect_nothing_persisted() {
 }
 
 annotation() {
-	printf 'bitgauge v1.2.3\n\nGo: %s\nNode: %s\n' "$1" "$2"
+	printf 'bitgauge v1.2.3\n\nRust: %s\nNode: %s\n' "$1" "$2"
 }
 
 # A fresh release: no annotation, nothing fetched, nothing persisted.
@@ -198,7 +214,7 @@ fi
 expect_nothing_persisted "an annotation without versions persists nothing"
 
 # The recorded versions are already the current ones: nothing to switch.
-STUB_GO_DEFAULT=$recorded_go STUB_NODE_DEFAULT=$recorded_node run "$(annotation "$recorded_go" "$recorded_node")"
+STUB_RUST_DEFAULT=$recorded_rust STUB_NODE_DEFAULT=$recorded_node run "$(annotation "$recorded_rust" "$recorded_node")"
 if [ "$status" -eq 0 ] && [ ! -s "$STUB_LOG" ]; then
 	pass "recorded versions already current is a no-op"
 else
@@ -207,21 +223,27 @@ fi
 expect_nothing_persisted "recorded versions already current persist nothing"
 
 # The newer patch is the default; the recorded versions are selected, checked and persisted.
-run "$(annotation "$recorded_go" "$recorded_node")"
+run "$(annotation "$recorded_rust" "$recorded_node")"
 if [ "$status" -eq 0 ]; then
 	pass "a newer default patch is switched to the recorded versions"
 else
 	fail_case "a newer default patch is switched to the recorded versions" "exit $status, output [$out]"
 fi
-if grep -qF "Recorded: $recorded_go and Node $recorded_node." <<<"$out"; then
+if grep -qF "Recorded: Rust $recorded_rust and Node $recorded_node." <<<"$out"; then
 	pass "the annotation is parsed"
 else
 	fail_case "the annotation is parsed" "output [$out]"
 fi
-if [ "$persisted_env" = "GOTOOLCHAIN=$recorded_go" ]; then
-	pass "GITHUB_ENV holds exactly GOTOOLCHAIN=$recorded_go"
+if [ "$persisted_env" = "RUSTUP_TOOLCHAIN=$recorded_rust" ]; then
+	pass "GITHUB_ENV holds exactly RUSTUP_TOOLCHAIN=$recorded_rust"
 else
-	fail_case "GITHUB_ENV holds exactly GOTOOLCHAIN=$recorded_go" "got [$persisted_env]"
+	fail_case "GITHUB_ENV holds exactly RUSTUP_TOOLCHAIN=$recorded_rust" "got [$persisted_env]"
+fi
+want_rustup="toolchain install $recorded_rust --profile minimal --target x86_64-unknown-linux-musl --target aarch64-unknown-linux-musl"
+if [ "$(cat "$STUB_RUSTUP_LOG")" = "$want_rustup" ]; then
+	pass "rustup installs the recorded release with both musl targets"
+else
+	fail_case "rustup installs the recorded release with both musl targets" "calls [$(cat "$STUB_RUSTUP_LOG")]"
 fi
 want_path="$work/install/node-$recorded_node-linux-x64/bin"
 if [ "$persisted_path" = "$want_path" ] && [ "$("$persisted_path/node")" = "$recorded_node" ]; then
@@ -238,32 +260,41 @@ else
 fi
 
 # The stubs prove what the script relies on: neither answers the recorded version by itself.
-if [ "$(go version | awk '{print $3}')" = "$default_go" ] && [ "$(node --version)" = "$default_node" ]; then
-	pass "without the switch, go and node answer the newer default"
+if [ "$(rustc --version | awk '{print $2}')" = "$default_rust" ] && [ "$(node --version)" = "$default_node" ]; then
+	pass "without the switch, rustc and node answer the newer default"
 else
-	fail_case "without the switch, go and node answer the newer default" "the stubs answer the recorded version unasked"
+	fail_case "without the switch, rustc and node answer the newer default" "the stubs answer the recorded version unasked"
 fi
 
 # The annotation records more than one version of a tool, or one tool only: malformed.
-run "$(annotation "$recorded_go" "$recorded_node")
-Go: go1.26.4"
-if [ "$status" -ne 0 ] && grep -qF "more than one version for Go" <<<"$out"; then
-	pass "two Go versions fail"
+run "$(annotation "$recorded_rust" "$recorded_node")
+Rust: 1.98.2"
+if [ "$status" -ne 0 ] && grep -qF "more than one version for Rust" <<<"$out"; then
+	pass "two Rust versions fail"
 else
-	fail_case "two Go versions fail" "exit $status, output [$out]"
+	fail_case "two Rust versions fail" "exit $status, output [$out]"
 fi
-expect_nothing_persisted "two Go versions persist nothing"
+expect_nothing_persisted "two Rust versions persist nothing"
 
-run "$(printf 'bitgauge v1.2.3\n\nGo: %s\n' "$recorded_go")"
-if [ "$status" -ne 0 ] && grep -qF "only one of the Go and Node versions" <<<"$out"; then
-	pass "a Go version without a Node version fails"
+run "$(printf 'bitgauge v1.2.3\n\nRust: %s\n' "$recorded_rust")"
+if [ "$status" -ne 0 ] && grep -qF "only one of the Rust and Node versions" <<<"$out"; then
+	pass "a Rust version without a Node version fails"
 else
-	fail_case "a Go version without a Node version fails" "exit $status, output [$out]"
+	fail_case "a Rust version without a Node version fails" "exit $status, output [$out]"
 fi
-expect_nothing_persisted "a Go version without a Node version persists nothing"
+expect_nothing_persisted "a Rust version without a Node version persists nothing"
+
+# A recorded Rust release rustup cannot install.
+STUB_RUSTUP_FAILS=1 run "$(annotation "$recorded_rust" "$recorded_node")"
+if [ "$status" -ne 0 ]; then
+	pass "a failed Rust install fails"
+else
+	fail_case "a failed Rust install fails" "exit $status, output [$out]"
+fi
+expect_nothing_persisted "a failed Rust install persists nothing"
 
 # The tarball does not match SHASUMS256.txt.
-run "$(annotation "$recorded_go" v24.3.0)"
+run "$(annotation "$recorded_rust" v24.3.0)"
 if [ "$status" -ne 0 ] && grep -qF "but SHASUMS256.txt of Node v24.3.0 lists" <<<"$out"; then
 	pass "a checksum mismatch fails"
 else
@@ -272,7 +303,7 @@ fi
 expect_nothing_persisted "a checksum mismatch persists nothing"
 
 # A release that cannot be downloaded.
-run "$(annotation "$recorded_go" v24.4.0)"
+run "$(annotation "$recorded_rust" v24.4.0)"
 if [ "$status" -ne 0 ]; then
 	pass "a failed download fails"
 else
@@ -281,7 +312,7 @@ fi
 expect_nothing_persisted "a failed download persists nothing"
 
 # Installed, but node prints another version than the recorded one.
-run "$(annotation "$recorded_go" v24.2.0)"
+run "$(annotation "$recorded_rust" v24.2.0)"
 if [ "$status" -ne 0 ] && grep -qF "node --version prints v24.0.0, not the recorded v24.2.0" <<<"$out"; then
 	pass "a Node version mismatch after installation fails"
 else
@@ -289,14 +320,14 @@ else
 fi
 expect_nothing_persisted "a Node version mismatch after installation persists nothing"
 
-# The Go toolchain switch does not take.
-STUB_GO_IGNORES_TOOLCHAIN=1 run "$(annotation "$recorded_go" "$recorded_node")"
-if [ "$status" -ne 0 ] && grep -qF "go version prints $default_go, not the recorded $recorded_go" <<<"$out"; then
-	pass "a Go version mismatch after the switch fails"
+# The Rust toolchain switch does not take.
+STUB_RUST_IGNORES_TOOLCHAIN=1 run "$(annotation "$recorded_rust" "$recorded_node")"
+if [ "$status" -ne 0 ] && grep -qF "rustc --version prints $default_rust, not the recorded $recorded_rust" <<<"$out"; then
+	pass "a Rust version mismatch after the switch fails"
 else
-	fail_case "a Go version mismatch after the switch fails" "exit $status, output [$out]"
+	fail_case "a Rust version mismatch after the switch fails" "exit $status, output [$out]"
 fi
-expect_nothing_persisted "a Go version mismatch after the switch persists nothing"
+expect_nothing_persisted "a Rust version mismatch after the switch persists nothing"
 
 # Usage errors.
 status=0

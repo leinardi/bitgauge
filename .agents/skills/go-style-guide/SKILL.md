@@ -12,9 +12,9 @@ description: >
 
 # Go Style Guide — BitGauge
 
-The linters are configured in [`.golangci.yaml`](../../../.golangci.yaml) (golangci-lint v2,
+The linters are configured in `.golangci.yaml` (removed at the Rust cutover) (golangci-lint v2,
 `default: all`;
-[decisions.md §9](../../../docs/features/technical-stack/decisions.md#9-lint-policy--golangci-lint-v2-with-default-all)).
+[decisions.md §9](../../../docs/features/technical-stack/decisions.md#9-lint-policy--clippy-with-the-workspace-lints)).
 Most findings explain themselves; this guide covers only the ones that do not, the boundary rules
 in one paragraph, and the review rules no linter checks. §1–§8 are lint traps, §9 the boundary,
 §10–§12 review rules.
@@ -148,7 +148,8 @@ stderr is allowed), every HTTP client, dial and lookup, TLS and WebSocket dials,
 (`os.Create`, `WriteFile`, `Mkdir*`, `Remove*`, `Rename` and the matching raw syscalls). Its only
 non-test exclusion is `cmd/bitgauge/healthcheck.go`, the one loopback `GET /api/v1/ping`
 ([backend.md §6](../../../docs/features/technical-stack/backend.md#6-healthcheck-subcommand)); do
-not add another. [`test/boundary`](../../../test/boundary/boundary_test.go) pins every rule, so
+not add another. `test/boundary` (now
+[`meta/tests/lint_inheritance.rs`](../../../meta/tests/lint_inheritance.rs)) pins every rule, so
 changing one changes that test too. The full lists, what they miss, and the state inventory live
 in the `server-invariants` skill. Lint never sees logging content: nothing logs a body, a header, a
 query string or a WebSocket message.

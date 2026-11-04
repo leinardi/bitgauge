@@ -370,9 +370,9 @@ path and method.
 
 | Path | Methods | Owner | Enabled by |
 | --- | --- | --- | --- |
-| `/`, `/result/{id}`, `/history`, `/settings`, `/about` | `GET` | SPA (`index.html`) | always |
-| `/assets/*` | `GET` | SPA static assets | always |
-| `/favicon.svg`, `/favicon-16.png`, `/favicon-32.png`, `/apple-touch-icon.png`, `/icon-192.png`, `/icon-512.png`, `/icon-512-maskable.png`, `/site.webmanifest` | `GET` | SPA root assets (`Cache-Control: public, max-age=86400`) | always |
+| `/`, `/result/{id}`, `/history`, `/settings`, `/about` | `GET`, `HEAD` | SPA (`index.html`) | always |
+| `/assets/*` | `GET`, `HEAD` | SPA static assets | always |
+| `/favicon.svg`, `/favicon-16.png`, `/favicon-32.png`, `/apple-touch-icon.png`, `/icon-192.png`, `/icon-512.png`, `/icon-512-maskable.png`, `/site.webmanifest` | `GET`, `HEAD` | SPA root assets (`Cache-Control: public, max-age=86400`) | always |
 | `/api/v1/download` | `GET` | native | always |
 | `/api/v1/upload` | `POST` | native | always |
 | `/api/v1/ping` | `GET`, `HEAD` | native | always |
@@ -391,12 +391,9 @@ path and method.
 | `/nq/upload` | `POST` | networkQuality | `compat.networkquality.enabled` |
 
 `metrics.path` is validated at startup so it cannot collide with any row above
-([configuration.md](configuration.md)).
-
-> **Rust implementation (from the cutover):** every SPA row above also answers `HEAD`; a file with
-> an extension outside the fixed content-type table is `application/octet-stream`, and a request for
-> more than one range gets `200` with the whole file.
-> ([rust-port.md](../rust-port.md#intended-differences-from-go), row 12.)
+([configuration.md](configuration.md)). An SPA file with an extension outside the fixed
+content-type table is served as `application/octet-stream`, and a request for more than one range
+gets `200` with the whole file.
 
 ## 6. Rules Every Layer Shares
 

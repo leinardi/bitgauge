@@ -20,8 +20,7 @@
 //! BitGauge: a self-hosted, browser-based network speed test. One stateless binary serves the
 //! embedded SPA, the native API under `/api/v1` and the optional compatibility layers.
 //!
-//! The Rust port is built beside the Go module until the cutover (`docs/rust-port.md`); its modules
-//! arrive phase by phase.
+//! The package map is backend.md section 1; `docs/rust-port.md` records the port from Go.
 
 pub mod buildinfo;
 pub mod cli;

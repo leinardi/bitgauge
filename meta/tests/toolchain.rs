@@ -21,13 +21,12 @@
 //! everywhere it is written, and every CI step that installs a pinned tool names it exactly, so
 //! a bump in one file cannot leave another file building, linting or testing with the old one.
 //!
-//! The Go-era pins (the Node and Go lines, golangci-lint, `ShellCheck`, the exact web pins and the
-//! action-step rules) are those of `test/toolchain/pins_test.go`. The Rust side adds the Rust
-//! line (`rust-toolchain.toml`, the Cargo `rust-version`, the Rust Dockerfile's build image and
-//! `RUST_VERSION`, `.mk/rust-release.mk`'s `rust-std` and every CI step that names a Rust
-//! toolchain) and the release toolchain pins the Rust Dockerfile repeats from
-//! `.mk/rust-release.mk`, the one record of them. What each side expects follows
-//! [`TRANSITION`](meta::transition::TRANSITION): after the cutover the Go files are gone.
+//! The pins: the Node line, `ShellCheck`, the exact web pins and the action-step rules (ported
+//! from the Go repository's `test/toolchain/pins_test.go`), the Rust line (`rust-toolchain.toml`,
+//! the Cargo `rust-version`, the shipped Dockerfile's build image and `RUST_VERSION`,
+//! `.mk/rust-release.mk`'s `rust-std` and every CI step that names a Rust toolchain), and the
+//! release toolchain pins the shipped Dockerfile repeats from `.mk/rust-release.mk`, the one
+//! record of them.
 //!
 //! The checks are functions of the text, and each is also run on input built to break it.
 
@@ -36,9 +35,7 @@ use std::fs;
 use std::sync::LazyLock;
 
 use meta::repo;
-use meta::transition::{
-    SHIPPED_DOCKERFILE, TRANSITION, Transition, go_dockerfile, rust_dockerfile,
-};
+use meta::transition::SHIPPED_DOCKERFILE;
 use regex::Regex;
 use serde_json::Value;
 
@@ -68,12 +65,6 @@ fn mutated(file: &str, from: &str, to: &str) -> impl Fn(&str) -> Option<String> 
             repo_file(name)
         }
     }
-}
-
-/// The working tree with `file` absent.
-fn without(file: &str) -> impl Fn(&str) -> Option<String> + use<> {
-    let file = file.to_owned();
-    move |name: &str| if name == file { None } else { repo_file(name) }
 }
 
 /// One place a version is written: a file and the pattern whose first group is the version
@@ -166,8 +157,6 @@ fn one_value_problems(
 
 /// The actions whose inputs carry a shared pin.
 const SETUP_NODE: &str = "actions/setup-node";
-const SETUP_GO: &str = "actions/setup-go";
-const GOLANGCI_LINT_ACTION: &str = "golangci/golangci-lint-action";
 /// Keys the node-version values of every step, setup-node's and others'.
 const NODE_VERSION_INPUT: &str = "node-version";
 
@@ -180,7 +169,6 @@ const RUST_TOOLCHAIN_ACTIONS: &[(&str, bool)] = &[
 ];
 
 static NODE_MAJOR: LazyLock<Regex> = LazyLock::new(|| pattern(r"^\d+$"));
-static EXACT_TAG: LazyLock<Regex> = LazyLock::new(|| pattern(r"^v\d+\.\d+\.\d+$"));
 static COMMIT_REF: LazyLock<Regex> = LazyLock::new(|| pattern(r"^[0-9a-f]{40}$"));
 
 /// A toolchain a script names: `rustup` installing or selecting one, or `cargo +<toolchain>`.
@@ -253,8 +241,7 @@ fn action_steps(file: &str, document: &Value) -> Vec<ActionStep> {
 
 /// The pinned values by input, and a problem for every step that breaks a rule: any
 /// node-version input, whatever the action or the reusable workflow that takes it, is a literal
-/// Node major, and setup-node must have one; no step writes a go-version, and setup-go reads
-/// `.go-version`; golangci-lint-action installs an exact version.
+/// Node major, and setup-node must have one.
 fn action_pins(steps: &[ActionStep]) -> (BTreeMap<&'static str, Vec<PinValue>>, Vec<String>) {
     let mut values: BTreeMap<&'static str, Vec<PinValue>> = BTreeMap::new();
     let mut problems = Vec::new();
@@ -271,34 +258,6 @@ fn action_pins(steps: &[ActionStep]) -> (BTreeMap<&'static str, Vec<PinValue>>, 
                 problems.push(format!(
                     "{}: {} must get node-version as a literal Node major, got {version:?}",
                     step.file, step.action
-                ));
-            }
-        }
-        if let Some(go_version) = step.with.get("go-version").filter(|text| !text.is_empty()) {
-            problems.push(format!(
-                "{}: {} gets go-version {go_version:?}; the Go line comes from .go-version",
-                step.file, step.action
-            ));
-        }
-        if step.action == SETUP_GO
-            && step.with.get("go-version-file").map(String::as_str) != Some(".go-version")
-        {
-            problems.push(format!(
-                "{}: setup-go must read go-version-file: .go-version",
-                step.file
-            ));
-        }
-        if step.action == GOLANGCI_LINT_ACTION {
-            let version = step.with.get("version").map_or("", String::as_str);
-            if EXACT_TAG.is_match(version) {
-                values
-                    .entry(GOLANGCI_LINT_ACTION)
-                    .or_default()
-                    .push(pin(version, &step.file));
-            } else {
-                problems.push(format!(
-                    "{}: golangci-lint-action must install an exact version, got {version:?}",
-                    step.file
                 ));
             }
         }
@@ -401,80 +360,16 @@ fn github_rust_toolchains(read: Reader<'_>) -> (Vec<PinValue>, Vec<String>) {
     (values, problems)
 }
 
-/// The Node line's sources: the web stage of every Dockerfile, the Node types, and an engines
+/// The Node line's sources: the shipped Dockerfile's web stage, the Node types, and an engines
 /// field or a version file if one appears.
-fn node_line_sources(transition: Transition) -> Vec<PinSource> {
-    let image = r"dhi\.io/node:(\d+)-";
-    let mut sources = vec![required(SHIPPED_DOCKERFILE, image)];
-    if rust_dockerfile(transition) != SHIPPED_DOCKERFILE {
-        sources.push(required(rust_dockerfile(transition), image));
-    }
-    sources.extend([
+fn node_line_sources() -> Vec<PinSource> {
+    vec![
+        required(SHIPPED_DOCKERFILE, r"dhi\.io/node:(\d+)-"),
         required("web/package.json", r#""@types/node":\s*"[\^~]?(\d+)\."#),
         optional("web/package.json", r#""node":\s*"[\^~>=]*(\d+)"#),
         optional(".nvmrc", r"^v?(\d+)"),
         optional(".node-version", r"^v?(\d+)"),
-    ]);
-    sources
-}
-
-/// The Go line's problems: before the cutover `.go-version`, the go directive, the Go build
-/// stage and the harness tools image's builder of the compatibility clients name one line; after
-/// it, the Go module and its version file are gone.
-fn go_line_problems(transition: Transition, read: Reader<'_>) -> Vec<String> {
-    let Some(dockerfile) = go_dockerfile(transition) else {
-        return [".go-version", "go.mod"]
-            .into_iter()
-            .filter(|file| read(file).is_some())
-            .map(|file| format!("Go line: {file} outlived the cutover"))
-            .collect();
-    };
-    one_value_problems(
-        "Go line",
-        &[
-            required(".go-version", r"^(\d+\.\d+)\s*$"),
-            required("go.mod", r"(?m)^go (\d+\.\d+)(?:\.\d+)?$"),
-            required(dockerfile, r"dhi\.io/golang:(\d+\.\d+)-"),
-            required(
-                "test/harness/tools.Dockerfile",
-                r"docker\.io/library/golang:(\d+\.\d+)-",
-            ),
-        ],
-        &[],
-        read,
-    )
-}
-
-const GOLANGCI_LINT_HOOK: &str =
-    r"repo: https://github\.com/golangci/golangci-lint\s+rev:\s*(v[\d.]+)";
-
-/// golangci-lint's problems: before the cutover every golangci-lint-action step installs the
-/// version the pre-commit hook pins; after it, there is no Go to lint and neither remains.
-fn golangci_lint_problems(
-    transition: Transition,
-    steps: &[PinValue],
-    read: Reader<'_>,
-) -> Vec<String> {
-    match transition {
-        Transition::Candidate => one_value_problems(
-            "golangci-lint",
-            &[required(".pre-commit-config.yaml", GOLANGCI_LINT_HOOK)],
-            steps,
-            read,
-        ),
-        Transition::Done => {
-            let mut problems: Vec<String> = steps
-                .iter()
-                .map(|step| format!("golangci-lint: {} outlived the cutover", step.file))
-                .collect();
-            if read(".pre-commit-config.yaml")
-                .is_some_and(|config| pattern(GOLANGCI_LINT_HOOK).is_match(&config))
-            {
-                problems.push("golangci-lint: the pre-commit hook outlived the cutover".to_owned());
-            }
-            problems
-        }
-    }
+    ]
 }
 
 fn shellcheck_sources() -> Vec<PinSource> {
@@ -517,8 +412,8 @@ fn exact_web_pin_problems(manifest: &str) -> Vec<String> {
 /// The Rust line's file sources, each an exact release: `rust-toolchain.toml`'s channel, the
 /// Cargo `rust-version`, the Rust build stage's image and its `RUST_VERSION`, and the `rust-std`
 /// release `.mk/rust-release.mk` pins.
-fn rust_line_sources(transition: Transition) -> Vec<PinSource> {
-    let dockerfile = rust_dockerfile(transition);
+fn rust_line_sources() -> Vec<PinSource> {
+    let dockerfile = SHIPPED_DOCKERFILE;
     vec![
         required(
             "rust-toolchain.toml",
@@ -542,11 +437,11 @@ fn rust_line_sources(transition: Transition) -> Vec<PinSource> {
 
 /// The Rust line's problems: the file sources and every toolchain CI names are one release, and
 /// every CI toolchain action names one or reads `rust-toolchain.toml`.
-fn rust_line_problems(transition: Transition, read: Reader<'_>) -> Vec<String> {
+fn rust_line_problems(read: Reader<'_>) -> Vec<String> {
     let (values, mut problems) = github_rust_toolchains(read);
     problems.extend(one_value_problems(
         "Rust line",
-        &rust_line_sources(transition),
+        &rust_line_sources(),
         &values,
         read,
     ));
@@ -555,7 +450,7 @@ fn rust_line_problems(transition: Transition, read: Reader<'_>) -> Vec<String> {
 
 const RELEASE_MK: &str = ".mk/rust-release.mk";
 
-/// The release tool versions the Rust Dockerfile repeats, as (its `ARG`, the `.mk` variable).
+/// The release tool versions the shipped Dockerfile repeats, as (its `ARG`, the `.mk` variable).
 const RELEASE_TOOL_VERSIONS: [(&str, &str); 2] = [
     ("ZIG_VERSION", "RUST_RELEASE_ZIG_VERSION"),
     (
@@ -564,7 +459,7 @@ const RELEASE_TOOL_VERSIONS: [(&str, &str); 2] = [
     ),
 ];
 
-/// The archives the Rust Dockerfile checks, as (its key variable, its sha256 variable, the `.mk`
+/// The archives the shipped Dockerfile checks, as (its key variable, its sha256 variable, the `.mk`
 /// prefix whose suffix is the key).
 const RELEASE_ARCHIVES: [(&str, &str, &str); 3] = [
     ("zig_arch", "zig_sha256", "RUST_RELEASE_ZIG_SHA256_"),
@@ -580,11 +475,11 @@ static SHA256: LazyLock<Regex> = LazyLock::new(|| pattern(r"\b[0-9a-f]{64}\b"));
 /// An image or frontend digest: its pin is the Dockerfile's own, not a release archive's.
 static DIGEST: LazyLock<Regex> = LazyLock::new(|| pattern(r"@sha256:[0-9a-f]{64}\b"));
 
-/// The problems with the release pins the Rust Dockerfile repeats: each tool version and each
+/// The problems with the release pins the shipped Dockerfile repeats: each tool version and each
 /// archive's sha256 is `.mk/rust-release.mk`'s, both files name the same archives, and every
 /// other sha256 in the Dockerfile is an image or frontend digest.
-fn release_pin_problems(transition: Transition, read: Reader<'_>) -> Vec<String> {
-    let dockerfile = rust_dockerfile(transition);
+fn release_pin_problems(read: Reader<'_>) -> Vec<String> {
+    let dockerfile = SHIPPED_DOCKERFILE;
     let (Some(docker), Some(make)) = (read(dockerfile), read(RELEASE_MK)) else {
         return vec![format!("{dockerfile} or {RELEASE_MK} cannot be read")];
     };
@@ -643,9 +538,9 @@ fn assert_some(problems: &[String], what: &str) {
     assert!(!problems.is_empty(), "the control {what} found nothing");
 }
 
-/// Go: `TestActionStepsArePinned`: no setup-node, setup-go or golangci-lint-action step under
-/// `.github` leaves its version to the action's default, a range or a file the other pins do
-/// not see.
+/// Go: `TestActionStepsArePinned`: no setup-node step, nor any other step with a node-version
+/// input, under `.github` leaves the Node line to the action's default, a range or a file the
+/// other pins do not see.
 #[test]
 fn action_steps_are_pinned() {
     let (_, problems) = action_pins(&github_action_steps());
@@ -653,25 +548,25 @@ fn action_steps_are_pinned() {
 }
 
 /// Go: `TestNodeLineIsOneValue`: the Node major is one value everywhere it is written: the web
-/// stage of the shipped Dockerfile and, before the cutover, of the Rust candidate's, the Node
-/// types, an engines field or a version file if one appears, and every node-version input.
+/// stage of the shipped Dockerfile, the Node types, an engines field or a version file if one
+/// appears, and every node-version input.
 #[test]
 fn node_line_is_one_value() {
     let (steps, _) = action_pins(&github_action_steps());
     let extra = steps.get(NODE_VERSION_INPUT).cloned().unwrap_or_default();
     assert_none(&one_value_problems(
         "Node line",
-        &node_line_sources(TRANSITION),
+        &node_line_sources(),
         &extra,
         &repo_file,
     ));
 }
 
-/// The Node line control: another major in the Node types, in the Rust Dockerfile's web stage
-/// or in a CI step fails.
+/// The Node line control: another major in the Node types, in the shipped Dockerfile's web
+/// stage or in a CI step fails.
 #[test]
 fn node_line_control_fails_on_another_major() {
-    let sources = node_line_sources(TRANSITION);
+    let sources = node_line_sources();
     let (steps, _) = action_pins(&github_action_steps());
     let extra = steps.get(NODE_VERSION_INPUT).cloned().unwrap_or_default();
     let types = mutated(
@@ -683,71 +578,16 @@ fn node_line_control_fails_on_another_major() {
         &one_value_problems("Node line", &sources, &extra, &types),
         "of the Node types",
     );
-    let image = mutated(
-        rust_dockerfile(TRANSITION),
-        "dhi.io/node:24-",
-        "dhi.io/node:22-",
-    );
+    let image = mutated(SHIPPED_DOCKERFILE, "dhi.io/node:24-", "dhi.io/node:22-");
     assert_some(
         &one_value_problems("Node line", &sources, &extra, &image),
-        "of the Rust web stage",
+        "of the web stage",
     );
     let mut step = extra;
     step.push(pin("22", ".github/workflows/sample.yaml"));
     assert_some(
         &one_value_problems("Node line", &sources, &step, &repo_file),
         "of a CI step",
-    );
-}
-
-/// Go: `TestGoLineIsOneValue`: `.go-version`, the go directive, the build stage image and the
-/// harness tools image's builder of the compatibility clients name the same Go line (setup-go
-/// reading `.go-version` is `action_steps_are_pinned`'s rule). After the cutover, the Go module
-/// is gone.
-#[test]
-fn go_line_is_one_value() {
-    assert_none(&go_line_problems(TRANSITION, &repo_file));
-}
-
-/// The Go line control: another line in go.mod, or a missing `.go-version`, fails.
-#[test]
-fn go_line_control_fails_on_another_line() {
-    match TRANSITION {
-        Transition::Candidate => {
-            let module = mutated("go.mod", "go 1.26", "go 1.25");
-            assert_some(&go_line_problems(TRANSITION, &module), "of go.mod");
-            assert_some(
-                &go_line_problems(TRANSITION, &without(".go-version")),
-                "of a missing .go-version",
-            );
-        }
-        Transition::Done => assert_some(
-            &go_line_problems(TRANSITION, &|name: &str| {
-                (name == "go.mod").then(|| "go 1.26\n".to_owned())
-            }),
-            "of a leftover go.mod",
-        ),
-    }
-}
-
-/// Go: `TestGolangciLintIsOneVersion`: every golangci-lint-action step installs, by an exact
-/// version, the golangci-lint the pre-commit hook pins.
-#[test]
-fn golangci_lint_is_one_version() {
-    let (steps, _) = action_pins(&github_action_steps());
-    let extra = steps.get(GOLANGCI_LINT_ACTION).cloned().unwrap_or_default();
-    assert_none(&golangci_lint_problems(TRANSITION, &extra, &repo_file));
-}
-
-/// The golangci-lint control: a step installing another version fails.
-#[test]
-fn golangci_lint_control_fails_on_another_version() {
-    let (steps, _) = action_pins(&github_action_steps());
-    let mut extra = steps.get(GOLANGCI_LINT_ACTION).cloned().unwrap_or_default();
-    extra.push(pin("v0.0.1", ".github/workflows/sample.yaml"));
-    assert_some(
-        &golangci_lint_problems(TRANSITION, &extra, &repo_file),
-        "of a golangci-lint step",
     );
 }
 
@@ -791,9 +631,9 @@ fn parsed_steps(file: &str, content: &str) -> Vec<ActionStep> {
     action_steps(file, &parse_yaml(file, content))
 }
 
-/// Go: `TestActionPinRules`: the negative control of the action rules: pinned steps give their
-/// values, each unpinned form is a problem, and a reusable workflow's node-version input is the
-/// Node line too.
+/// Go: `TestActionPinRules`: the negative control of the action rules: a pinned step gives its
+/// value, each unpinned form is a problem, and a reusable workflow's node-version input is the
+/// Node line too. The Go cases (setup-go and golangci-lint-action) left with the Go toolchain.
 #[test]
 fn action_pin_rules() {
     let steps = parsed_steps(
@@ -804,13 +644,6 @@ fn action_pin_rules() {
       - uses: actions/setup-node@0123456789abcdef0123456789abcdef01234567 # v7.1.0
         with:
           node-version: "24"
-      - uses: actions/setup-go@0123456789abcdef0123456789abcdef01234567 # v7.0.0
-        with:
-          go-version-file: .go-version
-      - uses: golangci/golangci-lint-action@0123456789abcdef0123456789abcdef01234567 # v9.3.0
-        with:
-          install-only: true
-          version: v2.14.0
 "#,
     );
     let (values, problems) = action_pins(&steps);
@@ -818,10 +651,6 @@ fn action_pin_rules() {
     assert_eq!(
         values.get(NODE_VERSION_INPUT),
         Some(&vec![pin("24", "sample.yaml")])
-    );
-    assert_eq!(
-        values.get(GOLANGCI_LINT_ACTION),
-        Some(&vec![pin("v2.14.0", "sample.yaml")])
     );
 
     let steps = parsed_steps(
@@ -836,25 +665,15 @@ fn action_pin_rules() {
       with:
         node-version-file: .nvmrc
     - uses: actions/setup-node@0123456789abcdef0123456789abcdef01234567
-    - uses: actions/setup-go@0123456789abcdef0123456789abcdef01234567
-      with:
-        go-version: "1.26"
-    - uses: actions/setup-go@0123456789abcdef0123456789abcdef01234567
-    - uses: golangci/golangci-lint-action@0123456789abcdef0123456789abcdef01234567
-      with:
-        install-only: true
-    - uses: golangci/golangci-lint-action@0123456789abcdef0123456789abcdef01234567
-      with:
-        version: latest
     - uses: some/other-action@0123456789abcdef0123456789abcdef01234567
       with:
-        go-version: "1.27"
+        node-version: "22.1"
 "#,
     );
     let (values, problems) = action_pins(&steps);
     assert!(
-        problems.len() == 9 && values.is_empty(),
-        "unpinned steps: want 9 problems and no values, got {values:?} and {problems:?}"
+        problems.len() == 4 && values.is_empty(),
+        "unpinned steps: want 4 problems and no values, got {values:?} and {problems:?}"
     );
 
     let steps = parsed_steps(
@@ -879,12 +698,12 @@ fn action_pin_rules() {
 }
 
 /// The Rust line is one exact release: `rust-toolchain.toml`'s channel, the Cargo
-/// `rust-version`, the Rust Dockerfile's `dhi.io/rust:<line>-debian13-dev` build image and its
+/// `rust-version`, the shipped Dockerfile's `dhi.io/rust:<line>-debian13-dev` build image and its
 /// `RUST_VERSION`, `.mk/rust-release.mk`'s `rust-std`, and every Rust toolchain a CI step names;
 /// a toolchain action that names none must read `rust-toolchain.toml`.
 #[test]
 fn rust_line_is_one_value() {
-    assert_none(&rust_line_problems(TRANSITION, &repo_file));
+    assert_none(&rust_line_problems(&repo_file));
 }
 
 /// The CI workflow whose steps set up Rust.
@@ -900,7 +719,7 @@ fn rust_line_control_fails_on_another_release() {
             || panic!("rust-toolchain.toml names no channel"),
             |captures| captures[1].to_owned(),
         );
-    let dockerfile = rust_dockerfile(TRANSITION);
+    let dockerfile = SHIPPED_DOCKERFILE;
     let cases = [
         ("rust-toolchain.toml", format!(r#"channel = "{line}""#)),
         ("Cargo.toml", format!(r#"rust-version = "{line}""#)),
@@ -914,40 +733,28 @@ fn rust_line_control_fails_on_another_release() {
     ];
     for (file, text) in cases {
         let read = mutated(file, &text, &text.replace(&line, "1.0.0"));
-        assert_some(&rust_line_problems(TRANSITION, &read), &text);
+        assert_some(&rust_line_problems(&read), &text);
     }
     let channel = mutated(
         "rust-toolchain.toml",
         &format!(r#"channel = "{line}""#),
         r#"channel = "stable""#,
     );
-    assert_some(
-        &rust_line_problems(TRANSITION, &channel),
-        "of a stable channel",
-    );
+    assert_some(&rust_line_problems(&channel), "of a stable channel");
     let stable = mutated(
         CI_WORKFLOW,
         &format!("toolchain: {line}"),
         "toolchain: stable",
     );
-    assert_some(
-        &rust_line_problems(TRANSITION, &stable),
-        "of a CI step naming stable",
-    );
+    assert_some(&rust_line_problems(&stable), "of a CI step naming stable");
     let unnamed = mutated(CI_WORKFLOW, &format!("toolchain: {line}"), "");
-    assert_some(
-        &rust_line_problems(TRANSITION, &unnamed),
-        "of a CI step naming none",
-    );
+    assert_some(&rust_line_problems(&unnamed), "of a CI step naming none");
     let script = mutated(
         CI_WORKFLOW,
         "run: make rust-test",
         "run: cargo +nightly test",
     );
-    assert_some(
-        &rust_line_problems(TRANSITION, &script),
-        "of a cargo +nightly script",
-    );
+    assert_some(&rust_line_problems(&script), "of a cargo +nightly script");
 }
 
 /// What the CI rules read as a Rust toolchain: an action's `toolchain` input or non-commit ref, a
@@ -983,18 +790,18 @@ fn rust_toolchain_ci_rules() {
     );
 }
 
-/// The zig and cargo-zigbuild releases and every archive sha256 the Rust Dockerfile checks are
+/// The zig and cargo-zigbuild releases and every archive sha256 the shipped Dockerfile checks are
 /// `.mk/rust-release.mk`'s, which calls itself the one record of those pins.
 #[test]
 fn rust_release_pins_match_the_makefile() {
-    assert_none(&release_pin_problems(TRANSITION, &repo_file));
+    assert_none(&release_pin_problems(&repo_file));
 }
 
 /// The release pin control: another zig or cargo-zigbuild release, a changed or extra sha256, or
 /// an archive the `.mk` does not name fails.
 #[test]
 fn rust_release_pin_control_fails_on_a_change() {
-    let dockerfile = rust_dockerfile(TRANSITION);
+    let dockerfile = SHIPPED_DOCKERFILE;
     let docker = repo::read(dockerfile);
     let hash = SHA256
         .find_iter(&docker)
@@ -1024,9 +831,6 @@ fn rust_release_pin_control_fails_on_a_change() {
         mutated(dockerfile, "SHELL [", &format!("# {changed}\nSHELL [")),
     ];
     for (index, read) in cases.iter().enumerate() {
-        assert_some(
-            &release_pin_problems(TRANSITION, read),
-            &format!("case {index}"),
-        );
+        assert_some(&release_pin_problems(read), &format!("case {index}"));
     }
 }

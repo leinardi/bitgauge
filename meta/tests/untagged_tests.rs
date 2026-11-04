@@ -194,14 +194,15 @@ fn untagged_tests_avoid_docker() {
     assert!(found.is_empty(), "{}", found.join("\n"));
 }
 
-/// Go: `TestToolGateListIsClosed`: the gated tools are exactly eslint, fallow and golangci-lint,
-/// every gated test names one of the gate's tools, and no other code looks a tool up itself.
+/// Go: `TestToolGateListIsClosed`: the gated tools are exactly eslint and fallow (golangci-lint
+/// left with the Go code), every gated test names one of the gate's tools, and no other code
+/// looks a tool up itself.
 #[test]
 fn tool_gate_list_is_closed() {
     let tools: BTreeSet<&str> = Tool::ALL.iter().map(|tool| tool.name()).collect();
     assert_eq!(
         tools,
-        BTreeSet::from(["eslint", "fallow", "golangci-lint"]),
+        BTreeSet::from(["eslint", "fallow"]),
         "testenv::toolgate::Tool::ALL"
     );
     let mut found = Vec::new();

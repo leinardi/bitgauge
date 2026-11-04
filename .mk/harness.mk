@@ -24,9 +24,8 @@ MK_LOCAL_HARNESS_INCLUDED := 1
 # The accuracy harness (testing.md section 5): the Rust runners of testenv (feature harness, the
 # tests/harness target) drive the topology over the docker CLI and write
 # dist/harness/<tier>-<UTC>-<envid>/report.{json,md}. Every target names the implementation it
-# tests, BITGAUGE_TEST_IMPL=go or rust, with no default (image-test.mk); the targets that run
-# BitGauge build that implementation's image first. The Go runners under test/harness stay until
-# the cutover and run with go test -tags=harness directly.
+# tests, BITGAUGE_TEST_IMPL=rust, with no default (image-test.mk); the targets that run BitGauge
+# build the shipped image first.
 #
 # Prerequisites: Linux, a running Docker daemon with buildx, a dhi.io login, the ifb, sch_netem,
 # sch_tbf, sch_fq_codel, sch_ingress, cls_u32 and act_mirred kernel modules loadable on the host (a
@@ -48,7 +47,6 @@ MK_LOCAL_HARNESS_INCLUDED := 1
 #   HARNESS_PREFLIGHT        harness-preflight only: accounting or shaping (default: both)
 
 HARNESS_TIMEOUT         ?= 120m
-HARNESS_PKG             := ./test/harness/
 # The cargo invocation of the Rust runners; the arguments after -- go to the runner.
 HARNESS_CARGO           = $(CARGO) test --locked -p testenv --features harness --test harness --
 HARNESS_PROFILES        ?=
@@ -117,9 +115,5 @@ else
 	$(test_impl_guard)
 	$(test_impl_env) HARNESS_SWEEP_ALL_CONFIRM=1 $(HARNESS_CARGO) --run '^TestSweepAll$$'
 endif
-
-.PHONY: go-vet-harness
-go-vet-harness: ## Static checks for the harness-tagged packages
-	$(GO) vet -tags=harness ./test/harness/... ./test/internal/netguard/...
 
 endif  # MK_LOCAL_HARNESS_INCLUDED

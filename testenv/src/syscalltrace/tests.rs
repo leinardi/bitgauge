@@ -25,10 +25,10 @@
 //! request; `wget-healthcheck.strace` is busybox wget fetching from it, a client that connects
 //! once. They are copies of the Go tree's `test/internal/syscalltrace/testdata`, byte for byte.
 //!
-//! `rust-serve.strace` and `rust-healthcheck.strace` are recorded the same way from the Rust
-//! candidate image's `/bitgauge`: `serve` with the default `:8080`, answering `GET /api/v1/info`,
-//! `GET /` and the healthcheck's `GET /api/v1/ping`, and `healthcheck` run beside it in the same
-//! namespace. Both pass with zero violations.
+//! `rust-serve.strace` and `rust-healthcheck.strace` were recorded the same way from the Rust
+//! image's `/bitgauge` (then the candidate): `serve` with the default `:8080`, answering
+//! `GET /api/v1/info`, `GET /` and the healthcheck's `GET /api/v1/ping`, and `healthcheck` run
+//! beside it in the same namespace. Both pass with zero violations.
 
 use std::fs::File;
 use std::net::SocketAddr;

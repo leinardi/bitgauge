@@ -29,7 +29,7 @@ Before writing the change: name what it adds (state kept across requests, a netw
 call, a header or config value the server trusts, a body it reads, a log line, a URL in `web/`);
 mark each of §1–§12 *applies* or *N/A*, checking the §2 gaps by hand; make new state, a new
 exception, limit or allowlisted URL a docs change first; write the test the section names
-(beside its package, [testing.md §1](../../../docs/features/technical-stack/testing.md#1-go-handler-tests));
+(beside its package, [testing.md §1](../../../docs/features/technical-stack/testing.md#1-server-tests));
 then run `make verify-go`, plus `make go-test-image` for a Dockerfile or runtime change.
 
 ## 1. The in-memory state inventory
@@ -51,8 +51,8 @@ no results, history, per-client history, request bodies or upload telemetry afte
 
 ## 2. What the lint boundary catches and misses
 
-Three rule sets in [`.golangci.yaml`](../../../.golangci.yaml), for non-test files outside
-`test/`:
+Three rule sets in `.golangci.yaml` (removed at the Rust cutover; the Rust boundary is the root
+[`clippy.toml`](../../../clippy.toml)), for non-test files outside `test/`:
 
 - **depguard `no-storage`**: `database/sql`, the SQL, embedded-store, ORM, Redis, migration modules.
 - **depguard `no-outbound`**: `net/smtp`, `net/rpc`, `net/http/cookiejar`, `net/http/httputil`,
@@ -64,10 +64,11 @@ Three rule sets in [`.golangci.yaml`](../../../.golangci.yaml), for non-test fil
   that create, change or remove files, and `syscall.Open`, `Creat`, `Mkdir`, `Rename`, `Unlink`,
   `Truncate`, `Write`. The only non-test exclusion is the healthcheck file (§3).
 
-[`test/boundary`](../../../test/boundary/boundary_test.go) pins them, because a rule that stops
-matching fails nothing on its own: their scope, the packages and identifiers they must stop, the
-neighbors the server needs (`net/http`, `net.Listen`, `os.ReadFile`, `websocket.Accept`, koanf,
-chi …), the exclusions, and a real golangci-lint run on a scratch module. Changing a rule means
+[`meta/tests/lint_inheritance.rs`](../../../meta/tests/lint_inheritance.rs) pins them, because a
+rule that stops matching fails nothing on its own: their scope, the packages and identifiers they
+must stop, the neighbors the server needs (`net/http`, `net.Listen`, `os.ReadFile`,
+`websocket.Accept`, koanf, chi …), the exclusions, and a real golangci-lint run on a scratch module.
+Changing a rule means
 changing that test too.
 
 The rules read only this module's source and only the names they list. Each row passes lint:
@@ -230,14 +231,14 @@ rejects `RUN`, `SHELL`, `VOLUME`, `WORKDIR`, `ADD` and `ENV` in the runtime stag
 `--read-only`, and proves no egress with two layers
 ([testing.md §5](../../../docs/features/technical-stack/testing.md#5-accuracy-harness)):
 
-- **netguard: no packet egress** ([`test/internal/netguard`](../../../test/internal/netguard/netguard.go)).
+- **netguard: no packet egress** ([`testenv/src/netguard.rs`](../../../testenv/src/netguard.rs)).
   BitGauge joins a holder's namespace on a Docker `--internal` network from process start. An
   nftables output hook counts `egress` (new connections off `lo`, dropped), `dns`
   (`127.0.0.11:53`) and other new `loopback` connections; a `sink` interface with default routes
   lets every packet reach the hook instead of failing early. Four negative controls (IPv4, IPv6,
   DNS, loopback) must each move their counter, or the run fails as `instrument blind`.
 - **Syscall layer: no connection or write attempt** (`test/image`,
-  [`test/internal/syscalltrace`](../../../test/internal/syscalltrace/policy.go)). `serve` runs
+  [`testenv/src/syscalltrace`](../../../testenv/src/syscalltrace/policy.rs)). `serve` runs
   under `strace -f -yy` from process start. `CheckServe` fails any `connect`, any send with an
   explicit destination or on a socket that is not an accepted connection, and any file write
   intent outside `/dev` and `/proc` (`/dev/shm` and `/dev/mqueue` count as storage). A probe

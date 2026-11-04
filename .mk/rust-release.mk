@@ -23,16 +23,14 @@
 ifndef MK_LOCAL_RUST_RELEASE_INCLUDED
 MK_LOCAL_RUST_RELEASE_INCLUDED := 1
 
-# Local snippet (NOT part of make-common): the static musl builds of the Rust server and its
-# candidate image, beside the Go build until the cutover (docs/rust-port.md). Nothing here ships:
-# no workflow runs these targets before the cutover, the binaries go to dist/rust/, and the image
-# is tagged bitgauge:rust-candidate, never IMAGE_REPO.
+# Local snippet (NOT part of make-common): the static musl builds of the server, the release
+# binaries release.yaml publishes (decisions.md section 27), and the pinned toolchain they need.
 
 # The release toolchain beyond rust-toolchain.toml, each archive by its sha256: zig from
 # https://ziglang.org/download/index.json, cargo-zigbuild from the release asset's .sha256, rust-std
 # from the .sha256 static.rust-lang.org publishes beside each archive. This is the one record of
-# those pins; the candidate image's build stage (deployments/docker/Dockerfile.rust) downloads the
-# same archives. cargo-zigbuild publishes no aarch64 musl asset, so an arm64 build host takes the
+# those pins; the image's build stage (deployments/docker/Dockerfile) downloads the same archives,
+# and meta/tests/toolchain.rs holds the two equal. cargo-zigbuild publishes no aarch64 musl asset, so an arm64 build host takes the
 # gnu one. Only the image's build stage downloads the rust-std archives: on a host, rustup installs
 # the musl targets rust-toolchain.toml lists.
 RUST_RELEASE_ZIG_VERSION := 0.17.0
@@ -46,10 +44,10 @@ RUST_RELEASE_RUST_STD_SHA256_x86_64-unknown-linux-musl := bd9f35880de21dab0e387e
 RUST_RELEASE_RUST_STD_SHA256_aarch64-unknown-linux-musl := 7e0ad2e67817f224b7a6331e48d6397303fc050edaccf81784ed786ffddc884a
 
 # The release platforms (decisions.md section 27), as <docker arch>:<Rust target>, and where their
-# binaries and checksums.txt go: dist/rust/, under the names the release assets carry
+# binaries and checksums.txt go: dist/, under the names the release assets carry
 # (bitgauge-linux-<arch>).
 RUST_RELEASE_PLATFORMS := amd64:x86_64-unknown-linux-musl arm64:aarch64-unknown-linux-musl
-RUST_RELEASE_DIR       := $(REPO_ROOT)/$(DIST_DIR)/rust
+RUST_RELEASE_DIR       := $(REPO_ROOT)/$(DIST_DIR)
 
 # The one static build, for one Rust target: cargo-zigbuild with zig as the C compiler and linker,
 # the version stamps of rust-bin, and the checkout and the cargo home remapped, so the binary
@@ -93,7 +91,7 @@ rust-zigbuild-check: ## Fail unless the zig and cargo-zigbuild on PATH are the p
 	fi
 
 .PHONY: rust-release-binaries
-rust-release-binaries: rust-zigbuild-check web-build ## Build the static musl Rust binaries (amd64, arm64) and checksums.txt into dist/rust/
+rust-release-binaries: rust-zigbuild-check web-build ## Build the static musl Rust binaries (amd64, arm64) and checksums.txt into dist/
 	set -eu; \
 	mkdir -p "$(RUST_RELEASE_DIR)"; \
 	for platform in $(RUST_RELEASE_PLATFORMS); do \
@@ -105,18 +103,37 @@ rust-release-binaries: rust-zigbuild-check web-build ## Build the static musl Ru
 	cd "$(RUST_RELEASE_DIR)"; \
 	sha256sum $(foreach platform,$(RUST_RELEASE_PLATFORMS),$(BIN_NAME)-linux-$(firstword $(subst :, ,$(platform)))) > checksums.txt
 
-# The candidate image the image and harness suites run as the Rust implementation before the
-# cutover, for the host platform, loaded into the local daemon. Its own tag, so it can never be
-# taken for the shipped image.
-RUST_IMAGE            ?= bitgauge:rust-candidate
-RUST_IMAGE_DOCKERFILE := deployments/docker/Dockerfile.rust
+# Installs the pinned zig and cargo-zigbuild for the build host into RUST_RELEASE_TOOLS_DIR, each
+# archive checked against its sha256 above before it is unpacked, for CI's rust-static job and the
+# release workflow; put $(RUST_RELEASE_TOOLS_DIR)/bin on PATH afterwards. The directory must not
+# exist yet, so nothing from an earlier install mixes in. cargo-zigbuild publishes no aarch64 musl
+# asset, so an arm64 host takes the gnu one, as the image's build stage does.
+RUST_RELEASE_TOOLS_DIR ?= $(REPO_ROOT)/target/zigbuild-tools
 
-.PHONY: rust-image
-rust-image: ## Build the Rust candidate image as bitgauge:rust-candidate (Docker, dhi.io); nothing publishes it
-	docker buildx build --load \
-	  -f "$(RUST_IMAGE_DOCKERFILE)" \
-	  -t "$(RUST_IMAGE)" \
-	  $(DOCKER_BUILD_ARGS) \
-	  "$(DOCKER_CONTEXT)"
+.PHONY: rust-zigbuild-install
+rust-zigbuild-install: ## Install the pinned zig and cargo-zigbuild into RUST_RELEASE_TOOLS_DIR (network)
+	@set -eu; \
+	case "$$(uname -m)" in \
+	  x86_64) zig_arch=x86_64; zig_sha256=$(RUST_RELEASE_ZIG_SHA256_x86_64); \
+	    zigbuild_asset=x86_64-unknown-linux-musl; \
+	    zigbuild_sha256=$(RUST_RELEASE_CARGO_ZIGBUILD_SHA256_x86_64-unknown-linux-musl) ;; \
+	  aarch64) zig_arch=aarch64; zig_sha256=$(RUST_RELEASE_ZIG_SHA256_aarch64); \
+	    zigbuild_asset=aarch64-unknown-linux-gnu; \
+	    zigbuild_sha256=$(RUST_RELEASE_CARGO_ZIGBUILD_SHA256_aarch64-unknown-linux-gnu) ;; \
+	  *) echo "no pinned zig for $$(uname -m)" >&2; exit 1 ;; \
+	esac; \
+	dir="$(RUST_RELEASE_TOOLS_DIR)"; \
+	if [ -e "$$dir" ]; then echo "$$dir already exists; install into a new directory" >&2; exit 1; fi; \
+	mkdir -p "$$dir/bin" "$$dir/zig" "$$dir/downloads"; \
+	curl -fsSL --proto '=https' --tlsv1.2 -o "$$dir/downloads/zig.tar.xz" \
+	  "https://ziglang.org/download/$(RUST_RELEASE_ZIG_VERSION)/zig-$$zig_arch-linux-$(RUST_RELEASE_ZIG_VERSION).tar.xz"; \
+	echo "$$zig_sha256  $$dir/downloads/zig.tar.xz" | sha256sum -c -; \
+	tar -xJf "$$dir/downloads/zig.tar.xz" -C "$$dir/zig" --strip-components=1; \
+	ln -s ../zig/zig "$$dir/bin/zig"; \
+	curl -fsSL --proto '=https' --tlsv1.2 -o "$$dir/downloads/cargo-zigbuild.tar.xz" \
+	  "https://github.com/rust-cross/cargo-zigbuild/releases/download/v$(RUST_RELEASE_CARGO_ZIGBUILD_VERSION)/cargo-zigbuild-$$zigbuild_asset.tar.xz"; \
+	echo "$$zigbuild_sha256  $$dir/downloads/cargo-zigbuild.tar.xz" | sha256sum -c -; \
+	tar -xJf "$$dir/downloads/cargo-zigbuild.tar.xz" -C "$$dir/bin" --strip-components=1; \
+	"$$dir/bin/zig" version; "$$dir/bin/cargo-zigbuild" --version
 
 endif  # MK_LOCAL_RUST_RELEASE_INCLUDED

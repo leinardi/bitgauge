@@ -22,7 +22,7 @@
 // The one inline style the SPA inserts (security.md section 5): reka-ui's SelectViewport renders a
 // fixed <style> that hides the list's scrollbar, which the server's CSP allows by its SHA-256. This
 // hashes the text in the installed package against the hash the server sends, so an upgrade that
-// changes the text fails here until the hash is updated in internal/server/headers.go and
+// changes the text fails here until the hash is updated in src/server/classify.rs and
 // security.md together.
 
 import { createHash } from 'node:crypto'
@@ -38,7 +38,7 @@ describe('the CSP style hash', () => {
     const style = /as: "style",[\s\S]*?createTextVNode\("((?:[^"\\]|\\.)*)", -1\)/u.exec(source)?.[1]
     expect(style).toBeDefined()
     const hash = `'sha256-${createHash('sha256').update(JSON.parse(`"${style}"`) as string).digest('base64')}'`
-    const server = /styleHash = "('sha256-[^']+')"/u.exec(read('../../../internal/server/headers.go'))?.[1]
+    const server = /STYLE_HASH: &str = "('sha256-[^']+')"/u.exec(read('../../../src/server/classify.rs'))?.[1]
     expect(server).toBe(hash)
     expect(read('../../../docs/features/security.md')).toContain(hash)
   })

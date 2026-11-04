@@ -2,7 +2,7 @@
 
 [Feature index](README.md) / Architecture
 
-BitGauge is one Go binary that serves an embedded Vue SPA and a small HTTP API. All measuring
+BitGauge is one Rust binary that serves an embedded Vue SPA and a small HTTP API. All measuring
 happens in the browser, in a framework-free engine running in a Web Worker; the server streams,
 drains, echoes and describes itself. This page shows how the pieces fit. The stack is in
 [technical-stack/](technical-stack/README.md); endpoint contracts are in
@@ -12,9 +12,9 @@ package map is [technical-stack/backend.md §1](technical-stack/backend.md#1-pac
 ## 1. One Binary
 
 ```text
-                                 ┌─────────── bitgauge (one static Go binary) ───────────┐
- browser ──TLS/h2──▶ reverse ──HTTP/1.1──▶ net/http ─▶ middleware ─▶ chi router         │
- (SPA + Worker)      proxy       │                                    ├─ SPA (embed.FS)  │
+                                 ┌────────── bitgauge (one static Rust binary) ──────────┐
+ browser ──TLS/h2──▶ reverse ──HTTP/1.1──▶ hyper    ─▶ middleware ─▶ axum router        │
+ (SPA + Worker)      proxy       │                                    ├─ SPA (embedded)  │
                      (Traefik,   │                                    ├─ /api/v1/*       │
                       Caddy,     │                                    ├─ compat groups   │
                       nginx)     │                                    └─ /metrics        │
@@ -24,14 +24,14 @@ package map is [technical-stack/backend.md §1](technical-stack/backend.md#1-pac
 - One process, one image, one port (8080). Subcommands: `serve` (the default) and `healthcheck`.
 - No database, no files written, no outbound connections, no background jobs beyond the HTTP
   server itself.
-- The SPA is built by Vite at image build time and embedded with `embed.FS`; the binary has no
+- The SPA is built by Vite at image build time and embedded with include_dir; the binary has no
   runtime dependency on Node.
 
 ## 2. Request Path
 
 ```text
 browser ─▶ proxy: TLS, HTTP/2 or HTTP/1.1, X-Forwarded-For
-        ─▶ BitGauge net/http server (plain HTTP/1.1, read-header and idle timeouts)
+        ─▶ BitGauge's hyper server (plain HTTP/1.1, request-head and idle deadlines)
         ─▶ middleware chain
              1. panic recovery
              2. client IP (trusted proxies only)
@@ -40,7 +40,7 @@ browser ─▶ proxy: TLS, HTTP/2 or HTTP/1.1, X-Forwarded-For
                 X-Content-Type-Options: nosniff; CORS per route group
              4. structured logging (debug level only) and Prometheus instrumentation
              5. rate limiting (throughput route groups only)
-        ─▶ chi router mounted at server.base_path
+        ─▶ axum router under server.base_path
              ├─ SPA group:        /, /result/{id}, /history, /settings, /about, /assets/*,
              │                    and the root assets: /favicon.svg, /favicon-16.png,
              │                    /favicon-32.png, /apple-touch-icon.png, /icon-192.png,
@@ -57,7 +57,7 @@ The exact middleware order and handler rules are in
 
 ## 3. SPA Embedding and Base Path
 
-- Vite emits `index.html` plus content-hashed assets under `assets/`. The Go package that owns the
+- Vite emits `index.html` plus content-hashed assets under `assets/`. The `web` module that owns the
   embed exposes them read-only.
 - `index.html` is a template. Once, at startup, the server substitutes `server.base_path` into the
   asset URLs and into `<meta name="bitgauge-base-path">`, and keeps the result in memory. No
@@ -362,7 +362,7 @@ to stdout, never to a file).
 
 ## 8. Compatibility Layers as Router Groups
 
-Each layer is a chi sub-router built by its own package and mounted only when its toggle is on.
+Each layer is an axum router built by its own module and mounted only when its toggle is on.
 A layer translates a third-party contract onto shared building blocks (the random-buffer writer,
 the body drainer, the client IP, the rate limiter) and adds its own headers and paths. Layers
 cannot reach into the native handlers' telemetry, and the native API never depends on a layer
@@ -370,12 +370,12 @@ cannot reach into the native handlers' telemetry, and the native API never depen
 
 ```text
 router (base_path)
- ├─ web.Routes()            SPA, always (package web/)
- ├─ handlers.Routes()       /api/v1, always (package internal/handlers)
- ├─ openspeedtest.Routes()  if compat.openspeedtest.enabled
- ├─ librespeed.Routes()     if compat.librespeed.enabled
- ├─ nq.Routes()             if compat.networkquality.enabled
- └─ metrics.Handler()       if metrics.enabled, at metrics.path
+ ├─ web routes              SPA, always (module web)
+ ├─ native routes           /api/v1, always (module handlers)
+ ├─ openspeedtest::routes() if compat.openspeedtest.enabled
+ ├─ librespeed::routes()    if compat.librespeed.enabled
+ ├─ nq::routes()            if compat.networkquality.enabled
+ └─ metrics endpoint        if metrics.enabled, at metrics.path
 ```
 
 ## Related
