@@ -35,8 +35,7 @@ use std::fs;
 use std::path::Path;
 use std::sync::LazyLock;
 
-use meta::repo;
-use meta::transition::SHIPPED_DOCKERFILE;
+use meta::{SHIPPED_DOCKERFILE, repo};
 use regex::Regex;
 use serde_json::{Map, Value};
 

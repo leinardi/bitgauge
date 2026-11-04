@@ -39,9 +39,9 @@ Working rules for the port:
   phase's commit body lists the Go tests ported and justifies every one not ported.
 - Go reference values come from Go runs, never from reasoning: throwaway Go programs outside the
   module.
-- New Go-to-Rust traps are recorded in the repository copy of the porting skill,
-  [`.agents/skills/rust-port-go`](../.agents/skills/rust-port-go/SKILL.md), in the same commit
-  that finds them. That copy moves back to the user skills after the port.
+- New Go-to-Rust traps were recorded in a repository copy of the maintainer's `rust-port-go`
+  skill, in the same commit that found them. After the port that copy, with every trap it
+  gained, went back to the user skills and left the repository.
 - Until the cutover, every commit used a non-release type and changed no shipped binary, image or
   release; the cutover itself is a `feat`.
 
@@ -177,8 +177,9 @@ still checks the Go binary's recorded answers (`testenv/src/identity.rs`) are re
 Before the cutover the Rust candidate image was built from `deployments/docker/Dockerfile.rust` by
 `make rust-image` as `bitgauge:rust-candidate`, and no workflow published it. The `meta` crate
 stated both artifacts through one constant, `Transition::Candidate`; the cutover made
-`Dockerfile.rust` the shipped `Dockerfile` and the constant `Transition::Done`, which leaves the
-meta-tests holding the shipped image alone, and deleted the Go meta-tests.
+`Dockerfile.rust` the shipped `Dockerfile` and the constant `Transition::Done`, which left the
+meta-tests holding the shipped image alone, and deleted the Go meta-tests. The module itself was
+removed after the loop.
 
 ## Intended Differences from Go
 
@@ -594,9 +595,12 @@ not expect.
 - **Phase 19, the docs.** AGENTS.md, CONTRIBUTING.md, the README, the release and engineering
   docs, the implementation pages and the skills describe the Rust server; `go-style-guide` is
   deleted. The dated QA reports under `docs/engineering/qa/` keep their Go paths: they record what
-  was tested then. `meta::transition` keeps its single `Done` stage, which nothing branches on
-  any more. The repository copy of `rust-port-go` stays in `.agents/skills/` until the maintainer
-  moves it back to the user skills; until then, a new Go-to-Rust trap is still recorded there.
+  was tested then.
+- **After the loop.** `meta::transition`, left with a single `Done` stage nothing branched on, is
+  gone; the shipped Dockerfile's path is `meta::SHIPPED_DOCKERFILE`. The repository copy of
+  `rust-port-go` went back to the user skills. The make-common `web.mk` default that still named
+  `go-build` is fixed upstream (leinardi/make-common pull request 28) and arrives with the next
+  `make mk-common-update`; the Makefile sets `WEB_BUILD_NEXT` either way.
 - **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
   started. The `cargo-machete` pre-commit hook builds its own; phase 15 fetched the pinned `zig`
   into the scratchpad.

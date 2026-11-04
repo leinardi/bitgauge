@@ -23,4 +23,6 @@
 pub mod cargo;
 pub mod repo;
 pub mod script;
-pub mod transition;
+
+/// The shipped Dockerfile, the one release image.
+pub const SHIPPED_DOCKERFILE: &str = "deployments/docker/Dockerfile";

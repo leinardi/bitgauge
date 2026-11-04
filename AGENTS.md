@@ -121,5 +121,3 @@ Read the matching skill in `.agents/skills/` before editing an area it covers; e
 description says when it applies.
 
 The server was ported from Go to Rust ([`docs/rust-port.md`](docs/rust-port.md)).
-`.agents/skills/rust-port-go` is a copy of a user skill that stays here until the maintainer moves
-it back; record a newly found Go-to-Rust trap there.

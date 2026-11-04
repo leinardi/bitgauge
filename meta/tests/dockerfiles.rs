@@ -37,8 +37,7 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::sync::LazyLock;
 
-use meta::repo;
-use meta::transition::SHIPPED_DOCKERFILE;
+use meta::{SHIPPED_DOCKERFILE, repo};
 use regex::Regex;
 
 use images::RUST_BUILD_REPOSITORY;
