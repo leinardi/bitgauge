@@ -99,7 +99,7 @@ include_dir = "0.7.4"
 jiff = { version = "0.2.38", default-features = false, features = ["std"] }
 # SIGTERM and SIGINT blocked and taken with sigwait on a thread of their own; an IPv6 zone named
 # by its interface (if_nametoindex).
-nix = { version = "0.30.1", default-features = false, features = ["net", "signal"] }
+nix = { version = "0.31.3", default-features = false, features = ["net", "signal"] }
 pin-project-lite = "0.2.17"
 # The metric set of backend.md section 7, written as OpenMetrics text.
 prometheus-client = { version = "0.25.1", default-features = false }
@@ -131,7 +131,7 @@ tracing-subscriber = { version = "0.3.23", default-features = false, features = 
 hyper = { version = "1.12.0", default-features = false, features = ["client", "http1"] }
 # The second-signal test sends its child the signals; the listener-failure test shuts a
 # listening socket down.
-nix = { version = "0.30.1", default-features = false, features = ["net", "process", "signal", "socket"] }
+nix = { version = "0.31.3", default-features = false, features = ["net", "process", "signal", "socket"] }
 # The paused clock (start_paused) and the test I/O.
 tokio = { version = "1.54.1", default-features = false, features = [
     "io-util",
