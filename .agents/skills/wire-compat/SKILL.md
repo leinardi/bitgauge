@@ -1,14 +1,14 @@
 ---
 name: wire-compat
 description: >
-  Wire contracts of BitGauge's native API under /api/v1 and its OpenSpeedTest, LibreSpeed and
-  Apple networkQuality layers. Spec first: docs, api/openapi.yaml, handler and route, then make
-  api-types for web/src/api/types.gen.ts. Covers route parity across docs, OpenAPI and chi, the
-  error envelope, the no-copy rule, shared building blocks, per-route sizes, caps and clamps,
-  CORS per layer, the route table and collision check, the exact upload telemetry JSON, and each
-  layer's tests. Use when changing a route, schema or error code, or editing api/openapi.yaml,
-  internal/handlers/*, internal/server routing, web/src/api/*, internal/compat/**,
-  docs/features/wire-protocol.md or docs/features/compatibility.md, before writing the change.
+  Wire contracts of BitGauge's native API under /api/v1 and its OpenSpeedTest, LibreSpeed and Apple
+  networkQuality layers. Spec first: docs, api/openapi.yaml, handler and route, then make api-types
+  for web/src/api/types.gen.ts. Covers route parity across docs, OpenAPI and the router, the error
+  envelope, the no-copy rule, shared building blocks, per-route sizes, caps and clamps, CORS per
+  layer, the route table and collision check, the exact upload telemetry JSON, and each layer's
+  tests. Use when changing a route, schema or error code, or editing api/openapi.yaml,
+  src/handlers/**, src/server routing, web/src/api/*, src/compat/**, docs/features/wire-protocol.md
+  or docs/features/compatibility.md, before writing the change.
 ---
 
 # Wire Contracts — BitGauge
@@ -30,11 +30,12 @@ logging belong to [`server-invariants`](../server-invariants/SKILL.md).
    [§5 route table](../../../docs/features/compatibility.md#5-route-table)) for a layer or any new
    route, configuration.md for a key. Native: then make `api/openapi.yaml` match.
 2. Mark each of §2–§9 *applies* or *N/A*; write the tests of §9 first.
-3. Implement the handler. Native routes register in `handlers.Routes()`, mounted by
-   `internal/server` under `server.base_path`; a layer registers in its own package's `Routes()`.
+3. Implement the handler. Native routes register in `handlers::routes::native_routes`, mounted
+   by `src/server/router.rs` under `server.base_path`; a layer registers in its own module's
+   `routes`.
 4. Native: `make api-types` regenerates `web/src/api/types.gen.ts`; never hand-edit it, commit it
    with the spec.
-5. `make verify-go` (and `make verify-web` after `make api-types`). On a failure fix the docs, the
+5. `make verify-rust` (and `make verify-web` after `make api-types`). On a failure fix the docs, the
    spec or the handler, never the test.
 
 Within v1 changes are additive only ([wire-protocol.md
@@ -48,14 +49,14 @@ Docs, spec and router list exactly these six, with these methods: `GET /api/v1/d
 `/api/v1/ws`, `GET /api/v1/info`.
 
 - **Docs:** [wire-protocol.md §2](../../../docs/features/wire-protocol.md#2-endpoint-table) and
-  compatibility.md §5. `test/docs` (`NativeEndpoints` in `test/docs/facts.go`) fails when
-  `docs/features` names another `/api/v1/<name>`; a seventh endpoint updates that list too.
-- **Spec:** the paths of
-  [wire-protocol.md §11](../../../docs/features/wire-protocol.md#11-openapi-outline), plus root
-  `/metrics` (tag `operations`, `text/plain`, mounted by `metrics.Handler()`). `/api/v1/ws` is a
-  `GET` with a `101`; OpenAPI does not model its messages. Compat routes never appear here.
+  compatibility.md §5. The docs meta-test (`NATIVE_ENDPOINTS` in `meta/tests/docs/facts.rs`) fails
+  when `docs/features` names another `/api/v1/<name>`; a seventh endpoint updates that list too.
+- **Spec:** the paths of [wire-protocol.md
+  §11](../../../docs/features/wire-protocol.md#11-openapi-outline), plus root `/metrics` (tag
+  `operations`, OpenMetrics text, answered by `src/metrics/endpoint.rs`). `/api/v1/ws` is a `GET`
+  with a `101`; OpenAPI does not model its messages. Compat routes never appear here.
 - **Router:** review compares its routes with the spec's paths; no test does.
-  `internal/handlers/info_schema_test.go` holds the JSON to the `Info`, `UploadTelemetry` and
+  `src/handlers/tests/contract.rs` holds the JSON to the `Info`, `UploadTelemetry` and
   `Error` schemas; the `api-types-generate` hook and `web.yaml`'s `types-drift` catch a stale
   `types.gen.ts`.
 - **Errors:** every `/api/v1` error, and every error status of an enabled layer, is
@@ -100,18 +101,18 @@ Layers translate a foreign contract onto the native building blocks
 
 | Building block | Package | Native user | Compat users |
 | --- | --- | --- | --- |
-| Random buffer: 4 MiB from `crypto/rand` at startup, written in slices, no allocation per request | `internal/handlers` | `GET /api/v1/download` | `/downloading`, `/garbage`, `/nq/large` |
-| Body drainer: pooled 64 KiB buffer (`sync.Pool`), read and discard | `internal/handlers` | `POST /api/v1/upload` | OpenSpeedTest `POST /upload`, `/empty`, `/nq/upload` |
-| Server grid counting | `internal/handlers` | `POST /api/v1/upload` only | none |
-| One-byte object (one handler) | `internal/handlers` | `GET /api/v1/small` | `/nq/small` |
-| Derived client IP | `internal/clientip` | limiter, `GET /info` | limiter, `/getIP` |
-| Bounded per-IP limiter | `internal/ratelimit` | throughput routes, WebSocket | throughput routes, networkQuality flows |
+| Random buffer: 4 MiB from getrandom at startup, written in slices, no allocation per request | `src/handlers` | `GET /api/v1/download` | `/downloading`, `/garbage`, `/nq/large` |
+| Body drainer: reads hyper's frames and drops them, the cap checked per frame | `src/handlers` | `POST /api/v1/upload` | OpenSpeedTest `POST /upload`, `/empty`, `/nq/upload` |
+| Server grid counting | `src/handlers` | `POST /api/v1/upload` only | none |
+| One-byte object (one handler) | `src/handlers` | `GET /api/v1/small` | `/nq/small` |
+| Derived client IP | `src/clientip` | limiter, `GET /info` | limiter, `/getIP` |
+| Bounded per-IP limiter | `src/ratelimit` | throughput routes, WebSocket | throughput routes, networkQuality flows |
 
-- `internal/compat/*` imports `internal/handlers`, `internal/clientip` and `internal/ratelimit`,
-  never the reverse (`test/boundary`: `go list -deps ./internal/handlers/...` lists no
-  `internal/compat` package). Layers cannot reach the native telemetry.
-- Each layer is a chi sub-router built by its own package (`openspeedtest.Routes()`,
-  `librespeed.Routes()`, `nq.Routes()`), mounted only when its toggle is on.
+- `src/compat/` uses `src/handlers`, `src/clientip` and `src/ratelimit`, never the reverse
+  ([`meta/tests/compat_boundary.rs`](../../../meta/tests/compat_boundary.rs) scans the building
+  blocks' sources for any path to `crate::compat`). Layers cannot reach the native telemetry.
+- Each layer is an axum `Router` built by its own module (`compat::openspeedtest::routes`,
+  `compat::librespeed::routes`, `compat::nq::routes`), mounted only when its toggle is on.
 - A layer that needs more from a building block extends it without changing what a native route
   observes; if the native API would change, change the docs first. Never copy the writer or the
   drainer into a layer.
@@ -199,8 +200,8 @@ The native `POST /api/v1/upload` answers `200` with exactly this object
   "bytes": 122880, "startMs": 123456750, "durationMs": 1000 }
 ```
 
-- Exactly these seven keys. `test/docs` (`UploadKeys`) fails when a page under `docs/features`
-  shows another set; the OpenAPI `UploadTelemetry` schema must be identical.
+- Exactly these seven keys. The docs meta-test (`UPLOAD_KEYS`) fails when a page under
+  `docs/features` shows another set; the OpenAPI `UploadTelemetry` schema must be identical.
 - `bucketMs` is always 100, with no coarsening; `firstBucket = floor(startMs / 100)`; `buckets` has
   at most 1201 entries (1200 cells of the 120 s lifetime, plus one when it starts mid-cell);
   `Σ buckets == bytes`, which equals the request's `Content-Length`.
@@ -210,11 +211,11 @@ The native `POST /api/v1/upload` answers `200` with exactly this object
 
 ## 9. Tests
 
-Table-driven `net/http/httptest` tests, `go test -race`, a fake clock for every lifetime and
-deadline, never a sleep. Native handler tests:
-[testing.md §1](../../../docs/features/technical-stack/testing.md#1-server-tests). Layer tests,
-spelled out from compatibility.md and its
-[§6 shared rules](../../../docs/features/compatibility.md#6-rules-every-layer-shares):
+Table-driven tests that send requests through the router (the `support` modules of the test trees),
+with tokio's paused clock (`start_paused`) for every lifetime and deadline, never a sleep. Native
+handler tests: [testing.md §1](../../../docs/features/technical-stack/testing.md#1-server-tests).
+Layer tests, spelled out from compatibility.md and its [§6 shared
+rules](../../../docs/features/compatibility.md#6-rules-every-layer-shares):
 
 ### 9.1 Every layer
 
@@ -266,8 +267,8 @@ spelled out from compatibility.md and its
 
 ## Checklist
 
-- [ ] Docs first; OpenAPI, `handlers.Routes()` and regenerated `types.gen.ts` agree with them
+- [ ] Docs first; OpenAPI, `native_routes` and regenerated `types.gen.ts` agree with them
 - [ ] Documented error `code`s only; compat routes out of OpenAPI; no upstream code or text
 - [ ] Building blocks shared; sizes and caps as in §5, CORS as in §6, no route collision
 - [ ] Upload telemetry exactly the seven keys of §8
-- [ ] The §9 tests exist; `make verify-go` (and `make verify-web`) green
+- [ ] The §9 tests exist; `make verify-rust` (and `make verify-web`) green

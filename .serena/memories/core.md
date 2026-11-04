@@ -1,6 +1,6 @@
 # bitgauge — Core
 
-Self-hosted browser speed test: one stateless Go binary embedding a Vue SPA; the measurement engine
+Self-hosted browser speed test: one stateless Rust binary embedding a Vue SPA; the measurement engine
 runs in the browser (Web Worker). Implemented, not yet released.
 
 Everything an agent needs is in `AGENTS.md` at the repository root (layout, commands, validation,

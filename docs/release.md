@@ -18,9 +18,10 @@ shaped that way.
 
 ## What a Release Produces
 
-- Two static binaries, `bitgauge-linux-amd64` and `bitgauge-linux-arm64`, built with
-  `CGO_ENABLED=0`, `-trimpath` and `-buildvcs=false`, with the version, commit and commit date
-  compiled into `internal/buildinfo` and the SPA embedded. A `checksums.txt` file covers both. All
+- Two static musl binaries, `bitgauge-linux-amd64` and `bitgauge-linux-arm64`, built by
+  `make rust-release-binaries` with the pinned zig and cargo-zigbuild and the build paths remapped,
+  with the version, commit and commit date compiled in through the `BITGAUGE_*` stamps and the SPA
+  embedded. A `checksums.txt` file covers both. All
   three files are attached to the GitHub release, and each binary has a build provenance
   attestation made by the release workflow
   ([attestations](https://docs.github.com/actions/security-guides/using-artifact-attestations)).
@@ -470,7 +471,7 @@ This is one reason the process is [provisional](#release) and is revisited befor
    server-side second line of defense behind the `guard` job. Add required reviewers too if a
    release should wait for a human. A run that references a missing environment creates it with no
    protection rules.
-2. **The `dhi.io` credentials.** The build stages pull `dhi.io/golang` and `dhi.io/node`, the
+2. **The `dhi.io` credentials.** The build stages pull `dhi.io/rust` and `dhi.io/node`, the
    runtime stage `dhi.io/static`. Use a pull-only token:
    - the `DHI_USERNAME` Actions variable and the `DHI_TOKEN` Actions secret, for CI's trusted image
      jobs;

@@ -1,14 +1,15 @@
 # Porting BitGauge from Go to Rust
 
-The working record of the port: what was decided, which crates replace which Go libraries, the
-lint boundary, the only differences from the Go binary that are allowed, what was reused from the
-sibling ports, and what the port found along the way. The API and test maps are filled in phase by
-phase, as each Go package is ported.
+The record of the port, which is complete: what was decided, which crates replaced which Go
+libraries, the lint boundary, the only differences from the Go binary that are allowed, what was
+reused from the sibling ports, and what the port found along the way. The API and test maps say
+where each Go package and its tests went. BitGauge ships the Rust binary since the cutover commit
+(phase 18); no Go source is left.
 
-The spec in [`features/`](features/README.md) stays the behavior contract. Until the cutover it
-describes the Go binary, with the Rust behavior beside it as marked "Rust implementation (from the
-cutover)" notes; at the cutover the Go text and the markers are removed. Where this page and the
-spec disagree, the spec wins, and
+The spec in [`features/`](features/README.md) stays the behavior contract. During the port it
+described the Go binary, with the Rust behavior beside it as marked "Rust implementation (from the
+cutover)" notes; the cutover removed the Go text and the markers. Where this page and the spec
+disagree, the spec wins, and
 [`decisions.md`](features/technical-stack/decisions.md) wins on technical choices.
 
 ## Decisions
@@ -41,8 +42,8 @@ Working rules for the port:
 - New Go-to-Rust traps are recorded in the repository copy of the porting skill,
   [`.agents/skills/rust-port-go`](../.agents/skills/rust-port-go/SKILL.md), in the same commit
   that finds them. That copy moves back to the user skills after the port.
-- Until the cutover, every commit uses a non-release type and changes no shipped binary, image or
-  release.
+- Until the cutover, every commit used a non-release type and changed no shipped binary, image or
+  release; the cutover itself is a `feat`.
 
 ## Crate Choices
 
@@ -165,17 +166,19 @@ hyper drops the connection without a response; `is_write_vectored()` is forwarde
 
 ### Implementation Identity
 
-`bitgauge -help` exits 0 with usage under Go, and 2 with the pre-scan refusal under Rust. Every
-Docker suite requires `BITGAUGE_TEST_IMPL=go|rust`, with no default, and before any test checks
+`bitgauge -help` exited 0 with usage under Go, and exits 2 with the pre-scan refusal under Rust.
+Every Docker suite requires `BITGAUGE_TEST_IMPL=rust`, with no default (`go` is refused since the
+cutover), and before any test checks
 that `/bitgauge -help` matches the expected implementation, that the image's
 `org.opencontainers.image.revision` label is the expected commit, and that the copied binary's
-sha256 matches the image layer. A mismatch fails the run and never skips it.
+sha256 matches the image layer. A mismatch fails the run and never skips it. The crossed control
+still checks the Go binary's recorded answers (`testenv/src/identity.rs`) are refused.
 
-Before the cutover the Rust candidate image is built from `deployments/docker/Dockerfile.rust` by
-`make rust-image` as `bitgauge:rust-candidate`, and no workflow publishes it. The `meta` crate
-states both artifacts through one constant, `Transition::Candidate`; at the cutover
-`Dockerfile.rust` becomes `Dockerfile`, the constant becomes `Transition::Done`, and the Go
-meta-tests are deleted.
+Before the cutover the Rust candidate image was built from `deployments/docker/Dockerfile.rust` by
+`make rust-image` as `bitgauge:rust-candidate`, and no workflow published it. The `meta` crate
+stated both artifacts through one constant, `Transition::Candidate`; the cutover made
+`Dockerfile.rust` the shipped `Dockerfile` and the constant `Transition::Done`, which leaves the
+meta-tests holding the shipped image alone, and deleted the Go meta-tests.
 
 ## Intended Differences from Go
 
@@ -588,13 +591,19 @@ not expect.
   Firefox h2 upload measured on 51 path B samples. Found at the cutover:
   `web/src/lib/csp.test.ts` read the style hash from the Go source; it reads
   `src/server/classify.rs` now.
+- **Phase 19, the docs.** AGENTS.md, CONTRIBUTING.md, the README, the release and engineering
+  docs, the implementation pages and the skills describe the Rust server; `go-style-guide` is
+  deleted. The dated QA reports under `docs/engineering/qa/` keep their Go paths: they record what
+  was tested then. `meta::transition` keeps its single `Done` stage, which nothing branches on
+  any more. The repository copy of `rust-port-go` stays in `.agents/skills/` until the maintainer
+  moves it back to the user skills; until then, a new Go-to-Rust trap is still recorded there.
 - **Pre-flight:** `zig` was not on `PATH` and `cargo-machete` was not installed when the loop
   started. The `cargo-machete` pre-commit hook builds its own; phase 15 fetched the pinned `zig`
   into the scratchpad.
 
 ## API Map
 
-Go package to Rust module, filled in by the phase that ports it.
+Go package to Rust module, by the phase that ported it.
 
 | Go | Rust | Phase |
 | --- | --- | --- |
@@ -615,7 +624,7 @@ Go package to Rust module, filled in by the phase that ports it.
 
 ## Test Map
 
-Go test package to Rust test target, filled in by the phase that ports it. The per-test mapping is
+Go test package to Rust test target, by the phase that ported it. The per-test mapping is
 the `/// Go: TestX` doc comment on each Rust test; the commit body of each phase lists the Go tests
 it did not port, with the reason.
 

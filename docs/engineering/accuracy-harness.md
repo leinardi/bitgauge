@@ -248,9 +248,9 @@ and the verdict in the release's file (§5).
   so the download still runs at the last reading. Its steady start is the moment the download's
   hint leaves "warming up". It reaches the Worker through the page's DevTools session
   (`Target.setAutoAttach`, unflattened), picks the engine Worker by its script URL, and writes
-  `exports/ci-100m-50ms/continuous.json`. The `go test` timeout is the minutes plus 30 for the
+  `exports/ci-100m-50ms/continuous.json`. The run's timeout is the minutes plus 30 for the
   image builds and the setup.
 - **The verdict.** `dist/harness/continuous-<UTC>-<envid>/report.json` and `report.md` hold every
   reading, its distance from the minute-5 one, the shaper self-test and the netguard counters,
   which must all be zero. A missing, empty or short sample file fails the check, and so does a
-  reading out of order or without a heap size; nothing skips (`test/harness/continuous.go`).
+  reading out of order or without a heap size; nothing skips (`testenv/src/harness/continuous.rs`).

@@ -10,7 +10,7 @@ prior art behind the design:
 | [`engineering/`](engineering/README.md) | How the project is run rather than what it does: harness runbooks, checklists, audits | Working notes, not a contract. Nothing here constrains the product. |
 | [`research/`](research/README.md) | How other speed tests work and which ideas BitGauge takes | Background, ideas only. Where it disagrees with `features/`, `features/` wins. |
 
-How releases are made: [`release.md`](release.md). The Go-to-Rust port in progress:
+How releases are made: [`release.md`](release.md). The record of the port from Go to Rust:
 [`rust-port.md`](rust-port.md).
 
 ## Design Export
@@ -68,7 +68,7 @@ Editing via either path edits the same file. Windows checkouts need
    must be byte-identical to the committed ones. Any difference is resolved in favor of the
    committed spec (`git checkout -- docs/design_system/features/`), and the committed files are
    pasted into the Claude Design project so the next export matches.
-3. Check that every relative link in `docs/` still resolves (`go test -count=1 ./test/docs/`), then
+3. Check that every relative link in `docs/` still resolves (`cargo test -p meta --test docs`), then
    commit the export.
 
 ## Reading Order

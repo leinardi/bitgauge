@@ -34,7 +34,8 @@ If the readings are worth comparing next time, commit them as
 make audit-deps
 ```
 
-That is the pinned, source-aware `govulncheck -test` over every Go package, plus
+That is the pinned cargo-deny (`cargo deny --workspace check`: `Cargo.lock` against the RustSec
+advisory database, plus the licenses, bans and sources of `deny.toml`), plus
 `npm audit --audit-level=high` over the `web/` lockfile (`.mk/audit-deps.mk`). The commit hooks run
 the same targets only when a dependency file changes, and CI's `audit` job only on pull requests
 and pushes, so neither says anything about a CVE disclosed against a dependency nobody has touched.
@@ -48,10 +49,10 @@ reads.
 - no fix published, recorded with the advisory ID and what the exposure actually is;
 - not applicable, with the reason, not "looks unrelated".
 
-One caveat that produces a false alarm otherwise: `govulncheck` reports standard-library findings
-against the Go toolchain that runs it, not against the `go` directive. Run it with the toolchain of
-`.go-version` (CI does); a wall of `Found in: net/http@go1.x.y` locally means the local Go is
-behind. Upgrade it and re-run before writing anything down.
+One caveat that produces a false answer otherwise: cargo-deny reports what the lockfile holds,
+not what the build reaches, so an advisory against a crate that only a test crate pulls in is still
+a finding to triage, and an "unmaintained" advisory fails like a vulnerability until it is ignored
+in `deny.toml` by its ID, with a reason.
 
 ## 2. Re-Run the Three Audit Prompts
 
@@ -62,9 +63,9 @@ session, with no memory of the others, and paste the reports in full into the au
 A prompt area whose code does not exist yet is answered "not present"; that is a finding too, and
 it is how the audit notices the day it starts to exist.
 
-### Prompt A: Go and Server Invariants
+### Prompt A: Server and Invariants
 
-> Audit the Go side of this repository (`cmd/`, `internal/`, `test/`) and report on each of these
+> Audit the Rust side of this repository (`src/`, `meta/`, `testenv/`) and report on each of these
 > areas separately, with a verdict (healthy / minor / moderate / serious) and the concrete evidence
 > behind it: file and line, not impressions.
 >
@@ -72,7 +73,7 @@ it is how the audit notices the day it starts to exist.
 >    bounded in-memory counters for limits and metrics
 >    (`docs/features/principles.md`, `.agents/skills/server-invariants/SKILL.md`).
 > 2. **No outbound calls**: any outbound network client, DNS lookup, telemetry, update check or
->    external URL, including in dependencies reachable from `cmd/bitgauge`.
+>    external URL, including in dependencies reachable from the `bitgauge` package.
 > 3. **Handlers**: state held beyond the request; allocation per download request; an upload
 >    answered before its body is drained; a request body, header or WebSocket message logged.
 > 4. **Trust boundary**: client IP read from `X-Forwarded-For` other than through
@@ -80,11 +81,12 @@ it is how the audit notices the day it starts to exist.
 >    client can step around; walk `.agents/skills/server-invariants/SKILL.md` item by item.
 > 5. **Configuration**: keys read but not documented in `docs/features/configuration.md`, keys
 >    documented but not read, and validation that fails open rather than exiting with status 2.
-> 6. **Wire compatibility**: drift between `internal/compat/` and
+> 6. **Wire compatibility**: drift between `src/compat/` and
 >    `docs/features/wire-protocol.md`, and any code or asset that looks copied from OpenSpeedTest
 >    or LibreSpeed rather than written from their documented behavior.
-> 7. **Hygiene and tests**: dead code, `nolint` directives whose reason no longer holds, swallowed
->    errors, goroutines without a context, duplicated rules, and `time.Sleep` where a wait belongs.
+> 7. **Hygiene and tests**: dead code, `#[expect]` or `#[allow]` attributes whose reason no longer
+>    holds, swallowed errors, tasks spawned without a shutdown path, duplicated rules, and sleeps
+>    where a paused clock or a wait belongs.
 
 ### Prompt B: Engine and Frontend
 
@@ -131,14 +133,14 @@ PREVIOUS="$(git describe --tags --abbrev=0)"   # before the first release: the c
 
 ```bash
 # Largest files, both sides. A new entry near the top is the thing to look at.
-find internal cmd -name '*.go' ! -name '*_test.go' \
+find src -name '*.rs' ! -path '*/tests/*' ! -name 'tests.rs' \
   | xargs wc -l | grep -v ' total$' | sort -rn | head -20
 find web/src \( -name '*.vue' -o -name '*.ts' \) \
   | grep -vE '(/components/ui/|/test/|types\.gen\.ts|\.(test|spec)\.ts)' \
   | xargs wc -l | grep -v ' total$' | sort -rn | head -20
 
 # Suppressions added since the previous milestone.
-git diff "$PREVIOUS"..HEAD | grep -E '^\+.*(nolint|eslint-disable|fallow-ignore|shellcheck disable|droast (global )?ignore)'
+git diff "$PREVIOUS"..HEAD | grep -E '^\+.*(#\[(allow|expect)\(|eslint-disable|fallow-ignore|shellcheck disable|droast (global )?ignore)'
 
 # The fallow baselines: how many entries are left, and whether any grew.
 git diff "$PREVIOUS"..HEAD -- .fallow-baseline.json .fallow-regression-baseline.json
@@ -164,14 +166,14 @@ What each one is for:
 
 ## 4. Refresh the Harness Image Digests
 
-The harness's third-party images are pinned by digest in Go source (`test/harness/images.go`:
-Playwright, Traefik, Caddy), and the tools image's base in `test/harness/tools.Dockerfile`.
+The harness's third-party images are pinned by digest in Rust source
+(`testenv/src/harness/images.rs`: Playwright, Traefik, Caddy), and the tools image's base in `test/harness/tools.Dockerfile`.
 Dependabot watches only `deployments/docker`, so nothing else refreshes them.
 
 - [ ] For each image, resolve the current digest of the same tag
       (`docker buildx imagetools inspect <image>:<tag>`) and replace the pin if it moved. Keep the
       Playwright tag equal to the `@playwright/test` version `web/package.json` pins; the harness
-      unit tests in `test/harness` fail otherwise.
+      unit tests in `testenv` fail otherwise.
 - [ ] Decide whether a newer tag is due (a Traefik or Caddy minor, a new Alpine line), and move it
       in its own commit.
 - [ ] Once the harness is active, run `make harness-ci` with the new digests before the milestone

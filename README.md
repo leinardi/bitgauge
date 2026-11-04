@@ -9,7 +9,7 @@
 BitGauge measures the link between a browser and a server you run yourself: a NAS on the LAN, a
 homelab box behind Wi-Fi, or your home server reached over a VPN from a phone. It is built to give
 honest numbers across the whole range those links span, from well under 1 Mbit/s on mobile over
-VPN to multi-Gbit LAN. It ships as one container image: a stateless Go binary with an embedded Vue
+VPN to multi-Gbit LAN. It ships as one container image: a stateless Rust binary with an embedded Vue
 web app. **The server never stores a result and never calls out.**
 
 One method has to hold up across that whole range: request sizes and stream counts adapt to the

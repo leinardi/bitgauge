@@ -30,9 +30,9 @@ fixed.
 2. List every finding a commit fixed since the last round (`git log --grep 'QA-'`). Each is
    re-checked in its area and reported as holds, partly or regressed.
 3. Note the commit under test (`git log -1`) and that the worktree is clean, then build once
-   (`make build`): every stack below runs that `./dist/bitgauge` or the demo build of the same
-   commit. Install the browsers once too (`make e2e-browsers`): `playwright cli` drives the ones
-   the end-to-end tests use.
+   (`make rust-bin`, the web app and the release binary): every stack below runs that
+   `./dist/bitgauge` or the demo build of the same commit. Install the browsers once too (`make e2e-browsers`):
+   `playwright cli` drives the ones the end-to-end tests use.
 
 ## 2. The stacks
 
@@ -144,7 +144,7 @@ Then:
 
 ```bash
 git add docs/engineering/qa/<file>.md   # the link test reads only files git tracks
-go test -count=1 ./test/docs/
+cargo test --offline --locked -p meta --test docs
 pre-commit run --files docs/engineering/qa/<file>.md
 ```
 
@@ -162,11 +162,11 @@ first (the `spec-change` skill); the QA file links it. Commit as `docs(qa): reco
 Suggest how to divide the open findings into fix plans, and record the agreed split in the QA file
 under **Suggested plan split**. No planning yet: only which findings go together.
 
-- **At most 30-40 findings per plan.** Toward 30 when the plan is mostly Go, engine or security
+- **At most 30-40 findings per plan.** Toward 30 when the plan is mostly Rust, engine or security
   work, or has several highs; toward 40 when it is mostly copy, layout and small web fixes. More
   findings than that make another plan.
 - Split by the kind of work and the skills it needs: server, wire and security work
-  (`go-style-guide`, `server-invariants`, `wire-compat`), engine work (`measurement-engine`) and
+  (`server-invariants`, `wire-compat`), engine work (`measurement-engine`) and
   app presentation (`vue-page-patterns`, `design-system-guard`, `demo-parity`) apart.
 - Keep one model in one plan: findings that share a cause or a reading (a result status, a
   qualifier, a notice) land together, so the app never disagrees with itself between plans.

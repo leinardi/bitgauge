@@ -27,6 +27,6 @@ MK_LOCAL_VERIFY_INCLUDED := 1
 verify-web: web-lint web-test ## Verify the web code (ESLint, vue-tsc, Vitest)
 
 .PHONY: verify
-verify: verify-rust verify-web ## Verify everything (verify-rust lives in rust.mk)
+verify: verify-rust verify-web ## Verify everything: the Rust workspace (verify-rust) and the web code (verify-web)
 
 endif  # MK_LOCAL_VERIFY_INCLUDED

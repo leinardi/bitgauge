@@ -5,7 +5,7 @@ contributor, direct pushes to `main`, no branch ruleset, and settings that a pri
 on a free plan cannot enforce. None of that survives contact with a pull request from someone
 else.
 
-Nothing here has been done yet. The workflows it refers to exist (`ci.yaml`, `go-test.yaml`, the
+Nothing here has been done yet. The workflows it refers to exist (`ci.yaml`, `rust.yaml`, the
 warm-ups, `scheduled-scan.yaml` and `harness.yaml`); this note records what has to be decided and
 switched on, and why, so the work is not reconstructed from memory under time pressure.
 
@@ -51,9 +51,9 @@ The rulesets live in `leinardi/gh-leinardi-iac` (`stacks/github-repos/repos.tf`,
       restricted to `main` ([release.md, one-time setup](../release.md#one-time-setup)).
 
 `pre-commit-all` already runs every hook on every pull request and every push to `main`, so a check
-that exists only on a contributor's machine is the exception: `go-test-product` and `meta-tests`
-are skipped there because `go-test` and `repo-gates` run the same tests, and the commit-message
-hook is replaced by the `conventional-commits` job.
+that exists only on a contributor's machine is the exception: `meta-tests`, `cargo-test` and
+`cargo-deny` are skipped there because `repo-gates` and `rust` run the same checks, and the
+commit-message hook is replaced by the `conventional-commits` job.
 
 ## 3. Restore the Scheduled Scan
 
@@ -72,12 +72,12 @@ by hand, and its nightly `schedule:` block is commented out.
       it a manual, pre-release run.
 - [ ] Decide where a failing scheduled run goes. A run that fails into an inbox nobody reads is not
       a control; an issue opened automatically is.
-- [ ] Decide on CodeQL for Go and TypeScript, on a schedule and on pull requests. It is free for
+- [ ] Decide on CodeQL for Rust and TypeScript, on a schedule and on pull requests. It is free for
       public repositories, which is the reason to wait.
 
 ## 4. Docker Hardened Images Block Fork Builds
 
-Every stage of the Dockerfile pulls from `dhi.io` (`dhi.io/golang` and `dhi.io/node` for the build
+Every stage of the Dockerfile pulls from `dhi.io` (`dhi.io/rust` and `dhi.io/node` for the build
 stages, `dhi.io/static` at runtime), a registry that needs credentials. A pull request from a fork
 gets no secrets, so the image jobs (the image build and its tests, the accuracy harness) are
 skipped with a notice and `ci-result` fails on it. That is decided
@@ -86,7 +86,7 @@ skipped with a notice and `ci-result` fails on it. That is decided
 livable.
 
 - [x] Say plainly in [`CONTRIBUTING.md`](../../CONTRIBUTING.md) that `make docker-build`,
-      `make go-test-image` and the harness targets need a `dhi.io` account (`make e2e` does not:
+      `make rust-test-image` and the harness targets need a `dhi.io` account (`make e2e` does not:
       it runs a host-built binary), so an outside contributor is not left debugging an
       authentication failure that is by design.
 - [ ] **Verify the replacement pull request path with a real fork from a second account**: open a

@@ -17,7 +17,7 @@ contract, and changes to it stay welcome too:
   change touches updated together (the measurement page, the wire protocol, configuration, the UI
   pages and the glossary must keep agreeing).
 
-Product code (`cmd/`, the `internal/` packages of
+Product code (`src/`, the modules of
 [backend.md §1](docs/features/technical-stack/backend.md#1-package-map), `web/src/`,
 `api/openapi.yaml`) implements what the docs specify and nothing else. Tooling (build files,
 linters and their configuration, CI and release workflows, test harnesses and meta-tests, agent
@@ -36,7 +36,7 @@ one needs a pull request to that file with the reason.
 The build, test and lint commands are listed by `make help`, and with what each change has to run
 in [AGENTS.md](AGENTS.md#common-commands).
 
-`make docker-build`, `make go-test-image` and the accuracy harness targets pull the `dhi.io` base
+`make docker-build`, `make rust-test-image` and the accuracy harness targets pull the `dhi.io` base
 images, which need a `dhi.io` account: run `docker login dhi.io` first, or leave those targets to
 CI. Everything else, `make e2e` and `make run` included (both run a host-built binary), needs no
 account.

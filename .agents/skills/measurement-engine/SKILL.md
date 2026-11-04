@@ -278,4 +278,4 @@ No fudge factors, no hidden smoothing, no number without the qualifiers the meth
       status, confidence and notices
 - [ ] The engine emits numbers, enum codes and catalog keys, never display text
 - [ ] `make verify-web` (ESLint, vue-tsc, Vitest) clean; for a docs change,
-      `go test -count=1 ./test/docs/` and markdownlint clean
+      `cargo test --offline --locked -p meta --test docs` and markdownlint clean

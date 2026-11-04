@@ -2,7 +2,7 @@
 name: adversarial-review
 description: >
   Adversarial code review of a set of changes to BitGauge — working tree, staged diff, a branch
-  vs main, a commit range, or a PR. Language-agnostic (Go, TS/Vue, bash, YAML, Dockerfile,
+  vs main, a commit range, or a PR. Language-agnostic (Rust, TS/Vue, bash, YAML, Dockerfile,
   docs). Loads the skills and spec pages that own the changed paths, hunts for real defects and
   broken invariants (spec first, stateless server, no outbound calls, engine purity, honest
   numbers), runs the gates, then reports ranked findings. Use when the user asks to review
@@ -63,13 +63,14 @@ is a finding even when lint is green. A path no skill covers (Makefile, plain YA
 Markdown) gets §3 and §4 with the **same rigor**. For JS/TS at scale, the `fallow` skill surfaces
 structural risk on the changed set: evidence, not the review.
 
-**Meta-tests are code under review too.** A test under `test/` guards a claim the product cannot
-check for itself: the boundary lint rules (`test/boundary`), image and action pins, the no-egress
-layers (`test/internal/netguard`, `test/internal/syscalltrace`), the Docker test environments
-(`test/internal/testenv`), a `scripts/check-*.sh` and its driver. Try to make the guarded thing
-go wrong and see whether the test still notices. A test that passes because its input is empty,
-its rule never ran, its pattern no longer matches any file or its tool was skipped is a false
-pass, and a high-severity finding.
+**Meta-tests are code under review too.** A test in the `meta` or `testenv` crate guards a claim the
+product cannot check for itself: the lint boundary (`meta/tests/lint_exemptions.rs`,
+`lint_inheritance.rs`, `production_graph.rs`, `compat_boundary.rs`), image and action pins, the
+no-egress layers (`testenv/src/netguard.rs`, `testenv/src/syscalltrace`), the Docker test
+environments (`testenv/src/env.rs`, `envid.rs`, `sweep.rs`), a `scripts/check-*.sh` and its driver.
+Try to make the guarded thing go wrong and see whether the test still notices. A test that passes
+because its input is empty, its rule never ran, its pattern no longer matches any file or its tool
+was skipped is a false pass, and a high-severity finding.
 
 ## 3. Repo invariants — check these on every review, whatever changed
 
@@ -144,19 +145,22 @@ exactly what it retires and no more?
 
 ### (c) A new suppression has to show its work
 
-Any new `//nolint:`, `eslint-disable`, `@ts-ignore`/`@ts-expect-error`, `fallow-ignore-*`,
-`# shellcheck disable=` or `# droast ignore=` is a standing decision to let a linter stay
-silent. `nolintlint` enforces a reason, but not whether the finding was unfixable or merely
-inconvenient. Demand the attempt: for a complexity or length rule, was the extraction tried and
-what broke? For `wrapcheck`, why is wrapping wrong here? For `varnamelen`, why must the name be
-short? A reason that restates the rule, or no reason, is a finding. The same goes for a linter
-disabled or narrowed in `.golangci.yaml`, `web/eslint.config.ts` or `.pre-commit-config.yaml`.
+Any new `#[expect(...)]` or `#[allow(...)]` of a lint, `eslint-disable`,
+`@ts-ignore`/`@ts-expect-error`, `fallow-ignore-*`, `# shellcheck disable=` or `# droast ignore=` is
+a standing decision to let a linter stay silent. The workspace lints require a `reason = "…"` on an
+`expect` (and an `expect`, not an `allow`, so a stale one warns), but not whether the finding was
+unfixable or merely inconvenient. Demand the attempt: for a complexity or length rule, was the
+extraction tried and what broke? For a cast or a `too_many_arguments`, why is the type or the
+grouping wrong here? A reason that restates the rule, or no reason, is a finding; an `expect` of a
+`disallowed_*` lint outside the items `lint_exemptions.rs` lists fails that test. The same goes for
+a lint disabled or narrowed in the root `Cargo.toml` `[workspace.lints]`, a `clippy.toml`,
+`deny.toml`, `web/eslint.config.ts` or `.pre-commit-config.yaml`.
 
 ### (d) Cross-file duplication
 
 Before accepting a new helper, search by *behavior* for the one that already exists:
-`internal/handlers` (random buffer, drainer, grid), `internal/clientip`, `web/src/engine/`
-(statistics), `web/src/composables/`, `test/internal/`. A compat layer that reimplements the
+`src/handlers` (random buffer, drainer, grid), `src/clientip`, `web/src/engine/` (statistics),
+`web/src/composables/`, `testenv/src/`. A compat layer that reimplements the
 download or upload path, or two percentile helpers that round differently, drift apart, and the
 copy nobody reads keeps the bug. `npm --prefix web exec --no -- fallow dupes --changed-since
 <base>` surfaces the frontend half: evidence, not the finding.
@@ -172,23 +176,22 @@ Three contracts in this repository are written down more than once and can disag
   commit and `make api-types` run; `web/src/api/types.gen.ts` is never hand-edited. Read the spec
   prose against the handler, not just the shapes.
 - **Numbers.** Values, probe-path names and the upload JSON shape must agree across
-  `measurement.md`, `wire-protocol.md`, `configuration.md`, `ui/` and `glossary.md`. `test/docs`
-  checks the facts it knows; it does not catch a new one.
+  `measurement.md`, `wire-protocol.md`, `configuration.md`, `ui/` and `glossary.md`. The docs
+  meta-test (`meta/tests/docs.rs`) checks the facts it knows; it does not catch a new one.
 
 ## 6. Verify before you trust (don't hand-wave the gates)
 
 Static reading misses things. Run what [AGENTS.md "Validation"](../../../AGENTS.md#validation)
 lists for the changed paths, and treat a failure as a confirmed finding with the output attached:
-`make check` for anything (it pins golangci-lint, which may not be on `PATH`), `make verify-go` /
-`make verify-web`, `make api-types` leaving no diff after `api/openapi.yaml`, and where they apply
-`make go-test-image`, `make harness-ci` (Docker) and `make audit-deps` (network). For
+`make check` for anything, `make verify-rust` / `make verify-web`, `make api-types` leaving no
+diff after `api/openapi.yaml`, and where they apply `make rust-test-image BITGAUGE_TEST_IMPL=rust`,
+`make harness-ci BITGAUGE_TEST_IMPL=rust` (Docker) and `make audit-deps` (network). For
 `.github/workflows/*`, say which jobs you could not exercise.
 
-Hooks rewrite files (prettier, markdownlint, the golangci formatters): check `git status`
-afterwards and report a rewrite as a finding. A skipped test is not a pass: check the `-v` output
-for `SKIP`; the meta-tests skip a missing golangci-lint, ESLint or fallow unless
-`BITGAUGE_REQUIRE_TOOLS=1`. A gate you cannot run here (no Docker, no network) is named and its
-risk marked unverified, never implied passed.
+Hooks rewrite files (prettier, markdownlint, `cargo fmt`): check `git status` afterwards and report
+a rewrite as a finding. A skipped test is not a pass: check the `-v` output for `SKIP`; the
+meta-tests skip a missing ESLint or fallow unless `BITGAUGE_REQUIRE_TOOLS=1`. A gate you cannot run
+here (no Docker, no network) is named and its risk marked unverified, never implied passed.
 
 ## 7. Report
 
