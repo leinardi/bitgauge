@@ -7,7 +7,7 @@ speed.example.lan {
 	# Let BitGauge enforce its own body caps (Caddy has no limit unless one is set).
 	# If a limit is required here, keep it above compat.networkquality.max_upload_bytes:
 	# request_body {
-	# 	max_size 2GB
+	# 	max_size 17GB
 	# }
 
 	# /metrics only for the Prometheus server (192.168.1.20 here); anyone else gets a 403.

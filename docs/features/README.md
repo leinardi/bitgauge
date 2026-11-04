@@ -64,15 +64,15 @@ and telemetry of any kind ([product.md §1.6](product.md#16-non-goals)).
 
 **Open**, each with the answer the specification currently relies on:
 
-- **The `/nq/upload` drain limit** (`compat.networkquality.max_upload_bytes`): 1 GiB, to confirm
-  against `networkQuality` and `goresponsiveness` on a 10 Gbit LAN
-  ([compatibility.md §3.1](compatibility.md#31-routes)).
 - **The slow-link budgets** of [measurement.md §19](measurement.md#19-worked-timelines): to confirm
   on the harness floor profiles; if they show low confidence there, consider sizing an added
   stream's first request down.
 - **Where a path B probe waits on a loaded HTTP/2 connection through Caddy** (about 300 to 340 ms
   per probe on `ci-100m-50ms-caddy-h2`): not investigated; the value is reported as measured
-  ([measurement.md §12.3](measurement.md#123-path-b-procedure)).
+  ([measurement.md §12.3](measurement.md#123-path-b-procedure)). `networkQuality` sees the same
+  through Caddy over HTTP/2: about 330 ms on its loaded connections with
+  `net.ipv4.tcp_notsent_lowat` at 16384, against 33 ms on new ones
+  ([compatibility.md §3.4](compatibility.md#34-proxy-requirements)).
 - **Whether an upload's path B starts before the engine learns the warm-up end**: today it starts
   at the learned warm-up end, so a run that learns it late has few samples or none. Decide before
   the first release whether to probe from the first request and keep only the probes sent after

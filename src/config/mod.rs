@@ -316,7 +316,7 @@ impl Default for Config {
                 librespeed: Toggle::default(),
                 networkquality: NetworkQuality {
                     enabled: false,
-                    max_upload_bytes: Size::GIB,
+                    max_upload_bytes: Size::GIB.times(16),
                     max_flows_per_client: 32,
                 },
             },

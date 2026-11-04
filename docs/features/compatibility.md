@@ -271,13 +271,14 @@ Apple's default paths would collide with BitGauge's `/api/v1`.
   `Content-Encoding`.
 - **Upload limit.** `/nq/upload` has its own drain limit,
   `compat.networkquality.max_upload_bytes`, separate from `limits.max_upload_bytes`, because the
-  client posts large bodies for the duration of its test (Apple's reference nginx configuration
-  allows 250 MB request bodies). The server MUST read the whole body before responding: on HTTP/1.1
-  between proxy and BitGauge an early response forces a connection close. A declared
-  `Content-Length` above the limit is answered `413` without reading; a body without
-  `Content-Length` (streamed) that exceeds the limit is read up to it, then answered `413` and the
-  connection closed. The 120 s request lifetime
-  applies. The default drain limit is still open ([README.md](README.md#later-and-open-items)).
+  client posts large bodies for the duration of its test. The server MUST read the whole body
+  before responding: on HTTP/1.1 between proxy and BitGauge an early response forces a connection
+  close. A declared `Content-Length` above the limit is answered `413` without reading; a body
+  without `Content-Length` (streamed) that exceeds the limit is read up to it, then answered `413`
+  and the connection closed. The 120 s request lifetime applies. The default, 16 GiB, is the
+  `Content-Length` macOS `networkQuality` declares on every upload flow (17179869184 bytes,
+  `networkQuality/194.120.6` on macOS 26.7.1, over HTTP/1.1, HTTP/2 and HTTP/3); a lower limit fails
+  its upload phase with `413` before a byte is sent.
 - `/nq/upload` accepts a body without `Content-Length`, the one networkQuality route that drains.
 - `/nq/large` and `/nq/upload` count against `compat.networkquality.max_flows_per_client`
   (default 32), not against the native stream limit, because `networkQuality` opens many parallel
@@ -328,6 +329,15 @@ never used to build URLs.
   trust store.
 - Request buffering off and a body limit at least `compat.networkquality.max_upload_bytes` on
   `/nq/upload`; response buffering off on `/nq/large`.
+- **`net.ipv4.tcp_notsent_lowat`** at 16384 on the proxy (host or the proxy container's network
+  namespace) for HTTP/2 clients. Without it the kernel queues the `/nq/large` data unsent in the
+  proxy's socket, and probes on the loaded connections wait behind it: 1.3 s median instead of
+  330 ms through Caddy over Wi-Fi at about 1 Gbit/s, with probes on new connections at 33 ms in
+  both runs. HTTP/3 does not use the kernel's TCP buffers and is not affected.
+- **Cancelled uploads may hold a flow.** `networkQuality` cancels its upload flows when a run ends;
+  Caddy over HTTP/3 keeps the upstream request open until its QUIC idle timeout (about 30 s), and
+  each one counts against `max_flows_per_client` until then. Runs started back to back from one
+  client can be answered `429` on `/nq/upload`; waiting about 40 s between runs avoids it.
 - With a non-root base path, `/.well-known/nq` lives under the base path too; draft-style discovery
   at the host root then needs a proxy rule, or clients use `-C` with the explicit config URL.
 

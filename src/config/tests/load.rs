@@ -102,7 +102,7 @@ fn defaults_are_the_documented_values() {
     assert!(defaults.test_defaults.overhead_compensation_percent.abs() < f64::EPSILON);
     assert_eq!(
         defaults.compat.networkquality.max_upload_bytes,
-        Size::new(1_073_741_824)
+        Size::new(17_179_869_184)
     );
     assert_eq!(defaults.compat.networkquality.max_flows_per_client, 32);
     assert_eq!(

@@ -94,6 +94,9 @@ The shipped compose file runs it with BitGauge in the shape of §2:
 - [ ] **No response compression** on BitGauge's routes.
 - [ ] **WebSocket upgrade** forwarded for `/api/v1/ws` (`Upgrade`, `Connection` headers).
 - [ ] **Read timeouts above 120 s** (the upload lifetime).
+- [ ] **`net.ipv4.tcp_notsent_lowat` at 16384** on the proxy for HTTP/2 when the networkQuality
+      layer is on; without it, probes on loaded connections wait behind unsent download data
+      ([compatibility.md §3.4](compatibility.md#34-proxy-requirements)).
 - [ ] **Forwarding headers** set (`X-Forwarded-For`, `X-Forwarded-Proto`, `Host`) and the proxy's
       address in `server.trusted_proxies`; otherwise every client shares the proxy's address and
       its rate limits.
