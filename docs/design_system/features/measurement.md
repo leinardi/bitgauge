@@ -1105,7 +1105,12 @@ the HTTP/2 connection that carries the load.
   instant, on the client clock, so every sample falls under full load:
   - **Start.** On download, the warm-up end (§8.3). On upload, whose warm-up end is decided on the
     server timeline, the client instant the engine learns it: the confirmation that ended the
-    warm-up.
+    warm-up. That is the earliest instant the client can show the warm-up has ended; keeping
+    earlier probes would need client/server clock alignment, and the only alignment, the display
+    offset of §7.4, never feeds a number. An upload that learns its warm-up end late therefore has
+    fewer probes in the last 4 s the formula reads (§12.5): on the slow link of §19.1, learned at
+    ≈ 14.8 s with new requests stopping at ≈ 17.6 s, path B is `uncertain`; a stop soon after
+    the warm-up leaves it `unavailable_insufficient` (§12.4).
   - **End instant.** On download, the end instant of §5, where in-flight requests are aborted. On
     upload, the instant the direction stops issuing requests (the request target `max − 1 s`, the
     end condition, the data cap, or the failure that ends it), or the abort instant of a stop, an

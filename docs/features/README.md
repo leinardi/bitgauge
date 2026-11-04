@@ -73,8 +73,3 @@ and telemetry of any kind ([product.md §1.6](product.md#16-non-goals)).
   through Caddy over HTTP/2: about 330 ms on its loaded connections with
   `net.ipv4.tcp_notsent_lowat` at 16384, against 33 ms on new ones
   ([compatibility.md §3.4](compatibility.md#34-proxy-requirements)).
-- **Whether an upload's path B starts before the engine learns the warm-up end**: today it starts
-  at the learned warm-up end, so a run that learns it late has few samples or none. Decide before
-  the first release whether to probe from the first request and keep only the probes sent after
-  the warm-up end, or to keep §12.3 and accept that failure mode
-  ([measurement.md §12.3](measurement.md#123-path-b-procedure)).
