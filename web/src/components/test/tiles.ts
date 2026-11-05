@@ -136,6 +136,9 @@ function insufficientReason(result: DirectionResult, input: DirectionInput, { t,
   if (result.events.some((event) => event.code === 'data-cap')) {
     return t('test.tiles.insufficientCap')
   }
+  if (result.events.some((event) => event.code === 'error' && event.notice === 'upload-interrupted')) {
+    return t('notices.insufficientData.uploadInterrupted')
+  }
   return input.maxMs === undefined ? t('test.tiles.insufficient') : t('test.tiles.insufficientMax', { max: formatLimit(input.maxMs, locale) })
 }
 

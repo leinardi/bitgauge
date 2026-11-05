@@ -130,4 +130,26 @@ describe('the stop notice', () => {
     expect(latencyStopView({ ...base, status: 'partial', notices: [{ code: 'stopped-early', direction: 'upload', coveredMs: 0 }] }, { pings: 20, count: 20 }, wording)).toBeNull()
     expect(latencyStopView(base, { pings: 20, count: 20 }, wording)).toBeNull()
   })
+
+  it.each(['download', 'upload'] as const)('never calls a cap-ended Continuous %s warm-up an idle cancellation (QA-137)', (direction) => {
+    const result = resultFixture({
+      status: 'partial', settings: continuousResultSettings(direction),
+      download: SKIPPED, upload: { ...SKIPPED, confirmedRequests: 0 },
+      [direction]: { status: 'insufficient-data', streams: 2, bytes: 50e6, events: [{ code: 'data-cap', atMs: 100 }] },
+      notices: [{ code: 'data-cap-reached', direction }],
+    })
+    expect(latencyStopView(result, { pings: 20, count: 20 }, wording)).toBeNull()
+  })
+
+  it('keeps a genuine idle stop at the ping-count boundary', () => {
+    const result = resultFixture({ status: 'partial', download: SKIPPED, upload: { ...SKIPPED, confirmedRequests: 0 }, notices: [] })
+    expect(latencyStopView(result, { pings: 20, count: 20 }, wording)?.title).toBe('Test cancelled during latency')
+    expect(latencyStopView({ ...result, status: 'error' }, { pings: 20, count: 20 }, wording)).toBeNull()
+  })
+
+  it.each(['cancelled', 'error'] as const)('never describes a direction with a %s event as not run', (code) => {
+    const events = code === 'cancelled' ? [{ code, atMs: 2000 }] : [{ code, atMs: 2000, notice: 'requests-failed' as const }]
+    const result = resultFixture({ status: 'partial', download: { status: 'insufficient-data', streams: 1, bytes: 0, events }, upload: { ...SKIPPED, confirmedRequests: 0 }, notices: [] })
+    expect(latencyStopView(result, { pings: 20, count: 20 }, wording)).toBeNull()
+  })
 })

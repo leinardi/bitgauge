@@ -241,7 +241,7 @@ export function streamsShown(streams: { mode: TestSettings['streams']['mode']; f
 }
 
 /** The value a field has with these stored settings over the defaults. */
-export function valueOf(key: StoredKey, defaults: TestSettings, stored: StoredSettings): unknown {
+function valueOf(key: StoredKey, defaults: TestSettings, stored: StoredSettings): unknown {
   return valueIn(key, storedOver(defaults, stored), stored)
 }
 

@@ -135,8 +135,10 @@ describe('a field the link sets', () => {
     expect(option(app, 'Units', 'Bytes · MB/s').attributes('aria-checked')).toBe('true')
     expect((app.get('#settings-cap').element as HTMLInputElement).value).toBe('200')
     expect(row(app, '#settings-cap', 'Data cap').text()).toContain('from the link')
-    // The changed list names the stored settings alone.
-    expect(app.get('[data-testid="changed-preset"]').text()).toContain('Extended')
+    // Changed rows describe the same effective values as the fields (QA-139).
+    expect(app.get('[data-testid="changed-preset"]').text()).toContain('Quick')
+    expect(app.get('[data-testid="changed-dataCapBytes"]').text()).toContain('200 MB')
+    expect(app.find('[data-testid="changed-download"]').exists()).toBe(false)
     app.unmount()
   })
 })
@@ -247,6 +249,38 @@ describe('an edit of each field, then the Test screen without a reload', () => {
 })
 
 describe('a field returned to its default under the link', () => {
+  it('lists URL-only values and resets one without persisting unrelated overrides (QA-139)', async () => {
+    localStorage.clear()
+    const { app, router } = await openFromLink('preset=extended&streams=2&cap=200MB&units=bytes&label=FromURL')
+    expect(app.get('[data-testid="changed-label"]').text()).toContain('FromURL')
+    expect(app.findAll('[data-testid^="changed-"]')).toHaveLength(5)
+    expect(stored()).toEqual({})
+    await app.get('[data-testid="changed-dataCapBytes"] button').trigger('click')
+    await flushPromises()
+    expect(query(router)).toEqual(['label', 'preset', 'streams', 'units'])
+    expect(app.find('[data-testid="changed-dataCapBytes"]').exists()).toBe(false)
+    expect(stored()).toEqual({})
+    app.unmount()
+  })
+
+  it('counts no difference for default-valued links but can clear hidden stored values', async () => {
+    localStorage.setItem('bitgauge.settings.v1', JSON.stringify({ units: 'bytes', runLengthS: 3600 }))
+    const { app, router } = await openFromLink('units=bits')
+    expect(app.find('[data-testid="changed-units"]').exists()).toBe(false)
+    const reset = app.findAll('button').find((button) => button.text() === 'Reset all to defaults')!
+    expect(reset.attributes('disabled')).toBeUndefined()
+    await reset.trigger('click')
+    await flushPromises()
+    const dialog = new DOMWrapper(document.body).get('[role="alertdialog"]')
+    expect(dialog.text()).toContain('Units')
+    expect(dialog.text()).toContain('Run length')
+    await dialog.findAll('button').find((button) => button.text() === 'Cancel')!.trigger('click')
+    await flushPromises()
+    expect(stored()).toEqual({ units: 'bytes', runLengthS: 3600 })
+    expect(query(router)).toEqual(['units'])
+    app.unmount()
+  })
+
   it('switching the run length off drops duration and preset, and the run has no run length', async () => {
     const { app, router } = await openFromLink('preset=continuous&test=upload&duration=3600')
     await app.get('[role="switch"][aria-label="Stop after a set time"]').trigger('click')

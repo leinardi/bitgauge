@@ -27,13 +27,43 @@ import { describe, expect, it } from 'vitest'
 import { parseUrlParams, urlOverride, type UrlParams } from '@/composables/useUrlParams'
 import { resolveSettings, type TestSettings } from '@/engine/messages'
 import { settingsFromDefaults } from '@/lib/defaults'
-import { applyEdit, linkedKeys, linkedSettings } from '@/lib/settingsEdit'
+import { applyEdit, linkedChangedKeys, linkedDefaultOf, linkedKeys, linkedSettings, linkedValueOf } from '@/lib/settingsEdit'
 import { type StoredKey, type StoredSettings, storedOver } from '@/lib/settingsStorage'
 import { infoFixture } from '@/test/fixtures'
 
 const DEFAULTS = settingsFromDefaults(infoFixture().defaults)
 // The stored preset differs from the link's in every case.
 const STORED: StoredSettings = { preset: 'extended' }
+
+describe('effective changed settings (QA-139)', () => {
+  it.each([
+    ['?preset=extended', {}, ['preset']],
+    ['?preset=extended&duration=30', {}, ['preset', 'download', 'upload']],
+    ['?preset=continuous&test=upload&duration=3600', { download: { minMs: 5000, maxMs: 8000 } }, ['preset', 'continuousDirection', 'runLengthS']],
+    ['?units=bits&cap=none', { units: 'bytes', dataCapBytes: 200e6 }, []],
+    ['?theme=dark&lang=en&label=Link', { label: 'Stored' }, ['theme', 'lang', 'label']],
+  ] as [string, StoredSettings, StoredKey[]][])('%s lists only effective differences', (search, stored, keys) => {
+    expect(linkedChangedKeys(DEFAULTS, stored, parseUrlParams(search)).sort()).toEqual(keys.sort())
+  })
+
+  it('uses server defaults under its preset and preset defaults otherwise', () => {
+    const defaults = { ...DEFAULTS, preset: 'quick' as const, pingCount: 15, streams: { ...DEFAULTS.streams, mode: 'fixed' as const, fixed: 2 } }
+    const own = parseUrlParams('?preset=quick&streams=2')
+    expect(linkedChangedKeys(defaults, {}, own)).toEqual([])
+    expect(linkedDefaultOf('pingCount', defaults, {}, own)).toBe(15)
+    expect(linkedDefaultOf('pingCount', defaults, {}, parseUrlParams('?preset=standard'))).toBe(20)
+  })
+
+  it('resets a URL duration to its effective preset while preserving the other preset fields', () => {
+    const url = parseUrlParams('?preset=quick&duration=8&units=bytes')
+    const edited = applyEdit(DEFAULTS, STORED, url, 'download', undefined)
+    const run = after(url, edited.stored, edited.drop)
+    expect(run.download).toEqual(linkedDefaultOf('download', DEFAULTS, STORED, url))
+    expect(run.preset).toBe('quick')
+    expect(run.pingCount).toBe(linkedValueOf('pingCount', DEFAULTS, STORED, url))
+    expect(run.units).toBe('bytes')
+  })
+})
 
 /** The settings the next run resolves after the edit, with the dropped parameters gone. */
 function after(url: UrlParams, stored: StoredSettings, drop: readonly string[]): TestSettings {

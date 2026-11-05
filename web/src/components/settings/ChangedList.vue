@@ -39,10 +39,12 @@ const entries = computed(() =>
   SHOWN_ORDER.filter((key) => form.changed.value.has(key)).map((key) => ({
     key,
     name: settingName(key, t),
-    value: settingValue(key, form.storedValueOf(key), t),
+    value: settingValue(key, form.valueOf(key), t),
     byDefault: settingValue(key, form.defaultOf(key), t),
   })),
 )
+// Reset all also clears stored values masked by the link or unused by the effective preset.
+const resetNames = computed(() => SHOWN_ORDER.filter((key) => form.resetKeys.value.has(key)).map((key) => settingName(key, t)))
 
 // A reset removes its row, so focus moves to the next row's reset, else the previous one's, else
 // the card's heading; Reset all, confirmed, to the screen's (ui/i18n-a11y.md section 2.3).
@@ -106,7 +108,7 @@ const screenHeading = () => document.querySelector('#main h1')
     </p>
     <div class="px-4 py-3">
       <ResetAllDialog
-        :names="entries.map((entry) => entry.name)"
+        :names="resetNames"
         :focus-after="screenHeading"
         @confirm="form.resetAll()"
       />

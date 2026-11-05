@@ -22,8 +22,8 @@ import { type ComputedRef, inject, type InjectionKey } from 'vue'
 import type { TestSettings } from '@/engine/messages'
 import type { StoredKey, StoredSettings } from '@/lib/settingsStorage'
 
-// What the Settings screen shares with its fields: the settings as stored over the server
-// defaults, which fields differ from their default, and the two ways a field changes them. A field
+// What the Settings screen shares with its fields: effective settings, including URL overrides,
+// which fields differ from their default, and the two ways a field changes them. A field
 // whose input is invalid reports it, so the screen's header counts the values not saved.
 
 export interface SettingsForm {
@@ -32,15 +32,15 @@ export interface SettingsForm {
   /** The server defaults from GET /info, as the engine's settings. */
   defaults: ComputedRef<TestSettings>
   stored: ComputedRef<StoredSettings>
-  /** The stored fields that differ from their default. */
+  /** The effective fields that differ from their default under the effective preset. */
   changed: ComputedRef<ReadonlySet<StoredKey>>
+  /** Every stored or linked setting Reset all removes, including masked and unused values. */
+  resetKeys: ComputedRef<ReadonlySet<StoredKey>>
   /** The settings the URL parameters of this page load set, which show "from the link". */
   linked: ComputedRef<ReadonlySet<StoredKey>>
   /** The value a field has, the link's where it sets the field. */
   valueOf(key: StoredKey): unknown
-  /** The value a field has from the stored settings alone, as the changed list names it. */
-  storedValueOf(key: StoredKey): unknown
-  /** The value a field has without its stored value. */
+  /** The field's default under the effective preset. */
   defaultOf(key: StoredKey): unknown
   set(fields: StoredSettings): void
   reset(keys: readonly StoredKey[]): void

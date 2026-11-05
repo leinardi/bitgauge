@@ -26,6 +26,7 @@ import { links } from '@/lib/links'
 
 import { type IgnoredContext, ignoredBody } from '@/components/test/ignored'
 import { type InsufficientContext, insufficientWording } from '@/components/test/insufficient'
+import { idleStopped } from '@/components/test/screen/states'
 import { latencyStopWording, type StopContext, stopWording } from '@/components/test/stop'
 import { confidenceReasons } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
@@ -85,7 +86,7 @@ function slowLinkExtended(body: string, { t }: Wording): NoticeView {
  * idle progress, the warm-up ping included.
  */
 export function latencyStopView(result: Result | null, idle: { pings: number; count: number } | null, wording: Wording): NoticeView | null {
-  if (result?.status !== 'partial' || result.idle === undefined || idle === null || result.notices.some((notice) => notice.code === 'stopped-early')) {
+  if (result === null || !idleStopped(result) || idle === null || result.notices.some((notice) => notice.code === 'stopped-early')) {
     return null
   }
   const order = result.settings.phases

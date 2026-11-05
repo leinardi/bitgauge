@@ -84,3 +84,58 @@ fn exit_statuses_of_what_cannot_run() {
         );
     }
 }
+
+/// QA-138: `env -i` installs arguments in order; Command's own environment is sorted and would
+/// mask the typo-first failure. Pure config tests cover both orders on every platform.
+#[cfg(unix)]
+#[test]
+fn unknown_environment_descendant_exits_two_in_either_order() {
+    use std::net::TcpListener;
+    use std::process::Stdio;
+    use std::time::Duration;
+    use tokio::time::Instant;
+
+    let probe = TcpListener::bind("127.0.0.1:0").expect("reserve a free loopback port");
+    let listen = format!(
+        "BITGAUGE_SERVER__LISTEN={}",
+        probe.local_addr().expect("bound address")
+    );
+    drop(probe);
+    let typo = "BITGAUGE_SERVER__LISTEN__TYPO=x";
+    for entries in [[typo, listen.as_str()], [listen.as_str(), typo]] {
+        let mut child = Command::new("env")
+            .arg("-i")
+            .args(entries)
+            .args([env!("CARGO_BIN_EXE_bitgauge"), "serve"])
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .expect("launch bitgauge through order-preserving env");
+        let deadline = Instant::now() + Duration::from_secs(5);
+        while child.try_wait().expect("query child status").is_none() {
+            if Instant::now() >= deadline {
+                child.kill().expect("stop erroneously accepted server");
+                let output = child.wait_with_output().expect("reap accepted server");
+                panic!(
+                    "{entries:?}: invalid configuration started serving: {}{}",
+                    text(&output.stdout),
+                    text(&output.stderr)
+                );
+            }
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        let output = child
+            .wait_with_output()
+            .expect("read configuration diagnostic");
+        assert_eq!(output.status.code(), Some(2), "{entries:?}");
+        let diagnostic = format!("{}{}", text(&output.stdout), text(&output.stderr));
+        assert!(
+            diagnostic.contains("server.listen.typo"),
+            "{entries:?}: {diagnostic}"
+        );
+        assert!(
+            diagnostic.contains("unknown key"),
+            "{entries:?}: {diagnostic}"
+        );
+    }
+}

@@ -160,18 +160,23 @@ pub(super) fn from_text(
 ) -> Result<Loaded, serde_saphyr::Error> {
     let mut tree = raw::from_yaml(text)?;
     let mut ignored_env = Vec::new();
-    raw::merge(&mut tree, environment_tree(environment, &mut ignored_env));
+    let mut problems = Vec::new();
+    raw::merge(
+        &mut tree,
+        environment_tree(environment, &mut ignored_env, &mut problems),
+    );
     ignored_env.sort();
 
-    let mut problems: Vec<Problem> = raw::null_keys(&tree)
-        .into_iter()
-        .map(|(key, location)| Problem {
-            key,
-            value: "null".to_owned(),
-            rule: RULE_NULL.to_owned(),
-            location,
-        })
-        .collect();
+    problems.extend(
+        raw::null_keys(&tree)
+            .into_iter()
+            .map(|(key, location)| Problem {
+                key,
+                value: "null".to_owned(),
+                rule: RULE_NULL.to_owned(),
+                location,
+            }),
+    );
     let (config, decode_problems) = decode(&tree);
     problems.extend(decode_problems);
     let mut unknown = Vec::new();
@@ -196,7 +201,11 @@ pub(super) fn from_text(
 /// `server.trusted_proxies`, a list key's value is split on commas and trimmed, and a variable
 /// without `__` is recorded as ignored. A `server.labels` item is split at its first `=` into a
 /// `{cidr, label}` entry; an item without `=` stays text, which the walker refuses.
-fn environment_tree(environment: &[(String, String)], ignored: &mut Vec<String>) -> Map {
+fn environment_tree(
+    environment: &[(String, String)],
+    ignored: &mut Vec<String>,
+    problems: &mut Vec<Problem>,
+) -> Map {
     let mut tree = Map::new();
     for (name, value) in environment {
         let Some(rest) = name.strip_prefix(ENV_PREFIX) else {
@@ -207,6 +216,23 @@ fn environment_tree(environment: &[(String, String)], ignored: &mut Vec<String>)
             continue;
         }
         let key = rest.replace(ENV_NESTING, ".").to_lowercase();
+        // Admit only schema leaves before insert_path can replace a scalar with a subtree,
+        // or erase an unknown descendant with a later parent. Keep each offending supplied path.
+        // Known leaves still decode after merging, preserving file/environment precedence.
+        if field(&key).is_none() {
+            problems.push(Problem {
+                rule: if is_section(&key) {
+                    "expected a mapping, not text"
+                } else {
+                    RULE_UNKNOWN
+                }
+                .to_owned(),
+                key,
+                value: value.clone(),
+                location: None,
+            });
+            continue;
+        }
         let value = environment_value(&key, value);
         let path: Vec<&str> = key.split('.').collect();
         raw::insert_path(&mut tree, &path, value);

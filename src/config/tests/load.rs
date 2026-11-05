@@ -354,13 +354,13 @@ fn unknown_keys_are_errors() {
             "unknown section in the environment",
             "",
             &["BITGAUGE_STORAGE__PATH=/data"],
-            "storage",
+            "storage.path",
         ),
         (
             "a level below a value in the environment",
             "",
             &["BITGAUGE_LOG__LEVEL__X=debug"],
-            "log.level",
+            "log.level.x",
         ),
         (
             "listen given as its fields",
@@ -412,6 +412,85 @@ fn unknown_keys_are_errors() {
             "{name}: problems = {problems:?}, want one for {key}"
         );
     }
+}
+
+/// QA-138: admission cannot lose a supplied path when a parent or descendant arrives later.
+#[test]
+fn environment_paths_are_checked_before_tree_insertion() {
+    for (bad, good, key) in [
+        (
+            "BITGAUGE_SERVER__LISTEN__TYPO=x",
+            "BITGAUGE_SERVER__LISTEN=127.0.0.1:8080",
+            "server.listen.typo",
+        ),
+        (
+            "BITGAUGE_SERVER__CORS=x",
+            "BITGAUGE_SERVER__CORS__ALLOWED_ORIGINS=http://127.0.0.1",
+            "server.cors",
+        ),
+        (
+            "BITGAUGE_TEST_DEFAULTS__STREAMS=x",
+            "BITGAUGE_TEST_DEFAULTS__STREAMS__MAX=4",
+            "test_defaults.streams",
+        ),
+        (
+            "BITGAUGE_SERVER__LISTN=x",
+            "BITGAUGE_SERVER__LISTEN=127.0.0.1:8080",
+            "server.listn",
+        ),
+        (
+            "BITGAUGE_STORAGE__PATH=x",
+            "BITGAUGE_SERVER__LISTEN=127.0.0.1:8080",
+            "storage.path",
+        ),
+        (
+            "BITGAUGE_SERVER__CORS__ALLOWED_ORIGINS__TYPO=x",
+            "BITGAUGE_SERVER__CORS__ALLOWED_ORIGINS=http://127.0.0.1",
+            "server.cors.allowed_origins.typo",
+        ),
+    ] {
+        let forward = load("", &[bad, good, "BITGAUGE_LIMITS__TRACKED_CLIENTS=abc"]);
+        let reverse = load("", &[good, bad, "BITGAUGE_LIMITS__TRACKED_CLIENTS=abc"]);
+        assert_eq!(
+            forward.problems, reverse.problems,
+            "{bad}: diagnostic order"
+        );
+        assert_eq!(
+            super::problem_keys(&forward.problems),
+            ["limits.tracked_clients", key],
+            "{bad}: {:?}",
+            forward.problems
+        );
+        let problem = &forward.problems[1];
+        assert_eq!(problem.value, "x", "{bad}: offending value");
+        assert!(!problem.rule.is_empty(), "{bad}: diagnostic rule");
+    }
+}
+
+#[test]
+fn valid_environment_siblings_keep_precedence_in_either_order() {
+    let entries = [
+        "BITGAUGE_SERVER__LISTEN=127.0.0.1:8081",
+        "BITGAUGE_SERVER__DISPLAY_NAME=lab",
+        "BITGAUGE_SERVER__LABELS=127.0.0.1/32=local",
+        "BITGAUGE_TEST_DEFAULTS__PHASES=upload, download",
+        "BITGAUGE_TEST_DEFAULTS__STREAMS__MAX=4",
+        "BITGAUGE_TEST_DEFAULTS__STREAMS__FIXED=2",
+        "BITGAUGE_PORT=ignored",
+        "bitgauge_SERVER__LISTEN=ignored",
+    ];
+    let forward = load("server:\n  display_name: file\n", &entries);
+    let reverse = load(
+        "server:\n  display_name: file\n",
+        &entries.into_iter().rev().collect::<Vec<_>>(),
+    );
+    assert_eq!(forward, reverse);
+    assert!(forward.problems.is_empty(), "{:?}", forward.problems);
+    assert_eq!(forward.config.server.listen.port, 8081);
+    assert_eq!(forward.config.server.display_name, "lab");
+    assert_eq!(forward.config.test_defaults.phases, ["upload", "download"]);
+    assert_eq!(forward.config.server.labels[0].label, "local");
+    assert_eq!(forward.ignored_env, ["BITGAUGE_PORT"]);
 }
 
 /// Go: `TestUnknownKeyBesideADecodeError`

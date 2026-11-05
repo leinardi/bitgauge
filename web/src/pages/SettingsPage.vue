@@ -43,8 +43,8 @@ import { useSettings } from '@/composables/useSettings'
 import { dropUrlParams, useUrlParams } from '@/composables/useUrlParams'
 import type { TestSettings } from '@/engine/messages'
 import { settingsFromDefaults } from '@/lib/defaults'
-import { applyEdit, linkedKeys, linkedSettings, linkedValueOf, URL_PARAM_NAMES, type UrlParamName } from '@/lib/settingsEdit'
-import { changedKeys, defaultOf, type StoredKey, type StoredSettings, valueOf } from '@/lib/settingsStorage'
+import { applyEdit, linkedChangedKeys, linkedDefaultOf, linkedKeys, linkedSettings, linkedValueOf, URL_PARAM_NAMES, type UrlParamName } from '@/lib/settingsEdit'
+import { type StoredKey, type StoredSettings } from '@/lib/settingsStorage'
 
 // The Settings screen (ui/screens.md section 4, design_system kit Settings.jsx): every change is
 // saved in this browser as it is made and applies to the next test; a value that is not valid
@@ -108,11 +108,11 @@ function form(defaults: () => TestSettings): SettingsForm {
     defaults: computed(defaults),
     current: computed(() => linkedSettings(defaults(), settings.stored.value, url)),
     stored: settings.stored,
-    changed: computed(() => new Set(changedKeys(defaults(), settings.stored.value))),
+    changed: computed(() => new Set(linkedChangedKeys(defaults(), settings.stored.value, url))),
+    resetKeys: computed(() => new Set([...Object.keys(settings.stored.value) as StoredKey[], ...linkedKeys(defaults(), settings.stored.value, url)])),
     linked: computed(() => linkedKeys(defaults(), settings.stored.value, url)),
     valueOf: (key) => linkedValueOf(key, defaults(), settings.stored.value, url),
-    storedValueOf: (key) => valueOf(key, defaults(), settings.stored.value),
-    defaultOf: (key) => defaultOf(key, defaults(), settings.stored.value),
+    defaultOf: (key) => linkedDefaultOf(key, defaults(), settings.stored.value, url),
     set: (fields) => edit(fields, defaults()),
     reset: (keys) => reset(keys, defaults()),
     resetAll,

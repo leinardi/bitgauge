@@ -49,7 +49,15 @@ test('an early real HTTP/1.1 refusal offers no larger preset (QA-122)', async ({
     expect(exported.results[0]?.notices).toContainEqual({ code: 'insufficient-data', direction: 'upload', offer: null })
     await expect(page.getByText('Upload reached its', { exact: false })).toHaveCount(0)
     await expect(page.getByRole('button', { name: /Try (Standard|Extended)/ })).toHaveCount(0)
-    await expect(page.getByText('Upload was interrupted by a failed request', { exact: false })).toBeVisible()
+    await expect(page.getByText('Upload was interrupted by a failed request', { exact: false })).toHaveCount(2)
+    const uploadTile = page.getByTestId('metric-tile').filter({ hasText: 'Upload' }).first()
+    await expect(uploadTile).toContainText('Upload was interrupted by a failed request')
+    await expect(page.getByText(/no steady window within the .* max/)).toHaveCount(0)
+    await page.getByTestId('result-details').click()
+    await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toBeVisible()
+    await expect(page.getByTestId('metric-tile').filter({ hasText: 'Upload' }).first()).toContainText('Upload was interrupted by a failed request')
+    await expect(page.getByText(/no steady window within the .* max/)).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /Try (Standard|Extended)/ })).toHaveCount(0)
   } finally {
     await server.kill()
   }

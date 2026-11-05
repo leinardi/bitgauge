@@ -135,6 +135,25 @@ describe('a direction tile', () => {
     expect(text(tile)).toEqual(['window up to the failed request at 8.2 s'])
   })
 
+  it('explains an interrupted upload without a window instead of claiming its maximum (QA-122)', () => {
+    const tile = directionTile({ direction: 'upload', units: 'bits', maxMs: 25_000, result: {
+      status: 'insufficient-data', streams: 1, bytes: 131072, events: [{ code: 'error', atMs: 1.575, notice: 'upload-interrupted' }],
+    } }, context)
+    expect(tile.number).toBeNull()
+    expect(text(tile)[0]).toBe('Upload was interrupted by a failed request before a confirmed steady window long enough for a number.')
+  })
+
+  it.each([
+    [{ code: 'cancelled' as const, atMs: 2 }, 'Insufficient data — confirmed steady window shorter than 3 s (stopped in warm-up)'],
+    [{ code: 'data-cap' as const, atMs: 2 }, 'Insufficient data — data cap reached before a steady window'],
+  ])('keeps stop/cap precedence over interruption: %j', (event, expected) => {
+    const tile = directionTile({ direction: 'upload', units: 'bits', maxMs: 25_000, result: {
+      status: 'insufficient-data', streams: 1, bytes: 0,
+      events: [event, { code: 'error', atMs: 2, notice: 'upload-interrupted' }],
+    } }, context)
+    expect(text(tile)[0]).toBe(expected)
+  })
+
   it('shows no number when skipped, even with a value', () => {
     const tile = directionTile({ direction: 'download', units: 'bits', result: result({ status: 'skipped' }) }, context)
     expect(tile).toMatchObject({ number: null, lines: [{ text: 'skipped' }], pill: null })

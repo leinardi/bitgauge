@@ -158,6 +158,19 @@ describe('the result summary', () => {
 })
 
 describe('a Continuous run', () => {
+  it.each(['download', 'upload'] as const)('announces a cap-ended %s without a false latency cancellation (QA-137)', (direction) => {
+    const skipped = { status: 'skipped' as const, streams: 0, bytes: 0, events: [] }
+    const result = resultFixture({
+      status: 'partial', settings: continuousResultSettings(direction),
+      download: skipped, upload: { ...skipped, confirmedRequests: 0 },
+      [direction]: { status: 'insufficient-data', streams: 2, bytes: 50e6, events: [{ code: 'data-cap', atMs: 100 }] },
+      notices: [{ code: 'data-cap-reached', direction }],
+    })
+    const summary = resultSummary(result, 'bits', wording, { pings: 20, count: 20 })
+    expect(summary).toContain('Data cap reached')
+    expect(summary).not.toContain('cancelled during latency')
+  })
+
   const pending = { state: 'pending' } as const
   const phases = (download: 'pending' | 'started') => ({ info: { state: 'finished' as const }, idle: { state: 'finished' as const }, download: download === 'pending' ? pending : { state: 'started' as const }, upload: pending })
 

@@ -19,7 +19,7 @@
 
 import { urlOverride, type UrlParams } from '@/composables/useUrlParams'
 import { resolveSettings, type TestSettings } from '@/engine/messages'
-import { storedContinuous, type StoredKey, type StoredSettings, storedOver, valueIn } from '@/lib/settingsStorage'
+import { defaultOf, same, storedContinuous, type StoredKey, type StoredSettings, storedOver, valueIn } from '@/lib/settingsStorage'
 import { SECOND } from '@/lib/urlValues'
 
 // A Settings edit over the URL parameters of the page load (ui/flows.md section 9, D-9): a field a
@@ -115,6 +115,19 @@ export function linkedKeys(defaults: TestSettings, stored: StoredSettings, url: 
 export function linkedValueOf(key: StoredKey, defaults: TestSettings, stored: StoredSettings, url: UrlParams): unknown {
   const own = { ...stored, ...(url.theme === undefined ? {} : { theme: url.theme }), ...(url.lang === undefined ? {} : { lang: url.lang }), ...(url.label === undefined ? {} : { label: url.label }) }
   return valueIn(key, linkedSettings(defaults, stored, url), own)
+}
+
+/** A field's default under the effective preset, not a stored value masked by the link. */
+export function linkedDefaultOf(key: StoredKey, defaults: TestSettings, stored: StoredSettings, url: UrlParams): unknown {
+  return defaultOf(key, defaults, { preset: linkedSettings(defaults, stored, url).preset })
+}
+
+/** Effective differences only; preset-implied values and fields unused by this preset are not custom. */
+export function linkedChangedKeys(defaults: TestSettings, stored: StoredSettings, url: UrlParams): StoredKey[] {
+  const { preset } = linkedSettings(defaults, stored, url)
+  const unused = preset === 'continuous' ? BOUNDED_ONLY : CONTINUOUS_ONLY
+  const candidates = new Set([...Object.keys(stored) as StoredKey[], ...linkedKeys(defaults, stored, url)])
+  return [...candidates].filter((key) => !unused.has(key) && !same(linkedValueOf(key, defaults, stored, url), linkedDefaultOf(key, defaults, stored, url)))
 }
 
 /** The stored settings with `preset` and the values it brings over them, as the engine resolves it. */
