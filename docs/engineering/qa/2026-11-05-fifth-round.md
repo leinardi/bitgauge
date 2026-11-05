@@ -1,13 +1,16 @@
 # Exploratory QA — fifth round, 2026-11-05
 
-**Open.** Release-blocker-focused follow-up to the
-[fourth round](2026-11-04-fourth-round.md). Design-kit alignment was explicitly excluded. This
-round records findings only; it changes neither implementation nor specification.
+**Closed; all four fixes verified in `9864d78`.** Release-blocker-focused
+follow-up to the [fourth round](2026-11-04-fourth-round.md). Design-kit alignment was explicitly
+excluded. This
+round initially recorded findings only. The observations below retain that baseline; the
+implementation follow-up and its validation are recorded at the end. No specification changed.
 
 ## Release verdict
 
-**No verified High product bugs or product-bug release blockers in the tested coverage. Four
-Medium findings remain: three new and the unfinished metric wording of QA-122.** Real full runs,
+**Initial verdict: no verified High product bugs or product-bug release blockers in the tested
+coverage. Four Medium findings remain: three new and the unfinished metric wording of QA-122.**
+Real full runs,
 history recovery and sharing remained usable. Addressing these findings before the first public
 release is recommended; none demonstrated lost results, an unfinishable run, an unqualified
 invented measurement or a security-policy bypass.
@@ -103,7 +106,9 @@ None verified within this round's coverage; this is not proof that uncovered pla
 - **Evidence:** verified in all three browsers and Chromium Download JSON: result `partial`,
   download `insufficient-data`, `bytes: 50000000`, `data-cap` at 69.98 ms, upload `skipped`, and
   only `data-cap-reached` in the result notices. Back from Details reproduces the false notice.
-- **Status:** Open.
+- **Status:** Verified fixed in `9864d78`. Test and live-region wording share the existing
+  idle-stop predicate: every direction must be unstarted. Real capped Continuous download and
+  upload regressions check the notices, summary, JSON, unsaved state, Details and Back.
 
 ### QA-122 (remaining): The interrupted upload's metric tile still claims no steady window within its maximum
 
@@ -123,7 +128,9 @@ None verified within this round's coverage; this is not proof that uncovered pla
 - **Evidence:** verified against Download JSON: upload `insufficient-data`, one confirmed request,
   131072 bytes, `error` at 1.57501220703125 ms with notice `upload-interrupted`; insufficient-data
   offer is correctly null. The run lasted 21.9 s overall. Source confirms tile fallback.
-- **Status:** Partly fixed by `aab2e66`; metric explanation remains open.
+- **Status:** Notice fixed by `aab2e66`; remaining metric explanation verified fixed in `9864d78`.
+  Tiles reuse the interruption explanation from the recorded error event. The real limiter
+  regression checks both Test and Details, with no maximum-duration claim or larger-preset offer.
 
 ### QA-138: Environment-variable order can silently discard an unknown configuration key
 
@@ -152,7 +159,9 @@ None verified within this round's coverage; this is not proof that uncovered pla
   # GET /api/v1/ping returns 204. Stop process after checking.
   ```
 
-- **Status:** Open.
+- **Status:** Verified fixed in `9864d78`. Environment paths are admitted against the existing
+  schema before raw-tree insertion. Unknown paths and scalar section values remain diagnostics
+  regardless of pair order; valid leaves retain ordinary file/environment precedence.
 
 ### QA-139: URL-only changes disappear from Changed from defaults and disable their resets
 
@@ -175,7 +184,10 @@ None verified within this round's coverage; this is not proof that uncovered pla
   but no earlier product decision settles its conflict with the specification.
 - **Evidence:** verified live in three browsers, against `/api/v1/info`, empty localStorage and
   source. QA-136's Shareable URL fix itself holds.
-- **Status:** Open.
+- **Status:** Verified fixed in `9864d78`. Changed rows use effective values and the effective
+  preset's defaults. Reset-all scope separately includes masked and unused stored values. Browser
+  regressions cover individual reset/focus, cancel/confirm, mixed storage/link values, reload and
+  Shareable URL with nonstandard server defaults at phone and desktop sizes in both themes.
 
 ## Low
 
@@ -277,15 +289,16 @@ exercised cases.
 
 ## Suggested plan split
 
-Proposed, not yet agreed; every open finding belongs to one group:
+Original grouping, subsequently implemented as the remaining-issue fix plan; every finding belongs
+to one group:
 
 1. **Frontend correctness:** QA-137, remaining QA-122 and QA-139. Fix run-ending wording together,
    then effective-settings reset/list state. No measurement-method change is implied.
 2. **Configuration admission:** QA-138. Preserve unknown environment paths or report conflicts
    before parent values erase them. Independent of the frontend group.
 
-Both groups are well below the 30–40 finding cap. No dependency between them; no fix plan or
-implementation has started. Fixes are planned separately, one plan at a time.
+Both groups are well below the 30–40 finding cap. No dependency between them. The implementation
+follow-up covers both without expanding into measurement, design-kit or release work.
 
 ## Validation and cleanup
 
@@ -299,3 +312,61 @@ server/preview PIDs were 815891, 816223 and 830541; the outage script stopped it
 Other areas stopped their recorded server PIDs 816777, 816778, 816779, 816787, 816802, 815945,
 817212, 817213, 817214 and 817216. Final `ss -ltnp` showed ports `18500`–`18534` free. The only
 repository change is this QA report, staged for documentation link checking.
+
+## Implementation follow-up — 2026-11-05
+
+Baseline: `19cbd27`, which committed this report over the tested `aab2e66`. Implementation:
+`9864d78` (`fix(qa): resolve fifth-round findings`). All four original failures were reproduced
+before their cause was fixed:
+
+- QA-137 and QA-122: focused unit regressions failed with the false latency cancellation and
+  maximum-duration wording. Real Chromium regressions against the original embedded app failed
+  on those same claims; both Continuous directions were exercised.
+- QA-139: component regressions failed on stored-only rows, missing URL-only rows and masked
+  stored settings. The original embedded app also failed the fresh-link browser regression.
+- QA-138: pure ordered-pair regression failed when the valid parent erased the typo. An
+  order-preserving `env -i` launcher showed the baseline typo-first process serving a 204 ping;
+  reverse order exited 2. The new command regression failed on that accepted startup. Rust
+  `Command.env()`/`envs()` ordering is deliberately not used to claim permutation coverage,
+  because its environment map sorts these names and masks the typo-first defect. Both orders
+  now exit 2 and name `server.listen.typo`; the pure tests also retain scalar-ancestor errors,
+  unrelated errors, valid siblings, lists, labels, ignored variables and file precedence.
+
+Focused browser verification passed in Chromium, Firefox and WebKit. QA-122 checks Test and
+Details; QA-137 checks both directions, visible/live-region wording, JSON and unsaved navigation;
+QA-139 checks URL-only and mixed stored/link resets, cancellation, focus, reload and effective
+Shareable URL. Existing stop/cap/max-duration, valid-number interruption and custom-duration
+regressions remain in place. Genuine idle cancellation at the ping-count boundary is retained.
+
+Validation attempts retained:
+
+- The first focused Vitest invocation ran from the repository root and could not resolve `@/`;
+  rerunning from `web/` loaded the project config and exposed the intended baseline failures.
+- The first post-fix QA-122 browser run hit an old locator's strict-mode failure because the
+  correct explanation now appears in both the notice and tile. It was replaced by a count plus
+  explicit tile assertions; all three browsers then passed.
+- The first Rust gate rejected the new test's `std::time::Instant::now`; it now uses the allowed
+  Tokio clock, without a lint exemption. `make verify-rust` then passed, including rustdoc and
+  the existing valid serve/healthcheck controls.
+- `make verify-web` passed (156 files, 1,825 tests) before the final two idle-stop cases were added.
+  The final rerun's typecheck caught a skipped-upload fixture missing `confirmedRequests`; the
+  fixture now supplies zero, matching the upload result type. No production change was needed.
+- The first full `make e2e` attempt was interrupted by the tool's 120-second command deadline,
+  with no test failure reported before interruption. It is not a complete-suite pass. The rerun
+  removes only that outer command deadline; no test timeout or measurement tolerance changes.
+
+The complete `make e2e` rerun passed: **287 passed, 4 skipped**. Those four existing skips are the
+two Chromium-only forced-colors cases in Firefox and WebKit, not coverage of those platforms.
+All new regressions ran in all three browsers; the Settings cases cover 390 px/light and
+1440 px/dark. The shared loopback server stopped cleanly; per-test servers are stopped in their
+fixtures or `finally` blocks. Documentation meta-tests passed (9 tests).
+
+Final `make verify-web` rerun passed: **156 files, 1,827 tests**, with ESLint and all typechecks.
+The first `make check` found two overlong report lines and the now-private `valueOf` helper's
+obsolete export; both were corrected without weakening any gate. All other hooks passed.
+A repeat overlapped the final report wrapping edit: it read the earlier long line and reported a
+file modification during the typecheck hook, despite a clean typecheck. The final rerun used an
+unchanged working tree.
+No BitGauge process remained after verification. The final `make check` passed every hook. Manual
+accuracy/device evidence and the public-release decisions in the release verdict remain separate,
+unsatisfied release gates.
