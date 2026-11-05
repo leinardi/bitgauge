@@ -115,7 +115,7 @@ function placeSingle(chart: uPlot): void {
   const drawn = props.points.flatMap((point) => (point.value === null ? [] : [{ at: point.at, value: point.value }]))
   const [only] = drawn
   single.value =
-    drawn.length === 1 && only !== undefined
+    drawn.length === 1 && only !== undefined && only.at >= props.frame.from && only.at <= props.frame.to
       ? { left: `${chart.over.offsetLeft + chart.valToPos(only.at, 'x')}px`, top: `${chart.over.offsetTop + chart.valToPos(only.value, 'y')}px`, text: props.format(only.value) }
       : null
 }
@@ -168,7 +168,7 @@ watch(applied, () => {
 </script>
 
 <template>
-  <div class="relative max-w-85 min-w-0">
+  <div class="relative max-w-85 min-w-0 overflow-hidden">
     <div
       ref="host"
       role="img"

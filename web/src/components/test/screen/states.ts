@@ -18,6 +18,7 @@
  */
 
 import type { PhaseStep } from '@/components/test/steps'
+import { directionQualifiers, qualifiedRate } from '@/components/result/qualifiers'
 import { dataTile, directionTile, durationTile, type IdleInput, idleErrorTile, idleTile, jitterTile, type TileView } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 import type { ContinuousSeries } from '@/composables/useContinuousSeries'
@@ -89,7 +90,8 @@ function activeStep(phase: MeasuringPhase, run: RunView, settings: TestSettings)
     const elapsedMs = run.live[phase]?.continuous?.elapsedMs ?? elapsed
     return { phase, state: 'active', continuous: { elapsedMs, ...(runLengthMs === undefined ? {} : { runLengthMs }) }, ...(runLengthMs === undefined ? {} : { progress: elapsedMs / runLengthMs }) }
   }
-  const left = (elapsed < minMs ? minMs : maxMs) - elapsed
+  const extended = run.live[phase]?.events?.some((event) => event.code === 'extended') === true
+  const left = (extended ? maxMs : minMs) - elapsed
   return { phase, state: 'active', progress: elapsed / maxMs, ...(left > 0 ? { leftMs: left } : {}) }
 }
 
@@ -154,7 +156,7 @@ export const PENDING_STEPS: PhaseStep[] = [
 ]
 
 /** The phase indicator's steps, in the run's order; between runs every step is pending. */
-export function phaseSteps(run: RunView, settings: TestSettings, locale: string): PhaseStep[] {
+export function phaseSteps(run: RunView, settings: TestSettings, locale: string, wording?: Wording): PhaseStep[] {
   return runPhases(settings).map((phase): PhaseStep => {
     const bounds = phase === 'idle' ? null : settings[phase]
     const estimate = bounds === null ? { aboutMs: settings.pingCount * PING_SPACING_MS } : bounds.minMs === null ? undefined : bounds
@@ -178,6 +180,11 @@ export function phaseSteps(run: RunView, settings: TestSettings, locale: string)
       case 'skipped':
         return { phase, state: 'skipped' }
     }
+  }).map((step) => {
+    const part = step.phase === 'idle' ? undefined : run.result?.[step.phase] ?? run.phases[step.phase].result
+    if (wording === undefined || part === undefined || step.value === undefined || part.bitsPerSecond === undefined) return step
+    const qualifiers = directionQualifiers(qualifiedRate(part), settings.overheadCompensationPercent, wording).map((qualifier) => qualifier.text)
+    return qualifiers.length === 0 ? step : { ...step, value: [step.value, ...qualifiers].join(' · ') }
   })
 }
 

@@ -32,6 +32,16 @@ import { expect, test } from './fixtures/test'
 /** The demo's results with the newest one run on the Quick preset with 12 pings. */
 const QUICK = DEMO_RESULTS.map((result, index) => (index === 0 ? { ...result, settings: { ...result.settings, preset: 'quick' as const, pingCount: 12 } } : result))
 
+test('fits a full context label on a phone without horizontal page scroll (QA-125)', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  const results = QUICK.map((result) => ({ ...result, client: { ...result.client, contextLabel: 'W'.repeat(64) } }))
+  await importHistory(page, results)
+  await page.getByTestId('history-card').first().locator('a[href*="/result/"]').click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('VPN via 5G')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  await expect(page.getByText('W'.repeat(64), { exact: true }).first()).toBeVisible()
+})
+
 async function openNewest(page: Page): Promise<void> {
   await importHistory(page, QUICK)
   await page.getByTestId('history-row').first().locator('a[href*="/result/"]').click()

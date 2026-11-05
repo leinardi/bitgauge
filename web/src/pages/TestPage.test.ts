@@ -337,7 +337,7 @@ describe('the Test screen', () => {
       const result: Result = { ...base, status: 'partial', download, upload: { status: 'skipped', streams: 0, bytes: 0, events: [], confirmedRequests: 0 }, notices: [{ code: 'stopped-early', direction: 'download', coveredMs: 0 }] }
       await emit(phase('download', 'finished'), phase('upload', 'skipped'), { type: 'result', result })
       expect(chart(page).latency.exists()).toBe(false)
-      expect(chart(page).throughput.attributes('aria-label')).toBe('Throughput: Cancelled, stopped at 0.1 s; warm-up shaded; marked: Cancelled')
+      expect(chart(page).throughput.attributes('aria-label')).toBe('Throughput: Cancelled, stopped at 0.0 s; warm-up shaded; marked: Cancelled')
       page.unmount()
     })
 

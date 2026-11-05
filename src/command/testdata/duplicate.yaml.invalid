@@ -1,0 +1,4 @@
+# Intentionally invalid YAML: rejected before configuration values can be decoded.
+server:
+  display_name: first
+  display_name: second

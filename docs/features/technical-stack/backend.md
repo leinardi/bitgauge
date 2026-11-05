@@ -121,8 +121,9 @@ The command line accepts `--config <path>` or `--config=<path>` only, and the va
 The chain is one tower service around the axum router, applied in this order to every request,
 before routing. A request with framing or headers hyper rejects reaches none of them and gets
 hyper's answer ([../wire-protocol.md §7](../wire-protocol.md#7-error-envelope)): a `400` with an
-empty body (an unsupported `Transfer-Encoding` or HTTP version included), `414` for an over-long
-request target, and `431` for a head over exactly 16 KiB or with more than 100 headers. A malformed
+empty body (an unsupported `Transfer-Encoding` or HTTP version included), and `431` for a head
+over exactly 16 KiB, including the request target, or with more than 100 headers. An HTTP/2
+prior-knowledge preface closes without an HTTP response. A malformed
 `Host` is not rejected before routing.
 
 1. **Panic recovery**: logs the panic with the route pattern and answers `500` (error envelope on

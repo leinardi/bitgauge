@@ -22,9 +22,12 @@
 // cancellable (ui/screens.md section 3); duplicates skipped.
 
 import { describe, expect, it } from 'vitest'
+import { continuousResult } from '@/test/continuous'
 
 import { checkImport, MAX_IMPORT_BYTES, newRecords, readImport } from '@/history/import'
 import { resultFixture, uuidFor } from '@/test/fixtures'
+import { demoHistoryResults } from '@/demo/history'
+import { type Confidence, type Notice, validateResult } from '@/engine/messages'
 
 function file(results: unknown[], extra: Record<string, unknown> = {}): string {
   return JSON.stringify({ format: 'bitgauge.history', formatVersion: 1, exportedAt: '2026-10-17T07:00:00.000Z', results, ...extra })
@@ -43,6 +46,183 @@ async function parse(text: string, maxBytes?: number) {
 }
 
 describe('the import', () => {
+  it('rejects contradictory confidence levels, reasons and notices', async () => {
+    const variants: { confidence: Confidence; notices: Notice[] }[] = [
+      { confidence: { level: 'normal', reasons: ['unstable'] }, notices: [] },
+      { confidence: { level: 'low', reasons: [] }, notices: [] },
+      { confidence: { level: 'low', reasons: ['unstable'] }, notices: [] },
+      { confidence: { level: 'low', reasons: ['unstable'] }, notices: [{ code: 'low-confidence', direction: 'download', reasons: ['ramp-unsettled'] }] },
+      { confidence: { level: 'cpu-bound', reasons: ['unstable'] }, notices: [{ code: 'low-confidence', direction: 'download', reasons: ['unstable'] }] },
+      { confidence: { level: 'normal', reasons: [] }, notices: [{ code: 'low-confidence', direction: 'download', reasons: ['unstable'] }] },
+      { confidence: { level: 'low', reasons: ['unstable', 'unstable'] }, notices: [{ code: 'low-confidence', direction: 'download', reasons: ['unstable', 'unstable'] }] },
+      { confidence: { level: 'low', reasons: ['unstable', 'ramp-unsettled'] }, notices: [{ code: 'low-confidence', direction: 'download', reasons: ['unstable', 'unstable'] }] },
+    ]
+    for (const variant of variants) {
+      const bad = resultFixture()
+      bad.download!.confidence = structuredClone(variant.confidence)
+      bad.notices = structuredClone(variant.notices)
+      const checked = await checkImport([bad])
+      expect(checked?.results).toEqual([])
+      expect(checked?.rejected[0]?.detail).toContain('confidence')
+    }
+  })
+
+  it('accepts normal, matched low and cpu-bound confidence without losing qualifiers', async () => {
+    for (const level of ['normal', 'low', 'cpu-bound'] as const) {
+      const valid = resultFixture()
+      valid.download!.confidence = { level, reasons: level === 'normal' ? [] : ['unstable'] }
+      valid.notices = level === 'low' ? [{ code: 'low-confidence', direction: 'download', reasons: ['unstable'] }] : []
+      expect((await checkImport([valid]))?.rejected).toEqual([])
+    }
+    const cpu = resultFixture()
+    cpu.download!.confidence = { level: 'cpu-bound', reasons: [] }
+    expect((await checkImport([cpu]))?.rejected).toEqual([])
+  })
+
+  it('requires final low-confidence notices on partial and insufficient directions too', async () => {
+    for (const status of ['partial', 'insufficient-data'] as const) {
+      const valid = resultFixture({ status: 'partial' })
+      valid.download!.status = status
+      valid.download!.confidence = { level: 'low', reasons: ['unstable', 'ramp-unsettled'] }
+      if (status === 'insufficient-data') {
+        delete valid.download!.bitsPerSecond
+        delete valid.download!.peakBitsPerSecond
+        delete valid.download!.uncompensatedBitsPerSecond
+      }
+      expect((await checkImport([valid]))?.results).toEqual([])
+      valid.notices = [{ code: 'low-confidence', direction: 'download', reasons: ['ramp-unsettled', 'unstable'] }]
+      expect((await checkImport([valid]))?.rejected).toEqual([])
+    }
+    const absent = resultFixture({ download: undefined, notices: [{ code: 'low-confidence', direction: 'download', reasons: ['unstable'] }] })
+    expect((await checkImport([absent]))?.results).toEqual([])
+  })
+
+  it('rejects every measurement-only field and nonzero confirmations on skipped directions', async () => {
+    const base = resultFixture()
+    const fields = {
+      windowMs: 3000, plateau: 'cap', confidence: base.upload!.confidence,
+      series: base.upload!.series, loadedLatency: { status: 'unavailable', reason: 'no-steady-window', samples: 0, skippedTicks: 0, lost: 0 },
+      responsiveness: { state: 'measured', protocol: 'h2', samples: 20, rpm: 1200, tm95Ms: 50, trimmed: 1, totalMedianMs: 50 },
+      confirmedRequests: 12,
+    }
+    for (const [field, value] of Object.entries(fields)) {
+      const bad = resultFixture({ upload: { status: 'skipped', streams: 0, bytes: 0, events: [], confirmedRequests: 0, [field]: value } })
+      expect((await checkImport([bad]))?.results, field).toEqual([])
+    }
+    const valid = resultFixture({ upload: { status: 'skipped', streams: 0, bytes: 0, events: [], confirmedRequests: 0 } })
+    expect((await checkImport([valid]))?.rejected).toEqual([])
+  })
+  it('rejects series whose duration is not represented by its stored cells', async () => {
+    const bad = resultFixture()
+    bad.download!.series!.endMs = Number.MAX_SAFE_INTEGER
+    expect((await checkImport([bad]))?.results).toEqual([])
+  })
+
+  it('accepts the effective Continuous direction even when phases lists only idle', async () => {
+    const valid = continuousResult({ direction: 'upload', endMs: 60_000, bucketMs: 100 })
+    valid.settings.phases = ['idle']
+    // This display fixture hardcodes download-based scores; upload-only streaming lacks download.
+    valid.scores!.streaming = { missing: ['download'] }
+    expect((await checkImport([valid]))?.rejected).toEqual([])
+  })
+
+  it('rejects a loaded increase that contradicts the latency inputs', async () => {
+    const bad = resultFixture()
+    bad.download!.loadedLatency = { source: 'websocket', samples: 20, skippedTicks: 0, lost: 0, medianMs: 1000, p90Ms: 1000, increaseMs: 0, series: [] }
+    bad.bufferbloat = { grade: 'A+', basis: 'download', increaseMs: 0 }
+    expect((await checkImport([bad]))?.results).toEqual([])
+  })
+
+  it('keeps legitimate bounded-upload trailing edges and Continuous partial cells', async () => {
+    const bounded = resultFixture()
+    bounded.upload!.series!.endMs += 37
+    const continuous = continuousResult({ endMs: 60_037, bucketMs: 1000 })
+    expect((await checkImport([bounded, continuous]))?.rejected).toEqual([])
+    bounded.upload!.series!.endMs += 100
+    expect((await checkImport([bounded]))?.results).toEqual([])
+  })
+
+  it('rejects extra cells beyond the declared end and known time beyond a partial cell', async () => {
+    const extra = resultFixture()
+    extra.download!.series!.endMs = extra.download!.series!.firstCellMs + 100
+    const known = continuousResult({ endMs: 60_037, bucketMs: 1000 })
+    known.download!.series!.knownMs![known.download!.series!.values.length - 1] = 1000
+    expect((await checkImport([extra, known]))?.results).toEqual([])
+  })
+
+  it('accepts floating-point endpoint subtraction on a Continuous upload timeline', async () => {
+    const valid = continuousResult({ direction: 'upload', endMs: 9600, bucketMs: 100 })
+    valid.scores!.streaming = { missing: ['download'] }
+    Object.assign(valid.upload!.series!, { firstCellMs: 6500.1, warmupEndMs: 6500.1, endMs: 9600.100000000002 })
+    expect((await checkImport([valid]))?.rejected).toEqual([])
+  })
+  it('accepts genuine demo history records under admission checks', async () => {
+    const records = demoHistoryResults('populated')
+    const checked = await checkImport(records)
+    expect(checked?.rejected).toEqual([])
+    expect(checked?.results).toHaveLength(records.length)
+  })
+  it('rejects hostile notices per record, preserving surrounding valid records (QA-120)', async () => {
+    const a = resultFixture({ id: uuidFor('a') })
+    const b = resultFixture({ notices: [{ code: 'hasOwnProperty' } as never] })
+    const c = resultFixture({ id: uuidFor('c') })
+    expect(await checkImport([a, b, c])).toEqual({ results: [a, c], rejected: [{ index: 1, reason: 'invalid', detail: 'result.notices[0].code: unknown' }] })
+  })
+
+  it('rejects contradictory numbers and phases (QA-121)', async () => {
+    const bad = resultFixture()
+    bad.download!.status = 'insufficient-data'
+    const phases = resultFixture()
+    phases.settings.phases = []
+    const checked = await checkImport([bad, phases])
+    expect(checked?.results).toEqual([])
+    expect(checked?.rejected.map((entry) => entry.index)).toEqual([0, 1])
+  })
+
+  it('bounds imported metadata, notes and numbers (QA-123)', async () => {
+    const longNote = resultFixture({ note: '🛰'.repeat(16_384) })
+    expect((await checkImport([longNote]))?.results).toEqual([longNote])
+    const metadata = resultFixture()
+    metadata.client.browser.os = 'x'.repeat(129)
+    const percent = resultFixture()
+    percent.settings.overheadCompensationPercent = 9999
+    const huge = resultFixture()
+    huge.download!.bitsPerSecond = 1e300
+    const checked = await checkImport([resultFixture({ note: 'x'.repeat(16_385) }), metadata, percent, huge])
+    expect(checked?.results).toEqual([])
+    expect(checked?.rejected).toHaveLength(4)
+  })
+
+  it('keeps old long notes structurally readable/exportable, but refuses their import (QA-123)', async () => {
+    const old = resultFixture({ note: 'x'.repeat(16_385) })
+    expect(validateResult(old)).toEqual([])
+    expect((await checkImport([old]))?.rejected[0]?.detail).toBe('result.note: more than 16384 characters')
+  })
+
+  it('rejects impossible numeric and measurement relationships without repairing the record (QA-121)', async () => {
+    const missing = resultFixture()
+    delete missing.download!.confidence
+    const failed = resultFixture()
+    failed.upload!.status = 'error'
+    const skipped = resultFixture()
+    skipped.download!.status = 'skipped'
+    const unsafe = resultFixture({ dataUsedBytes: Number.MAX_SAFE_INTEGER + 1 })
+    const badLoss = resultFixture()
+    badLoss.idle!.lossPercent = 1000
+    const checked = await checkImport([missing, failed, skipped, unsafe, badLoss])
+    expect(checked?.results).toHaveLength(0)
+    expect(checked?.rejected).toHaveLength(5)
+    expect(failed.upload!.status).toBe('error')
+  })
+
+  it('compares UUID identity without casing differences (QA-128)', () => {
+    const lower = resultFixture()
+    const upper = resultFixture({ id: lower.id.toUpperCase() })
+    expect(newRecords([lower, upper], new Set())).toEqual({ added: [lower], skipped: 1 })
+    expect(newRecords([lower], new Set([upper.id]))).toEqual({ added: [], skipped: 1 })
+    expect(newRecords([upper], new Set([lower.id]))).toEqual({ added: [], skipped: 1 })
+  })
+
   it('takes a file of 10 MB, decimal, and refuses one byte more', async () => {
     expect(MAX_IMPORT_BYTES).toBe(10_000_000)
     expect((await parse(sized(10_000_000))).ok).toBe(true)

@@ -41,7 +41,7 @@ export async function importHistory(page: Page, results: readonly unknown[] = DE
   await page.goto(path)
   await expect(page.getByRole('heading', { name: 'No results yet' })).toBeVisible()
   await page.getByTestId('import-input').setInputFiles({ name: 'bitgauge-history.json', mimeType: 'application/json', buffer: Buffer.from(historyExport(results)) })
-  await expect(page.getByTestId('history-count')).toContainText(`${results.length} of ${results.length} shown`)
+  await expect(page.getByTestId('history-count')).toContainText(`${results.length} of ${results.length} matching`)
 }
 
 /** The notes the page's history holds, read from IndexedDB as the page stored them. */

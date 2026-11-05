@@ -81,7 +81,7 @@ for (const theme of ['light', 'dark'] as const) {
       await expect(page.getByRole('heading', { name: 'No results yet' })).toBeVisible()
       await page.getByTestId('import-input').setInputFiles({ name: 'bitgauge-history.json', mimeType: 'application/json', buffer: Buffer.from(EXPORT) })
       await expect(page.getByTestId('import-done')).toContainText('8 added, 0 skipped as duplicates, 1 rejected: result 9: schema version 3 is newer than this app')
-      await expect(page.getByTestId('history-count')).toContainText('8 of 8 shown')
+      await expect(page.getByTestId('history-count')).toContainText('8 of 8 matching')
       await expectAccessible(page)
     })
 
@@ -89,7 +89,7 @@ for (const theme of ['light', 'dark'] as const) {
       await page.goto(`/history?theme=${theme}`)
       await expect(page.getByRole('heading', { name: 'No results yet' })).toBeVisible()
       await page.getByTestId('import-input').setInputFiles({ name: 'bitgauge-history.json', mimeType: 'application/json', buffer: Buffer.from(EXPORT) })
-      await expect(page.getByTestId('history-count')).toContainText('8 of 8 shown')
+      await expect(page.getByTestId('history-count')).toContainText('8 of 8 matching')
       await page.locator('main a[href*="/result/"]').first().click()
       await expect(page.getByRole('heading', { level: 1 })).toHaveText('VPN via 5G')
       await expect(page.getByTestId('phase-chart-download')).toBeVisible()

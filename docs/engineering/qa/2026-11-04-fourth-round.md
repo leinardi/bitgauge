@@ -1,6 +1,60 @@
 # Exploratory QA — fourth round, 2026-11-04
 
-**Open.**
+**Closed in the working tree; uncommitted, with commit references pending.**
+
+Follow-up review identified four gaps in these uncommitted fixes: series extent/allocation safety,
+Continuous effective-phase membership, loaded-increase input consistency, and retention of the
+extension notice after upload interruption. All four corrections are implemented with regressions:
+cell-count/extent checks plus independent rendering bounds, effective Continuous phases,
+engine-owned latency-input/quantization checks before grades/scores, and duration-rule notice
+handling with only the preset offer suppressed. Test fixtures now carry coherent series extents.
+Follow-up final verification: `make verify-web` passed 1,804 unit tests; `make check` passed all
+hooks; `make e2e` passed 275 tests with four existing forced-colors skips. The mixed hostile
+browser import now also includes the oversized series extent. These three final gates ran
+serially after the compatibility and allocation-safety regressions were complete. Docs meta-tests
+and Markdown lint also passed. No measurement tolerance or test timeout changed.
+
+Further review corrections enforce confidence level/reason relationships and matching final
+`low-confidence` notices (including cpu-bound precedence), reject measurement-only fields on
+skipped directions, and require zero confirmed requests on a skipped upload. Added positive and
+negative unit cases and expanded the mixed hostile-file browser regression. `make verify-web`
+passed 1,808 tests and `make check` passed all hooks. The first full browser run passed these import
+checks in all three browsers but failed Firefox's unrelated CSP test at its immediate Worker
+lookup (274 passed, one failed, four existing skips). The unchanged full rerun passed 275 tests
+with four existing skips; the first failed run remains recorded, not counted as a pass.
+
+Implementation completed in the uncommitted working tree (2026-11-05). QA-130 is by design,
+as agreed with the user: the share-panel contract explicitly requires the image label's ellipsis;
+copied text retains the full label. The other findings have implementation/regression changes;
+the final gates and targeted verification are recorded below. No commit hashes are claimed for
+uncommitted changes; replace the working-tree references when the fixes are committed.
+
+The approved import policy keeps new note/metadata caps at admission and new edits, not at
+existing-history reads. Derived grade/score checks reuse the engine's calculations. Dates remain
+valid even far in the future; chart labels outside their time frame do not escape the plot.
+
+Verification on 2026-11-05:
+
+- `make check`: passed all hooks in a serial run; no timeout or tolerance was widened.
+- `make verify-web`: passed ESLint, type checking and Vitest; the subsequent all-file gate also
+  passed the added regression tests.
+- `make verify-rust`: passed build, formatting, clippy, workspace tests and rustdoc.
+- `make e2e`: 272 passed, four existing forced-colors skips on browsers without that support.
+  Compare's animated focus and the context-label overflow checks passed in all three browsers.
+- Added QA round 4 browser tests: 12 passed across Chromium, Firefox and WebKit, including real
+  HTTP/1.1 rate-limit failure/Download JSON, effective settings links, hostile mixed import and a
+  year-9999 date without page overflow. The final future-date case was added after the full run
+  discovered its tests, so it was verified in this separate targeted run.
+- `make rust-test-image BITGAUGE_TEST_IMPL=rust`: image and syscall controls passed, then all
+  three netguard tests passed, including the negative controls.
+- Earlier concurrent runs hit existing Vitest timeouts under browser/build load; the serial
+  all-file gate passed with unchanged timeouts. Initial 120-second command deadlines interrupted
+  browser/image runs; those runs were not counted as passes and were repeated to completion.
+
+This is targeted regression verification, not another hand-driven QA round or an accuracy-harness
+run. The uncovered platforms, real screen readers and other release checks listed below remain
+uncovered; closing these findings does not claim those checks passed. No design-kit prototype,
+parity baseline, measurement timing or accuracy tolerance was changed.
 
 The fourth exploratory QA round of BitGauge, run with the `qa-round` skill after the
 [third round](2026-11-02-third-round.md) closed and the server was ported from Go to Rust
@@ -104,7 +158,8 @@ Design.
   report no problem and `hasOwnProperty`, `valueOf` and `__proto__` throw. `checkRecord` in
   `web/src/history/import.ts` re-throws, and `ImportDialog.vue` reports it as `writeFailed`.
 - **Evidence:** verified in IndexedDB, the console and the code.
-- **Status:** Open.
+- **Status:** Implemented in the working tree (uncommitted); own-property and mixed-file import
+  regressions, including three-browser import/detail checks.
 
 ### QA-121: Import saves results whose status and numbers contradict each other, which then show numbers without their qualifiers
 
@@ -124,7 +179,8 @@ Design.
   (`web/src/engine/result/validate.ts:265`), a `partial` direction's number.
 - **Evidence:** verified in IndexedDB, History, the Result detail, the share text and the code.
   Reachable only through a crafted or corrupted import file.
-- **Status:** Open.
+- **Status:** Implemented in the working tree (uncommitted); semantic import checks, valid demo
+  history controls and engine-derived grade/score regressions.
 
 ## Medium
 
@@ -152,7 +208,8 @@ Design.
   its maximum", and the `upload-interrupted` body always speaks of "its number".
 - **Evidence:** verified in two runs' Download JSON, the server log (`POST /api/v1/upload
   status=429` after the first 200) and the code.
-- **Status:** Open.
+- **Status:** Implemented in the working tree (uncommitted); synthetic failure regressions and a
+  real rate-limited HTTP/1.1 upload checked through Download JSON in all three browsers.
 
 ### QA-123: Import accepts impossible dates, numbers out of every range and unbounded strings, which push History and the Result detail tens of thousands of pixels wide
 
@@ -175,7 +232,9 @@ Design.
   the only cap, in `checkRecord`.
 - **Evidence:** verified in IndexedDB, by `scrollWidth` and the overflowing elements, and in the
   code.
-- **Status:** Open.
+- **Status:** Implemented in the working tree (uncommitted); import bounds, real dates, note-edit
+  validation and existing-note compatibility regressions; extreme-date chart checked in all three
+  browsers at 390 px.
 
 ### QA-124: Compare's Next and Previous at 390 px still drop the focus to the page body
 
@@ -190,7 +249,8 @@ Design.
   during the smooth scroll that `go()` started, flips `page` back to the old card and disables
   the button `turn()` just focused.
 - **Evidence:** verified with a focus log, a timeline of the `disabled` states and the code.
-- **Status:** Open.
+- **Status:** Implemented in the working tree (uncommitted); focus observed throughout forward
+  and backward smooth paging in Chromium, Firefox and WebKit at 390 px.
 
 ### QA-125: A 64-character context label scrolls the Result detail sideways at 390 px
 
@@ -202,23 +262,24 @@ Design.
 - **Cause:** `web/src/components/result/ResultHeader.vue:184`: the chip is `whitespace-nowrap`
   with no `max-w-full`, `min-w-0` or truncation, unlike `SaveBar.vue:148`.
 - **Evidence:** verified by the element's right edge and in the code.
-- **Status:** Open.
+- **Status:** Implemented in the working tree (uncommitted); 64-character context label checked
+  at 390 px in Chromium, Firefox and WebKit, with document width constrained to the viewport.
 
 ## Low
 
 | ID | Finding | Location | Status |
 | --- | --- | --- | --- |
-| QA-126 | wire-protocol.md §7 lists rejections the Rust server never sends: a `414` for a long target (the request line counts toward the 16 KiB head, so it answers `431`; hyper's `414` starts above 65 534 bytes), and an answer to the HTTP/2 prior-knowledge preface, which is closed with no response. rust-port.md already says the first. What is left of QA-113. | `docs/features/wire-protocol.md:268`, `docs/features/technical-stack/backend.md:124`, `docs/rust-port.md:197`; `src/server/conn.rs:79,291-292` | Open |
-| QA-127 | A config file that is not valid YAML is logged with serde-saphyr's developer hints and a several-line source excerpt in one record ("duplicate mapping key: display_name, set DuplicateKeyPolicy in Options if acceptable", "use from_str_multiple…"); configuration.md §4 asks for one line per problem. Exit status 2 holds. | `src/config/load.rs:73`, logged at `src/command.rs:128` | Open |
-| QA-128 | A duplicate whose `id` differs only in case imports again: the validator takes a UUID in either case and the duplicate check compares exact strings. | `web/src/history/import.ts:136-138`; `web/src/engine/result/validate.ts:49-50` | Open |
-| QA-129 | History's header reads "136 of 136 shown" while the list shows 100 rows above "Showing 100 of 136". | `web/src/i18n/locales/en/history.json:5` | Open |
-| QA-130 | The share image cuts a 64-character label with an ellipsis; the copied text keeps it whole. | `web/src/share/` | Open |
-| QA-131 | A run whose start finds the server unreachable shows the Error state without the time to the next automatic check, which only the offline state between runs shows (screens.md §1, flows.md §1). | `web/src/components/test/screen/view.ts:125-137,143-146` | Open |
-| QA-132 | After an upload reaches its minimum without extending, its step counts down to the maximum ("Upload active · 9.7 s left", chart "35.4 s / 35 s") during the grace, with no `extended` event. | `web/src/components/test/screen/states.ts:92` | Open |
-| QA-133 | `browser-upload-limit` ("…the measurement is the server's and stands") is attached to an `error` upload with no number (Firefox, server killed mid-upload). Decided by D-22. | `web/src/engine/result.ts:76-79` | Open |
-| QA-134 | The finished gauge and the done steps show a headline without its qualifier ("Download done · 15.7 Gbit/s" for a `low confidence · unstable` download) while the tile below carries it. | `web/src/components/test/screen/view.ts`, `web/src/components/test/screen/states.ts` | Open |
-| QA-135 | After an error the live chart reads "stopped at 4.1 s" (the last bucket) beside the step's "interrupted at 4.2 s" and the alert's "Download stopped at 4.2 s" (event at 4159 ms). | `web/src/components/chart/text.ts:140` | Open |
-| QA-136 | `/settings?preset=extended&streams=2&cap=200MB&units=bytes&label=FromURL` marks every field "from the link" while the Shareable URL reads the bare origin, built from the stored settings only. Decided by D-23. | `web/src/lib/shareUrl.ts`, `web/src/components/settings/ShareUrlField.vue` | Open |
+| QA-126 | wire-protocol.md §7 lists rejections the Rust server never sends: a `414` for a long target (the request line counts toward the 16 KiB head, so it answers `431`; hyper's `414` starts above 65 534 bytes), and an answer to the HTTP/2 prior-knowledge preface, which is closed with no response. rust-port.md already says the first. What is left of QA-113. | `docs/features/wire-protocol.md:268`, `docs/features/technical-stack/backend.md:124`, `docs/rust-port.md:197`; `src/server/conn.rs:79,291-292` | Implemented, uncommitted: aligned docs; raw-wire regressions pass |
+| QA-127 | A config file that is not valid YAML is logged with serde-saphyr's developer hints and a several-line source excerpt in one record ("duplicate mapping key: display_name, set DuplicateKeyPolicy in Options if acceptable", "use from_str_multiple…"); configuration.md §4 asks for one line per problem. Exit status 2 holds. | `src/config/load.rs:73`, logged at `src/command.rs:128` | Implemented, uncommitted: operator formatter without excerpts; loader and command/exit regressions pass |
+| QA-128 | A duplicate whose `id` differs only in case imports again: the validator takes a UUID in either case and the duplicate check compares exact strings. | `web/src/history/import.ts:136-138`; `web/src/engine/result/validate.ts:49-50` | Implemented, uncommitted: case-insensitive comparison; stored IDs unchanged; regression tests |
+| QA-129 | History's header reads "136 of 136 shown" while the list shows 100 rows above "Showing 100 of 136". | `web/src/i18n/locales/en/history.json:5` | Implemented, uncommitted: header says matching, list footer says shown; pagination regression |
+| QA-130 | The share image cuts a 64-character label with an ellipsis; the copied text keeps it whole. | `web/src/share/` | By design, agreed 2026-11-05: share-panel.md's Truncation contract requires it |
+| QA-131 | A run whose start finds the server unreachable shows the Error state without the time to the next automatic check, which only the offline state between runs shows (screens.md §1, flows.md §1). | `web/src/components/test/screen/view.ts:125-137,143-146` | Implemented, uncommitted: existing recheck countdown shown for unreachable errors; unit regression |
+| QA-132 | After an upload reaches its minimum without extending, its step counts down to the maximum ("Upload active · 9.7 s left", chart "35.4 s / 35 s") during the grace, with no `extended` event. | `web/src/components/test/screen/states.ts:92` | Implemented, uncommitted: countdown follows actual extension event; grace regression |
+| QA-133 | `browser-upload-limit` ("…the measurement is the server's and stands") is attached to an `error` upload with no number (Firefox, server killed mid-upload). Decided by D-22. | `web/src/engine/result.ts:76-79` | Implemented, uncommitted: D-22 in spec, status/number guard and result regressions |
+| QA-134 | The finished gauge and the done steps show a headline without its qualifier ("Download done · 15.7 Gbit/s" for a `low confidence · unstable` download) while the tile below carries it. | `web/src/components/test/screen/view.ts`, `web/src/components/test/screen/states.ts` | Implemented, uncommitted: shared qualifiers on finished gauge/steps and accessible readout; regression tests |
+| QA-135 | After an error the live chart reads "stopped at 4.1 s" (the last bucket) beside the step's "interrupted at 4.2 s" and the alert's "Download stopped at 4.2 s" (event at 4159 ms). | `web/src/components/chart/text.ts:140` | Implemented, uncommitted: terminal event time, not bucket end; 4159 ms regression |
+| QA-136 | `/settings?preset=extended&streams=2&cap=200MB&units=bytes&label=FromURL` marks every field "from the link" while the Shareable URL reads the bare origin, built from the stored settings only. Decided by D-23. | `web/src/lib/shareUrl.ts`, `web/src/components/settings/ShareUrlField.vue` | Implemented, uncommitted: D-23, effective values with stored lang/theme; three-browser link check |
 
 ## To investigate
 

@@ -21,7 +21,7 @@
 // bytes over known time, "no known time" rows, the real span of the last row, the median loaded
 // latency per window, one row per cell when cells are coarser, and the idle pings in fives.
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { median, pingGroups, windowTable } from '@/components/result/windowTable'
 import type { ResultSeries } from '@/engine/messages'
@@ -32,6 +32,30 @@ function series(values: (number | null)[], patch: Partial<ResultSeries> = {}): R
 }
 
 describe('windowTable', () => {
+  it('omits a malformed huge extent without allocating duration-sized rows', () => {
+    const guard = vi.spyOn(Array, 'from').mockImplementation(() => { throw new Error('malformed extent reached allocation') })
+    try {
+      expect(windowTable(series([1000], { endMs: Number.MAX_SAFE_INTEGER })).rows).toEqual([])
+    } finally {
+      guard.mockRestore()
+    }
+  })
+
+  it('does not allocate the unretained prefix of a short valid series', () => {
+    const from = Array.from.bind(Array)
+    const guard = vi.spyOn(Array, 'from').mockImplementation(((input: ArrayLike<unknown>, ...args: unknown[]) => {
+      if (input.length > 10_000) throw new Error('unbounded rendering allocation')
+      return Reflect.apply(from, Array, [input, ...args])
+    }) as typeof Array.from)
+    const firstCellMs = 1_000_000_000_000
+    try {
+      const table = windowTable(series([1000, 1000], { firstCellMs, endMs: firstCellMs + 200 }))
+      expect(table.rows.length).toBeLessThanOrEqual(2)
+      expect(table.rows[0]!.fromMs).toBeLessThanOrEqual(firstCellMs)
+    } finally {
+      guard.mockRestore()
+    }
+  })
   it('rows 2 s windows from warm-up end, the last with its real span', () => {
     const table = windowTable(series(Array.from({ length: 35 }, () => 1_250_000)))
     expect(table.cellMs).toBeNull()

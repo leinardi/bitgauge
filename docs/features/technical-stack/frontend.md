@@ -187,6 +187,33 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
   them with a progress bar and Cancel stops the import; nothing is written until every record is
   checked, so a cancelled import leaves history as it was. The import ends with a summary
   `{added, skipped, rejected[]}`, each rejected entry its position and reason.
+  UUID duplicate comparisons ignore letter case, without rewriting stored IDs. Imported records
+  must also satisfy the result's semantic relationships: measurement numbers belong only to
+  measured or partial directions, with their window, series and confidence; phase selection,
+  completion status and grading must not contradict the data.
+  Confidence levels, reasons and per-direction `low-confidence` notices must agree with
+  measurement.md §16. A skipped direction contains no measurement-only fields, and a skipped
+  upload has zero confirmed requests.
+  Series extents must agree with the stored cell count and width, allowing a partial last cell
+  and the bounded upload's excluded trailing native-cell edge. Rendering work is bounded by
+  stored cells, never by an untrusted duration or an unretained prefix. Continuous phase checks
+  use its effective order: optional idle latency, then `continuousDirection`, regardless of the
+  throughput directions listed in `settings.phases`.
+  Loaded-latency increases are checked against their latency inputs before dependent grades and
+  scores. The independently quantized medians and increase may differ by one clock quantum from
+  subtracting the stored medians (including the serializer's nanosecond rounding); this is a
+  representational bound, not permission to adjust a measurement. Without idle latency there is
+  no increase. The clock-grid and quantization rules remain measurement.md §§10, 11 and 17.
+  Import admission limits count Unicode code points: notes 16,384; browser family/OS and browser
+  notice names 128; server version/epoch 256; IP/protocol and ignored-parameter names 64. Labels,
+  context labels, server names and ignored-parameter values keep their 64-character limit.
+  Counts and byte amounts are nonnegative safe integers; other numeric metrics are finite,
+  nonnegative and at most JavaScript's `Number.MAX_SAFE_INTEGER`, with the documented setting,
+  percentage and score ranges also enforced. Dates must be real calendar instants, not merely
+  match their serialized pattern. Valid future dates are not rejected for their age.
+  These new admission limits reject individual records, never silently truncate them. Existing
+  stored metadata and notes remain readable/exportable. New note edits obey the same note limit;
+  an invalid edit is not saved and its text remains available for correction.
 - **Unavailable storage** disables history for the session
   ([../edge-cases.md §7](../edge-cases.md#7-indexeddb-unavailable-private-mode)).
 

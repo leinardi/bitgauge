@@ -23,8 +23,9 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { type DirectionResult, type EngineEvent, type Notice, type Result, validateResult } from '@/engine/messages'
+import { type DirectionResult, type EngineEvent, type Notice, type Result, validateDerivedResult, validateResult } from '@/engine/messages'
 import { directionNotices, downsample } from '@/engine/result/direction'
+import { quantized } from '@/engine/result/loaded'
 import { Run } from '@/engine/run'
 import type { RunSettings } from '@/engine/settings'
 import { FakeClock } from '@/engine/test/fakeClock'
@@ -98,6 +99,7 @@ async function result(options: Options = {}): Promise<Result> {
     throw new Error('no result')
   }
   expect(validateResult(emitted)).toEqual([])
+  expect(validateDerivedResult(emitted)).toEqual([])
   return emitted
 }
 
@@ -339,6 +341,12 @@ describe('the direction notices', () => {
 describe('the browser upload limit notice', () => {
   const carried = (emitted: Result) => emitted.notices.some((notice) => notice.code === 'browser-upload-limit')
 
+  it('does not qualify an upload without a number (QA-133)', async () => {
+    const emitted = await result({ scenario: PHONE, settings: { phases: ['upload'] }, at: { atMs: 2500, act: (run) => run.stop() } })
+    expect(emitted.upload?.bitsPerSecond).toBeUndefined()
+    expect(carried(emitted)).toBe(false)
+  })
+
   it('is carried by a Firefox result with an upload headline of at least 100 Mbit/s', async () => {
     const emitted = await result({ scenario: LAN })
     expect(emitted.client.browser.name).toBe('Firefox')
@@ -354,6 +362,40 @@ describe('the browser upload limit notice', () => {
     expect(carried(await result({ scenario: LINK }))).toBe(false)
     expect(carried(await result({ scenario: { ...LAN, browser: { ...CHROME, os: 'Linux' } } }))).toBe(false)
     expect(carried(await result({ scenario: { ...LINK, browser: CHROME } }))).toBe(false)
+  })
+})
+
+describe('imported derived fields (QA-121)', () => {
+  it('accepts independently quantized increases, including sub-nanosecond resolutions', async () => {
+    const emitted = await result()
+    delete emitted.bufferbloat
+    delete emitted.scores
+    delete emitted.upload
+    for (const resolution of [0, 0.1, 1, 0.0000007, 0.00000001]) {
+      for (const [idle, loaded] of [[3.149, 4.151], [3.151, 4.149], [3.1, 2.1], [0.00000035, 0.00000105]]) {
+        emitted.client.timerResolutionMs = resolution
+        emitted.idle!.medianMs = quantized(idle!, resolution)
+        emitted.download!.loadedLatency = { source: 'websocket', samples: 20, skippedTicks: 0, lost: 0, medianMs: quantized(loaded!, resolution), p90Ms: quantized(loaded!, resolution), increaseMs: quantized(Math.max(0, loaded! - idle!), resolution), series: [] }
+        expect(validateDerivedResult(emitted), `${resolution}: ${idle}, ${loaded}`).toEqual([])
+      }
+    }
+    emitted.client.timerResolutionMs = 0.1
+    emitted.idle!.medianMs = 3.1
+    emitted.download!.loadedLatency = { source: 'websocket', samples: 20, skippedTicks: 0, lost: 0, medianMs: 1000, p90Ms: 1000, increaseMs: 0, series: [] }
+    expect(validateDerivedResult(emitted)).toContain('result.download.loadedLatency.increaseMs: inconsistent with idle and loaded medians')
+    emitted.download!.loadedLatency.increaseMs = 996.95
+    expect(validateDerivedResult(emitted)).toContain('result.download.loadedLatency: latency is not on the clock grid')
+    delete emitted.idle
+    expect(validateDerivedResult(emitted)).toContain('result.download.loadedLatency.increaseMs: requires idle latency')
+  })
+  it('rejects a grade or score that contradicts its own inputs', async () => {
+    const emitted = await result()
+    const changed = structuredClone(emitted)
+    if (changed.bufferbloat === undefined || changed.scores === undefined || !('points' in changed.scores.streaming)) throw new Error('expected a graded and scored run')
+    changed.bufferbloat.grade = changed.bufferbloat.grade === 'F' ? 'A+' : 'F'
+    changed.scores.streaming.points = 9999
+    expect(validateDerivedResult(changed)).toContain('result.bufferbloat: inconsistent with its loaded-latency basis')
+    expect(validateDerivedResult(changed)).toContain('result.scores.streaming: inconsistent with its inputs')
   })
 })
 

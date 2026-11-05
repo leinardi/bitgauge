@@ -51,10 +51,12 @@ export function insufficientWording(notice: InsufficientData, context: Wording &
   const bytes = ended?.bytes
   // A direction the data cap ended reached no maximum (measurement.md section 8.6).
   const capped = ended?.events.some((event) => event.code === 'data-cap') === true
+  const interrupted = ended?.events.some((event) => event.code === 'error' && event.notice === 'upload-interrupted') === true
   const sentences = [
     capped
       ? download ? t('notices.insufficientData.downloadCap') : t('notices.insufficientData.uploadCap')
-      : maxMs === undefined || maxMs === null
+      : interrupted ? t('notices.insufficientData.uploadInterrupted')
+        : maxMs === undefined || maxMs === null
         ? download ? t('notices.insufficientData.download') : t('notices.insufficientData.upload')
         : download ? t('notices.insufficientData.downloadMax', { max: formatLimit(maxMs, locale) }) : t('notices.insufficientData.uploadMax', { max: formatLimit(maxMs, locale) }),
     // Nothing used, a stop before the first byte, says nothing rather than "0 B used".

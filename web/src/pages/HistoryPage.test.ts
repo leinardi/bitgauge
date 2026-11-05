@@ -114,7 +114,7 @@ afterEach(() => {
 describe('the states', () => {
   it('shows the stored results newest first, with their count and the origin they belong to', async () => {
     const page = await open()
-    expect(page.get('[data-testid="history-count"]').text()).toContain('8 of 8 shown')
+    expect(page.get('[data-testid="history-count"]').text()).toContain('8 of 8 matching')
     expect(page.get('[data-testid="origin-notice"]').text()).toContain(`Stored only in this browser, for ${window.location.origin}`)
     expect(rows(page)).toHaveLength(8)
     expect(rows(page)[0]).toContain('VPN via 5G')
@@ -179,7 +179,7 @@ describe('the filters', () => {
     await settle()
     expect(query(page)).toEqual({ units: 'bytes', labels: ['VPN · office'] })
     expect(rows(page)).toHaveLength(2)
-    expect(page.get('[data-testid="history-count"]').text()).toContain('2 of 8 shown')
+    expect(page.get('[data-testid="history-count"]').text()).toContain('2 of 8 matching')
     expect(office?.attributes('aria-pressed')).toBe('true')
     page.unmount()
   })
@@ -342,7 +342,7 @@ describe('the list', () => {
     const more = () => page.find('[data-testid="history-more"]')
     expect(rows(page)).toHaveLength(100)
     // The count and the trend cover every result, not only the rows shown.
-    expect(page.get('[data-testid="history-count"]').text()).toContain('230 of 230 shown')
+    expect(page.get('[data-testid="history-count"]').text()).toContain('230 of 230 matching')
     expect(more().text()).toContain('Showing 100 of 230')
     expect(more().get('button').text()).toBe('Show 100 more')
     await more().get('button').trigger('click')

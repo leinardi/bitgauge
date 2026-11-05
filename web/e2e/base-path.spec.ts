@@ -55,7 +55,7 @@ test('runs a test under /speed, every request under the base path', async ({ pag
   // History loaded directly under the base path, its result's Result detail, and the share image,
   // made in the browser: still nothing outside /speed.
   await page.goto(`${server.url}/history`)
-  await expect(page.getByTestId('history-count')).toContainText('1 of 1 shown')
+  await expect(page.getByTestId('history-count')).toContainText('1 of 1 matching')
   await page.getByTestId('history-row').first().locator('a[href^="/speed/result/"]').click()
   const [file] = await Promise.all([page.waitForEvent('download'), page.getByTestId('download-image').click()])
   expect(file.suggestedFilename()).toMatch(/\.png$/)

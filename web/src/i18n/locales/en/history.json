@@ -2,7 +2,7 @@
   "history": {
     "title": "History",
     "count": {
-      "shown": "{shown} of {total} shown",
+      "shown": "{shown} of {total} matching",
       "none": "0 results",
       "unavailable": "Not saved in this window",
       "loading": "Loading…",

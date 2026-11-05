@@ -181,14 +181,14 @@ useResultEdit(() => {
       <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-(length:--text-sm) text-muted-foreground">
         <span
           v-if="result.client.contextLabel"
-          class="inline-flex h-(--chip-h-sm) items-center gap-1 rounded-full border border-(--border-default) bg-(--surface-2) px-2.5 text-(length:--text-caption) font-semibold whitespace-nowrap"
+          class="inline-flex min-h-(--chip-h-sm) max-w-full min-w-0 items-center gap-1 rounded-full border border-(--border-default) bg-(--surface-2) px-2.5 text-(length:--text-caption) font-semibold wrap-anywhere"
         >
           <component
             :is="contextIcon"
             :size="12"
             aria-hidden="true"
           />
-          {{ result.client.contextLabel }}
+          <span class="min-w-0 wrap-anywhere">{{ result.client.contextLabel }}</span>
         </span>
         <time
           :datetime="result.startedAt"

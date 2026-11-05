@@ -51,6 +51,12 @@ describe('the compare cards', () => {
     await flushPromises()
     expect(button('Next result').attributes('disabled')).toBeDefined()
     expect(document.activeElement).toBe(button('Previous result').element)
+    const scroller = cards.get('[role="group"]')
+    Object.defineProperty(scroller.element.children[0], 'offsetWidth', { configurable: true, value: 300 })
+    // Early animation frames are still near A; they must not disable focused Previous (QA-124).
+    await scroller.trigger('scroll')
+    expect(button('Previous result').attributes('disabled')).toBeUndefined()
+    expect(document.activeElement).toBe(button('Previous result').element)
     await button('Previous result').trigger('click')
     await flushPromises()
     expect(document.activeElement).toBe(button('Next result').element)

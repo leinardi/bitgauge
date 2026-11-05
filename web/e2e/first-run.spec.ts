@@ -96,7 +96,7 @@ test('runs the server defaults to a complete result and downloads it', async ({ 
   // The saved result is in History, and the Test screen's idle state links to it.
   const nav = page.getByRole('navigation', { name: 'Primary' })
   await nav.getByRole('link', { name: 'History' }).click()
-  await expect(page.getByTestId('history-count')).toContainText('1 of 1 shown')
+  await expect(page.getByTestId('history-count')).toContainText('1 of 1 matching')
   await nav.getByRole('link', { name: 'Test' }).click()
   await expect(page.getByTestId('last-result')).toContainText('Last test')
 

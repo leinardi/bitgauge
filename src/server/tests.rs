@@ -418,6 +418,34 @@ async fn no_connections_stops_at_once() {
     assert!(matches!(outcome, Outcome::Stopped), "{outcome:?}");
 }
 
+/// QA-126: a long target consumes the head budget, not an independent 414 limit.
+#[tokio::test]
+async fn long_request_target_is_answered_431() {
+    let server = start(SHORT, GRACE).await;
+    let mut stream = server.connect().await;
+    let request = format!(
+        "GET /{} HTTP/1.1\r\nHost: test\r\n\r\n",
+        "a".repeat(17 * 1024)
+    );
+    stream.write_all(request.as_bytes()).await.unwrap();
+    let (read, _) = read_until_closed(&mut stream).await;
+    let text = String::from_utf8_lossy(&read);
+    assert!(text.starts_with("HTTP/1.1 431"), "{text}");
+}
+
+/// QA-126: this HTTP/1-only listener closes an HTTP/2 prior-knowledge preface silently.
+#[tokio::test]
+async fn http2_preface_is_closed_without_a_response() {
+    let server = start(SHORT, GRACE).await;
+    let mut stream = server.connect().await;
+    stream
+        .write_all(b"PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n")
+        .await
+        .unwrap();
+    let (read, _) = read_until_closed(&mut stream).await;
+    assert!(read.is_empty(), "{read:?}");
+}
+
 #[tokio::test]
 async fn idle_keep_alive_is_closed_and_the_server_stops() {
     let server = start(SHORT, GRACE).await;

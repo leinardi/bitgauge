@@ -265,8 +265,10 @@ Two kinds of response have no envelope:
 - **Rejected by hyper before routing:** an empty body with `Connection: close`. This is `400` for
   a malformed request line, header or `Content-Length` (`abc`, `-5`), conflicting
   `Content-Length` headers (identical duplicates are accepted), an unsupported
-  `Transfer-Encoding` or an unsupported HTTP version; `414` for an over-long request target; and
-  `431` for a head over exactly 16 KiB or with more than 100 headers. hyper does not check `Host`:
+  `Transfer-Encoding` or an unsupported HTTP version; and `431` for a head over exactly 16 KiB
+  (including the request target) or with more than 100 headers. The HTTP/2 prior-knowledge preface
+  closes the connection without an HTTP response; this listener is HTTP/1 only. hyper does not
+  check `Host`:
   a malformed `Host` is not rejected before routing and reaches the router like any other request.
   No handler sees these requests, so nothing can attach the envelope, and a browser's `fetch` or
   `XMLHttpRequest` cannot send them

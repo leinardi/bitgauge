@@ -18,12 +18,13 @@
 -->
 <script setup lang="ts">
 import { FileText } from '@lucide/vue'
-import { shallowRef, useId, watch } from 'vue'
+import { computed, shallowRef, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { Textarea } from '@/components/ui/textarea'
 import { useResultEdit } from '@/components/result/edits'
 import { useDebouncedSave } from '@/composables/useDebouncedSave'
+import { MAX_NOTE } from '@/lib/resultLimits'
 
 // The note (ui/screens.md section 2, kit ResultDetail.jsx): a text area saved with the result in
 // history as it changes, a moment after the last keystroke, and at once when the field loses focus
@@ -46,6 +47,8 @@ const { t } = useI18n()
 const fieldId = useId()
 const hintId = useId()
 const text = shallowRef(props.note)
+const edited = shallowRef(false)
+const invalid = computed(() => edited.value && [...text.value].length > MAX_NOTE)
 // Each save names the result it was typed for, which a new result's arrival does not change.
 const { schedule, flush } = useDebouncedSave<{ id: string; note: string }>(({ id, note }) => props.save(id, note))
 // Download JSON waits for the note typed (QA-110).
@@ -53,7 +56,8 @@ useResultEdit(flush)
 
 function input(value: string | number): void {
   text.value = String(value)
-  schedule({ id: props.id, note: text.value })
+  edited.value = true
+  if (!invalid.value) schedule({ id: props.id, note: text.value })
 }
 
 watch(
@@ -61,6 +65,7 @@ watch(
   () => {
     void flush()
     text.value = props.note
+    edited.value = false
   },
 )
 </script>
@@ -84,6 +89,7 @@ watch(
       :placeholder="reasonId === null ? undefined : t('result.note.placeholder')"
       :readonly="reasonId !== null"
       :aria-describedby="reasonId ?? hintId"
+      :aria-invalid="invalid || undefined"
       class="min-h-0 field-sizing-fixed resize-y rounded-(--radius-md) border-(--border-default) bg-(--surface-1) px-2.5 py-2 text-(length:--text-sm) leading-(--lh-normal) text-foreground shadow-none read-only:resize-none read-only:border-(--border-subtle) read-only:bg-(--surface-2) read-only:text-muted-foreground md:text-(length:--text-sm)"
       data-testid="note-field"
       @update:model-value="input"
@@ -93,6 +99,7 @@ watch(
       v-if="reasonId === null"
       :id="hintId"
       class="text-(length:--text-micro) text-subtle-foreground"
-    >{{ t('result.note.hint') }}</span>
+      :role="invalid ? 'alert' : undefined"
+    >{{ invalid ? t('result.note.tooLong', { max: MAX_NOTE }) : t('result.note.hint') }}</span>
   </section>
 </template>

@@ -72,6 +72,13 @@ function run(overrides: Partial<RunView>): RunView {
 }
 
 describe('screenState', () => {
+  it('shows the existing recheck timer for an unreachable Start (QA-131)', () => {
+    const ended = run({ status: 'ended', error: { code: 'server-unreachable', phase: 'info', partial: false } })
+    const gauge = gaugeInput(ended, { ...context, units: 'bits', server: 'nas', nextCheckS: 4 })
+    expect(gauge.text?.detail).toContain('4')
+    expect(gauge.text?.detail).toContain('nas')
+    expect(gaugeInput(ended, { ...context, units: 'bits', server: 'nas' }).text?.detail).toBeNull()
+  })
   it('is idle, running, or by the result done, cancelled or error', () => {
     expect(screenState(run({ status: 'idle' }))).toBe('idle')
     expect(screenState(run({}))).toBe('running')
@@ -83,6 +90,19 @@ describe('screenState', () => {
 })
 
 describe('phaseSteps', () => {
+  it('does not call upload grace an extension (QA-132)', () => {
+    const steps = phaseSteps(run({ phases: phases({ upload: 'started' }), live: { download: null, upload: live({ phaseMs: 16_000 }) } }), SETTINGS, 'en')
+    expect(steps[2]?.leftMs).toBeUndefined()
+  })
+
+  it('qualifies final and mid-run headlines (QA-134)', () => {
+    const result = resultFixture()
+    result.download!.confidence = { level: 'low', reasons: ['unstable'] }
+    const ended = run({ status: 'ended', phases: phases({ download: 'finished' }), result })
+    expect(phaseSteps(ended, SETTINGS, 'en', context)[1]?.value).toContain('low confidence')
+    expect(gaugeInput(ended, { ...context, units: 'bits', server: 'nas' }).note).toContain('low confidence')
+  })
+
   it('shows every configured phase pending, with the durations, between runs', () => {
     const steps = phaseSteps(run({ status: 'idle', phases: phases({ idle: 'finished' }) }), SETTINGS, 'en')
     expect(steps).toEqual([
@@ -100,7 +120,7 @@ describe('phaseSteps', () => {
     expect(download[1]).toEqual({ phase: 'download', state: 'active', progress: 0.2, leftMs: 6000 })
     // Past its minimum the phase extends, and the time left runs to its maximum; an upload counts
     // its time before any request has confirmed.
-    const steps = phaseSteps(run({ phases: phases({ upload: 'started' }), live: { download: null, upload: live({ phaseMs: 16_000 }) } }), SETTINGS, 'en')
+    const steps = phaseSteps(run({ phases: phases({ upload: 'started' }), live: { download: null, upload: live({ phaseMs: 16_000, events: [{ code: 'extended', atMs: 15_000 }] }) } }), SETTINGS, 'en')
     expect(steps[2]).toEqual({ phase: 'upload', state: 'active', progress: 16_000 / 25_000, leftMs: 9000 })
     // Before its first sample, the phase's time is unknown.
     expect(phaseSteps(run({ phases: phases({ upload: 'started' }) }), SETTINGS, 'en')[2]).toEqual({ phase: 'upload', state: 'active', progress: 0 })

@@ -74,6 +74,7 @@ const FIREFOX_LIMIT_BITS = 100e6
  * exceeded 20 % in any browser, or the browser is Firefox and the headline is at least 100 Mbit/s.
  */
 function browserUploadLimit(browser: BrowserIdentity, outcome: UploadOutcome | null, upload: UploadResult): Notice[] {
+  if ((upload.status !== 'measured' && upload.status !== 'partial') || upload.bitsPerSecond === undefined) return []
   const seen = (outcome?.idleShare ?? 0) > IDLE_SHARE
   const firefox = browser.name === 'Firefox' && (upload.bitsPerSecond ?? 0) >= FIREFOX_LIMIT_BITS
   return seen || firefox ? [{ code: 'browser-upload-limit', browser: browser.name }] : []

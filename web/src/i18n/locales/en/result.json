@@ -204,6 +204,7 @@
       "idleFoot": "Groups of 5 pings in send order. No warm-up for latency."
     },
     "note": {
+      "tooLong": "Not saved · use at most {max} characters. Your last saved note is unchanged.",
       "label": "Note",
       "placeholder": "No note",
       "hint": "Saved automatically in this browser. Never included when you share."

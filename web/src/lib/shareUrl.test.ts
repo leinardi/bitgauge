@@ -54,6 +54,16 @@ function opened(url: string) {
 }
 
 describe('the shareable URL', () => {
+  it('carries effective overrides but only stored language and theme (QA-136)', () => {
+    const current = { ...storedOver(DEFAULTS, { preset: 'extended', units: 'bytes', dataCapBytes: 200e6 }), label: 'FromURL' }
+    const built = buildSettingsUrl(BASE, current, DEFAULTS, { label: 'Stored', lang: 'en', theme: 'dark' }, false)
+    const url = new URL(built.url)
+    expect(url.searchParams.get('label')).toBe('FromURL')
+    expect(url.searchParams.get('preset')).toBe('extended')
+    expect(url.searchParams.get('cap')).toBe('200MB')
+    expect(url.searchParams.get('theme')).toBe('dark')
+    expect(opened(built.url).params.label).toBe('FromURL')
+  })
   it('is the bare base with nothing changed', () => {
     expect(link({})).toEqual({ url: BASE, notInLink: [] })
   })

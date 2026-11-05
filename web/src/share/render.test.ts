@@ -91,6 +91,19 @@ afterEach(() => {
 const tokens = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../../../docs/design_system/colors_and_type.css'), 'utf8')
 
 describe('renderShareImage', () => {
+  it('keeps the specified label ellipsis without changing the full source label (QA-130)', async () => {
+    const style = document.createElement('style')
+    style.textContent = tokens
+    document.head.append(style)
+    Object.defineProperty(document, 'fonts', { configurable: true, value: { load: vi.fn().mockResolvedValue([]) } })
+    const { texts } = recordCanvas()
+    const head = 'W'.repeat(64)
+    const view = { ...VIEW, head }
+    await renderShareImage(view, { wordmark: ['bit', 'gauge'], bufferbloat: 'bufferbloat' })
+    expect(texts.some((text) => text.startsWith('W') && text.endsWith('…'))).toBe(true)
+    expect(texts).not.toContain(head)
+    expect(view.head).toBe(head)
+  })
   it('draws the view on the reference box at 2.5× on a 1200 × 630 canvas in the dark palette, its fonts loaded first, and exports a PNG', async () => {
     const style = document.createElement('style')
     style.textContent = tokens

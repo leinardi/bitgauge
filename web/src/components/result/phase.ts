@@ -61,6 +61,7 @@ export function directionModel(direction: DirectionResult, units: 'bits' | 'byte
     return null
   }
   const cells = seriesCells(series)
+  if (cells.length === 0) return null
   // A cell's rate is its bytes over its known time.
   const rate = (bytes: number | null, ms: number) => (bytes === null ? null : ((units === 'bits' ? bytes * 8 : bytes) * 1000) / ms)
   const x = cells.map((cell) => seconds(cell.fromMs))

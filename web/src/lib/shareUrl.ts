@@ -54,7 +54,7 @@ function capValue(bytes: number | null): string {
  * The link to `base` (the page's origin and base path) that opens BitGauge with `current`, the
  * settings stored over `defaults`; `stored` gives the language, theme, label and countdown.
  */
-export function buildSettingsUrl(base: string, current: TestSettings, defaults: TestSettings, stored: StoredSettings, run: boolean): SettingsLink {
+export function buildSettingsUrl(base: string, current: TestSettings & { label?: string }, defaults: TestSettings, stored: StoredSettings, run: boolean): SettingsLink {
   const parameters: [string, string][] = []
   const notInLink: NotInLink[] = []
   // What the link's server applies once the link's preset is resolved.
@@ -113,8 +113,9 @@ export function buildSettingsUrl(base: string, current: TestSettings, defaults: 
   if (stored.theme !== undefined && stored.theme !== 'system') {
     parameters.push(['theme', stored.theme])
   }
-  if (stored.label !== undefined && stored.label !== '') {
-    parameters.push(['label', stored.label])
+  const label = current.label ?? stored.label ?? ''
+  if (label !== '') {
+    parameters.push(['label', label])
   }
 
   if ((stored.autoStart?.countdownS ?? DEFAULT_AUTO_START.countdownS) !== DEFAULT_AUTO_START.countdownS) {

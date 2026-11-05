@@ -60,6 +60,26 @@ fn defaults_equal_the_documented_example() {
     assert_eq!(loaded.config, Config::default());
 }
 
+/// QA-127: syntax errors are one operator-facing line, retaining their source location.
+#[test]
+fn yaml_diagnostics_are_single_line_without_developer_hints() {
+    for yaml in [
+        "server:\n  display_name: one\n  display_name: two\n",
+        "server: [\n",
+        "server: {}\n---\nserver: {}\n",
+        "- not\n- a mapping\n",
+    ] {
+        let source = super::from_text(yaml, &[]).expect_err("invalid YAML configuration");
+        let error = crate::config::load::FileError::Yaml(Box::new(source));
+        let message = error.to_string();
+        assert!(!message.contains('\n'), "{message}");
+        assert!(!message.contains("DuplicateKeyPolicy"), "{message}");
+        assert!(!message.contains("from_str_multiple"), "{message}");
+        assert!(!message.contains("display_name: one"), "{message}");
+        assert!(!message.is_empty(), "diagnostic must explain the failure");
+    }
+}
+
 /// Go: `TestNoFileNoEnvironmentGivesDefaults`
 #[test]
 fn no_file_no_environment_gives_defaults() {

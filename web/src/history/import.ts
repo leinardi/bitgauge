@@ -20,6 +20,7 @@
 import type { Result } from '@/engine/messages'
 import { InvalidRecord, migrate, UnsupportedSchema } from '@/history/migrate'
 import { labelValue, MAX_LABEL } from '@/lib/urlValues'
+import { importProblems } from '@/history/validate'
 
 // The JSON import (frontend.md section 5). The file is refused as a whole when it is larger than
 // 10 MB (10 000 000 bytes, decimal), is not JSON, or is not the `bitgauge.history` format, version
@@ -71,6 +72,10 @@ function checkRecord(record: unknown, index: number): { result: Result } | { rej
     const result = migrate(record)
     if (labelValue(result.label) === undefined) {
       return { rejected: { index, reason: 'invalid', detail: `result.label: more than ${MAX_LABEL} characters` } }
+    }
+    const problems = importProblems(result)
+    if (problems.length > 0) {
+      return { rejected: { index, reason: 'invalid', detail: problems[0]! } }
     }
     return { result }
   } catch (error) {
@@ -133,10 +138,11 @@ export async function checkImport(records: readonly unknown[], { onProgress, sig
 
 /** The records to add: those whose `id` is neither stored nor earlier in the file; and the count skipped. */
 export function newRecords(results: readonly Result[], stored: ReadonlySet<string>): { added: Result[]; skipped: number } {
-  const seen = new Set(stored)
+  const seen = new Set([...stored].map((id) => id.toLowerCase()))
   const added = results.filter((result) => {
-    const fresh = !seen.has(result.id)
-    seen.add(result.id)
+    const id = result.id.toLowerCase()
+    const fresh = !seen.has(id)
+    seen.add(id)
     return fresh
   })
   return { added, skipped: results.length - added.length }

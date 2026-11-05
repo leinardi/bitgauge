@@ -94,9 +94,10 @@ export function timeTicks(window: TimeWindow, now: Date): TimeTick[] {
   }
   const end = new Date(window.to * 1000)
   const back = (months: number, index: number) => new Date(end.getFullYear(), end.getMonth() - index * months, end.getDate(), end.getHours(), end.getMinutes(), end.getSeconds()).getTime() / 1000
-  const months: number = MONTH_STEPS.find((step) => back(step, MAX_TICKS) < window.from) ?? MONTH_STEPS.at(-1) ?? 1
+  const months: number = MONTH_STEPS.find((step) => back(step, MAX_TICKS) < window.from)
+    ?? Math.ceil(span / (365.25 * DAY_S * (MAX_TICKS - 1))) * 12
   const ticks: TimeTick[] = []
-  for (let index = 0; back(months, index) >= window.from; index++) {
+  for (let index = 0; index < MAX_TICKS && back(months, index) >= window.from; index++) {
     ticks.push({ at: back(months, index), today: today && index === 0, year: months >= YEAR_LABEL_MONTHS })
   }
   return ticks.reverse()

@@ -40,7 +40,8 @@ const string: Check = (value, path, problems) => {
  * ISO 8601 form is still refused, and the problem names the one form accepted.
  */
 const instant: Check = (value, path, problems) => {
-  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)
+    || !Number.isFinite(Date.parse(value)) || new Date(value).toISOString() !== value) {
     problems.push(`${path}: not an instant in UTC with milliseconds, as YYYY-MM-DDTHH:MM:SS.sssZ`)
   }
 }
@@ -100,6 +101,7 @@ function list(item: Check, most = Number.POSITIVE_INFINITY): Check {
     }
     if (value.length > most) {
       problems.push(`${path}: more than ${most} entries`)
+      return
     }
     value.forEach((entry, index) => item(entry, `${path}[${index}]`, problems))
   }
@@ -113,19 +115,19 @@ function object(required: Record<string, Check>, optional: Record<string, Check>
       return
     }
     for (const [key, check] of Object.entries(required)) {
-      if (key in value) {
+      if (Object.hasOwn(value, key)) {
         check(value[key], `${path}.${key}`, problems)
       } else {
         problems.push(`${path}.${key}: missing`)
       }
     }
     for (const [key, check] of Object.entries(optional)) {
-      if (key in value) {
+      if (Object.hasOwn(value, key)) {
         check(value[key], `${path}.${key}`, problems)
       }
     }
     for (const key of Object.keys(value)) {
-      if (!(key in required) && !(key in optional)) {
+      if (!Object.hasOwn(required, key) && !Object.hasOwn(optional, key)) {
         problems.push(`${path}.${key}: not a field of this schema version`)
       }
     }
@@ -136,7 +138,7 @@ function object(required: Record<string, Check>, optional: Record<string, Check>
 function byCode(shapes: Record<string, Check>): Check {
   return (value, path, problems) => {
     const code = isObject(value) ? value['code'] : undefined
-    const shape = typeof code === 'string' ? shapes[code] : undefined
+    const shape = typeof code === 'string' && Object.hasOwn(shapes, code) ? shapes[code] : undefined
     if (shape === undefined) {
       problems.push(`${path}.code: unknown`)
       return

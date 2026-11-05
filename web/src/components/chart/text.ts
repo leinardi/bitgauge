@@ -136,8 +136,10 @@ export function chartMeta(input: ChartTextInput, wording: Wording): string {
       return ''
     case 'done':
       return totalMs === null ? '' : t('test.chart.total', { s: secondsNumber(totalMs, locale) })
-    case 'stopped':
-      return t('test.chart.stopped', { s: seconds(model.end) })
+    case 'stopped': {
+      const terminal = model.marks.filter((mark) => mark.code === 'error' || mark.code === 'cancelled').at(-1)
+      return t('test.chart.stopped', { s: seconds(terminal?.at ?? model.end) })
+    }
     case 'running': {
       const current = order.filter((direction) => live[direction] !== null).at(-1)
       const bounds = current === undefined || durations === null ? null : durations[current]

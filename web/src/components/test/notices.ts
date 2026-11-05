@@ -147,8 +147,10 @@ export function noticeView(notice: Notice, context: NoticeContext): NoticeView {
       return { tone: 'warn', icon: TriangleAlert, title: t('notices.proxyBufferingSuspected.title'), body: t('notices.proxyBufferingSuspected.body'), actions: [docs] }
     case 'browser-upload-limit':
       return { tone: 'info', icon: Info, title: t('notices.browserUploadLimit.title', { browser: notice.browser }), body: t('notices.browserUploadLimit.body', { browser: notice.browser }), actions: [{ kind: 'link', href: links.browserUploadLimits, label: t('notices.actions.browserLimits') }] }
-    case 'upload-interrupted':
-      return { tone: 'danger', icon: CircleAlert, title: t('notices.uploadInterrupted.title'), body: t('notices.uploadInterrupted.body'), actions: [docs] }
+    case 'upload-interrupted': {
+      const upload = context.result?.upload ?? context.directions?.upload
+      return { tone: 'danger', icon: CircleAlert, title: t('notices.uploadInterrupted.title'), body: upload?.bitsPerSecond === undefined ? t('notices.uploadInterrupted.noNumber') : t('notices.uploadInterrupted.body'), actions: [docs] }
+    }
     case 'response-compression-detected':
       return { tone: 'warn', icon: TriangleAlert, title: t('notices.responseCompressionDetected.title'), body: t('notices.responseCompressionDetected.body'), actions: [docs] }
     case 'overhead-compensation': {

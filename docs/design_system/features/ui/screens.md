@@ -152,6 +152,8 @@ portrait on a phone without horizontal scrolling.
   the median loaded latency of the samples in the window ("—" when it holds none). When the stored
   cells are coarser than 2 s (Continuous), one row per stored cell, with the header naming the cell
   size.
+  Only the retained series interval produces rows; an unretained prefix does not allocate empty
+  windows. A malformed stored series is not rendered as a chart or table.
 - **Test parameters:** preset, phases and order, stream mode, count and plateau reason, each
   direction's duration with its configured bounds (when the result records them; a direction the
   user stopped reads its duration to the stop and "stopped by you"; one without a steady window
@@ -161,7 +163,10 @@ portrait on a phone without horizontal scrolling.
   warm-up), ping count, overhead compensation, protocol, server name and version, browser, client
   IP, timer resolution and whether the page was cross-origin isolated.
 - **Label and note:** editable, saved with the result in history as they change; Download JSON
-  waits for a pending save, so it carries the latest text. A change made in the last moment
+  waits for valid edits. Notes allow at most 16,384 Unicode code points; an over-limit edit stays
+  visible with an accessible error and is not saved. Existing longer notes remain readable and
+  exportable until edited. Download JSON waits for a pending valid save, so it carries the latest
+  saved text. A change made in the last moment
   before the page closes may be lost.
 - **Share panel:** always visible beside the metrics: a preview of the share image and of the
   copied text, showing exactly what each contains
@@ -424,6 +429,8 @@ detail, each with a short explanation and, where useful, a link to the docs. The
   information. The action follows only
   a direction that reached its maximum: one the data cap ended says so and offers no larger preset
   ([../measurement.md §8.6](../measurement.md#86-shortfall)), and a stopped one reads as stopped.
+  An upload interrupted before a sufficient window names the failed request, not the maximum,
+  and offers no larger preset; its interruption notice does not claim a number exists.
 - **Confidence:** `low confidence` with reasons; `browser upload limit` with a "Known browser
   limits" link to the docs. `cpu-bound` is not a notice: it is a confidence qualifier shown with
   the speed ([../measurement.md §16](../measurement.md#16-confidence-and-notices), §6 above).

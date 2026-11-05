@@ -88,7 +88,7 @@ export function resultFixture(overrides: Partial<Result> = {}): Result {
       plateau: 'cap',
       confidence: { level: 'normal', reasons: [] },
       bytes: 600_000_000,
-      series: { bucketMs: 100, firstCellMs: 6500, warmupEndMs: 6500, endMs: 10_000, values: [7_650_000, null] },
+      series: { bucketMs: 100, firstCellMs: 6500, warmupEndMs: 6500, endMs: 10_000, values: Array.from({ length: 35 }, () => 7_650_000) },
       events: [],
     },
     upload: {
@@ -101,7 +101,7 @@ export function resultFixture(overrides: Partial<Result> = {}): Result {
       plateau: 'no-gain',
       confidence: { level: 'normal', reasons: [] },
       bytes: 700_000_000,
-      series: { bucketMs: 100, firstCellMs: 9500, warmupEndMs: 9500, endMs: 15_600, values: [5_475_000] },
+      series: { bucketMs: 100, firstCellMs: 9500, warmupEndMs: 9500, endMs: 15_600, values: Array.from({ length: 61 }, () => 5_475_000) },
       events: [],
       confirmedRequests: 38,
     },

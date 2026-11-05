@@ -65,7 +65,7 @@ test('runs a Continuous download for its 60 s run length to a complete result, s
 
   const nav = page.getByRole('navigation', { name: 'Primary' })
   await nav.getByRole('link', { name: 'History' }).click()
-  await expect(page.getByTestId('history-count')).toContainText('1 of 1 shown')
+  await expect(page.getByTestId('history-count')).toContainText('1 of 1 matching')
   await expect(page.getByTestId('history-row')).toHaveCount(1)
 })
 

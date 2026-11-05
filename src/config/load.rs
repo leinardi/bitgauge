@@ -87,8 +87,18 @@ pub enum FileError {
     #[error(transparent)]
     Io(#[from] io::Error),
     /// It is not valid YAML, holds a duplicate key, or is not a mapping.
-    #[error(transparent)]
-    Yaml(Box<serde_saphyr::Error>),
+    #[error("{}", yaml_diagnostic(.0))]
+    Yaml(#[source] Box<serde_saphyr::Error>),
+}
+
+/// Operator-facing YAML diagnostics keep locations, not source excerpts or library API hints.
+fn yaml_diagnostic(error: &serde_saphyr::Error) -> String {
+    let mut options = serde_saphyr::RenderOptions::new(&serde_saphyr::UserMessageFormatter);
+    options.snippets = serde_saphyr::SnippetMode::Off;
+    error
+        .render_with_options(options)
+        .escape_debug()
+        .to_string()
 }
 
 /// Reads the configuration from the defaults, the YAML file at `path` and the process

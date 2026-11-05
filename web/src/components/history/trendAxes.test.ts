@@ -45,6 +45,12 @@ describe('the trend time window', () => {
 })
 
 describe('the trend time ticks', () => {
+  it('keeps ancient valid imports bounded to five time labels (QA-123)', () => {
+    const ticks = timeTicks({ from: Date.parse('0001-01-01T00:00:00.000Z') / 1000, to: nowS }, now)
+    expect(ticks.length).toBeGreaterThan(0)
+    expect(ticks.length).toBeLessThanOrEqual(5)
+    expect(ticks.every((tick) => Number.isFinite(tick.at))).toBe(true)
+  })
   it('reads the last one as today and keeps three to five', () => {
     const week = timeTicks({ from: nowS - 7 * DAY_S, to: nowS }, now)
     expect(week.map((tick) => (nowS - tick.at) / DAY_S)).toEqual([6, 3, 0])

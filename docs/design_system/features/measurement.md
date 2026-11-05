@@ -1528,7 +1528,8 @@ engine emits the code with the raw values the notice names, and the UI words it.
 - `upload buffering suspected`: a proxy or the browser buffers request bodies
   (`proxy-buffering-suspected`; §7.3);
 - `browser upload limit` (`browser-upload-limit`, with the browser's name): the browser's own
-  upload path, not the link, may be the limit. Carried when the upload's largest idle share (§8.2)
+  upload path, not the link, may be the limit. Only a `measured` or `partial` upload with a number
+  carries it. Carried when the upload's largest idle share (§8.2)
   exceeded **20 %**, in any browser: the engine saw a stream sit idle between requests far longer
   than a round trip, which is the preparation cost at work. Carried also when the browser is
   Firefox and the upload headline is at least **100 Mbit/s**, with or without a measured idle

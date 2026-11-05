@@ -18,6 +18,7 @@
 -->
 <script setup lang="ts">
 import { ChevronLeft, ChevronRight } from '@lucide/vue'
+import { useMediaQuery } from '@vueuse/core'
 import { shallowRef, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -40,6 +41,8 @@ const scroller = useTemplateRef<HTMLDivElement>('scroller')
 const page = shallowRef(0)
 const previous = useTemplateRef<InstanceType<typeof AppButton>>('previous')
 const next = useTemplateRef<InstanceType<typeof AppButton>>('next')
+const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
+let destination: number | null = null
 
 async function turn(index: number): Promise<void> {
   const [pressed, other] = index === 0 ? [previous.value, next.value] : [next.value, previous.value]
@@ -51,17 +54,27 @@ async function turn(index: number): Promise<void> {
 function go(index: number): void {
   const card = scroller.value?.children[index] as HTMLElement | undefined
   if (scroller.value && card) {
-    scroller.value.scrollTo({ left: card.offsetLeft - scroller.value.offsetLeft, behavior: 'smooth' })
+    destination = index
+    scroller.value.scrollTo({ left: card.offsetLeft - scroller.value.offsetLeft, behavior: reducedMotion.value ? 'instant' : 'smooth' })
   }
   page.value = index
 }
 
 function scrolled(): void {
   const element = scroller.value
-  const width = (element?.children[0] as HTMLElement | undefined)?.offsetWidth ?? 0
-  if (element && width > 0) {
-    page.value = Math.min(1, Math.round(element.scrollLeft / width))
+  if (element && destination === null) {
+    const distances = [...element.children].map((card) => Math.abs((card as HTMLElement).offsetLeft - element.offsetLeft - element.scrollLeft))
+    page.value = distances[1] !== undefined && distances[1] < (distances[0] ?? Infinity) ? 1 : 0
   }
+}
+
+function releaseDestination(): void {
+  destination = null
+}
+
+function settled(): void {
+  releaseDestination()
+  scrolled()
 }
 
 function rows(index: number, of: 'parameters' | 'metrics'): { row: CompareRow; value: string; change: boolean }[] {
@@ -124,6 +137,11 @@ const EYEBROW = 'pt-3 pb-1 font-(family-name:--font-cond) text-(length:--text-mi
       :aria-label="t('history.compare.cards')"
       class="flex snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto px-4"
       @scroll="scrolled"
+      @scrollend="settled"
+      @pointerdown="releaseDestination"
+      @touchstart.passive="releaseDestination"
+      @wheel.passive="releaseDestination"
+      @keydown="releaseDestination"
     >
       <section
         v-for="(side, index) in sides"

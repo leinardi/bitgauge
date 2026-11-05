@@ -96,7 +96,7 @@ const shownSettings = computed(() => (state.value === 'idle' ? null : run.runSet
 const units = computed(() => shownSettings.value?.units ?? 'bits')
 
 // Without the server's settings the phases, tiles and load card still show, pending and empty.
-const steps = computed(() => (shownSettings.value === null ? PENDING_STEPS : phaseSteps(view.value, shownSettings.value, locale.value)))
+const steps = computed(() => (shownSettings.value === null ? PENDING_STEPS : phaseSteps(view.value, shownSettings.value, locale.value, wording.value)))
 // The ended result kept in history by the user (Keep in history), which then reads "saved as".
 const kept = shallowRef(false)
 /** The gauge's window, carried between directions and started afresh with each run. */
@@ -106,7 +106,7 @@ useEndedRun({ run, state, kept, gaugeWindow })
 watch(units, (value) => {
   gaugeWindow.value = startK(value)
 })
-const gaugeContext = computed(() => ({ ...wording.value, units: units.value, server: info.value?.server.name ?? host, kept: kept.value, waiting: info.value === null && reachability.value !== 'unreachable' }))
+const gaugeContext = computed(() => ({ ...wording.value, units: units.value, server: info.value?.server.name ?? host, kept: kept.value, waiting: info.value === null && reachability.value !== 'unreachable', nextCheckS: reachability.value === 'unreachable' ? nextCheckS.value : null }))
 const offline = computed(() => state.value === 'idle' && reachability.value === 'unreachable')
 const gauge = computed(() => (offline.value ? offlineGauge(gaugeContext.value, nextCheckS.value) : gaugeInput(view.value, gaugeContext.value)))
 const elapsed = useElapsed(running, view)

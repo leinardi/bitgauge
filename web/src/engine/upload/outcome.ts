@@ -120,7 +120,7 @@ export function uploadOutcome(record: PhaseRecord): UploadOutcome {
     status = 'partial'
   } else {
     // The duration rule, a data cap as if the maximum had passed, or an HTTP/1.1 failure.
-    const outcome = record.rule.outcome(window?.sufficient ?? false, halts.has('data-cap'))
+    const outcome = record.rule.outcome(window?.sufficient ?? false, halts.has('data-cap') || halts.has('interrupted'))
     status = outcome.status
     notices.push(...outcome.notices)
   }

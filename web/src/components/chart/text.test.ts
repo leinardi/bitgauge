@@ -62,6 +62,10 @@ const labels = (text: ChartTextInput) => chartLegend(text, wording).map((entry) 
 const download = live({ values: Array.from({ length: 50 }, () => 1000), warmupEnd: 20 })
 
 describe('the chart text', () => {
+  it('reads the interruption time rather than the last bucket (QA-135)', () => {
+    const stopped = input('stopped', { download: live({ values: Array.from({ length: 41 }, () => 1000) }) }, { events: { download: [{ code: 'error', atMs: 4159, notice: 'server-unreachable' }] } })
+    expect(chartMeta(stopped, wording)).toBe('stopped at 4.2 s')
+  })
   it('names both directions and the latency toggle when empty, and no data yet', () => {
     const empty = input('empty', {})
     expect(labels(empty)).toEqual(['Download', 'Upload', 'Latency under load'])

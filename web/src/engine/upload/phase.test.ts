@@ -28,7 +28,9 @@ import { FakeClock } from '@/engine/test/fakeClock'
 import { type Failure, FakeTransport, type Scenario } from '@/engine/test/fakeTransport'
 import { steadyTelemetry } from '@/engine/test/telemetry'
 import type { Transport, UploadResponse, UploadTelemetry } from '@/engine/types'
-import type { UploadOutcome } from '@/engine/upload/outcome'
+import { type UploadOutcome, uploadOutcome } from '@/engine/upload/outcome'
+import { DurationRule } from '@/engine/phases/window'
+import { UploadLedger } from '@/engine/upload/watermark'
 import { type UploadOptions, UploadPhase } from '@/engine/upload/phase'
 import { UploadStreams } from '@/engine/upload/streams'
 
@@ -445,6 +447,26 @@ describe('worked example B through the phase runner', () => {
 })
 
 describe('a failed request', () => {
+  it('retains a prior extension notice when interrupted, suppressing only the preset offer', () => {
+    const rule = new DurationRule('upload', { minMs: 15_000, maxMs: 25_000 }, 'standard')
+    rule.evaluate(15_000, false)
+    const outcome = uploadOutcome({
+      rule, halts: new Set(['interrupted']), ledger: new UploadLedger(), warmup: null,
+      streams: 1, plateau: undefined, bytes: 0, protocol: 'http/1.1', streamLimit: null,
+      rateLimited: null, bufferingSuspected: false, idleShare: null, displayOffsetMs: null,
+      startAt: 0, continuous: null,
+      events: [{ code: 'extended', at: 15_000 }, { code: 'error', at: 18_000, notice: 'upload-interrupted' }],
+    })
+    expect(outcome.notices).toContainEqual({ code: 'slow-link-extended', direction: 'upload' })
+    expect(outcome.notices).toContainEqual({ code: 'insufficient-data', direction: 'upload', offer: null })
+    expect(outcome.events).toContainEqual({ code: 'extended', atMs: 15_000 })
+  })
+  it('does not offer a larger preset after an early HTTP/1.1 failure (QA-122)', async () => {
+    const { outcome } = await run(failing({ ...LINK, protocol: 'http/1.1' }, (index) => index === 1 ? { kind: 'status', status: 429 } : null))
+    expect(outcome.status).toBe('insufficient-data')
+    expect(outcome.notices).toContainEqual({ code: 'insufficient-data', direction: 'upload', offer: null })
+    expect(outcome.notices).toContainEqual({ code: 'upload-interrupted' })
+  })
   it('on HTTP/1.1 ends the phase with the window up to the failure, upload-interrupted and its error event', async () => {
     const { phase, sends, answers, outcome } = await run(failing({ ...LINK, protocol: 'http/1.1' }, (index) => (index === 6 ? { kind: 'status', status: 429 } : null)))
     const failedAt = answers[6] ?? 0

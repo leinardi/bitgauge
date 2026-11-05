@@ -83,6 +83,23 @@ function changed(change: (result: Record<string, unknown> & Result) => void): un
 }
 
 describe('the result validator', () => {
+  it('rejects inherited schema names without throwing (QA-120)', () => {
+    for (const code of ['constructor', 'toString', 'hasOwnProperty', 'valueOf', '__proto__']) {
+      expect(validateResult(changed((result) => result.notices.push({ code } as never)))).toContain('result.notices[2].code: unknown')
+      expect(validateResult(changed((result) => result.download?.events.push({ code } as never)))).toContain('result.download.events[1].code: unknown')
+    }
+    const hostile = JSON.parse(JSON.stringify(VALID).replace('"schema":', '"__proto__":{},"schema":'))
+    expect(validateResult(hostile)).toContain('result.__proto__: not a field of this schema version')
+    expect(validateResult(Object.create(VALID))).toContain('result.schema: missing')
+  })
+
+  it('checks real calendar instants without rejecting future dates (QA-123)', () => {
+    for (const startedAt of ['2026-02-30T12:00:00.000Z', '2026-13-45T99:99:99.999Z']) {
+      expect(validateResult(changed((result) => (result.startedAt = startedAt)))).not.toEqual([])
+    }
+    expect(validateResult(changed((result) => (result.startedAt = '9999-12-31T23:59:59.999Z')))).toEqual([])
+  })
+
   it('accepts a result without the optional fields', () => {
     expect(validateResult(VALID)).toEqual([])
   })

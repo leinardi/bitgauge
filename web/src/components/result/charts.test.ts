@@ -40,6 +40,11 @@ function stopped(download: DirectionResult | undefined): DirectionResult {
 }
 
 describe('the result chart cards', () => {
+  it('omits malformed series already present in old history', () => {
+    const bad = resultFixture()
+    bad.download!.series!.endMs = Number.MAX_SAFE_INTEGER
+    expect(chartCards(bad, 'bits', wording).some((card) => card.key === 'download')).toBe(false)
+  })
   it('mark a Continuous stop Stopped, and a bounded one Cancelled', () => {
     const base = resultFixture()
     const bounded = resultFixture({ download: stopped(base.download) })
@@ -56,7 +61,7 @@ describe('the result chart cards', () => {
     if (upload?.series === undefined) {
       throw new Error('the fixture has an upload series')
     }
-    const late = resultFixture({ status: 'partial', upload: { ...upload, status: 'partial', series: { ...upload.series, endMs: 13_000 }, events: [{ code: 'cancelled', atMs: 14_000 }] } })
+    const late = resultFixture({ status: 'partial', upload: { ...upload, status: 'partial', series: { ...upload.series, endMs: 13_000, values: upload.series.values.slice(0, 35) }, events: [{ code: 'cancelled', atMs: 14_000 }] } })
     const card = chartCards(late, 'bits', wording).find((shown) => shown.key === 'upload')
     expect(card?.meta.replace(/\u00a0/gu, ' ')).toBe(`14.0 s · ${upload.streams} streams`)
   })

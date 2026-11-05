@@ -78,6 +78,8 @@ The Settings screen builds a URL from the current settings:
   §2 (`run`, `test`, `preset`, `duration`, `streams`, `cap`, `units`, `lang`, `theme`, `label`), so
   links stay short and keep following the server's defaults for everything else.
 - `run=1` is added only if the user ticks "start automatically".
+- Run settings and the label come from the effective current settings, including active URL
+  overrides marked "from the link". Building this URL does not persist those overrides.
 - `lang` and `theme` are included only when the user stored them in Settings, never from the
   browser's own language or the system theme.
 - `label` is included only if the Settings screen's result label is set.

@@ -47,6 +47,30 @@ test('says history is unavailable where the browser keeps none', async ({ page }
   await expectAccessible(page)
 })
 
+test('keeps Compare focus through narrow-screen smooth paging (QA-124)', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await importHistory(page)
+  const cards = page.getByTestId('history-card')
+  await cards.nth(0).getByRole('checkbox').click()
+  await cards.nth(1).getByRole('checkbox').click()
+  await page.getByTestId('compare').filter({ visible: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Compare results' })
+  for (const [pressed, focused] of [['Next result', 'Previous result'], ['Previous result', 'Next result']] as const) {
+    await dialog.getByRole('button', { name: pressed }).focus()
+    await page.keyboard.press('Enter')
+    // Observe every frame, not just focus immediately before the smooth scroll begins.
+    const stayed = await dialog.evaluate(async (element) => {
+      for (let frame = 0; frame < 40; frame++) {
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+        if (!element.contains(document.activeElement) || (document.activeElement as HTMLButtonElement | null)?.disabled === true) return false
+      }
+      return true
+    })
+    expect(stayed).toBe(true)
+    await expect(dialog.getByRole('button', { name: focused })).toBeFocused()
+  }
+})
+
 test('reviews, sorts and filters results, opens one, and Back keeps the filter', async ({ page }) => {
   await importHistory(page, MIXED)
   await expect(page.getByTestId('origin-notice')).toBeVisible()
@@ -64,24 +88,24 @@ test('reviews, sorts and filters results, opens one, and Back keeps the filter',
   // The context filter, then the date range: each in the query string, the trend following.
   const lan = page.getByTestId('chip-contexts').filter({ hasText: 'LAN' })
   await lan.click()
-  await expect(count).toContainText('1 of 8 shown')
+  await expect(count).toContainText('1 of 8 matching')
   await expect(page).toHaveURL(/contexts=LAN/)
   await expect(trend(page)).toHaveAttribute('aria-label', /, 1 result,/)
   await lan.click()
-  await expect(count).toContainText('8 of 8 shown')
+  await expect(count).toContainText('8 of 8 matching')
   await page.getByTestId('date-range').click()
   await page.getByTestId('range-from').fill('2026-10-02')
   await page.getByTestId('range-to').fill('2026-10-05')
   await page.getByTestId('range-apply').click()
-  await expect(count).toContainText('2 of 8 shown')
+  await expect(count).toContainText('2 of 8 matching')
   await expect(page).toHaveURL(/range=2026-10-02\.\.2026-10-05/)
   await expect(trend(page)).toHaveAttribute('aria-label', /, 2 results/)
   await page.goto('/history')
-  await expect(count).toContainText('8 of 8 shown')
+  await expect(count).toContainText('8 of 8 matching')
 
   // The label filter narrows the list and the trend.
   await page.getByTestId('chip-labels').filter({ hasText: 'VPN · office' }).click()
-  await expect(count).toContainText('2 of 8 shown')
+  await expect(count).toContainText('2 of 8 matching')
   await expect(rows).toHaveCount(2)
   await expect(page).toHaveURL(/labels=/)
   await expect(trend(page)).toHaveAttribute('aria-label', /, 2 results/)
@@ -92,14 +116,14 @@ test('reviews, sorts and filters results, opens one, and Back keeps the filter',
   await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toBeVisible()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('VPN · office')
   await page.goBack()
-  await expect(count).toContainText('2 of 8 shown')
+  await expect(count).toContainText('2 of 8 matching')
 
   // A search with no match, and Clear filters.
   await page.getByTestId('history-search').fill('airport')
   await expect(page.getByTestId('history-no-match')).toContainText('matches “airport”. All 8 results are still in history.')
   await expectAccessible(page)
   await page.getByTestId('history-no-match').getByRole('button', { name: 'Clear filters' }).click()
-  await expect(count).toContainText('8 of 8 shown')
+  await expect(count).toContainText('8 of 8 matching')
 })
 
 test('compares two results in a focus-trapped dialog, copies the comparison, and compares another pair', async ({ page, browserName }) => {
@@ -165,18 +189,18 @@ test('deletes a row, then the selected rows, each with an undo, and clears all a
   }
   await page.getByTestId('history-row').first().getByTestId('row-actions').click()
   await page.getByTestId('row-delete').click()
-  await expect(count).toContainText('7 of 7 shown')
+  await expect(count).toContainText('7 of 7 matching')
   await undo('Result deleted.')
-  await expect(count).toContainText('8 of 8 shown')
+  await expect(count).toContainText('8 of 8 matching')
 
   const table = page.getByTestId('history-table')
   await table.getByTestId('row-select').nth(0).click()
   await table.getByTestId('row-select').nth(1).click()
   await table.getByTestId('selection-bar').getByTestId('delete-selected').click()
-  await expect(count).toContainText('6 of 6 shown')
+  await expect(count).toContainText('6 of 6 matching')
   await expect(table.getByTestId('selection-bar')).toHaveCount(0)
   await undo('2 results deleted.')
-  await expect(count).toContainText('8 of 8 shown')
+  await expect(count).toContainText('8 of 8 matching')
 
   await page.getByTestId('clear-all').click()
   const confirm = page.getByRole('alertdialog')

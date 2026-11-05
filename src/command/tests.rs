@@ -228,6 +228,24 @@ fn refusals_name_their_reason_where_go_wrote_them() {
     assert_eq!(lines[0]["key"], "limits.max_streams_per_client");
 }
 
+/// QA-127: an invalid YAML file is one diagnostic and exits before serving.
+#[test]
+fn yaml_failure_is_one_operator_facing_line() {
+    let (process, outputs) = process(&[], render_scratch);
+    let exit = run(
+        args(&["serve", "--config", &fixture("duplicate.yaml.invalid")]),
+        process,
+    );
+    assert_eq!(exit, ExitCode::from(2));
+    assert!(outputs.stdout.text().is_empty());
+    let text = outputs.stderr.text();
+    assert_eq!(text.lines().count(), 1, "{text}");
+    assert!(text.contains("duplicate"), "{text}");
+    assert!(text.contains("line 4"), "{text}");
+    assert!(!text.contains("DuplicateKeyPolicy"), "{text}");
+    assert!(!text.contains("display_name: first"), "{text}");
+}
+
 /// `-h` and `--help` print the help on stdout and exit 0.
 #[test]
 fn help_goes_to_stdout_with_exit_zero() {

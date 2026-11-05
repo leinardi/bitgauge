@@ -18,6 +18,7 @@
  */
 
 import { idleStopped, type RunView, screenState } from '@/components/test/screen/states'
+import { directionQualifiers, qualifiedRate } from '@/components/result/qualifiers'
 import type { Wording } from '@/components/test/wording'
 import type { DirectionLive } from '@/composables/runLive'
 import type { IdleLive } from '@/composables/useRunState'
@@ -70,6 +71,7 @@ export interface GaugeInput {
   text: GaugeText | null
   /** What the reading is, after the scale under the dial: a Continuous run's "session average", its tick or "sending". */
   basis?: string | null
+  qualifiers?: string
 }
 
 /** What the gauge words its readings with besides the run: the display units and the server's name. */
@@ -80,6 +82,8 @@ export interface GaugeContext extends Wording {
   kept?: boolean
   /** The server answers, but its default settings have not arrived yet: Start waits for them. */
   waiting?: boolean
+  /** Existing reachability loop's countdown, only when the server is unreachable. */
+  nextCheckS?: number | null
 }
 
 const PHASE_WORDS: Record<MeasuringPhase, (t: Wording['t']) => string> = {
@@ -134,7 +138,8 @@ function errorText(run: RunView, context: GaugeContext): GaugeText {
     detail = last === null || last === undefined ? null : t('test.gauge.lastSample', { rate: formatRate(last, units, locale) })
   }
   const message = isMeasuring(phase) ? t('test.gauge.errorDuring', { phase: PHASE_WORDS[phase](t) }) : null
-  return { title: t('test.gauge.lost'), message, touchMessage: null, detail, icon: 'error' }
+  const retry = run.error?.code === 'server-unreachable' && context.nextCheckS != null ? t('test.gauge.offlineNext', { server: context.server, seconds: context.nextCheckS }) : null
+  return { title: t('test.gauge.lost'), message, touchMessage: null, detail: retry === null ? detail : [detail, retry].filter(Boolean).join(' · '), icon: 'error' }
 }
 
 const NO_READING = { mode: 'rate', direction: null, value: null, peak: null, inner: null, label: '', at: null, note: null, innerLabel: null, text: null } as const
@@ -164,7 +169,7 @@ function lastRan(result: Result): Direction | null {
  * with the upload headline inside; after a stop Cancelled over the final arc, and after an error
  * what was lost and where.
  */
-export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
+function baseGaugeInput(run: RunView, context: GaugeContext): GaugeInput {
   const { t, locale, units } = context
   const reading = NO_READING
   const textual = (text: Omit<GaugeText, 'touchMessage' | 'detail' | 'icon'> & Partial<GaugeText>): GaugeInput => ({
@@ -243,6 +248,24 @@ export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
   return { ...reading, direction: 'download', value: download, peak: result.download?.peakBitsPerSecond ?? null, inner: upload, label: t('test.gauge.download'), innerLabel }
 }
 
+/** The finished dial carries the same qualifiers as its tiles, including the inner upload. */
+export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
+  const gauge = baseGaugeInput(run, context)
+  if (run.status !== 'ended' || run.result === null) return gauge
+  const result = run.result
+  const qualifiers = (direction: Direction) => {
+    const part = result[direction]
+    return part?.bitsPerSecond === undefined ? '' : directionQualifiers(qualifiedRate(part), result.settings.overheadCompensationPercent, context).map((qualifier) => qualifier.text).join(' · ')
+  }
+  const main = gauge.direction === null ? '' : qualifiers(gauge.direction)
+  const inner = gauge.inner === null ? '' : qualifiers('upload')
+  return {
+    ...gauge,
+    ...(main === '' ? {} : { qualifiers: main, note: [gauge.note, main].filter(Boolean).join(' · ') }),
+    ...(inner === '' ? {} : { innerLabel: [gauge.innerLabel, inner].filter(Boolean).join(' · ') }),
+  }
+}
+
 /** What the gauge reads, in one line: its state's title, or its label, number and unit. */
 export function gaugeReadout(gauge: GaugeInput, { t, locale, units }: GaugeContext): string | null {
   if (gauge.text !== null) {
@@ -252,5 +275,5 @@ export function gaugeReadout(gauge: GaugeInput, { t, locale, units }: GaugeConte
     return null
   }
   const { number, unit } = gauge.mode === 'ms' ? { number: latencyNumber(gauge.value, locale), unit: t('test.gauge.ms') } : rateParts(gauge.value, units, locale)
-  return `${gauge.label} ${number} ${unit}`
+  return [`${gauge.label} ${number} ${unit}`, gauge.qualifiers].filter(Boolean).join(' · ')
 }
