@@ -27,7 +27,6 @@ use tokio::runtime::Runtime;
 
 pub mod classify;
 pub mod conn;
-pub mod framing;
 pub mod listen;
 pub mod middleware;
 pub mod router;

@@ -119,6 +119,7 @@ dependencies = [
  "http",
  "http-body",
  "http-body-util",
+ "http-framing",
  "hyper",
  "hyper-util",
  "include_dir",
@@ -530,6 +531,11 @@ dependencies = [
  "http-body",
  "pin-project-lite",
 ]
+
+[[package]]
+name = "http-framing"
+version = "0.1.0"
+source = "git+https://github.com/leinardi/rust-common?rev=5da82ad299ce541720fba968e8c4aa00eb24400f#5da82ad299ce541720fba968e8c4aa00eb24400f"
 
 [[package]]
 name = "httparse"

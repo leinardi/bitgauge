@@ -95,6 +95,9 @@ path = "src/main.rs"
 # The server is hyper's HTTP/1 server on BitGauge's own accept loop and connection driver
 # (docs/rust-port.md, Server Design): no client, no HTTP/2, no hyper-util graceful helper.
 [dependencies]
+# HTTP/1 request framing over the bytes a connection read, as hyper frames them (rust-common, std
+# only): the server's timeouts tell a pipelined request from an idle connection with it.
+http-framing.workspace = true
 # The router and the handlers' request and response body; MatchedPath labels the metrics.
 axum = { version = "0.8.9", default-features = false, features = ["matched-path"] }
 bytes = "1.12.1"
