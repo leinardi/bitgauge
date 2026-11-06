@@ -27,8 +27,6 @@ use std::process::{Command, ExitStatus};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use crate::repo;
-
 /// How long one run of a script may take before it is killed and the test fails.
 pub const COMMAND_TIMEOUT: Duration = Duration::from_mins(1);
 
@@ -59,7 +57,7 @@ pub fn write_files(dir: &Path, files: &[(&str, &[u8])]) {
 /// When the script is missing, cannot be run or read, or runs past [`COMMAND_TIMEOUT`] (it is
 /// killed first).
 pub fn run(script: &str, configure: impl FnOnce(&mut Command)) -> (String, ExitStatus) {
-    let path = repo::path(script);
+    let path = crate::repo().path(script);
     fs::read(&path).unwrap_or_else(|error| panic!("read {script}: {error}"));
     let (mut reader, writer) =
         std::io::pipe().unwrap_or_else(|error| panic!("create a pipe: {error}"));

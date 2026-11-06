@@ -21,13 +21,20 @@
 //! (and the files it must agree with) to the problems found, so a negative control can run it on
 //! a mutated copy: the stage layout and base pinning, the build stages, the runtime posture, and
 //! the Rust build stage's toolchain pins and version stamps.
+//!
+//! The rules are rust-common's `repo_meta::image` with BitGauge's parameters: every base from
+//! dhi.io by an explicit tag alone, the exact `dhi.io/rust:<release>-debian13-dev` build image,
+//! each download checked in its RUN against the `(platform, asset, sha256)` arms of
+//! `.mk/rust-release.mk`, and the stamps in the RUN that runs cargo zigbuild. The healthcheck and
+//! the cargo zigbuild invocation are BitGauge's own and stay here.
 
-use std::collections::BTreeMap;
-use std::sync::LazyLock;
-
-use regex::Regex;
-
-use super::reader::{self, Stage};
+use repo_meta::dockerfile::{self, Stage};
+use repo_meta::image::{
+    self, BasePolicy, BuildBase, BuildStage, Download, RuntimeStage, STAMP_FIELDS, StampSources,
+    Stamps,
+};
+use repo_meta::toolchain::{self, RUST_RELEASE_PINS, RustVersion};
+use repo_meta::{Problem, Repo};
 
 /// The unprivileged numeric identity the image runs as.
 pub const RUNTIME_USER: &str = "65532:65532";
@@ -39,9 +46,29 @@ pub const RUST_BUILD_REPOSITORY: &str = "dhi.io/rust";
 /// The variant of the Rust build base: debian, whose upstream toolchain takes the upstream musl
 /// standard libraries, where the alpine variant's rustc is Alpine's own build.
 const RUST_BUILD_VARIANT: &str = "debian13-dev";
+/// The named stages of the image Dockerfile, in order.
+const STAGES: [&str; 3] = ["web", "build", "runtime"];
+/// The platform both build stages run on: the SPA is architecture-free, and both toolchains
+/// cross-compile, so no emulation is needed.
+const BUILD_PLATFORM: &str = "$BUILDPLATFORM";
 
-fn pattern(text: &str) -> Regex {
-    Regex::new(text).unwrap_or_else(|error| panic!("pattern {text}: {error}"))
+/// `problems` as `path: message` lines, the ones without a location placed at `path`.
+fn at(path: &str, problems: Vec<Problem>) -> Vec<String> {
+    problems
+        .into_iter()
+        .map(|problem| {
+            if problem.location.is_empty() {
+                format!("{path}: {}", problem.message)
+            } else {
+                problem.to_string()
+            }
+        })
+        .collect()
+}
+
+/// The stages of `content`, or the one problem that it cannot be read.
+fn stages(path: &str, content: &str) -> Result<Vec<Stage>, Vec<String>> {
+    dockerfile::parse(content).map_err(|error| vec![format!("{path}: {error}")])
 }
 
 /// The stage of `stages` named `name`, if there is exactly one.
@@ -49,18 +76,8 @@ fn named<'stages>(
     path: &str,
     stages: &'stages [Stage],
     name: &str,
-) -> Result<&'stages Stage, String> {
-    let mut found = stages.iter().filter(|stage| stage.name == name);
-    match (found.next(), found.next()) {
-        (Some(stage), None) => Ok(stage),
-        (None, _) => Err(format!("{path} has no stage named {name}, want one")),
-        (Some(_), Some(_)) => Err(format!("{path} has several stages named {name}, want one")),
-    }
-}
-
-/// The stages of `content`, or the one problem that it cannot be read.
-fn stages(path: &str, content: &str) -> Result<Vec<Stage>, Vec<String>> {
-    reader::parse(content).map_err(|error| vec![format!("{path}: {error}")])
+) -> Result<&'stages Stage, Vec<String>> {
+    dockerfile::stage_named(path, stages, name).map_err(|problem| vec![problem.to_string()])
 }
 
 /// The named stages, in order, of an image Dockerfile: web, build and runtime, each from a
@@ -68,61 +85,197 @@ fn stages(path: &str, content: &str) -> Result<Vec<Stage>, Vec<String>> {
 /// FROM lines, a missing or latest tag says nothing about what is built, and dhi.io republishes
 /// its tags to ship security fixes, which a digest would hold back.
 pub fn layout_problems(path: &str, content: &str) -> Vec<String> {
+    at(
+        path,
+        image::stage_problems(path, content, &STAGES, BasePolicy::DhiOnly),
+    )
+}
+
+/// The files the Rust build stage must agree with: `rust-toolchain.toml` (the release), the
+/// `.mk/rust-release.mk` record of the release pins, and the make side and the version module of
+/// the version stamps.
+#[derive(Debug, Clone)]
+pub struct BuildFiles {
+    pub toolchain: String,
+    pub release_mk: String,
+    pub makefile: String,
+    pub rust_mk: String,
+    pub version_rs: String,
+}
+
+/// The release fragment, the stamps' make files and the version module.
+pub const RUST_TOOLCHAIN: &str = "rust-toolchain.toml";
+pub const RUST_RELEASE_MK: &str = ".mk/rust-release.mk";
+pub const MAKEFILE: &str = "Makefile";
+pub const RUST_MK: &str = ".mk/rust.mk";
+const VERSION_RS: &str = "src/buildinfo.rs";
+
+impl BuildFiles {
+    /// The files as the repository has them.
+    pub fn read(repo: &Repo) -> Self {
+        Self {
+            toolchain: repo.read(RUST_TOOLCHAIN),
+            release_mk: repo.read(RUST_RELEASE_MK),
+            makefile: repo.read(MAKEFILE),
+            rust_mk: repo.read(RUST_MK),
+            version_rs: repo.read(VERSION_RS),
+        }
+    }
+
+    /// The exact release `rust-toolchain.toml` pins.
+    pub fn release(&self) -> Result<String, Problem> {
+        toolchain::rust_release(RUST_TOOLCHAIN, &self.toolchain)
+    }
+
+    /// The value `.mk/rust-release.mk` gives `variable`, empty when it sets none (which no pin
+    /// matches).
+    fn pin(&self, variable: &str) -> String {
+        toolchain::make_value(&self.release_mk, variable).unwrap_or_default()
+    }
+
+    /// The `(platform, asset, sha256)` arms of the release archive whose case variable is `key`:
+    /// each required arm of the shared release pins, with `.mk/rust-release.mk`'s digest.
+    fn arms(&self, key: &str) -> Vec<(String, String, String)> {
+        RUST_RELEASE_PINS
+            .archives
+            .iter()
+            .filter(|archive| archive.key == key)
+            .flat_map(|archive| {
+                archive.arms.iter().map(|(platform, asset)| {
+                    (
+                        (*platform).to_owned(),
+                        (*asset).to_owned(),
+                        self.pin(&format!("{}{asset}", archive.prefix)),
+                    )
+                })
+            })
+            .collect()
+    }
+
+    /// The archives the Rust build stage downloads, each at the release and with the arms
+    /// `.mk/rust-release.mk` pins.
+    fn downloads(&self) -> [Download<'static>; 3] {
+        [
+            Download {
+                tool: "zig",
+                url: "https://ziglang.org/download/${ZIG_VERSION}/zig-${zig_arch}-linux-${ZIG_VERSION}.tar.xz",
+                platform_arg: "BUILDARCH",
+                version_arg: "ZIG_VERSION",
+                version: self.pin("RUST_RELEASE_ZIG_VERSION"),
+                asset_var: "zig_arch",
+                sha_var: "zig_sha256",
+                arms: self.arms("zig_arch"),
+            },
+            Download {
+                tool: "cargo-zigbuild",
+                url: "https://github.com/rust-cross/cargo-zigbuild/releases/download/v${CARGO_ZIGBUILD_VERSION}/cargo-zigbuild-${zigbuild_asset}.tar.xz",
+                platform_arg: "BUILDARCH",
+                version_arg: "CARGO_ZIGBUILD_VERSION",
+                version: self.pin("RUST_RELEASE_CARGO_ZIGBUILD_VERSION"),
+                asset_var: "zigbuild_asset",
+                sha_var: "zigbuild_sha256",
+                arms: self.arms("zigbuild_asset"),
+            },
+            Download {
+                tool: "the musl rust-std",
+                url: "https://static.rust-lang.org/dist/rust-std-${RUST_VERSION}-${triple}.tar.xz",
+                platform_arg: "TARGETARCH",
+                version_arg: "RUST_VERSION",
+                version: self.pin("RUST_RELEASE_RUST_STD_VERSION"),
+                asset_var: "triple",
+                sha_var: "std_sha256",
+                arms: self.arms("triple"),
+            },
+        ]
+    }
+}
+
+/// The rules of the web stage: on the build platform, from dhi.io/node, downloading nothing.
+const WEB_STAGE: BuildStage<'static> = BuildStage {
+    platform: BUILD_PLATFORM,
+    base: BuildBase::Repository("dhi.io/node"),
+    required: &[],
+    downloads: &[],
+};
+
+/// The rules of the Rust build stage at `release`: on the build platform, from exactly
+/// `dhi.io/rust:<release>-debian13-dev`, and every download one of `downloads`, checked in its
+/// RUN.
+fn rust_stage_problems(
+    path: &str,
+    build: &Stage,
+    release: &str,
+    downloads: &[Download<'_>],
+) -> Vec<String> {
+    let image = format!("{RUST_BUILD_REPOSITORY}:{release}-{RUST_BUILD_VARIANT}");
+    let rules = BuildStage {
+        platform: BUILD_PLATFORM,
+        base: BuildBase::Exact(&image),
+        required: &[],
+        downloads,
+    };
+    at(path, image::build_stage_problems(build, &rules))
+}
+
+/// Where the build stages run and what they start from: both on the build platform, web from
+/// dhi.io/node and build from exactly `dhi.io/rust:<release>-debian13-dev`, and each fetches
+/// only what its rules name.
+pub fn build_stage_problems(path: &str, content: &str, files: &BuildFiles) -> Vec<String> {
     let stages = match stages(path, content) {
         Ok(stages) => stages,
         Err(problems) => return problems,
     };
+    let release = match files.release() {
+        Ok(release) => release,
+        Err(problem) => return vec![problem.to_string()],
+    };
     let mut problems = Vec::new();
-    for stage in &stages {
-        if !reader::from_dhi(&stage.image) || !reader::tag_pinned(&stage.image) {
-            problems.push(format!(
-                "{path}: stage {:?} is FROM {:?}, which is not a literal dhi.io reference pinned \
-                 by an explicit tag alone",
-                stage.name, stage.image
-            ));
-        }
+    match named(path, &stages, "web") {
+        Ok(web) => problems.extend(at(path, image::build_stage_problems(web, &WEB_STAGE))),
+        Err(found) => problems.extend(found),
     }
-    let names: Vec<&str> = stages.iter().map(|stage| stage.name.as_str()).collect();
-    if names != ["web", "build", "runtime"] {
-        problems.push(format!(
-            "{path}: the stages are {names:?}, want exactly web, build and runtime, in that order"
-        ));
+    match named(path, &stages, "build") {
+        Ok(build) => problems.extend(rust_stage_problems(
+            path,
+            build,
+            &release,
+            &files.downloads(),
+        )),
+        Err(found) => problems.extend(found),
     }
     problems
 }
 
-/// Where the build stages run and what they start from: both on the build platform (the SPA is
-/// architecture-free, and both toolchains cross-compile), so no emulation is needed; web from
-/// dhi.io/node and build from `build_repository`.
-pub fn build_stage_problems(path: &str, content: &str, build_repository: &str) -> Vec<String> {
-    let stages = match stages(path, content) {
-        Ok(stages) => stages,
-        Err(problems) => return problems,
-    };
-    let mut problems = Vec::new();
-    for (name, repository) in [("web", "dhi.io/node"), ("build", build_repository)] {
-        let stage = match named(path, &stages, name) {
-            Ok(stage) => stage,
-            Err(problem) => {
-                problems.push(problem);
-                continue;
-            }
-        };
-        if stage.platform != "$BUILDPLATFORM" {
-            problems.push(format!(
-                "{path}: stage {name} runs on --platform={:?}, want $BUILDPLATFORM",
-                stage.platform
-            ));
-        }
-        let from = reader::repository(&stage.image);
-        if from != repository {
-            problems.push(format!(
-                "{path}: stage {name} is FROM {from}, want {repository}"
-            ));
-        }
-    }
-    problems
-}
+/// The runtime stage's rules: from dhi.io/static on the target platform, no shell to run
+/// anything in and nothing to write to, an unprivileged numeric user, one port and the binary as
+/// the exec-form entrypoint.
+const RUNTIME_STAGE: RuntimeStage<'static> = RuntimeStage {
+    repository: "dhi.io/static",
+    forbidden: &["RUN", "SHELL", "VOLUME", "WORKDIR", "ADD", "ENV"],
+    exactly: &[
+        ("USER", RUNTIME_USER),
+        ("EXPOSE", "8080"),
+        ("ENTRYPOINT", r#"["/bitgauge"]"#),
+        ("COPY", "--from=build /out/bitgauge /bitgauge"),
+    ],
+};
+
+/// Exactly the seven OCI labels, the description any non-empty text.
+const LABELS: &[(&str, Option<&str>)] = &[
+    ("org.opencontainers.image.title", Some("bitgauge")),
+    ("org.opencontainers.image.description", None),
+    (
+        "org.opencontainers.image.source",
+        Some("https://github.com/leinardi/bitgauge"),
+    ),
+    ("org.opencontainers.image.version", Some("${VERSION}")),
+    ("org.opencontainers.image.revision", Some("${COMMIT}")),
+    ("org.opencontainers.image.created", Some("${DATE}")),
+    (
+        "org.opencontainers.image.licenses",
+        Some("GPL-3.0-or-later"),
+    ),
+];
 
 /// The posture of the image that ships (build-packaging.md section 1): no shell to run anything
 /// in, nothing to write to, an unprivileged numeric user, the healthcheck in exec form, and
@@ -134,393 +287,108 @@ pub fn runtime_problems(path: &str, content: &str) -> Vec<String> {
     };
     let runtime = match named(path, &stages, "runtime") {
         Ok(stage) => stage,
-        Err(problem) => return vec![problem],
+        Err(problems) => return problems,
     };
-    let mut problems = Vec::new();
-    let from = reader::repository(&runtime.image);
-    if from != "dhi.io/static" {
-        problems.push(format!(
-            "{path}: the runtime stage is FROM {from}, want dhi.io/static"
-        ));
-    }
-    if !runtime.platform.is_empty() {
-        problems.push(format!(
-            "{path}: the runtime stage pins --platform={}; it has to follow the target platform",
-            runtime.platform
-        ));
-    }
-    let mut seen: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
-    for instruction in &runtime.instructions {
-        if matches!(
-            instruction.keyword.as_str(),
-            "RUN" | "SHELL" | "VOLUME" | "WORKDIR" | "ADD" | "ENV"
-        ) {
-            problems.push(format!(
-                "{path}: the runtime stage carries {} {}; it has no shell and writes nothing",
-                instruction.keyword, instruction.args
-            ));
-        }
-        seen.entry(instruction.keyword.as_str())
-            .or_default()
-            .push(instruction.args.as_str());
-    }
-    let healthchecks = seen.get("HEALTHCHECK").cloned().unwrap_or_default();
+    let mut problems = at(path, image::runtime_problems(runtime, &RUNTIME_STAGE));
+    let healthchecks: Vec<&str> = runtime
+        .instructions
+        .iter()
+        .filter(|instruction| instruction.keyword == "HEALTHCHECK")
+        .map(|instruction| instruction.args.as_str())
+        .collect();
     if !matches!(healthchecks.as_slice(), [only] if only.ends_with(HEALTHCHECK_COMMAND)) {
         problems.push(format!(
             "{path}: the runtime stage has HEALTHCHECK {healthchecks:?}, want one ending \
              in{HEALTHCHECK_COMMAND}"
         ));
     }
-    for (keyword, args) in [
-        ("USER", RUNTIME_USER),
-        ("EXPOSE", "8080"),
-        ("ENTRYPOINT", r#"["/bitgauge"]"#),
-        ("COPY", "--from=build /out/bitgauge /bitgauge"),
-    ] {
-        let found = seen.get(keyword).cloned().unwrap_or_default();
-        if found != [args] {
-            problems.push(format!(
-                "{path}: the runtime stage has {keyword} {found:?}, want exactly {keyword} {args}"
-            ));
-        }
-    }
-    problems.extend(label_problems(path, runtime));
+    problems.extend(at(path, image::label_problems(runtime, LABELS)));
     problems
 }
 
-fn label_problems(path: &str, runtime: &Stage) -> Vec<String> {
-    let labels = reader::labels(runtime);
-    let label = |key: &str| labels.get(key).map_or("", String::as_str);
-    let description = label("org.opencontainers.image.description");
-    let want = [
-        ("org.opencontainers.image.title", "bitgauge"),
-        ("org.opencontainers.image.description", description),
-        (
-            "org.opencontainers.image.source",
-            "https://github.com/leinardi/bitgauge",
-        ),
-        ("org.opencontainers.image.version", "${VERSION}"),
-        ("org.opencontainers.image.revision", "${COMMIT}"),
-        ("org.opencontainers.image.created", "${DATE}"),
-        ("org.opencontainers.image.licenses", "GPL-3.0-or-later"),
-    ];
-    let mut problems = Vec::new();
-    if description.is_empty() {
-        problems.push(format!(
-            "{path}: the runtime stage has no org.opencontainers.image.description"
-        ));
-    }
-    for (key, value) in want {
-        if label(key) != value {
-            problems.push(format!(
-                "{path}: label {key} is {:?}, want {value:?}",
-                label(key)
-            ));
-        }
-    }
-    if labels.len() != want.len() {
-        problems.push(format!(
-            "{path}: the runtime stage carries labels {labels:?}, want exactly the seven OCI labels"
-        ));
-    }
-    problems
-}
+/// The version stamps: `BITGAUGE_VERSION`, `_COMMIT` and `_DATE`, which the version module reads
+/// at compile time, set in the RUN that runs cargo zigbuild from the build arguments, and by make
+/// from its git values in `rust-build` and in the release recipe.
+const STAMPS: Stamps<'static> = Stamps {
+    prefix: "BITGAUGE",
+    fields: &STAMP_FIELDS,
+    version_file: VERSION_RS,
+    build_command: "cargo zigbuild",
+};
 
-/// The pins the Rust build stage must download by: the toolchain channel of
-/// `rust-toolchain.toml`, and the releases and sha256 values of `.mk/rust-release.mk`, which is
-/// their one record. Each sha256 map is keyed by the asset name the Dockerfile's case arms use.
-#[derive(Debug, Clone)]
-pub struct RustPins {
-    pub channel: String,
-    pub zig_version: String,
-    pub zig: BTreeMap<String, String>,
-    pub zigbuild_version: String,
-    pub zigbuild: BTreeMap<String, String>,
-    pub rust_std_version: String,
-    pub rust_std: BTreeMap<String, String>,
-}
-
-static MK_ASSIGNMENT: LazyLock<Regex> =
-    LazyLock::new(|| pattern(r"(?m)^RUST_RELEASE_([A-Za-z0-9_.-]+)[ \t]*:=[ \t]*(\S+)[ \t]*$"));
-
-/// The pins read from `rust-toolchain.toml` and `.mk/rust-release.mk`.
-///
-/// # Errors
-///
-/// A file that does not carry one of the pins, so a check against it would check nothing.
-pub fn rust_pins(toolchain: &str, release_mk: &str) -> Result<RustPins, String> {
-    let toolchain: toml::Table =
-        toml::from_str(toolchain).map_err(|error| format!("parse rust-toolchain.toml: {error}"))?;
-    let channel = toolchain
-        .get("toolchain")
-        .and_then(|table| table.get("channel"))
-        .and_then(toml::Value::as_str)
-        .ok_or("rust-toolchain.toml has no toolchain.channel")?
-        .to_owned();
-    let assignments: BTreeMap<&str, &str> = MK_ASSIGNMENT
-        .captures_iter(release_mk)
-        .filter_map(|found| Some((found.get(1)?.as_str(), found.get(2)?.as_str())))
-        .collect();
-    let value = |name: &str| {
-        assignments
-            .get(name)
-            .map(|value| (*value).to_owned())
-            .ok_or_else(|| format!(".mk/rust-release.mk sets no RUST_RELEASE_{name}"))
-    };
-    let sums = |prefix: &str| {
-        let sums: BTreeMap<String, String> = assignments
-            .iter()
-            .filter_map(|(name, sum)| {
-                Some((name.strip_prefix(prefix)?.to_owned(), (*sum).to_owned()))
-            })
-            .collect();
-        if sums.is_empty() {
-            Err(format!(
-                ".mk/rust-release.mk sets no RUST_RELEASE_{prefix}<asset>"
-            ))
-        } else {
-            Ok(sums)
-        }
-    };
-    Ok(RustPins {
-        channel,
-        zig_version: value("ZIG_VERSION")?,
-        zig: sums("ZIG_SHA256_")?,
-        zigbuild_version: value("CARGO_ZIGBUILD_VERSION")?,
-        zigbuild: sums("CARGO_ZIGBUILD_SHA256_")?,
-        rust_std_version: value("RUST_STD_VERSION")?,
-        rust_std: sums("RUST_STD_SHA256_")?,
-    })
-}
-
-/// One archive the Rust build stage downloads: the URL its RUN fetches (which names the release
-/// through a build argument), the platform argument its case statement switches on, the
-/// variables each case arm sets, and the release and sha256 values it must carry.
-struct Download<'pins> {
-    tool: &'static str,
-    url: &'static str,
-    platform_arg: &'static str,
-    version_arg: &'static str,
-    version: &'pins str,
-    asset_var: &'static str,
-    sha_var: &'static str,
-    sums: &'pins BTreeMap<String, String>,
-}
-
-fn downloads(pins: &RustPins) -> [Download<'_>; 3] {
-    [
-        Download {
-            tool: "zig",
-            url: "https://ziglang.org/download/${ZIG_VERSION}/zig-${zig_arch}-linux-${ZIG_VERSION}.tar.xz",
-            platform_arg: "BUILDARCH",
-            version_arg: "ZIG_VERSION",
-            version: &pins.zig_version,
-            asset_var: "zig_arch",
-            sha_var: "zig_sha256",
-            sums: &pins.zig,
-        },
-        Download {
-            tool: "cargo-zigbuild",
-            url: "https://github.com/rust-cross/cargo-zigbuild/releases/download/v${CARGO_ZIGBUILD_VERSION}/cargo-zigbuild-${zigbuild_asset}.tar.xz",
-            platform_arg: "BUILDARCH",
-            version_arg: "CARGO_ZIGBUILD_VERSION",
-            version: &pins.zigbuild_version,
-            asset_var: "zigbuild_asset",
-            sha_var: "zigbuild_sha256",
-            sums: &pins.zigbuild,
-        },
-        Download {
-            tool: "the musl rust-std",
-            url: "https://static.rust-lang.org/dist/rust-std-${RUST_VERSION}-${triple}.tar.xz",
-            platform_arg: "TARGETARCH",
-            version_arg: "RUST_VERSION",
-            version: &pins.rust_std_version,
-            asset_var: "triple",
-            sha_var: "std_sha256",
-            sums: &pins.rust_std,
-        },
-    ]
-}
-
-/// The build arguments a stage declares, each with its default, quotes removed; `None` for one
-/// declared with no default.
-fn stage_args(stage: &Stage) -> BTreeMap<&str, Option<&str>> {
-    stage
-        .instructions
-        .iter()
-        .filter(|instruction| instruction.keyword == "ARG")
-        .map(|instruction| match instruction.args.split_once('=') {
-            Some((name, default)) => (name, Some(default.trim_matches('"'))),
-            None => (instruction.args.as_str(), None),
-        })
-        .collect()
-}
-
-/// The RUN instructions of `stage` that contain `needle`.
-fn runs_with<'stage>(stage: &'stage Stage, needle: &str) -> Vec<&'stage str> {
-    stage
-        .instructions
-        .iter()
-        .filter(|instruction| instruction.keyword == "RUN" && instruction.args.contains(needle))
-        .map(|instruction| instruction.args.as_str())
-        .collect()
-}
-
-/// The Rust build stage: FROM `dhi.io/rust:<channel>-debian13-dev` on the build platform; zig,
-/// cargo-zigbuild and the musl rust-std each downloaded at the pinned release and checked against
-/// exactly the pinned sha256 values, the rust-std release being the image's own toolchain; and
-/// the binary built with cargo-zigbuild for the target, with the version stamps taken from the
-/// VERSION, COMMIT and DATE build arguments, into the path the runtime stage copies.
-pub fn rust_build_problems(path: &str, content: &str, pins: &RustPins) -> Vec<String> {
+/// The version stamps of the image's build stage and of make (`STAMPS`).
+pub fn stamp_problems(path: &str, content: &str, files: &BuildFiles) -> Vec<String> {
     let stages = match stages(path, content) {
         Ok(stages) => stages,
         Err(problems) => return problems,
     };
     let build = match named(path, &stages, "build") {
         Ok(stage) => stage,
-        Err(problem) => return vec![problem],
+        Err(problems) => return problems,
     };
-    let mut problems = Vec::new();
-    let want_image = format!(
-        "{RUST_BUILD_REPOSITORY}:{}-{RUST_BUILD_VARIANT}",
-        pins.channel
-    );
-    if build.image != want_image {
-        problems.push(format!(
-            "{path}: the build stage is FROM {}, want {want_image} (rust-toolchain.toml's channel)",
-            build.image
-        ));
-    }
-    if build.platform != "$BUILDPLATFORM" {
-        problems.push(format!(
-            "{path}: the build stage runs on --platform={:?}, want $BUILDPLATFORM",
-            build.platform
-        ));
-    }
-    let args = stage_args(build);
-    if args.get("RUST_VERSION").copied().flatten() != Some(pins.channel.as_str()) {
-        problems.push(format!(
-            "{path}: the build stage's RUST_VERSION is {:?}, want the image's own toolchain, {}",
-            args.get("RUST_VERSION"),
-            pins.channel
-        ));
-    }
-    for download in downloads(pins) {
-        problems.extend(download_problems(path, build, &args, &download));
-    }
-    problems.extend(cargo_build_problems(path, build, &args));
-    problems
+    at(
+        path,
+        STAMPS.problems(&StampSources {
+            version_rs: &files.version_rs,
+            build,
+            makefile: &files.makefile,
+            rust_mk: &files.rust_mk,
+            release: Some((&files.release_mk, "rust_static_build")),
+        }),
+    )
 }
 
-fn download_problems(
-    path: &str,
-    build: &Stage,
-    args: &BTreeMap<&str, Option<&str>>,
-    download: &Download<'_>,
-) -> Vec<String> {
-    let tool = download.tool;
-    let mut problems = Vec::new();
-    let declared = args.get(download.version_arg).copied().flatten();
-    if declared != Some(download.version) {
-        problems.push(format!(
-            "{path}: the build stage sets {} to {declared:?}, want {} for {tool} \
-             (.mk/rust-release.mk)",
-            download.version_arg, download.version
-        ));
-    }
-    if !args.contains_key(download.platform_arg) {
-        problems.push(format!(
-            "{path}: the build stage does not declare ARG {}, which {tool} is chosen by",
-            download.platform_arg
-        ));
-    }
-    let runs = runs_with(build, download.url);
-    let [run] = runs.as_slice() else {
-        problems.push(format!(
-            "{path}: {} RUN instructions download {tool} from {}, want one",
-            runs.len(),
-            download.url
-        ));
-        return problems;
+/// The Rust build stage: FROM `dhi.io/rust:<release>-debian13-dev` on the build platform, the
+/// release being rust-toolchain.toml's and `RUST_VERSION` the image's own; zig, cargo-zigbuild
+/// and the musl rust-std each downloaded at the pinned release and checked against exactly the
+/// pinned arms; and the binary built with cargo-zigbuild for the target, release and locked,
+/// with the version stamps, into the path the runtime stage copies.
+pub fn rust_build_problems(path: &str, content: &str, files: &BuildFiles) -> Vec<String> {
+    let stages = match stages(path, content) {
+        Ok(stages) => stages,
+        Err(problems) => return problems,
     };
-    if !run.starts_with(&format!("case \"${{{}}}\" in ", download.platform_arg)) {
-        problems.push(format!(
-            "{path}: the RUN that downloads {tool} does not switch on ${}",
-            download.platform_arg
-        ));
-    }
-    let arm = pattern(&format!(
-        r"\b{}=([^;\s]+);\s*{}=([^;\s]+)",
-        download.asset_var, download.sha_var
+    let build = match named(path, &stages, "build") {
+        Ok(stage) => stage,
+        Err(problems) => return problems,
+    };
+    let release = match files.release() {
+        Ok(release) => release,
+        Err(problem) => return vec![problem.to_string()],
+    };
+    let mut problems = rust_stage_problems(path, build, &release, &files.downloads());
+    problems.extend(at(
+        path,
+        toolchain::image_rust_problems(path, content, &release, RustVersion::Exact),
     ));
-    let found: BTreeMap<String, String> = arm
-        .captures_iter(run)
-        .filter_map(|arm| {
-            Some((
-                arm.get(1)?.as_str().to_owned(),
-                arm.get(2)?.as_str().to_owned(),
-            ))
-        })
-        .collect();
-    if &found != download.sums {
-        problems.push(format!(
-            "{path}: {tool} is checked against {found:?}, want {:?} (.mk/rust-release.mk)",
-            download.sums
-        ));
-    }
-    let check = format!("echo \"${{{}}} /tmp/", download.sha_var);
-    if !run.contains(&check) || !run.contains("| sha256sum -c -") {
-        problems.push(format!(
-            "{path}: the RUN that downloads {tool} does not check it with sha256sum -c against \
-             ${}",
-            download.sha_var
-        ));
-    }
+    problems.extend(stamp_problems(path, content, files));
+    problems.extend(cargo_build_problems(path, build));
     problems
 }
 
-/// The cargo-zigbuild invocation: release, locked, for the downloaded target, with each version
-/// stamp set from its build argument, copied to the path the runtime stage takes.
-fn cargo_build_problems(
-    path: &str,
-    build: &Stage,
-    args: &BTreeMap<&str, Option<&str>>,
-) -> Vec<String> {
-    let runs = runs_with(build, "cargo zigbuild");
+/// The cargo-zigbuild invocation: release, locked, for the downloaded target, copied to the path
+/// the runtime stage takes, in the one RUN that runs it.
+fn cargo_build_problems(path: &str, build: &Stage) -> Vec<String> {
+    let runs: Vec<&str> = build
+        .instructions
+        .iter()
+        .filter(|instruction| {
+            instruction.keyword == "RUN" && instruction.args.contains("cargo zigbuild")
+        })
+        .map(|instruction| instruction.args.as_str())
+        .collect();
     let [run] = runs.as_slice() else {
         return vec![format!(
             "{path}: {} RUN instructions run cargo zigbuild, want one",
             runs.len()
         )];
     };
-    let mut problems = Vec::new();
-    for part in [
+    [
         "cargo zigbuild --release --locked --target \"${triple}\" --bin bitgauge",
         "cp \"target/${triple}/release/bitgauge\" /out/bitgauge",
-    ] {
-        if !run.contains(part) {
-            problems.push(format!(
-                "{path}: the cargo zigbuild RUN does not carry {part}"
-            ));
-        }
-    }
-    for (variable, arg) in [
-        ("BITGAUGE_VERSION", "VERSION"),
-        ("BITGAUGE_COMMIT", "COMMIT"),
-        ("BITGAUGE_DATE", "DATE"),
-    ] {
-        let stamp = format!("{variable}=\"${{{arg}}}\"");
-        if !run.contains(&stamp) {
-            problems.push(format!(
-                "{path}: the cargo zigbuild RUN does not set {stamp}, so the binary reports \
-                 the unstamped build"
-            ));
-        }
-        if !args.contains_key(arg) {
-            problems.push(format!(
-                "{path}: the build stage does not declare ARG {arg}"
-            ));
-        }
-    }
-    problems
+    ]
+    .into_iter()
+    .filter(|part| !run.contains(part))
+    .map(|part| format!("{path}: the cargo zigbuild RUN does not carry {part}"))
+    .collect()
 }

@@ -26,7 +26,7 @@
 use std::path::{Path, PathBuf};
 use std::process::ExitStatus;
 
-use meta::{repo, script};
+use meta::script;
 use tempfile::TempDir;
 
 /// The script under test, relative to the root.
@@ -56,7 +56,7 @@ fn write_dist(files: &[(&str, &[u8])]) -> (TempDir, PathBuf) {
 /// Runs the script on `dist` with the repository's allowlist, from a scratch directory, and
 /// returns its output and exit status ([`script::run`]).
 fn run_check(dist: &Path) -> (String, ExitStatus) {
-    let allowlist = repo::path(ALLOWLIST);
+    let allowlist = meta::repo().path(ALLOWLIST);
     // A missing allowlist would fail every case for the wrong reason.
     std::fs::read(&allowlist).unwrap_or_else(|error| panic!("read {ALLOWLIST}: {error}"));
     let workdir = scratch();

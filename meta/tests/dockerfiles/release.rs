@@ -27,9 +27,8 @@ use std::collections::BTreeMap;
 use std::sync::LazyLock;
 
 use regex::Regex;
+use repo_meta::dockerfile;
 use serde::Deserialize;
-
-use super::reader;
 
 /// The workflow these rules read.
 pub const RELEASE_WORKFLOW: &str = ".github/workflows/release.yaml";
@@ -110,8 +109,8 @@ impl ReleaseStep {
     }
 }
 
-/// The make variables the release passes to `make rust-release-binaries`, which
-/// [`make_stamp_problems`] holds the make side to turn into the build's `BITGAUGE_*` stamps.
+/// The make variables the release passes to `make rust-release-binaries`, which the make side
+/// turns into the build's `BITGAUGE_*` stamps (`images::stamp_problems`).
 pub const STAMP_VARIABLES: [(&str, &str); 3] = [
     ("GIT_VERSION", "BITGAUGE_VERSION"),
     ("GIT_COMMIT", "BITGAUGE_COMMIT"),
@@ -147,57 +146,6 @@ fn stamp_problems(content: &str) -> Vec<String> {
         problems.push(format!(
             "{RELEASE_WORKFLOW} stamps the Go way, which the Rust build does not read"
         ));
-    }
-    problems
-}
-
-static VERSION_ENV: LazyLock<Regex> =
-    LazyLock::new(|| pattern(r"(?m)^RUST_VERSION_ENV\s*=(.*\\\n(?:.*\\\n)*.*)$"));
-static STAMP_PREFIX: LazyLock<Regex> =
-    LazyLock::new(|| pattern(r"(?m)^RUST_STAMP_PREFIX\s*:?=\s*(\S+)\s*$"));
-
-/// The make side of the stamps: the `Makefile` names the stamps' prefix (`RUST_STAMP_PREFIX`, the
-/// `BITGAUGE` of [`STAMP_VARIABLES`]), make-common's `.mk/rust.mk` sets `<prefix>_VERSION`,
-/// `_COMMIT` and `_DATE` from their [`STAMP_VARIABLES`] make variables in `RUST_VERSION_ENV`, and
-/// `.mk/rust-release.mk`'s static build, the one `rust-release-binaries` runs, carries it.
-pub fn make_stamp_problems(makefile: &str, rust_mk: &str, release_mk: &str) -> Vec<String> {
-    let mut problems = Vec::new();
-    let mut prefixes = STAMP_VARIABLES
-        .iter()
-        .filter_map(|(_, stamp)| stamp.rsplit_once('_').map(|(prefix, _)| prefix));
-    let want_prefix = prefixes.next().unwrap_or_default();
-    match STAMP_PREFIX
-        .captures(makefile)
-        .and_then(|found| found.get(1))
-    {
-        Some(prefix) if prefix.as_str() == want_prefix => {}
-        Some(prefix) => problems.push(format!(
-            "Makefile: RUST_STAMP_PREFIX is {}, not {want_prefix}",
-            prefix.as_str()
-        )),
-        None => problems.push("Makefile sets no RUST_STAMP_PREFIX".to_owned()),
-    }
-    match VERSION_ENV.captures(rust_mk).and_then(|found| found.get(1)) {
-        Some(assignments) => {
-            for (variable, stamp) in STAMP_VARIABLES {
-                let suffix = stamp.rsplit_once('_').map_or(stamp, |(_, suffix)| suffix);
-                let want = format!(r#"$(RUST_STAMP_PREFIX)_{suffix}="$({variable})""#);
-                if !assignments.as_str().contains(&want) {
-                    problems.push(format!(".mk/rust.mk: RUST_VERSION_ENV does not set {want}"));
-                }
-            }
-        }
-        None => problems.push(".mk/rust.mk defines no RUST_VERSION_ENV".to_owned()),
-    }
-    let carries = release_mk
-        .lines()
-        .skip_while(|line| !line.starts_with("rust_static_build ="))
-        .take_while(|line| !line.trim().is_empty())
-        .any(|line| line.contains("$(RUST_VERSION_ENV)"));
-    if !carries {
-        problems.push(
-            ".mk/rust-release.mk: rust_static_build does not carry RUST_VERSION_ENV".to_owned(),
-        );
     }
     problems
 }
@@ -417,7 +365,7 @@ fn pin_problems(doc: &ReleaseDoc, content: &str) -> Vec<String> {
         }
     }
     for name in ["REGISTRY_IMAGE", "SKOPEO_IMAGE"] {
-        if !reader::digest_pinned(doc.env(name)) {
+        if !dockerfile::digest_pinned(doc.env(name)) {
             problems.push(format!(
                 "{RELEASE_WORKFLOW} runs {name} {:?}, which is not pinned by digest",
                 doc.env(name)

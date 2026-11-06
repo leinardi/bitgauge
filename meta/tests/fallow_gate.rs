@@ -24,7 +24,6 @@
 
 use std::collections::BTreeMap;
 
-use meta::repo;
 use regex::Regex;
 use serde::Deserialize;
 
@@ -40,7 +39,7 @@ struct Manifest {
 
 /// The fallow version `web/package.json` pins, failing when it is missing or a range.
 fn pinned_fallow_version() -> String {
-    let manifest: Manifest = serde_json::from_str(&repo::read("web/package.json"))
+    let manifest: Manifest = serde_json::from_str(&meta::repo().read("web/package.json"))
         .unwrap_or_else(|error| panic!("parse web/package.json: {error}"));
     let Some(version) = manifest
         .dev_dependencies
@@ -68,7 +67,7 @@ fn pinned_fallow_version() -> String {
 fn fallow_baseline_matches_the_pinned_version() {
     // Decoded as a map rather than a struct: the key is fallow's, in fallow's spelling.
     let baseline: BTreeMap<String, serde_json::Value> =
-        serde_json::from_str(&repo::read(REGRESSION_BASELINE_FILE))
+        serde_json::from_str(&meta::repo().read(REGRESSION_BASELINE_FILE))
             .unwrap_or_else(|error| panic!("parse {REGRESSION_BASELINE_FILE}: {error}"));
     let Some(written_by) = baseline
         .get("fallow_version")

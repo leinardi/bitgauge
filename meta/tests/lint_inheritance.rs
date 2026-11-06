@@ -29,11 +29,17 @@
 //! - A scratch crate under the root `clippy.toml` with a file write in a plain module fails clippy,
 //!   which proves the bans are live and not only listed.
 //!
-//! The checks are functions of the files, so each one is also run on input built to break it.
+//! The workspace half (the root's lint tables and levels, every member's opt-in, the expected
+//! member list, and no lint override in Cargo configuration or make) is rust-common's
+//! `repo_meta::workspace`, run with this workspace's parameters; the clippy configuration files
+//! are BitGauge's own lint boundary and stay here. The checks are functions of the files, so each
+//! one is also run on input built to break it.
 
 use std::fs;
 
-use meta::{cargo, repo};
+use meta::cargo;
+use repo_meta::workspace::{self, LintLevel};
+use repo_meta::{Problem, report, strings};
 use toml::Table;
 
 /// The workspace members, each with the clippy configuration that must govern it.
@@ -75,11 +81,42 @@ const PRODUCTION_MACRO_BANS: &[&str] = &[
 /// Paths that must stay allowed: the injected clock's source follows tokio's paused clock.
 const MUST_STAY_ALLOWED: &[&str] = &["tokio::time::Instant::now"];
 
-/// The clippy lints whose lists the configuration files hold; they enforce nothing unless denied.
-const BOUNDARY_LINTS: &[&str] = &[
-    "disallowed_methods",
-    "disallowed_macros",
-    "disallowed_types",
+/// The levels the root manifest must set: `unsafe_code` forbidden, and the clippy lints whose
+/// lists the configuration files hold denied, since they enforce nothing otherwise.
+const REQUIRED_LEVELS: &[LintLevel<'static>] = &[
+    LintLevel {
+        table: "rust",
+        lint: "unsafe_code",
+        level: "forbid",
+    },
+    LintLevel {
+        table: "clippy",
+        lint: "disallowed_methods",
+        level: "deny",
+    },
+    LintLevel {
+        table: "clippy",
+        lint: "disallowed_macros",
+        level: "deny",
+    },
+    LintLevel {
+        table: "clippy",
+        lint: "disallowed_types",
+        level: "deny",
+    },
+];
+
+/// What in Cargo configuration or a make fragment could lower the lints or point clippy at another
+/// configuration: such flags are passed after the manifest's `[lints]`, so they win. The boundary
+/// lints are spelled in pieces so this file does not name them itself.
+const OVERRIDE_TOKENS: &[&str] = &[
+    "CLIPPY_CONF_DIR",
+    "--cap-lints",
+    concat!("clippy::", "style"),
+    concat!("clippy::", "all"),
+    concat!("disallowed", "_methods"),
+    concat!("disallowed", "_macros"),
+    concat!("disallowed", "_types"),
 ];
 
 fn parse(text: &str, origin: &str) -> Table {
@@ -88,100 +125,20 @@ fn parse(text: &str, origin: &str) -> Table {
 }
 
 fn read_toml(relative: &str) -> Table {
-    parse(&repo::read(relative), relative)
+    parse(&meta::repo().read(relative), relative)
 }
 
-/// The level a lint table sets for `lint`, in either the `"deny"` or the `{ level = "deny" }` form.
-fn level<'table>(lints: &'table Table, lint: &str) -> Option<&'table str> {
-    let value = lints.get(lint)?;
-    value
-        .as_str()
-        .or_else(|| value.get("level").and_then(toml::Value::as_str))
-}
-
-/// What is wrong with the root manifest's `[workspace.lints]`, if anything.
-fn workspace_lints_problems(root: &Table) -> Vec<String> {
-    let Some(lints) = root
-        .get("workspace")
-        .and_then(|workspace| workspace.get("lints"))
-        .and_then(toml::Value::as_table)
-    else {
-        return vec!["the root Cargo.toml has no [workspace.lints] table".to_owned()];
-    };
-    let mut problems = Vec::new();
-    match lints.get("rust").and_then(toml::Value::as_table) {
-        None => problems.push("[workspace.lints.rust] is missing".to_owned()),
-        Some(rust) => {
-            if level(rust, "unsafe_code") != Some("forbid") {
-                problems
-                    .push("[workspace.lints.rust] must set unsafe_code = \"forbid\"".to_owned());
-            }
-        }
-    }
-    match lints.get("clippy").and_then(toml::Value::as_table) {
-        None => problems.push("[workspace.lints.clippy] is missing".to_owned()),
-        Some(clippy) => {
-            for lint in BOUNDARY_LINTS {
-                if level(clippy, lint) != Some("deny") {
-                    problems.push(format!(
-                        "[workspace.lints.clippy] must set {lint} = \"deny\", or its list is inert"
-                    ));
-                }
-            }
-        }
-    }
+/// What is wrong with a root manifest's `[workspace.lints]`: the tables, and the levels the
+/// boundary relies on.
+fn workspace_lints_problems(root: &Table) -> Vec<Problem> {
+    let mut problems = workspace::root_lint_problems(root);
+    problems.extend(workspace::lint_level_problems(root, REQUIRED_LEVELS));
     problems
 }
 
-/// Every workspace member whose manifest does not opt into the workspace lints, every member
-/// listed as a glob, and any difference from the expected member list, as messages.
-fn members_without_workspace_lints(
-    root: &Table,
-    read_member: impl Fn(&str) -> Table,
-) -> Vec<String> {
-    let Some(members) = root
-        .get("workspace")
-        .and_then(|workspace| workspace.get("members"))
-        .and_then(toml::Value::as_array)
-    else {
-        return vec!["the root Cargo.toml lists no [workspace] members".to_owned()];
-    };
-    let mut problems = Vec::new();
-    let mut listed = Vec::new();
-    for member in members {
-        let Some(member) = member.as_str() else {
-            problems.push(format!("member {member} is not a path string"));
-            continue;
-        };
-        if member.contains('*') {
-            problems.push(format!(
-                "member {member:?} is a glob; list members explicitly so this check sees each one"
-            ));
-            continue;
-        }
-        listed.push(member.to_owned());
-        let manifest = if member == "." {
-            "Cargo.toml".to_owned()
-        } else {
-            format!("{member}/Cargo.toml")
-        };
-        let opts_in = read_member(member)
-            .get("lints")
-            .and_then(|lints| lints.get("workspace"))
-            .and_then(toml::Value::as_bool);
-        if opts_in != Some(true) {
-            problems.push(format!(
-                "{manifest} does not declare [lints] workspace = true"
-            ));
-        }
-    }
-    if listed != MEMBERS {
-        problems.push(format!(
-            "the workspace members are {listed:?}; this check and the lint boundary expect \
-             {MEMBERS:?}"
-        ));
-    }
-    problems
+/// The override problems of one file.
+fn override_problems(path: &str, text: &str) -> Vec<Problem> {
+    workspace::override_problems(&[(path.to_owned(), text.to_owned())], OVERRIDE_TOKENS)
 }
 
 /// The `path` of every entry of a clippy configuration list such as `disallowed-methods`.
@@ -251,19 +208,15 @@ fn test_config_problems(origin: &str, config: &Table) -> Vec<String> {
 #[test]
 fn root_manifest_declares_the_workspace_lints() {
     let problems = workspace_lints_problems(&read_toml("Cargo.toml"));
-    assert!(problems.is_empty(), "{}", problems.join("\n"));
+    assert!(problems.is_empty(), "{}", report(&problems));
 }
 
+/// Every member, listed explicitly and exactly as [`MEMBERS`], opts into the workspace lints
+/// (`lint_opt_in` also checks the root's lint tables).
 #[test]
 fn every_workspace_member_opts_into_the_workspace_lints() {
-    let problems = members_without_workspace_lints(&read_toml("Cargo.toml"), |member| {
-        if member == "." {
-            read_toml("Cargo.toml")
-        } else {
-            read_toml(&format!("{member}/Cargo.toml"))
-        }
-    });
-    assert!(problems.is_empty(), "{}", problems.join("\n"));
+    let problems = workspace::lint_opt_in(&meta::repo(), Some(MEMBERS));
+    assert!(problems.is_empty(), "{}", report(&problems));
 }
 
 #[test]
@@ -277,7 +230,7 @@ fn test_crates_have_their_own_clippy_config_without_the_bans() {
     let mut problems = Vec::new();
     for member in ["meta", "testenv"] {
         let origin = format!("{member}/clippy.toml");
-        if !repo::path(&origin).is_file() {
+        if !meta::repo().path(&origin).is_file() {
             problems.push(format!(
                 "{origin} is missing, so the root clippy.toml and its production bans govern {member}"
             ));
@@ -293,7 +246,8 @@ fn test_crates_have_their_own_clippy_config_without_the_bans() {
 /// Cargo configuration point clippy elsewhere.
 #[test]
 fn no_other_clippy_configuration_exists() {
-    let found = repo::tracked_or_new(&["*clippy.toml"]);
+    let repo = meta::repo();
+    let found = repo.tracked_or_new(&["*clippy.toml"]);
     assert_eq!(
         found,
         ["clippy.toml", "meta/clippy.toml", "testenv/clippy.toml"],
@@ -301,39 +255,16 @@ fn no_other_clippy_configuration_exists() {
     );
     let mut sources: Vec<String> = [".cargo/config.toml", ".cargo/config", "Makefile"]
         .into_iter()
-        .filter(|path| repo::path(path).is_file())
+        .filter(|path| repo.path(path).is_file())
         .map(str::to_owned)
         .collect();
-    sources.extend(repo::tracked_or_new(&[".mk/*.mk"]));
+    sources.extend(repo.tracked_or_new(&[".mk/*.mk"]));
     assert!(
         sources.iter().any(|path| path == ".mk/rust.mk"),
         "the scan saw no make fragment, not even .mk/rust.mk: {sources:?}"
     );
-    let problems: Vec<String> = sources
-        .iter()
-        .flat_map(|path| override_problems(path, &repo::read(path)))
-        .collect();
-    assert!(problems.is_empty(), "{}", problems.join("\n"));
-}
-
-/// What in Cargo configuration or a make fragment could lower the lints or point clippy at another
-/// configuration, if anything: such flags are passed after the manifest's `[lints]`, so they win.
-/// The boundary lints are spelled in pieces so this file does not name them itself.
-fn override_problems(path: &str, text: &str) -> Vec<String> {
-    let tokens = [
-        "CLIPPY_CONF_DIR".to_owned(),
-        "--cap-lints".to_owned(),
-        format!("clippy::{}", "style"),
-        format!("clippy::{}", "all"),
-        format!("{}_methods", "disallowed"),
-        format!("{}_macros", "disallowed"),
-        format!("{}_types", "disallowed"),
-    ];
-    tokens
-        .iter()
-        .filter(|token| text.contains(token.as_str()))
-        .map(|token| format!("{path} names {token}, which could switch the lint boundary off"))
-        .collect()
+    let problems = workspace::override_problems(&repo.read_all(&sources), OVERRIDE_TOKENS);
+    assert!(problems.is_empty(), "{}", report(&problems));
 }
 
 /// Negative control: Cargo configuration that lowers a boundary lint, its group or every lint,
@@ -354,7 +285,11 @@ fn a_lint_override_in_cargo_configuration_is_refused() {
     }
     assert_eq!(
         override_problems(".cargo/config.toml", "[build]\njobs = 4\n"),
-        Vec::<String>::new()
+        []
+    );
+    assert_eq!(
+        strings(&workspace::override_problems(&[], OVERRIDE_TOKENS)),
+        ["no file or no token to look for; the override check would pass on nothing"]
     );
 }
 
@@ -364,8 +299,14 @@ fn a_lint_override_in_cargo_configuration_is_refused() {
 fn a_root_without_the_boundary_lints_is_refused() {
     let missing = parse("[workspace]\nmembers = [\".\"]\n", "fixture");
     assert_eq!(
-        workspace_lints_problems(&missing),
-        ["the root Cargo.toml has no [workspace.lints] table"]
+        strings(&workspace_lints_problems(&missing)),
+        [
+            "the root Cargo.toml has no [workspace.lints] table",
+            "[workspace.lints.rust] does not set unsafe_code = \"forbid\"",
+            "[workspace.lints.clippy] does not set disallowed_methods = \"deny\"",
+            "[workspace.lints.clippy] does not set disallowed_macros = \"deny\"",
+            "[workspace.lints.clippy] does not set disallowed_types = \"deny\"",
+        ]
     );
     let weak = parse(
         "[workspace.lints.rust]\nunsafe_code = \"deny\"\n[workspace.lints.clippy]\n\
@@ -374,10 +315,10 @@ fn a_root_without_the_boundary_lints_is_refused() {
         "fixture",
     );
     assert_eq!(
-        workspace_lints_problems(&weak),
+        strings(&workspace_lints_problems(&weak)),
         [
-            "[workspace.lints.rust] must set unsafe_code = \"forbid\"",
-            "[workspace.lints.clippy] must set disallowed_methods = \"deny\", or its list is inert",
+            "[workspace.lints.rust] sets unsafe_code = \"deny\"; it must be \"forbid\"",
+            "[workspace.lints.clippy] sets disallowed_methods = \"warn\"; it must be \"deny\"",
         ]
     );
 }
@@ -390,13 +331,19 @@ fn a_member_without_the_opt_in_is_refused() {
         "[workspace]\nmembers = [\".\", \"meta\", \"testenv\", \"crates/*\"]\n",
         "fixture",
     );
-    let problems = members_without_workspace_lints(&root, |member| match member {
-        "." => parse("[lints]\nworkspace = true\n", member),
-        "meta" => parse("[lints]\nworkspace = false\n", member),
-        _ => parse("[package]\nname = \"testenv\"\n", member),
-    });
+    let problems = workspace::member_opt_in_problems(
+        &root,
+        |member| {
+            Ok(match member {
+                "." => parse("[lints]\nworkspace = true\n", member),
+                "meta" => parse("[lints]\nworkspace = false\n", member),
+                _ => parse("[package]\nname = \"testenv\"\n", member),
+            })
+        },
+        Some(MEMBERS),
+    );
     assert_eq!(
-        problems,
+        strings(&problems),
         [
             "meta/Cargo.toml does not declare [lints] workspace = true",
             "testenv/Cargo.toml does not declare [lints] workspace = true",
@@ -407,9 +354,11 @@ fn a_member_without_the_opt_in_is_refused() {
         "[workspace]\nmembers = [\".\", \"meta\", \"testenv\", \"tools\"]\n",
         "fixture",
     );
-    let problems = members_without_workspace_lints(&extra, |member| {
-        parse("[lints]\nworkspace = true\n", member)
-    });
+    let problems = workspace::member_opt_in_problems(
+        &extra,
+        |member| Ok(parse("[lints]\nworkspace = true\n", member)),
+        Some(MEMBERS),
+    );
     assert_eq!(problems.len(), 1, "{problems:?}");
 }
 
@@ -472,7 +421,7 @@ fn clippy_on_scratch_crate(body: &str) -> (bool, String) {
     fs::write(dir.join("Cargo.toml"), manifest.to_string())
         .unwrap_or_else(|error| panic!("write the scratch manifest: {error}"));
     for config in ["clippy.toml", "rust-toolchain.toml"] {
-        fs::copy(repo::path(config), dir.join(config))
+        fs::copy(meta::repo().path(config), dir.join(config))
             .unwrap_or_else(|error| panic!("copy the configuration: {error}"));
     }
     fs::create_dir(dir.join("src")).unwrap_or_else(|error| panic!("create src: {error}"));

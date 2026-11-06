@@ -22,32 +22,36 @@
 //! a bump in one file cannot leave another file building, linting or testing with the old one.
 //!
 //! The pins: the Node line, `ShellCheck`, the exact web pins and the action-step rules (ported
-//! from the Go repository's `test/toolchain/pins_test.go`), the Rust line (`rust-toolchain.toml`,
+//! from the Go repository's `test/toolchain/pins_test.go`), the Rust release (`rust-toolchain.toml`,
 //! the Cargo `rust-version`, the shipped Dockerfile's build image and `RUST_VERSION`,
 //! `.mk/rust-release.mk`'s `rust-std` and every CI step that names a Rust toolchain), and the
 //! release toolchain pins the shipped Dockerfile repeats from `.mk/rust-release.mk`, the one
 //! record of them.
 //!
-//! The checks are functions of the text, and each is also run on input built to break it.
+//! The generic rules are rust-common's `repo_meta::toolchain` (`one_value`, the Rust release
+//! held exactly, CI toolchains read from the input or a non-commit `@` reference, the release
+//! pins with their exact per-platform arms, `ShellCheck`) with this repository's files; the Node
+//! input rules and the exact web pins are BitGauge's own. The checks are functions of the text,
+//! and each is also run on input built to break it.
 
 use std::collections::BTreeMap;
 use std::fs;
 use std::sync::LazyLock;
 
-use meta::{SHIPPED_DOCKERFILE, repo};
+use meta::SHIPPED_DOCKERFILE;
 use regex::Regex;
-use serde_json::Value;
+use repo_meta::toolchain::{
+    self, PinSource, PinValue, RUST_RELEASE_PINS, RustVersion, ToolchainRef,
+};
+use repo_meta::yaml::{self, ActionStep, Value};
+use repo_meta::{Problem, pattern, report};
 
 /// Reads a repository file by its slash-separated path, `None` when it cannot be read.
 type Reader<'reader> = &'reader dyn Fn(&str) -> Option<String>;
 
-fn pattern(text: &str) -> Regex {
-    Regex::new(text).unwrap_or_else(|error| panic!("pattern {text}: {error}"))
-}
-
 /// The working tree as it is.
 fn repo_file(file: &str) -> Option<String> {
-    fs::read_to_string(repo::path(file)).ok()
+    fs::read_to_string(meta::repo().path(file)).ok()
 }
 
 /// The working tree with the first `from` in `file` replaced by `to`. Panics when `file` does not
@@ -66,92 +70,19 @@ fn mutated(file: &str, from: &str, to: &str) -> impl Fn(&str) -> Option<String> 
     }
 }
 
-/// One place a version is written: a file and the pattern whose first group is the version
-/// there. An optional source may be absent; every match of a present one counts.
-struct PinSource {
-    file: String,
-    pattern: Regex,
-    optional: bool,
-}
-
-fn required(file: &str, text: &str) -> PinSource {
+/// A required pin source in `file`, read through `read`; unreadable, it is a problem.
+fn required(read: Reader<'_>, file: &str, text: &str) -> PinSource {
     PinSource {
         file: file.to_owned(),
+        content: read(file),
         pattern: pattern(text),
         optional: false,
     }
 }
 
-fn optional(file: &str, text: &str) -> PinSource {
-    PinSource {
-        optional: true,
-        ..required(file, text)
-    }
-}
-
-/// One version found, and where.
-#[derive(Debug, Clone, PartialEq, Eq)]
-struct PinValue {
-    value: String,
-    file: String,
-}
-
-fn pin(value: &str, file: &str) -> PinValue {
-    PinValue {
-        value: value.to_owned(),
-        file: file.to_owned(),
-    }
-}
-
-/// What is wrong unless every required source writes the pin and all the values found, the
-/// `extra` ones included, agree.
-fn one_value_problems(
-    what: &str,
-    sources: &[PinSource],
-    extra: &[PinValue],
-    read: Reader<'_>,
-) -> Vec<String> {
-    let mut problems = Vec::new();
-    let mut found: BTreeMap<String, Vec<String>> = BTreeMap::new();
-    for value in extra {
-        found
-            .entry(value.value.clone())
-            .or_default()
-            .push(value.file.clone());
-    }
-    for source in sources {
-        let Some(content) = read(&source.file) else {
-            if !source.optional {
-                problems.push(format!("{what}: {} cannot be read", source.file));
-            }
-            continue;
-        };
-        let mut matched = false;
-        for captures in source.pattern.captures_iter(&content) {
-            matched = true;
-            found
-                .entry(captures[1].to_owned())
-                .or_default()
-                .push(source.file.clone());
-        }
-        if !matched && !source.optional {
-            problems.push(format!(
-                "{what}: {} does not write it ({})",
-                source.file, source.pattern
-            ));
-        }
-    }
-    if found.len() > 1 {
-        let values: Vec<String> = found
-            .into_iter()
-            .map(|(value, mut files)| {
-                files.dedup();
-                format!("{value} in {}", files.join(", "))
-            })
-            .collect();
-        problems.push(format!("{what} is not one value: {}", values.join("; ")));
-    }
-    problems
+/// A pin source that may be absent or write nothing.
+fn optional(read: Reader<'_>, file: &str, text: &str) -> PinSource {
+    required(read, file, text).optional()
 }
 
 /// The actions whose inputs carry a shared pin.
@@ -159,89 +90,12 @@ const SETUP_NODE: &str = "actions/setup-node";
 /// Keys the node-version values of every step, setup-node's and others'.
 const NODE_VERSION_INPUT: &str = "node-version";
 
-/// The actions that install a Rust toolchain, and whether each reads `rust-toolchain.toml` when
-/// its `toolchain` input is absent.
-const RUST_TOOLCHAIN_ACTIONS: &[(&str, bool)] = &[
-    ("dtolnay/rust-toolchain", false),
-    ("actions-rs/toolchain", false),
-    ("actions-rust-lang/setup-rust-toolchain", true),
-];
-
 static NODE_MAJOR: LazyLock<Regex> = LazyLock::new(|| pattern(r"^\d+$"));
-static COMMIT_REF: LazyLock<Regex> = LazyLock::new(|| pattern(r"^[0-9a-f]{40}$"));
-
-/// A toolchain a script names: `rustup` installing or selecting one, or `cargo +<toolchain>`.
-/// Option flags before the toolchain are skipped; a flag's value is read as the toolchain, which
-/// errs toward a false failure, never a silent pass.
-static SCRIPT_TOOLCHAIN: LazyLock<Regex> = LazyLock::new(|| {
-    pattern(concat!(
-        r"\brustup\s+(?:toolchain\s+install|install|default|override\s+set)\s+",
-        r"(?:-\S+\s+)*([A-Za-z0-9][\w.-]*)",
-        r"|\bcargo\s+\+([A-Za-z0-9][\w.-]*)",
-    ))
-});
-
-/// One step, in a workflow or a composite action, that uses an action.
-#[derive(Debug)]
-struct ActionStep {
-    file: String,
-    /// The `uses:` value before its `@`.
-    action: String,
-    /// The `uses:` value after its `@`, empty when it has none.
-    reference: String,
-    with: BTreeMap<String, String>,
-}
-
-/// A YAML scalar as Go's `fmt.Sprint` writes it, which is how the Go test read the inputs.
-fn scalar_text(value: &Value) -> String {
-    match value {
-        Value::String(text) => text.clone(),
-        Value::Null => "<nil>".to_owned(),
-        Value::Bool(_) | Value::Number(_) | Value::Array(_) | Value::Object(_) => value.to_string(),
-    }
-}
-
-fn parse_yaml(file: &str, content: &str) -> Value {
-    serde_saphyr::from_str(content).unwrap_or_else(|error| panic!("parse {file}: {error}"))
-}
-
-/// Every mapping with a `uses:` key anywhere in the document, so job steps and composite action
-/// steps alike.
-fn action_steps(file: &str, document: &Value) -> Vec<ActionStep> {
-    let mut steps = Vec::new();
-    let mut pending = vec![document];
-    while let Some(node) = pending.pop() {
-        match node {
-            Value::Object(map) => {
-                if let Some(Value::String(uses)) = map.get("uses") {
-                    let (action, reference) = uses.split_once('@').unwrap_or((uses, ""));
-                    let with = match map.get("with") {
-                        Some(Value::Object(inputs)) => inputs
-                            .iter()
-                            .map(|(key, input)| (key.clone(), scalar_text(input)))
-                            .collect(),
-                        _ => BTreeMap::new(),
-                    };
-                    steps.push(ActionStep {
-                        file: file.to_owned(),
-                        action: action.to_owned(),
-                        reference: reference.to_owned(),
-                        with,
-                    });
-                }
-                pending.extend(map.values());
-            }
-            Value::Array(items) => pending.extend(items),
-            Value::Null | Value::Bool(_) | Value::Number(_) | Value::String(_) => {}
-        }
-    }
-    steps
-}
 
 /// The pinned values by input, and a problem for every step that breaks a rule: any
 /// node-version input, whatever the action or the reusable workflow that takes it, is a literal
 /// Node major, and setup-node must have one.
-fn action_pins(steps: &[ActionStep]) -> (BTreeMap<&'static str, Vec<PinValue>>, Vec<String>) {
+fn action_pins(steps: &[ActionStep]) -> (BTreeMap<&'static str, Vec<PinValue>>, Vec<Problem>) {
     let mut values: BTreeMap<&'static str, Vec<PinValue>> = BTreeMap::new();
     let mut problems = Vec::new();
     for step in steps {
@@ -252,11 +106,14 @@ fn action_pins(steps: &[ActionStep]) -> (BTreeMap<&'static str, Vec<PinValue>>, 
                 values
                     .entry(NODE_VERSION_INPUT)
                     .or_default()
-                    .push(pin(version, &step.file));
+                    .push(PinValue::new(version, &step.file));
             } else {
-                problems.push(format!(
-                    "{}: {} must get node-version as a literal Node major, got {version:?}",
-                    step.file, step.action
+                problems.push(Problem::at(
+                    &step.file,
+                    format!(
+                        "{} must get node-version as a literal Node major, got {version:?}",
+                        step.action
+                    ),
                 ));
             }
         }
@@ -264,67 +121,15 @@ fn action_pins(steps: &[ActionStep]) -> (BTreeMap<&'static str, Vec<PinValue>>, 
     (values, problems)
 }
 
-/// The Rust toolchains the steps name, and a problem for every toolchain action that names none
-/// and does not read `rust-toolchain.toml` either. An action named by a ref other than a commit
-/// (dtolnay's `@1.98.1` or `@stable` form) names the ref.
-fn action_rust_toolchains(steps: &[ActionStep]) -> (Vec<PinValue>, Vec<String>) {
-    let mut values = Vec::new();
-    let mut problems = Vec::new();
-    for step in steps {
-        let Some(&(_, reads_file)) = RUST_TOOLCHAIN_ACTIONS
-            .iter()
-            .find(|(action, _)| *action == step.action)
-        else {
-            continue;
-        };
-        if let Some(toolchain) = step.with.get("toolchain") {
-            values.push(pin(toolchain, &step.file));
-        } else if !step.reference.is_empty() && !COMMIT_REF.is_match(&step.reference) {
-            values.push(pin(&step.reference, &step.file));
-        } else if !reads_file {
-            problems.push(format!(
-                "{}: {} names no toolchain, and does not read rust-toolchain.toml",
-                step.file, step.action
-            ));
-        }
-    }
-    (values, problems)
-}
-
-/// The Rust toolchains a document names outside the toolchain actions: a `RUSTUP_TOOLCHAIN`
-/// variable, and a `rustup` or `cargo +` command in any string.
-fn script_rust_toolchains(file: &str, document: &Value) -> Vec<PinValue> {
-    let mut values = Vec::new();
-    let mut pending = vec![document];
-    while let Some(node) = pending.pop() {
-        match node {
-            Value::Object(map) => {
-                if let Some(toolchain) = map.get("RUSTUP_TOOLCHAIN") {
-                    values.push(pin(&scalar_text(toolchain), file));
-                }
-                pending.extend(map.values());
-            }
-            Value::Array(items) => pending.extend(items),
-            Value::String(text) => {
-                for captures in SCRIPT_TOOLCHAIN.captures_iter(text) {
-                    if let Some(toolchain) = captures.get(1).or_else(|| captures.get(2)) {
-                        values.push(pin(toolchain.as_str(), file));
-                    }
-                }
-            }
-            Value::Null | Value::Bool(_) | Value::Number(_) => {}
-        }
-    }
-    values
-}
-
 /// Every workflow and action under `.github`, parsed.
 fn github_documents(read: Reader<'_>) -> Vec<(String, Value)> {
-    repo::files_under(".github", &[".yaml", ".yml"])
+    meta::repo()
+        .files_under(".github", &[".yaml", ".yml"])
         .into_iter()
         .map(|file| {
             let content = read(&file).unwrap_or_else(|| panic!("read {file}"));
-            let document = parse_yaml(&file, &content);
+            let document =
+                yaml::parse(&file, &content).unwrap_or_else(|problem| panic!("{problem}"));
             (file, document)
         })
         .collect()
@@ -333,55 +138,37 @@ fn github_documents(read: Reader<'_>) -> Vec<(String, Value)> {
 fn github_action_steps() -> Vec<ActionStep> {
     github_documents(&repo_file)
         .iter()
-        .flat_map(|(file, document)| action_steps(file, document))
+        .flat_map(|(file, document)| yaml::action_steps(file, document))
         .collect()
-}
-
-/// Every Rust toolchain CI names, and a problem for every toolchain action that names none, or
-/// when no step sets up Rust at all, so the rule cannot pass on workflows it failed to see.
-fn github_rust_toolchains(read: Reader<'_>) -> (Vec<PinValue>, Vec<String>) {
-    let documents = github_documents(read);
-    let steps: Vec<ActionStep> = documents
-        .iter()
-        .flat_map(|(file, document)| action_steps(file, document))
-        .collect();
-    let (mut values, mut problems) = action_rust_toolchains(&steps);
-    if !steps.iter().any(|step| {
-        RUST_TOOLCHAIN_ACTIONS
-            .iter()
-            .any(|(action, _)| *action == step.action)
-    }) {
-        problems.push("no CI step sets up a Rust toolchain".to_owned());
-    }
-    for (file, document) in &documents {
-        values.extend(script_rust_toolchains(file, document));
-    }
-    (values, problems)
 }
 
 /// The Node line's sources: the shipped Dockerfile's web stage, the Node types, and an engines
 /// field or a version file if one appears.
-fn node_line_sources() -> Vec<PinSource> {
+fn node_line_sources(read: Reader<'_>) -> Vec<PinSource> {
     vec![
-        required(SHIPPED_DOCKERFILE, r"dhi\.io/node:(\d+)-"),
-        required("web/package.json", r#""@types/node":\s*"[\^~]?(\d+)\."#),
-        optional("web/package.json", r#""node":\s*"[\^~>=]*(\d+)"#),
-        optional(".nvmrc", r"^v?(\d+)"),
-        optional(".node-version", r"^v?(\d+)"),
+        required(read, SHIPPED_DOCKERFILE, r"dhi\.io/node:(\d+)-"),
+        required(
+            read,
+            "web/package.json",
+            r#""@types/node":\s*"[\^~]?(\d+)\."#,
+        ),
+        optional(read, "web/package.json", r#""node":\s*"[\^~>=]*(\d+)"#),
+        optional(read, ".nvmrc", r"^v?(\d+)"),
+        optional(read, ".node-version", r"^v?(\d+)"),
     ]
 }
 
-fn shellcheck_sources() -> Vec<PinSource> {
-    vec![
-        required(
-            ".pre-commit-config.yaml",
-            r"repo: https://github\.com/shellcheck-py/shellcheck-py\s+rev:\s*(v\d+\.\d+\.\d+)",
-        ),
-        required(
-            ".github/actions/setup-shellcheck/action.yaml",
-            r#"SHELLCHECK_VERSION:\s*["']?(v[\d.]+)"#,
-        ),
-    ]
+/// The pre-commit configuration and the action that installs `ShellCheck` in CI.
+const PRE_COMMIT_CONFIG: &str = ".pre-commit-config.yaml";
+const SETUP_SHELLCHECK: &str = ".github/actions/setup-shellcheck/action.yaml";
+
+fn shellcheck_problems(read: Reader<'_>) -> Vec<Problem> {
+    toolchain::shellcheck_problems(
+        PRE_COMMIT_CONFIG,
+        &read(PRE_COMMIT_CONFIG).unwrap_or_default(),
+        SETUP_SHELLCHECK,
+        &read(SETUP_SHELLCHECK).unwrap_or_default(),
+    )
 }
 
 /// The tools other files must match, pinned exactly in `web/package.json`.
@@ -408,132 +195,67 @@ fn exact_web_pin_problems(manifest: &str) -> Vec<String> {
         .collect()
 }
 
-/// The Rust line's file sources, each an exact release: `rust-toolchain.toml`'s channel, the
-/// Cargo `rust-version`, the Rust build stage's image and its `RUST_VERSION`, and the `rust-std`
-/// release `.mk/rust-release.mk` pins.
-fn rust_line_sources() -> Vec<PinSource> {
-    let dockerfile = SHIPPED_DOCKERFILE;
-    vec![
-        required(
-            "rust-toolchain.toml",
-            r#"(?m)^channel\s*=\s*"(\d+\.\d+\.\d+)"\s*$"#,
-        ),
-        required(
-            "Cargo.toml",
-            r#"(?m)^rust-version\s*=\s*"(\d+\.\d+\.\d+)"\s*$"#,
-        ),
-        required(
-            dockerfile,
-            r"(?m)^FROM\s+(?:--platform=\S+\s+)?dhi\.io/rust:(\d+\.\d+\.\d+)-debian13-dev\b",
-        ),
-        required(dockerfile, r"(?m)^ARG RUST_VERSION=(\d+\.\d+\.\d+)\s*$"),
-        required(
-            ".mk/rust-release.mk",
-            r"(?m)^RUST_RELEASE_RUST_STD_VERSION\s*:?=\s*(\d+\.\d+\.\d+)\s*$",
-        ),
-    ]
-}
+const RUST_TOOLCHAIN: &str = "rust-toolchain.toml";
+const RELEASE_MK: &str = ".mk/rust-release.mk";
 
-/// The Rust line's problems: the file sources and every toolchain CI names are one release, and
-/// every CI toolchain action names one or reads `rust-toolchain.toml`.
-fn rust_line_problems(read: Reader<'_>) -> Vec<String> {
-    let (values, mut problems) = github_rust_toolchains(read);
-    problems.extend(one_value_problems(
-        "Rust line",
-        &rust_line_sources(),
-        &values,
-        read,
+/// The Rust release's problems: `rust-toolchain.toml` pins an exact release, and the Cargo
+/// `rust-version`, the shipped Dockerfile's `dhi.io/rust` tag and `RUST_VERSION`, the `rust-std`
+/// release `.mk/rust-release.mk` pins and every toolchain CI names (an action's input or its
+/// non-commit `@` reference, a `RUSTUP_TOOLCHAIN`, a `rustup` or `cargo +` command) are exactly
+/// it; a toolchain action that names none must read `rust-toolchain.toml`.
+fn rust_line_problems(read: Reader<'_>) -> Vec<Problem> {
+    let release =
+        match toolchain::rust_release(RUST_TOOLCHAIN, &read(RUST_TOOLCHAIN).unwrap_or_default()) {
+            Ok(release) => release,
+            Err(problem) => return vec![problem],
+        };
+    let mut problems = toolchain::rust_version_problems(
+        "Cargo.toml",
+        &read("Cargo.toml").unwrap_or_default(),
+        &release,
+        RustVersion::Exact,
+    );
+    problems.extend(toolchain::image_rust_problems(
+        SHIPPED_DOCKERFILE,
+        &read(SHIPPED_DOCKERFILE).unwrap_or_default(),
+        &release,
+        RustVersion::Exact,
+    ));
+    problems.extend(toolchain::one_value(
+        "Rust release",
+        &[required(
+            read,
+            RELEASE_MK,
+            r"(?m)^RUST_RELEASE_RUST_STD_VERSION\s*:?=\s*(\d+\.\d+\.\d+)\s*$",
+        )],
+        &[PinValue::new(&release, RUST_TOOLCHAIN)],
+    ));
+    problems.extend(toolchain::ci_toolchain_problems(
+        &github_documents(read),
+        &release,
+        ToolchainRef::InputOrRef,
     ));
     problems
 }
 
-const RELEASE_MK: &str = ".mk/rust-release.mk";
-
-/// The release tool versions the shipped Dockerfile repeats, as (its `ARG`, the `.mk` variable).
-const RELEASE_TOOL_VERSIONS: [(&str, &str); 2] = [
-    ("ZIG_VERSION", "RUST_RELEASE_ZIG_VERSION"),
-    (
-        "CARGO_ZIGBUILD_VERSION",
-        "RUST_RELEASE_CARGO_ZIGBUILD_VERSION",
-    ),
-];
-
-/// The archives the shipped Dockerfile checks, as (its key variable, its sha256 variable, the `.mk`
-/// prefix whose suffix is the key).
-const RELEASE_ARCHIVES: [(&str, &str, &str); 3] = [
-    ("zig_arch", "zig_sha256", "RUST_RELEASE_ZIG_SHA256_"),
-    (
-        "zigbuild_asset",
-        "zigbuild_sha256",
-        "RUST_RELEASE_CARGO_ZIGBUILD_SHA256_",
-    ),
-    ("triple", "std_sha256", "RUST_RELEASE_RUST_STD_SHA256_"),
-];
-
-static SHA256: LazyLock<Regex> = LazyLock::new(|| pattern(r"\b[0-9a-f]{64}\b"));
-/// An image or frontend digest: its pin is the Dockerfile's own, not a release archive's.
-static DIGEST: LazyLock<Regex> = LazyLock::new(|| pattern(r"@sha256:[0-9a-f]{64}\b"));
-
-/// The problems with the release pins the shipped Dockerfile repeats: each tool version and each
-/// archive's sha256 is `.mk/rust-release.mk`'s, both files name the same archives, and every
-/// other sha256 in the Dockerfile is an image or frontend digest.
-fn release_pin_problems(read: Reader<'_>) -> Vec<String> {
-    let dockerfile = SHIPPED_DOCKERFILE;
-    let (Some(docker), Some(make)) = (read(dockerfile), read(RELEASE_MK)) else {
-        return vec![format!("{dockerfile} or {RELEASE_MK} cannot be read")];
-    };
-    let mut problems = Vec::new();
-    for (argument, variable) in RELEASE_TOOL_VERSIONS {
-        problems.extend(one_value_problems(
-            argument,
-            &[
-                required(dockerfile, &format!(r"(?m)^ARG {argument}=(\S+)\s*$")),
-                required(RELEASE_MK, &format!(r"(?m)^{variable}\s*:?=\s*(\S+)\s*$")),
-            ],
-            &[],
-            read,
-        ));
-    }
-    let mut paired = 0;
-    for (key, sha, prefix) in RELEASE_ARCHIVES {
-        let in_docker: BTreeMap<String, String> =
-            pattern(&format!(r"\b{key}=([\w.-]+);\s*{sha}=([0-9a-f]{{64}})\b"))
-                .captures_iter(&docker)
-                .map(|captures| (captures[1].to_owned(), captures[2].to_owned()))
-                .collect();
-        let in_make: BTreeMap<String, String> = pattern(&format!(
-            r"(?m)^{}([\w.-]+)\s*:?=\s*([0-9a-f]{{64}})\s*$",
-            regex::escape(prefix)
-        ))
-        .captures_iter(&make)
-        .map(|captures| (captures[1].to_owned(), captures[2].to_owned()))
-        .collect();
-        if in_docker.is_empty() {
-            problems.push(format!("{dockerfile} checks no {sha}"));
-        }
-        if in_docker != in_make {
-            problems.push(format!(
-                "{sha}: {dockerfile} has {in_docker:?}, {RELEASE_MK} has {in_make:?}"
-            ));
-        }
-        paired += in_docker.len();
-    }
-    let digests = DIGEST.find_iter(&docker).count();
-    let hashes = SHA256.find_iter(&docker).count();
-    if hashes != paired + digests {
-        problems.push(format!(
-            "{dockerfile} writes {hashes} sha256s: {paired} release archives and {digests} \
-             digests account for the rest, so one is not {RELEASE_MK}'s"
-        ));
-    }
-    problems
+/// The release pins the shipped Dockerfile repeats: each tool version and each archive's
+/// `(platform, asset, sha256)` arm is `.mk/rust-release.mk`'s, and every other sha256 in the
+/// Dockerfile is an image or frontend digest.
+fn release_pin_problems(read: Reader<'_>) -> Vec<Problem> {
+    toolchain::release_pin_problems(
+        SHIPPED_DOCKERFILE,
+        &read(SHIPPED_DOCKERFILE).unwrap_or_default(),
+        RELEASE_MK,
+        &read(RELEASE_MK).unwrap_or_default(),
+        &RUST_RELEASE_PINS,
+    )
 }
 
-fn assert_none(problems: &[String]) {
-    assert!(problems.is_empty(), "{}", problems.join("\n"));
+fn assert_none(problems: &[Problem]) {
+    assert!(problems.is_empty(), "{}", report(problems));
 }
 
-fn assert_some(problems: &[String], what: &str) {
+fn assert_some(problems: &[Problem], what: &str) {
     assert!(!problems.is_empty(), "the control {what} found nothing");
 }
 
@@ -553,11 +275,10 @@ fn action_steps_are_pinned() {
 fn node_line_is_one_value() {
     let (steps, _) = action_pins(&github_action_steps());
     let extra = steps.get(NODE_VERSION_INPUT).cloned().unwrap_or_default();
-    assert_none(&one_value_problems(
+    assert_none(&toolchain::one_value(
         "Node line",
-        &node_line_sources(),
+        &node_line_sources(&repo_file),
         &extra,
-        &repo_file,
     ));
 }
 
@@ -565,7 +286,6 @@ fn node_line_is_one_value() {
 /// stage or in a CI step fails.
 #[test]
 fn node_line_control_fails_on_another_major() {
-    let sources = node_line_sources();
     let (steps, _) = action_pins(&github_action_steps());
     let extra = steps.get(NODE_VERSION_INPUT).cloned().unwrap_or_default();
     let types = mutated(
@@ -574,18 +294,18 @@ fn node_line_control_fails_on_another_major() {
         r#""@types/node": "^22."#,
     );
     assert_some(
-        &one_value_problems("Node line", &sources, &extra, &types),
+        &toolchain::one_value("Node line", &node_line_sources(&types), &extra),
         "of the Node types",
     );
     let image = mutated(SHIPPED_DOCKERFILE, "dhi.io/node:24-", "dhi.io/node:22-");
     assert_some(
-        &one_value_problems("Node line", &sources, &extra, &image),
+        &toolchain::one_value("Node line", &node_line_sources(&image), &extra),
         "of the web stage",
     );
     let mut step = extra;
-    step.push(pin("22", ".github/workflows/sample.yaml"));
+    step.push(PinValue::new("22", ".github/workflows/sample.yaml"));
     assert_some(
-        &one_value_problems("Node line", &sources, &step, &repo_file),
+        &toolchain::one_value("Node line", &node_line_sources(&repo_file), &step),
         "of a CI step",
     );
 }
@@ -595,39 +315,37 @@ fn node_line_control_fails_on_another_major() {
 /// (its rev adds a fourth component for the wrapper), which Dependabot moves.
 #[test]
 fn shell_check_is_one_version() {
-    assert_none(&one_value_problems(
-        "ShellCheck",
-        &shellcheck_sources(),
-        &[],
-        &repo_file,
-    ));
+    assert_none(&shellcheck_problems(&repo_file));
 }
 
 /// The `ShellCheck` control: another release in setup-shellcheck fails.
 #[test]
 fn shell_check_control_fails_on_another_version() {
     let action = mutated(
-        ".github/actions/setup-shellcheck/action.yaml",
+        SETUP_SHELLCHECK,
         "SHELLCHECK_VERSION: v",
         "SHELLCHECK_VERSION: v9",
     );
-    assert_some(
-        &one_value_problems("ShellCheck", &shellcheck_sources(), &[], &action),
-        "of setup-shellcheck",
-    );
+    assert_some(&shellcheck_problems(&action), "of setup-shellcheck");
 }
 
 /// Go: `TestExactWebPins`: the tools whose version other files must match are pinned exactly in
 /// `web/package.json`, without a range.
 #[test]
 fn exact_web_pins() {
-    assert_none(&exact_web_pin_problems(&repo::read("web/package.json")));
-    let ranged = repo::read("web/package.json").replacen(r#""fallow": ""#, r#""fallow": "^"#, 1);
-    assert_some(&exact_web_pin_problems(&ranged), "of a ranged fallow");
+    let manifest = meta::repo().read("web/package.json");
+    let problems = exact_web_pin_problems(&manifest);
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+    let ranged = manifest.replacen(r#""fallow": ""#, r#""fallow": "^"#, 1);
+    assert!(
+        !exact_web_pin_problems(&ranged).is_empty(),
+        "the control of a ranged fallow found nothing"
+    );
 }
 
 fn parsed_steps(file: &str, content: &str) -> Vec<ActionStep> {
-    action_steps(file, &parse_yaml(file, content))
+    let document = yaml::parse(file, content).unwrap_or_else(|problem| panic!("{problem}"));
+    yaml::action_steps(file, &document)
 }
 
 /// Go: `TestActionPinRules`: the negative control of the action rules: a pinned step gives its
@@ -649,7 +367,7 @@ fn action_pin_rules() {
     assert_none(&problems);
     assert_eq!(
         values.get(NODE_VERSION_INPUT),
-        Some(&vec![pin("24", "sample.yaml")])
+        Some(&vec![PinValue::new("24", "sample.yaml")])
     );
 
     let steps = parsed_steps(
@@ -691,15 +409,16 @@ fn action_pin_rules() {
     let (values, problems) = action_pins(&steps);
     assert_eq!(
         values.get(NODE_VERSION_INPUT),
-        Some(&vec![pin("22", "ci.yaml")])
+        Some(&vec![PinValue::new("22", "ci.yaml")])
     );
     assert_eq!(problems.len(), 1, "reusable workflow inputs: {problems:?}");
 }
 
-/// The Rust line is one exact release: `rust-toolchain.toml`'s channel, the Cargo
-/// `rust-version`, the shipped Dockerfile's `dhi.io/rust:<line>-debian13-dev` build image and its
-/// `RUST_VERSION`, `.mk/rust-release.mk`'s `rust-std`, and every Rust toolchain a CI step names;
-/// a toolchain action that names none must read `rust-toolchain.toml`.
+/// The Rust release is one exact release: `rust-toolchain.toml`'s channel, the Cargo
+/// `rust-version`, the shipped Dockerfile's `dhi.io/rust` build image and its `RUST_VERSION`,
+/// `.mk/rust-release.mk`'s `rust-std`, and every Rust toolchain a CI step names; a toolchain
+/// action that names none must read `rust-toolchain.toml`. The image's `debian13-dev` variant is
+/// held by `meta/tests/dockerfiles.rs`.
 #[test]
 fn rust_line_is_one_value() {
     assert_none(&rust_line_problems(&repo_file));
@@ -713,14 +432,14 @@ const CI_WORKFLOW: &str = ".github/workflows/ci.yaml";
 #[test]
 fn rust_line_control_fails_on_another_release() {
     let line = pattern(r#"(?m)^channel\s*=\s*"([^"]+)""#)
-        .captures(&repo::read("rust-toolchain.toml"))
+        .captures(&meta::repo().read(RUST_TOOLCHAIN))
         .map_or_else(
             || panic!("rust-toolchain.toml names no channel"),
             |captures| captures[1].to_owned(),
         );
     let dockerfile = SHIPPED_DOCKERFILE;
     let cases = [
-        ("rust-toolchain.toml", format!(r#"channel = "{line}""#)),
+        (RUST_TOOLCHAIN, format!(r#"channel = "{line}""#)),
         ("Cargo.toml", format!(r#"rust-version = "{line}""#)),
         (dockerfile, format!("dhi.io/rust:{line}-")),
         (dockerfile, format!("ARG RUST_VERSION={line}")),
@@ -735,7 +454,7 @@ fn rust_line_control_fails_on_another_release() {
         assert_some(&rust_line_problems(&read), &text);
     }
     let channel = mutated(
-        "rust-toolchain.toml",
+        RUST_TOOLCHAIN,
         &format!(r#"channel = "{line}""#),
         r#"channel = "stable""#,
     );
@@ -774,34 +493,44 @@ fn rust_toolchain_ci_rules() {
       - uses: actions-rust-lang/setup-rust-toolchain@0123456789abcdef0123456789abcdef01234567
       - run: rustup toolchain install --no-self-update 1.97.0 && cargo +beta build
 ";
-    let document = parse_yaml("sample.yaml", content);
-    let (mut values, problems) = action_rust_toolchains(&action_steps("sample.yaml", &document));
-    values.extend(script_rust_toolchains("sample.yaml", &document));
+    let documents = [(
+        "sample.yaml".to_owned(),
+        yaml::parse("sample.yaml", content).unwrap_or_else(|problem| panic!("{problem}")),
+    )];
+    let (values, problems) = toolchain::ci_rust_toolchains(&documents, ToolchainRef::InputOrRef);
     let mut named: Vec<&str> = values.iter().map(|value| value.value.as_str()).collect();
     named.sort_unstable();
     assert_eq!(named, ["1.97.0", "1.98.1", "beta", "nightly", "stable"]);
     assert_eq!(
-        problems,
+        repo_meta::strings(&problems),
         [
             "sample.yaml: dtolnay/rust-toolchain names no toolchain, and does not read \
           rust-toolchain.toml"
         ]
     );
+    let wrong = toolchain::ci_toolchain_problems(&documents, "1.98.1", ToolchainRef::InputOrRef);
+    assert_eq!(
+        wrong.len(),
+        5,
+        "every toolchain but 1.98.1, and the action naming none: {wrong:?}"
+    );
 }
 
-/// The zig and cargo-zigbuild releases and every archive sha256 the shipped Dockerfile checks are
-/// `.mk/rust-release.mk`'s, which calls itself the one record of those pins.
+/// The zig, cargo-zigbuild and rust-std releases and every archive arm the shipped Dockerfile
+/// checks are `.mk/rust-release.mk`'s, which calls itself the one record of those pins.
 #[test]
 fn rust_release_pins_match_the_makefile() {
     assert_none(&release_pin_problems(&repo_file));
 }
+
+static SHA256: LazyLock<Regex> = LazyLock::new(|| pattern(r"\b[0-9a-f]{64}\b"));
 
 /// The release pin control: another zig or cargo-zigbuild release, a changed or extra sha256, or
 /// an archive the `.mk` does not name fails.
 #[test]
 fn rust_release_pin_control_fails_on_a_change() {
     let dockerfile = SHIPPED_DOCKERFILE;
-    let docker = repo::read(dockerfile);
+    let docker = meta::repo().read(dockerfile);
     let hash = SHA256
         .find_iter(&docker)
         .find(|found| !docker[..found.start()].ends_with("@sha256:"))

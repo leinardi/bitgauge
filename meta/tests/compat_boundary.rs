@@ -28,7 +28,6 @@
 
 use std::sync::LazyLock;
 
-use meta::repo;
 use regex::Regex;
 
 /// The building blocks: each module file and the directory of its submodules.
@@ -106,11 +105,11 @@ fn building_block_files() -> Vec<String> {
     let mut files = Vec::new();
     for block in BUILDING_BLOCKS {
         let module = format!("src/{block}.rs");
-        assert!(repo::path(&module).is_file(), "{module} is missing");
+        assert!(meta::repo().path(&module).is_file(), "{module} is missing");
         files.push(module);
         let directory = format!("src/{block}");
-        if repo::path(&directory).is_dir() {
-            files.extend(repo::files_under(&directory, &[".rs"]));
+        if meta::repo().path(&directory).is_dir() {
+            files.extend(meta::repo().files_under(&directory, &[".rs"]));
         }
     }
     files
@@ -131,7 +130,7 @@ fn building_blocks_do_not_import_the_layers() {
     let violations: Vec<String> = files
         .iter()
         .flat_map(|file| {
-            compat_paths(&repo::read(file))
+            compat_paths(&meta::repo().read(file))
                 .into_iter()
                 .map(move |path| format!("{file}: {path}"))
         })

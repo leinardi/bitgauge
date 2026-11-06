@@ -481,7 +481,7 @@ dependencies = [
 [[package]]
 name = "go-compat"
 version = "0.1.0"
-source = "git+https://github.com/leinardi/rust-common?rev=6d7bf52c92c8114a13dee785df4a17a90df2300f#6d7bf52c92c8114a13dee785df4a17a90df2300f"
+source = "git+https://github.com/leinardi/rust-common?rev=925a308e99cdec5af90539818660d10a7e9086f9#925a308e99cdec5af90539818660d10a7e9086f9"
 dependencies = [
  "jiff",
 ]
@@ -544,7 +544,7 @@ dependencies = [
 [[package]]
 name = "http-framing"
 version = "0.1.0"
-source = "git+https://github.com/leinardi/rust-common?rev=6d7bf52c92c8114a13dee785df4a17a90df2300f#6d7bf52c92c8114a13dee785df4a17a90df2300f"
+source = "git+https://github.com/leinardi/rust-common?rev=925a308e99cdec5af90539818660d10a7e9086f9#925a308e99cdec5af90539818660d10a7e9086f9"
 
 [[package]]
 name = "httparse"
@@ -733,6 +733,7 @@ version = "0.0.0"
 dependencies = [
  "bitgauge",
  "regex",
+ "repo-meta",
  "serde",
  "serde-saphyr",
  "serde_json",
@@ -953,6 +954,20 @@ name = "regex-syntax"
 version = "0.8.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
+
+[[package]]
+name = "repo-meta"
+version = "0.1.0"
+source = "git+https://github.com/leinardi/rust-common?rev=925a308e99cdec5af90539818660d10a7e9086f9#925a308e99cdec5af90539818660d10a7e9086f9"
+dependencies = [
+ "go-compat",
+ "regex",
+ "serde-saphyr",
+ "serde_json",
+ "tempfile",
+ "testenv-core",
+ "toml",
+]
 
 [[package]]
 name = "rustix"
@@ -1180,7 +1195,7 @@ dependencies = [
 [[package]]
 name = "testenv-core"
 version = "0.1.0"
-source = "git+https://github.com/leinardi/rust-common?rev=6d7bf52c92c8114a13dee785df4a17a90df2300f#6d7bf52c92c8114a13dee785df4a17a90df2300f"
+source = "git+https://github.com/leinardi/rust-common?rev=925a308e99cdec5af90539818660d10a7e9086f9#925a308e99cdec5af90539818660d10a7e9086f9"
 dependencies = [
  "go-compat",
  "jiff",

@@ -41,7 +41,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::Path;
 
-use meta::{cargo, repo};
+use meta::cargo;
 use toml::Table;
 
 /// Crates that are test infrastructure and must never be in the shipped graph.
@@ -243,28 +243,28 @@ fn parse(text: &str, origin: &str) -> Table {
 }
 
 fn banned() -> Vec<String> {
-    let banned = banned_crates(&parse(&repo::read("deny.toml"), "deny.toml"));
+    let banned = banned_crates(&parse(&meta::repo().read("deny.toml"), "deny.toml"));
     assert!(!banned.is_empty(), "deny.toml bans no crate");
     banned
 }
 
 #[test]
 fn the_host_production_graph_holds_the_boundary() {
-    let crates = resolved_features(&repo::root(), None, Resolve::Locked);
+    let crates = resolved_features(meta::repo().root(), None, Resolve::Locked);
     let problems = graph_problems(&crates, &banned());
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 
 #[test]
 fn the_release_target_production_graph_holds_the_boundary() {
-    let crates = resolved_features(&repo::root(), Some(RELEASE_TARGET), Resolve::Locked);
+    let crates = resolved_features(meta::repo().root(), Some(RELEASE_TARGET), Resolve::Locked);
     let problems = graph_problems(&crates, &banned());
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 
 #[test]
 fn the_dev_dependencies_do_not_include_testenv() {
-    let problems = dev_dependency_problems(&parse(&repo::read("Cargo.toml"), "Cargo.toml"));
+    let problems = dev_dependency_problems(&parse(&meta::repo().read("Cargo.toml"), "Cargo.toml"));
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 
@@ -303,14 +303,14 @@ fn scratch_workspace(change: impl FnOnce(&Path, &mut Table)) -> tempfile::TempDi
     let dir = scratch.path();
     for member in ["meta", "testenv"] {
         let manifest = format!("{member}/Cargo.toml");
-        write(dir, &manifest, &repo::read(&manifest));
+        write(dir, &manifest, &meta::repo().read(&manifest));
         write(dir, &format!("{member}/src/lib.rs"), "");
     }
     write(dir, "src/lib.rs", "");
     write(dir, "src/main.rs", "fn main() {}\n");
-    fs::copy(repo::path("Cargo.lock"), dir.join("Cargo.lock"))
+    fs::copy(meta::repo().path("Cargo.lock"), dir.join("Cargo.lock"))
         .unwrap_or_else(|error| panic!("copy Cargo.lock: {error}"));
-    let mut root = parse(&repo::read("Cargo.toml"), "Cargo.toml");
+    let mut root = parse(&meta::repo().read("Cargo.toml"), "Cargo.toml");
     // The check reads the normal and build graph only, and a control that stubs a crate the
     // dev-dependencies also name (hyper, for the test client) would give it two sources.
     root.remove("dev-dependencies");

@@ -35,7 +35,7 @@ use std::fs;
 use std::path::Path;
 use std::sync::LazyLock;
 
-use meta::{SHIPPED_DOCKERFILE, repo};
+use meta::SHIPPED_DOCKERFILE;
 use regex::Regex;
 use serde_json::{Map, Value};
 
@@ -117,7 +117,7 @@ fn examples_are_the_listed_files() {
         want.insert((*relative).to_owned());
         want.insert(format!("{}/README.md", parent(relative)));
     }
-    let got: BTreeSet<String> = entries_under(&repo::path(EXAMPLES_DIR))
+    let got: BTreeSet<String> = entries_under(&meta::repo().path(EXAMPLES_DIR))
         .into_iter()
         .collect();
     let mut problems: Vec<String> = got
@@ -138,7 +138,7 @@ fn readmes_link_the_spec() {
     let problems: Vec<String> = COMPOSE_FILES
         .iter()
         .map(|relative| format!("{EXAMPLES_DIR}/{}/README.md", parent(relative)))
-        .filter(|readme| !repo::read(readme).contains(&link))
+        .filter(|readme| !meta::repo().read(readme).contains(&link))
         .map(|readme| format!("{readme} does not link a section of {EXAMPLE_DOC}"))
         .collect();
     assert!(problems.is_empty(), "{}", problems.join("\n"));
@@ -151,7 +151,7 @@ fn compose_files_harden_bit_gauge() {
     let timings = image_timings();
     let mut problems = Vec::new();
     for relative in COMPOSE_FILES {
-        let content = repo::read(&format!("{EXAMPLES_DIR}/{relative}"));
+        let content = meta::repo().read(&format!("{EXAMPLES_DIR}/{relative}"));
         problems.extend(
             hardening_problems(&content, &timings)
                 .into_iter()
@@ -166,7 +166,7 @@ fn compose_files_harden_bit_gauge() {
 #[test]
 fn hardening_problems_catches_weakened_files() {
     let timings = image_timings();
-    let good = repo::read(&format!("{EXAMPLES_DIR}/compose-alone/compose.yaml"));
+    let good = meta::repo().read(&format!("{EXAMPLES_DIR}/compose-alone/compose.yaml"));
     let problems = hardening_problems(&good, &timings);
     assert!(
         problems.is_empty(),
@@ -286,7 +286,10 @@ fn config_problems(environment: Option<&Map<String, Value>>) -> Vec<String> {
 fn proxies_trust_only_themselves() {
     let mut problems = Vec::new();
     for (relative, target) in PROXY_TARGETS {
-        if !contains_trimmed_line(&repo::read(&format!("{EXAMPLES_DIR}/{relative}")), target) {
+        if !contains_trimmed_line(
+            &meta::repo().read(&format!("{EXAMPLES_DIR}/{relative}")),
+            target,
+        ) {
             problems.push(format!(
                 "{EXAMPLES_DIR}/{relative} does not proxy to {SERVICE}:{PORT}"
             ));
@@ -340,7 +343,7 @@ fn proxies_trust_only_themselves() {
 fn readme_shows_the_shipped_compose() {
     const README: &str = "README.md";
     let prefix = format!("{EXAMPLES_DIR}/");
-    let (blocks, mut problems) = linked_blocks(&repo::read(README), &prefix);
+    let (blocks, mut problems) = linked_blocks(&meta::repo().read(README), &prefix);
     problems = problems
         .into_iter()
         .map(|problem| format!("{README}: {problem}"))
@@ -348,7 +351,7 @@ fn readme_shows_the_shipped_compose() {
     let want = format!("{prefix}compose-alone/compose.yaml");
     match blocks.as_slice() {
         [only] if only.link == want => {
-            if only.body != repo::read(&want) {
+            if only.body != meta::repo().read(&want) {
                 problems.push(format!(
                     "{README}:{}: the block differs from {want}",
                     only.line
@@ -569,7 +572,7 @@ fn hardening_problems(content: &str, timings: &[(&str, String)]) -> Vec<String> 
 
 /// The healthcheck timings of the image's HEALTHCHECK, keyed as a compose healthcheck names them.
 fn image_timings() -> Vec<(&'static str, String)> {
-    let dockerfile = repo::read(SHIPPED_DOCKERFILE);
+    let dockerfile = meta::repo().read(SHIPPED_DOCKERFILE);
     let found = HEALTHCHECK_RULE
         .captures(&dockerfile)
         .unwrap_or_else(|| panic!("{SHIPPED_DOCKERFILE} has no HEALTHCHECK with timings"));
@@ -601,7 +604,7 @@ fn proxy_address(proxy: &Value) -> String {
 
 fn parse_compose(relative: &str) -> Value {
     let path = format!("{EXAMPLES_DIR}/{relative}");
-    let file: Option<Map<String, Value>> = serde_saphyr::from_str(&repo::read(&path))
+    let file: Option<Map<String, Value>> = serde_saphyr::from_str(&meta::repo().read(&path))
         .unwrap_or_else(|error| panic!("{path}: {error}"));
     Value::Object(file.unwrap_or_default())
 }
