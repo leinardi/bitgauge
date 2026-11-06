@@ -1,0 +1,49 @@
+{
+  "about": {
+    "tagline": "Test di velocità della rete sul tuo server",
+    "clients": {
+      "title": "Usa altri client",
+      "intro": "Questo server supporta i protocolli LibreSpeed e OpenSpeedTest e può fornire una configurazione per Apple networkQuality: puoi quindi eseguire test dal terminale o da un'altra interfaccia. L'amministratore sceglie quali abilitare."
+    },
+    "unreachable": "I comandi qui sotto usano l'indirizzo di questa pagina, {origin}. Finché il server non risponde, BitGauge non può verificare quali client siano abilitati né conoscere il nome del server.",
+    "layers": {
+      "off": "Disabilitato", "notConfirmed": "Da verificare", "offTitle": "Non abilitato su questo server: può abilitarlo l'amministratore.",
+      "openspeedtest": {
+        "name": "Interfaccia web OpenSpeedTest™", "tag": "Interfaccia web",
+        "desc": "Apri la tua interfaccia OpenSpeedTest e indirizzala a questo server con il parametro Host.",
+        "offWhat": "Gli endpoint del protocollo OpenSpeedTest sono disabilitati: l'interfaccia OpenSpeedTest non può eseguire test su questo server.",
+        "note": "Il link ai risultati nell'interfaccia OpenSpeedTest contatta OpenSpeedTest, non questo server."
+      },
+      "librespeed": {
+        "name": "librespeed-cli", "tag": "CLI", "desc": "Salva questo server in un elenco locale, poi esegui il client da riga di comando usando quell'elenco.",
+        "offWhat": "Gli endpoint del protocollo LibreSpeed sono disabilitati: librespeed-cli non può eseguire test su questo server."
+      },
+      "networkquality": {
+        "name": "networkQuality di macOS", "tag": "macOS 12+",
+        "desc": "Lo strumento integrato di Apple misura velocità di trasferimento e reattività (RPM). Configuralo con l'URL di configurazione di questo server.",
+        "offWhat": "La configurazione networkQuality non è disponibile: networkQuality -C non può usare questo server.",
+        "https": "Questa pagina non usa HTTPS. networkQuality richiede HTTPS tramite il reverse proxy (o server.public_url), quindi l'URL mostrato potrebbe non essere quello da usare.",
+        "note": "networkQuality richiede TLS 1.3 e HTTP/2 sul reverse proxy. Non funziona con HTTP/1.1 o HTTP non cifrato."
+      }
+    },
+    "snippets": {
+      "ostUrl": { "copy": "Copia URL di OpenSpeedTest" },
+      "serverList": { "caption": "bitgauge.json", "copy": "Copia bitgauge.json" },
+      "localJson": { "copy": "Copia comando librespeed-cli" },
+      "serverJson": { "caption": "Oppure scarica l'elenco da questo server tramite il client", "copy": "Copia comando librespeed-cli con URL dell'elenco server" },
+      "nqConfig": { "copy": "Copia comando networkQuality" },
+      "nqVerbose": { "caption": "Output dettagliato", "copy": "Copia comando networkQuality con output dettagliato" }
+    },
+    "snippet": { "copied": "Copiato", "copyFailed": "Copia non riuscita: seleziona il testo e copialo manualmente." },
+    "facts": {
+      "version": "Versione", "build": "{version} · {commit} · {date}", "license": "Licenza", "licenseValue": "GPL-3.0-or-later", "serverName": "Nome del server", "unknown": "—", "versionUnreachable": "— · server non raggiungibile"
+    },
+    "source": "Repository del codice sorgente", "licenseFile": "File LICENSE nel repository",
+    "methodology": {
+      "title": "Come funziona la misurazione",
+      "summary": "Download e upload usano uno o più flussi HTTP; la fase iniziale di assestamento viene esclusa dal calcolo della velocità. La latenza viene misurata prima a riposo tramite WebSocket (o HTTP, se non disponibile), poi sotto carico: l'aumento determina il voto del bufferbloat. Da questi valori derivano le valutazioni per streaming, gioco online e videochiamate.",
+      "link": "Metodologia nella documentazione di BitGauge"
+    },
+    "privacy": { "title": "Privacy", "body": "Nessun account, tracciamento o pubblicità. Il server non conserva risultati: la cronologia resta solo nel tuo browser." }
+  }
+}

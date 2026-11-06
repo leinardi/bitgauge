@@ -1,0 +1,83 @@
+{
+  "settings": {
+    "title": "Impostazioni",
+    "saved": "Salvato",
+    "notSaved": "{n} valore non salvato | {n} valori non salvati",
+    "storageRefused": "Il browser non ha salvato la modifica, che resterà attiva fino alla chiusura della pagina.",
+    "intro": "Le modifiche vengono salvate automaticamente in questo browser e si applicano al prossimo test.",
+    "changedMark": "modificato", "fromLink": "dal link", "custom": "personalizzato", "loading": "Caricamento dei valori predefiniti del server…",
+    "preset": {
+      "title": "Profilo del test", "default": "Predefinito",
+      "names": { "quick": "Rapido", "standard": "Standard", "extended": "Approfondito", "continuous": "Continuo" },
+      "streamsAuto": "Flussi automatici", "streamsFixed": "{n} flusso fisso | {n} flussi fissi", "same": "{range} per direzione", "split": "{download} in download, {upload} in upload",
+      "pings": "{n} ping | {n} ping", "line": "{streams} · {durations} · {pings}",
+      "continuous": "{streams}, incremento come nel profilo Standard · una direzione fino all'arresto · {pings}"
+    },
+    "phases": {
+      "title": "Fasi", "idle": "Latenza", "download": "Download", "upload": "Upload", "order": "Ordine", "orderLabel": "Ordine delle fasi", "downloadFirst": "Prima download", "uploadFirst": "Prima upload",
+      "help": "La latenza a riposo viene misurata per prima. Disattiva una fase per testare solo le altre; almeno una deve restare attiva.",
+      "helpContinuous": "Il profilo Continuo misura solo la direzione scelta sopra. Se attiva, la latenza a riposo viene misurata per prima."
+    },
+    "continuous": {
+      "direction": "Direzione", "directionCaption": "Il profilo Continuo misura una sola direzione finché non lo fermi.", "directionLabel": "Direzione del test continuo",
+      "runLength": "Durata del test", "runLengthCaption": "Facoltativa, non impostata per default. Un numero intero di minuti, ore o giorni, da 1 minuto a 7 giorni.",
+      "switch": "Ferma dopo un tempo prestabilito", "unit": "Unità della durata", "units": { "minutes": "minuti", "hours": "ore", "days": "giorni" },
+      "none": "nessuna", "noLimit": "Nessun limite", "noRunLength": "nessuna durata impostata"
+    },
+    "connections": { "title": "Connessioni e limiti" },
+    "streams": {
+      "title": "Flussi paralleli",
+      "caption": "Automatici: aumenta i flussi secondo la sequenza {ramp} e si ferma quando aggiungerne altri non migliora la velocità. Fissi: da 1 a {max}. Singolo: una sola connessione.",
+      "auto": "Automatici", "fixed": "Fissi", "single": "Singolo", "count": "Numero di flussi", "countInput": "Flussi", "fewer": "Meno flussi", "more": "Più flussi"
+    },
+    "duration": {
+      "title": "Durata per direzione",
+      "caption": "Superata la durata minima, ogni direzione termina quando i risultati sono stabili. Su reti lente o instabili prosegue fino alla durata massima.",
+      "downloadMin": "Durata minima download in secondi", "downloadMax": "Durata massima download in secondi", "uploadMin": "Durata minima upload in secondi", "uploadMax": "Durata massima upload in secondi", "to": "–"
+    },
+    "cap": {
+      "title": "Limite dati per test", "caption": "Utile sulle connessioni mobili a consumo. Al raggiungimento del limite, la direzione in corso si ferma e il risultato viene contrassegnato.", "switch": "Limite dati", "input": "Limite dati in MB"
+    },
+    "display": { "title": "Aspetto e comportamento" },
+    "units": { "title": "Unità di misura", "bits": "Bit · Mbit/s", "bytes": "Byte · MB/s" },
+    "theme": { "title": "Tema" },
+    "language": { "title": "Lingua", "caption": "Sono elencate solo le lingue disponibili nell'app." },
+    "autoStart": {
+      "title": "Avvio automatico all'apertura della pagina", "caption": "Mostra prima un conto alla rovescia, così puoi annullare. Disponibile anche con {param}.", "switch": "Avvio automatico", "countdown": "Secondi del conto alla rovescia"
+    },
+    "label": {
+      "title": "Etichetta del risultato", "caption": "Facoltativa, fino a {max} caratteri. Precompila l'etichetta di ogni risultato in questo browser, come fa il parametro label del link per una singola apertura della pagina.",
+      "input": "Etichetta del risultato", "placeholder": "es. Wi-Fi cucina", "noLabel": "nessuna etichetta"
+    },
+    "advanced": { "title": "Avanzate", "summary": "Assestamento iniziale, numero di ping, compensazione dell'overhead" },
+    "warmup": { "title": "Assestamento iniziale", "caption": "In automatico termina quando la velocità si stabilizza. I campioni raccolti in questa fase vengono scartati.", "auto": "Automatico", "fixed": "Fisso", "input": "Secondi di assestamento iniziale" },
+    "pings": { "title": "Numero di ping", "caption": "Usati per latenza a riposo e jitter. Valore predefinito del profilo: {n}.", "captionServer": "Usati per latenza a riposo e jitter. Valore predefinito del server: {n}.", "input": "Numero di ping", "suffix": "ping" },
+    "overhead": {
+      "title": "Compensazione dell'overhead", "caption": "Aggiunge alla velocità misurata una stima dei dati aggiuntivi dei protocolli. Se diversa da 0 %, viene indicata accanto a ogni valore.",
+      "none": "Nessuna · 0 %", "libreSpeed": "Predefinita LibreSpeed · 6 %", "ipv6": "IPv6 · 5,13 %", "alternative": "Alternativa · 3,69 %", "alternative2": "Alternativa 2 · 8,1 %", "other": "{percent} %"
+    },
+    "share": {
+      "title": "Link da condividere", "caption": "Apre BitGauge con le impostazioni che differiscono dai valori predefiniti.", "url": "URL da condividere", "copy": "Copia link", "copied": "Link copiato",
+      "copyFailed": "Copia del link non riuscita: selezionalo e copialo manualmente.", "includeRun": "Includi {param} (avvio automatico)", "notInLink": "Non inclusi nel link: {names}"
+    },
+    "changed": {
+      "title": "Modifiche ai valori predefiniti", "none": "Tutte le impostazioni hanno il valore predefinito.", "default": "predefinito: {value}", "reset": "Ripristina {name}", "resetAll": "Ripristina tutti i valori predefiniti",
+      "confirmTitle": "Ripristinare tutte le impostazioni?",
+      "confirmBody": "{n} impostazione tornerà al valore predefinito: {names}. La cronologia dei test non verrà modificata. | {n} impostazioni torneranno ai valori predefiniti: {names}. La cronologia dei test non verrà modificata.",
+      "cancel": "Annulla", "close": "Chiudi", "confirm": "Ripristina tutto"
+    },
+    "names": {
+      "preset": "Profilo", "phases": "Fasi", "streams": "Flussi paralleli", "download": "Durata download", "upload": "Durata upload", "durations": "Durate per direzione", "continuousDirection": "Direzione del test continuo",
+      "runLengthS": "Durata del test", "dataCapBytes": "Limite dati", "units": "Unità di misura", "theme": "Tema", "lang": "Lingua", "label": "Etichetta del risultato", "autoStart": "Avvio automatico", "countdown": "Conto alla rovescia per l'avvio", "warmup": "Assestamento iniziale", "pingCount": "Numero di ping", "overheadCompensationPercent": "Compensazione dell'overhead"
+    },
+    "values": {
+      "none": "Nessuno", "off": "Disattivato", "on": "Attivato", "browser": "Lingua del browser", "system": "Sistema", "light": "Chiaro", "dark": "Scuro", "bits": "Bit", "bytes": "Byte", "auto": "Automatico", "single": "Singolo", "fixed": "Fissi · {n}",
+      "seconds": "{n} s", "secondsUnit": "s", "megabytesUnit": "MB", "range": "{min}–{max} s", "megabytes": "{n} MB", "autoStart": "{state} · {n} s", "fixedWarmup": "Fisso · {n} s", "overhead": "+{n} %", "download": "Download", "upload": "Upload",
+      "runLength": { "minutes": "{n} min", "hours": "{n} h", "days": "{n} g" }
+    },
+    "errors": {
+      "duration": "Inserisci secondi interi da 5 s a 10 min (600 s).", "minAboveMax": "Non può superare il massimo ({max} s).", "maxBelowMin": "Non può essere inferiore al minimo ({min} s).",
+      "range": "Inserisci un numero intero da {min} a {max}.", "label": "Usa al massimo {max} caratteri.", "runLength": "La durata deve essere compresa tra 1 minuto e 7 giorni.", "notSaved": "Non salvato · Esc ripristina {value}."
+    }
+  }
+}

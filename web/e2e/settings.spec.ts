@@ -29,6 +29,17 @@
 import { expectAccessible } from './fixtures/axe'
 import { expect, test } from './fixtures/test'
 
+// Additional locales get smoke coverage only; testing.md section 4 keeps the full matrices English-only.
+test('smoke: loads Italian and switches back to English', async ({ page }) => {
+  await page.goto('/settings?lang=it')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Impostazioni')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'it')
+  await page.getByRole('combobox', { name: 'Lingua' }).click()
+  await page.getByRole('option', { name: /^english$/i }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Settings')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+})
+
 test('stores a change at once, which the Test screen and the shareable link follow', async ({ page }) => {
   await page.goto('/settings')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Settings')

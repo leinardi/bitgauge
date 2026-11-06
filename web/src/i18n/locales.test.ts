@@ -23,10 +23,10 @@
 // in the application's catalog, every key the sources use present, and a key for every code the
 // engine sends: each notice's title, each error's message key, each phase's announcement.
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import type { EngineErrorCode, NoticeCode, PhaseName } from '@/engine/messages'
-import { createAppI18n } from '@/i18n'
+import { createAppI18n, loadLocaleMessages, SUPPORTED_LOCALES } from '@/i18n'
 
 const files = import.meta.glob<Record<string, object>>('/src/i18n/locales/en/*.json', { import: 'default', eager: true })
 
@@ -45,6 +45,65 @@ function keys(catalog: object, prefix = ''): string[] {
 
 const catalog = Object.assign({}, ...Object.values(files)) as object
 const known = new Set(keys(catalog))
+
+const translations = import.meta.glob<Record<string, object>>('/src/i18n/locales/it/*.json', { import: 'default', eager: true })
+
+function messageAt(messages: object, key: string): string {
+  return key.split('.').reduce<unknown>((node, part) => (node as Record<string, unknown>)[part], messages) as string
+}
+
+function placeholders(message: string): string[] {
+  return [...new Set([...message.matchAll(/\{([a-zA-Z][\w]*)\}/g)].map((match) => match[1]))].sort() as string[]
+}
+
+describe('the Italian catalog', () => {
+  const italian = Object.assign({}, ...Object.values(translations)) as object
+
+  it('ships a complete set of namespaces and keys, without relying on fallback', () => {
+    expect(Object.keys(translations)).toHaveLength(Object.keys(files).length)
+    for (const [path, file] of Object.entries(translations)) {
+      expect(Object.keys(file)).toEqual([path.split('/').at(-1)?.replace('.json', '')])
+    }
+    expect(new Set(keys(italian))).toEqual(known)
+  })
+
+  it('preserves named placeholders in every plural form', () => {
+    for (const key of known) {
+      const source = messageAt(catalog, key).split('|')
+      const translated = messageAt(italian, key).split('|')
+      expect(translated, key).toHaveLength(source.length)
+      translated.forEach((form, index) => {
+        expect(form.trim(), key).not.toBe('')
+        expect(placeholders(form), key).toEqual(placeholders(source[index] ?? ''))
+      })
+    }
+  })
+
+  it('loads on demand and compiles every message, including plural forms', async () => {
+    expect(SUPPORTED_LOCALES).toContain('it')
+    const i18n = createAppI18n('?lang=it', ['en'])
+    expect(document.documentElement.lang).toBe('it')
+    expect(i18n.global.availableLocales).not.toContain('it')
+    await loadLocaleMessages(i18n, 'it')
+    expect(new Set(keys(i18n.global.getLocaleMessage('it')))).toEqual(known)
+    const warning = vi.spyOn(console, 'warn')
+    try {
+      for (const key of known) {
+        const params = Object.fromEntries(placeholders(messageAt(italian, key)).map((name) => [name, 'esempio']))
+        for (const n of [0, 1, 2]) {
+          // eslint-disable-next-line @intlify/vue-i18n/no-dynamic-keys -- Compile every catalog entry, not a runtime UI key.
+          expect(i18n.global.t(key, { ...params, n }, n), key).not.toBe(key)
+        }
+      }
+      expect(warning).not.toHaveBeenCalled()
+    } finally {
+      warning.mockRestore()
+    }
+    expect(i18n.global.t('test.start.start')).toBe('Avvia test')
+    expect(i18n.global.t('settings.notSaved', { n: 1 }, 1)).toBe('1 valore non salvato')
+    expect(i18n.global.t('settings.notSaved', { n: 2 }, 2)).toBe('2 valori non salvati')
+  })
+})
 
 function camel(code: string): string {
   return code.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase())

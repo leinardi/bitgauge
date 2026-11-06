@@ -37,8 +37,19 @@ import test from '@/i18n/locales/en/test.json'
 const en = { ...app, ...test, ...notices, ...errors, ...history, ...settings, ...about, ...result, ...share, ...a11y }
 
 /** The shipped locales, which the Settings screen offers. */
-export const SUPPORTED_LOCALES = ['en'] as const
+export const SUPPORTED_LOCALES = ['en', 'it'] as const
 type Locale = (typeof SUPPORTED_LOCALES)[number]
+
+/** Load non-English catalogs only when requested, keeping English as the fallback. */
+export async function loadLocaleMessages(i18n: { global: {
+  availableLocales: readonly string[]
+  setLocaleMessage: (locale: string, messages: typeof en) => void
+} }, locale: string): Promise<void> {
+  if (locale === 'it' && !i18n.global.availableLocales.includes('it')) {
+    const { default: messages } = await import('@/i18n/locales/it')
+    i18n.global.setLocaleMessage('it', messages)
+  }
+}
 
 function supported(tag: string): Locale | null {
   const lower = tag.toLowerCase()

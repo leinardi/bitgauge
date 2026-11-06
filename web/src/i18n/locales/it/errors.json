@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "invalid-settings": "le impostazioni del test non sono valide",
+    "requests-failed": "3 richieste consecutive non riuscite",
+    "rate-limited": "{server} ha applicato il limite di frequenza a una richiesta durante la fase {phase}; il test si è fermato dopo 3 richieste consecutive non riuscite.",
+    "server-busy": "{server} era occupato e ha rifiutato una richiesta durante la fase {phase}; il test si è fermato dopo 3 richieste consecutive non riuscite.",
+    "network-changed": "la rete è cambiata",
+    "server-restarted": "il server è stato riavviato",
+    "server-unreachable": "il server ha smesso di rispondere"
+  }
+}

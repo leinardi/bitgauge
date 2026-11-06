@@ -1,0 +1,53 @@
+{
+  "history": {
+    "title": "Cronologia",
+    "count": { "shown": "{shown} su {total} corrispondenti", "none": "0 risultati", "unavailable": "Non salvati in questa finestra", "loading": "Caricamento…", "usage": "{size} utilizzati" },
+    "import": {
+      "action": "Importa JSON", "busy": "Importazione…", "file": "Scegli un file JSON esportato da BitGauge", "progressTitle": "Importazione di {file}", "progressBody": "Verifica dei risultati…", "progressCount": "Verifica del risultato {n} su {total}… | Verifica dei risultati: {n} su {total}…", "progressLabel": "Avanzamento dell'importazione", "cancel": "Annulla", "doneTitle": "{file} importato", "noneTitle": "Nessun risultato importato da {file}",
+      "summary": "{added} aggiunti, {skipped} ignorati perché duplicati, {rejected} rifiutati", "added": "{n} aggiunti", "skipped": "{n} ignorati", "rejected": "{n} rifiutati", "newerSchema": "risultato {position}: la versione {version} dello schema è più recente di quella supportata dall'app", "invalid": "risultato {position}: {detail}", "failedTitle": "Impossibile importare {file}", "unchanged": "La cronologia non è stata modificata.", "another": "Scegli un altro file", "dismiss": "Chiudi",
+      "refused": {
+        "csv": "È possibile importare solo file JSON esportati da BitGauge. I file CSV sono riepiloghi e non possono essere ripristinati.", "notJson": "Il file non è in formato JSON. È possibile importare solo file JSON esportati da BitGauge.", "notHistory": "Il file non è un'esportazione della cronologia di BitGauge (formato bitgauge.history, versione 1).", "tooLarge": "Il file supera i 10 MB, il limite massimo per l'importazione.", "unreadable": "Il browser non è riuscito a leggere il file.", "unavailable": "Cronologia non disponibile in questa modalità del browser: i risultati non vengono salvati.", "writeFailed": "Il browser non ha consentito di salvare i risultati."
+      }
+    },
+    "export": {
+      "action": "Esporta", "json": "Esporta JSON", "jsonSub": "Campioni completi · reimportabile", "csv": "Esporta CSV", "csvSub": "Una riga per test · solo riepilogo", "all": "Tutti i risultati ({n})", "filtered": "Filtro attuale ({n})", "warning": "Contiene indirizzi IP dei client, etichette e note. I file vengono creati nel tuo browser.", "invalid": "Un risultato salvato non ha superato la convalida: il file JSON non è stato creato."
+    },
+    "clear": {
+      "action": "Cancella tutto", "title": "Cancellare tutta la cronologia?", "body": "Verrà rimosso da questo browser {n} risultato con la relativa etichetta e nota. L'operazione non può essere annullata. Esporta prima i dati se vuoi conservarne una copia. | Verranno rimossi da questo browser {n} risultati con le relative etichette e note. L'operazione non può essere annullata. Esporta prima i dati se vuoi conservarne una copia.", "exportFirst": "Prima esporta JSON", "cancel": "Annulla", "close": "Chiudi", "confirm": "Cancella {n} risultato | Cancella {n} risultati"
+    },
+    "origin": {
+      "title": "Salvata solo in questo browser, per {origin}", "why": "Perché?", "body": "I browser separano i dati dei siti in base a schema, host e porta. Aprendo BitGauge da un altro indirizzo, ad esempio tramite IP invece del nome, o da un'altra porta, vedrai una cronologia diversa e vuota. Il server non conserva risultati. Esportali in JSON per trasferirli."
+    },
+    "safari": { "title": "Safari potrebbe eliminare questa cronologia", "body": "Safari elimina i dati dei siti non visitati per 7 giorni di navigazione. Esporta una copia JSON per conservare i risultati.", "export": "Esporta JSON", "dismiss": "Chiudi" },
+    "empty": { "title": "Ancora nessun risultato", "body": "Ogni test completato viene salvato qui automaticamente, con etichetta e nota. Esegui un test su questo dispositivo oppure importa un file JSON esportato da un altro browser.", "start": "Avvia un test" },
+    "unavailable": { "title": "Cronologia non disponibile in questa finestra", "body": "In questa modalità del browser i risultati non vengono salvati. Il browser non consente al sito di memorizzare dati, di solito perché la finestra è privata. Puoi comunque eseguire test e scaricare ogni risultato in JSON. Apri BitGauge in una finestra normale per conservare la cronologia." },
+    "loading": "Caricamento della cronologia",
+    "noMatch": {
+      "title": "Nessun risultato corrisponde a questi filtri", "nothing": "Nessun risultato", "nothingWith": "Nessun risultato {parts}", "context": "con contesto {values}", "label": "con etichetta {values}", "days": "negli ultimi {n} giorni", "between": "con data {range}", "matches": "{what} corrisponde.", "matchesQuery": "{what} corrisponde a «{q}».", "still": "Il risultato è ancora nella cronologia ({n}). | Tutti i {n} risultati sono ancora nella cronologia.", "clear": "Rimuovi filtri"
+    },
+    "filters": {
+      "context": "Contesto", "contextGroup": "Filtra per etichetta di contesto", "label": "Etichetta", "labelGroup": "Filtra per etichetta", "allContexts": "Tutti", "anyLabel": "Qualsiasi etichetta", "search": "Cerca", "searchPlaceholder": "Cerca in etichette e note",
+      "range": { "label": "Intervallo di date", "presets": "Intervallo predefinito", "all": "Da sempre", "days7": "Ultimi 7 giorni", "days30": "Ultimi 30 giorni", "days90": "Ultimi 90 giorni", "custom": "Intervallo personalizzato", "from": "Data iniziale", "to": "Data finale", "cancel": "Annulla", "apply": "Applica" }
+    },
+    "trend": {
+      "title": "Andamento", "meta": "{n} risultati · {range}", "metaOne": "1 risultato · {day}", "today": "Oggi", "todayLower": "oggi", "single": "L'andamento compare dal secondo risultato.", "legend": "Legenda", "complete": "Completo", "incomplete": "Parziale o con errore", "metric": "Metrica", "download": "Download", "upload": "Upload", "latency": "Latenza a riposo", "latencyShort": "Latenza", "log": "log", "linear": "lineare", "aria": "Andamento di {title}, {results}, {hollow} parziali o con errore", "ariaResults": "{n} risultato | {n} risultati"
+    },
+    "table": {
+      "results": "Risultati", "select": "Seleziona", "selectRow": "Seleziona {label}, {date}", "actions": "Azioni per {label}", "open": "Apri", "delete": "Elimina", "noLabel": "Senza etichetta", "ms": "ms", "notGraded": "Non valutato · {reason}", "grade": "Voto {grade} · bufferbloat {word}",
+      "columns": { "startedAt": "Data", "label": "Etichetta", "contextLabel": "Contesto", "protocol": "Protocollo", "status": "Stato", "download": "Download", "upload": "Upload", "idle": "Latenza", "jitter": "Jitter", "grade": "Voto" },
+      "status": { "complete": "Completo", "partial": "Parziale", "error": "Errore" }
+    },
+    "more": { "showing": "{shown} risultati su {total}", "button": "Mostra altri {n}" },
+    "sort": { "label": "Ordina", "newest": "Più recenti prima", "oldest": "Meno recenti prima", "download": "Download più veloce prima", "upload": "Upload più veloce prima", "latency": "Latenza più bassa prima", "grade": "Voto migliore prima" },
+    "selection": { "label": "Selezione", "count": "{n} selezionati", "pair": "{label} · {days}", "clear": "Deseleziona tutto", "delete": "Elimina selezionati", "compare": "Confronta", "compareHint": "Seleziona esattamente 2 risultati per confrontarli" },
+    "deleted": { "title": "Risultato eliminato. | {n} risultati eliminati.", "undo": "Annulla", "restored": "Risultato ripristinato." },
+    "compare": {
+      "title": "Confronta risultati", "description": "La variazione è quella di B rispetto ad A", "descriptionPaged": "La variazione è mostrata su B, rispetto ad A", "close": "Chiudi", "done": "Fine", "copy": "Copia confronto", "copyShort": "Copia", "copied": "Confronto copiato.", "apart": "Non direttamente confrontabili:", "metric": "Metrica", "change": "Variazione", "column": "{side} · {label}", "parameters": "Parametri", "results": "Risultati", "label": "Etichetta", "context": "Contesto", "preset": "Profilo", "protocol": "Protocollo", "streams": "Flussi", "streamsAuto": "Automatici, fino a {max}", "streamsFixed": "Fissi: {n}", "streamsSingle": "Singolo", "cap": "Limite dati", "noCap": "Nessuno", "browser": "Browser", "download": "Download", "upload": "Upload", "peakDownload": "Picco · download", "peakUpload": "Picco · upload", "idle": "Latenza a riposo", "jitter": "Jitter", "loadedDownload": "Latenza sotto carico · download", "loadedUpload": "Latenza sotto carico · upload", "grade": "Voto bufferbloat",
+      "rpmDownload": "Reattività HTTP sotto carico — condivisione della connessione non verificabile · download", "rpmUpload": "Reattività HTTP sotto carico — condivisione della connessione non verificabile · upload", "rpmValue": "{rpm} RPM · {state} · {protocol}", "rpmState": "{state} · {protocol}",
+      "rpmStates": { "measured": "misurata", "uncertain": "incerta", "needsH2": "richiede HTTP/2 o HTTP/3 sul reverse proxy", "treatedH1": "protocollo non comunicato: trattato come HTTP/1.1", "insufficient": "campioni insufficienti" },
+      "quality": "Qualità · {name}", "notScored": "non valutato", "loss": "Sonde scadute", "data": "Dati utilizzati", "duration": "Durata", "better": "migliore", "worse": "peggiore", "same": "uguale", "notComparable": "non confrontabile", "differs": "diverso", "page": "Risultato {side} · {n} di 2", "previous": "Risultato precedente", "next": "Risultato successivo", "cards": "Risultati, scorri per cambiare pagina", "result": "Risultato {side}",
+      "differentLabel": "etichette diverse ({a} e {b})", "differentPreset": "profili diversi ({a} e {b})", "differentProtocol": "protocolli diversi ({a} e {b})", "differentOverhead": "compensazioni dell'overhead diverse ({a} e {b})", "qualified": "{value} ({qualifiers})", "durationOf": "Durata · {direction}", "bounds": "{min}–{max} s", "then": ", ", "vsIdle": "rispetto al valore a riposo via {path}", "sourceIdle": "{source}, a riposo via {path}", "lastHour": "ultima ora", "peakLastHour": "p90 dell'ultima ora", "basis": { "download": "solo download", "upload": "solo upload", "both": "peggiore tra download e upload" },
+      "differentBasis": "{name}: basi di misurazione diverse ({a} e {b})", "copyField": "Confronto in formato testuale", "copyManual": "Il browser non ha consentito la copia: seleziona il testo qui sotto e copialo."
+    }
+  }
+}

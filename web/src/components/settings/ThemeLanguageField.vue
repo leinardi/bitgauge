@@ -18,7 +18,7 @@
 -->
 <script setup lang="ts">
 import { Languages, Monitor, Moon, Sun } from '@lucide/vue'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useSettingsForm } from '@/components/settings/form'
@@ -26,7 +26,7 @@ import SegmentedControl from '@/components/settings/SegmentedControl.vue'
 import SettingRow from '@/components/settings/SettingRow.vue'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useTheme } from '@/composables/useTheme'
-import { SUPPORTED_LOCALES } from '@/i18n'
+import { detectLocale, loadLocaleMessages, SUPPORTED_LOCALES } from '@/i18n'
 import type { ThemeChoice } from '@/lib/settingsStorage'
 
 // The theme and the language (ui/screens.md section 4, kit Settings.jsx): the theme in effect, as
@@ -34,7 +34,8 @@ import type { ThemeChoice } from '@/lib/settingsStorage'
 // here applies at once and is the second step of locale detection on the next load
 // (ui/i18n-a11y.md section 1.2).
 
-const { t, locale } = useI18n({ useScope: 'global' })
+const composer = useI18n({ useScope: 'global' })
+const { t, locale } = composer
 const form = useSettingsForm()
 const { choice } = useTheme()
 
@@ -50,12 +51,22 @@ const themes = computed(() => [
 
 const languages = computed(() => SUPPORTED_LOCALES.map((tag) => ({ tag, name: new Intl.DisplayNames([tag], { type: 'language' }).of(tag) ?? tag })))
 
+// Follow edits and resets alike; a reset returns to browser-language detection.
+watch(() => form.valueOf('lang'), async (tag, _previous, onCleanup) => {
+  let cancelled = false
+  onCleanup(() => { cancelled = true })
+  const next = detectLocale('', navigator.languages ?? [], typeof tag === 'string' ? tag : null)
+  await loadLocaleMessages({ global: composer }, next)
+  if (!cancelled) {
+    locale.value = next
+    document.documentElement.lang = next
+  }
+}, { immediate: true })
+
 function choose(tag: unknown): void {
   const shipped = SUPPORTED_LOCALES.find((supported) => supported === tag)
   if (shipped !== undefined) {
     form.set({ lang: shipped })
-    locale.value = shipped
-    document.documentElement.lang = shipped
   }
 }
 </script>

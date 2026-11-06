@@ -153,6 +153,13 @@ Run against the real binary (the built image or the release binary `make build` 
 - CSP violations reported as test failures.
 - Accessibility checks with axe on every screen.
 
+**Additional languages get smoke coverage only.** The full flow, accessibility, theme and viewport
+matrices run in English, not once per locale. Add one quick smoke test per additional language in
+each configured browser: open a localized page, check a translated heading and `<html lang>`, then
+switch back to English. Do not run a speed test, repeat the screen tour or add per-locale axe scans.
+Catalog completeness, placeholders, plurals and locale-selection rules belong in unit/component
+tests (§3), not additional end-to-end flows.
+
 Playwright's WebKit is not Safari: Worker XHR upload progress, `nextHopProtocol` and suspension
 behavior are re-checked manually on real Safari (macOS) and iOS Safari before each release
 ([../edge-cases.md §17](../edge-cases.md#17-safari-and-ios-quirks)).

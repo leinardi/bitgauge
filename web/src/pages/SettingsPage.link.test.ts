@@ -205,6 +205,25 @@ describe('an edit under the link preset', () => {
 })
 
 describe('an edit of each field, then the Test screen without a reload', () => {
+  it('applies Italian after loading its catalog and restores the browser language on reset', async () => {
+    const { app, router } = await openFromLink()
+    await app.get('[aria-label="Language"]').trigger('keydown', { key: 'Enter' })
+    await flushPromises()
+    const italian = new DOMWrapper(document.body).findAll('[role="option"]').find((item) => item.text() === 'italiano')
+    expect(italian).toBeDefined()
+    await italian?.trigger('keydown', { key: 'Enter' })
+    await vi.waitFor(() => expect(app.get('h1').text()).toBe('Impostazioni'))
+    expect(stored()).toMatchObject({ lang: 'it' })
+    expect(query(router)).not.toContain('lang')
+    expect(document.documentElement.lang).toBe('it')
+    await app.get('[data-testid="changed-lang"] button').trigger('click')
+    await flushPromises()
+    expect(app.get('h1').text()).toBe('Settings')
+    expect(document.documentElement.lang).toBe('en')
+    expect(stored()).not.toHaveProperty('lang')
+    app.unmount()
+  })
+
   it('runs with the stored values, the parameters gone from the address', async () => {
     const { app, router } = await openFromLink()
     await option(app, 'Units', 'Bits · Mbit/s').trigger('click')
@@ -218,11 +237,13 @@ describe('an edit of each field, then the Test screen without a reload', () => {
     await app.get('[data-testid="preset-standard"]').trigger('click')
     await flushPromises()
     expect(query(router)).toEqual(['lang'])
-    // English is the only shipped language, so choosing it stores the link's own language.
+    // Choosing English stores the link's own language.
     const trigger = app.get('[aria-label="Language"]')
     await trigger.trigger('keydown', { key: 'Enter' })
     await flushPromises()
-    await new DOMWrapper(document.body).get('[role="option"]').trigger('keydown', { key: 'Enter' })
+    const english = new DOMWrapper(document.body).findAll('[role="option"]').find((item) => item.text() === 'English')
+    expect(english).toBeDefined()
+    await english?.trigger('keydown', { key: 'Enter' })
     await flushPromises()
     expect(query(router)).toEqual([])
     expect(stored()).toMatchObject({ lang: 'en' })

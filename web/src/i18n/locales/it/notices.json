@@ -1,0 +1,62 @@
+{
+  "notices": {
+    "slowLinkExtended": {
+      "title": "Test prolungato", "download": "Alla durata minima il download non aveva ancora un intervallo stabile, quindi è stato prolungato fino alla durata massima.", "upload": "Alla durata minima l'upload non aveva ancora un intervallo stabile, quindi è stato prolungato fino alla durata massima.", "both": "Alla durata minima né il download né l'upload avevano un intervallo stabile, quindi entrambi sono stati prolungati fino alla rispettiva durata massima."
+    },
+    "lowConfidence": { "title": "Bassa attendibilità", "download": "Download: {reasons}.", "upload": "Upload: {reasons}." },
+    "dataCapReached": { "title": "Limite dati raggiunto", "download": "Il download si è fermato al limite dati; le misurazioni raccolte fino a quel momento vengono mantenute.", "upload": "L'upload si è fermato al limite dati; le misurazioni raccolte fino a quel momento vengono mantenute." },
+    "dataUsed": { "title": "Dati utilizzati: {data}", "body": "Questo test ha superato {data}. Il prossimo avviso comparirà a {next}.", "passed": "Questo test ha superato {data}." },
+    "streamLimit": { "title": "Limite flussi del server — {n} flusso | Limite flussi del server — {n} flussi", "download": "Il server ha rifiutato ulteriori flussi paralleli: il download ne ha usati al massimo {n}.", "upload": "Il server ha rifiutato ulteriori flussi paralleli: l'upload ne ha usati al massimo {n}." },
+    "rateLimited": {
+      "title": "Limite di frequenza del server", "titleTableFull": "Server occupato",
+      "rate": {
+        "download": "Il limite di frequenza del server ha bloccato alcune richieste di download. Il download ha atteso come richiesto dal server, poi è proseguito: il valore misurato potrebbe quindi essere inferiore alla capacità della connessione.",
+        "upload": "Il limite di frequenza del server ha bloccato alcune richieste di upload. L'upload ha atteso come richiesto dal server, poi è proseguito: il valore misurato potrebbe quindi essere inferiore alla capacità della connessione."
+      },
+      "tableFull": {
+        "download": "Il server stava gestendo troppi client e ha rifiutato alcune richieste di download. Il download ha atteso come richiesto dal server, poi è proseguito: il valore misurato potrebbe quindi essere inferiore alla capacità della connessione.",
+        "upload": "Il server stava gestendo troppi client e ha rifiutato alcune richieste di upload. L'upload ha atteso come richiesto dal server, poi è proseguito: il valore misurato potrebbe quindi essere inferiore alla capacità della connessione."
+      },
+      "notRetried": { "download": "Alcune richieste di download sono state rifiutate e non sono state ritentate prima della fine della fase.", "upload": "Alcune richieste di upload sono state rifiutate e non sono state ritentate prima della fine della fase." }
+    },
+    "insufficientData": {
+      "uploadInterrupted": "Una richiesta non riuscita ha interrotto l'upload prima di ottenere un intervallo stabile confermato abbastanza lungo da calcolare un valore.", "title": "{direction}: dati insufficienti", "directions": { "download": "Download", "upload": "Upload" },
+      "download": "Il download non ha ottenuto un intervallo stabile confermato abbastanza lungo da calcolare un valore.", "upload": "L'upload non ha ottenuto un intervallo stabile confermato abbastanza lungo da calcolare un valore.",
+      "downloadMax": "Il download ha raggiunto la durata massima di {max} senza un intervallo stabile confermato abbastanza lungo da calcolare un valore.", "uploadMax": "L'upload ha raggiunto la durata massima di {max} senza un intervallo stabile confermato abbastanza lungo da calcolare un valore.",
+      "downloadCap": "Il download si è fermato al limite dati prima di ottenere un intervallo stabile confermato abbastanza lungo da calcolare un valore.", "uploadCap": "L'upload si è fermato al limite dati prima di ottenere un intervallo stabile confermato abbastanza lungo da calcolare un valore.", "used": "{data} utilizzati.",
+      "offer": { "standard": "Il profilo Standard concede fino a 20 s per il download e 25 s per l'upload.", "extended": "Il profilo Approfondito concede fino a 40 s per direzione." }
+    },
+    "urlParameterIgnored": {
+      "title": "Parametro URL ignorato", "body": "{parameter}={value} ignorato; valori ammessi: {allowed}. {stays}; gli altri parametri del link sono stati applicati.",
+      "allowed": { "count": "1–{max}", "duration": "5–600 s", "runLength": "60–604800 s", "cap": "almeno 1 MiB, 0 oppure none", "label": "al massimo 64 caratteri" },
+      "stays": {
+        "run": "Il test attende il comando Avvia", "test": "Le fasi restano impostate su {value}", "preset": "Il profilo resta {value}", "duration": "Le durate restano quelle del profilo", "durations": "Le durate restano {range}", "durationsSplit": "Le durate restano {download} per il download e {upload} per l'upload", "runLength": "La durata del test resta {value}", "noRunLength": "Il test non ha una durata impostata", "direction": "La direzione è {value}", "streams": "I flussi restano impostati su {value}", "cap": "Il limite dati resta {value}", "units": "Le unità di misura restano {value}", "lang": "La lingua resta {value}", "theme": "Il tema resta {value}", "label": "L'etichetta resta quella suggerita", "labelStored": "L'etichetta resta «{value}»", "default": "L'impostazione mantiene il valore predefinito"
+      },
+      "phases": { "idle": "latenza a riposo", "download": "download", "upload": "upload" }, "presets": { "quick": "Rapido", "standard": "Standard", "extended": "Approfondito", "continuous": "Continuo" }, "range": "{min}–{max} s", "runLength": { "minutes": "{n} min", "hours": "{n} h", "days": "{n} g" }, "streams": { "auto": "Automatici", "single": "Singolo" }, "themes": { "system": "Sistema", "light": "Chiaro", "dark": "Scuro" }, "none": "nessuno"
+    },
+    "stoppedEarly": {
+      "title": "Test annullato nella fase {phase}", "partialUpload": "Parziale — fermato in anticipo · upload basato su un intervallo stabile di {covered}", "phases": { "idle": "latenza", "download": "download", "upload": "upload" }, "completed": "Fasi completate: {phases}.", "notRun": "Fasi non eseguite: {phases}.",
+      "noProbe": "La connessione WebSocket si è chiusa e il tentativo di riaprirla non ha ricevuto risposta: non è stato possibile inviare sonde di latenza durante la fase {phase}.",
+      "downloadNone": "Il download si è fermato prima di un intervallo stabile di 3 s, quindi non ha un valore.", "downloadPartial": "Il download ha un intervallo stabile di {covered}, sufficiente per un valore parziale.",
+      "uploadNone": "L'upload si è fermato a {at}, prima di un intervallo stabile confermato di 3 s, quindi non ha un valore.", "uploadNoneWarmup": "L'upload si è fermato a {at}, prima di un intervallo stabile confermato di 3 s (ancora in fase di assestamento iniziale), quindi non ha un valore.",
+      "uploadNoneUntimed": "L'upload si è fermato prima di un intervallo stabile confermato di 3 s, quindi non ha un valore.", "uploadNoneWarmupUntimed": "L'upload si è fermato prima di un intervallo stabile confermato di 3 s (ancora in fase di assestamento iniziale), quindi non ha un valore.",
+      "uploadPartial": "L'upload si è fermato a {at}; le richieste in corso sono state annullate e il valore parziale deriva dalle {n} richieste confermate entro {end}.", "uploadPartialUntimed": "L'upload si è fermato; le richieste in corso sono state annullate e il valore parziale deriva dalle {n} richieste confermate.",
+      "latency": "Test fermato dopo {pings} ping su {count}. Il primo è un campione di assestamento: latenza a riposo e jitter derivano dagli altri {other}.", "latencyNotRun": "Test fermato dopo {pings} ping su {count}. Il primo è un campione di assestamento: latenza a riposo e jitter derivano dagli altri {other}; fasi non eseguite: {phases}."
+    },
+    "serverRestarted": { "title": "Server riavviato", "body": "Il server è stato riavviato durante il test: la fase in corso non restituisce risultati." },
+    "serverUnreachable": { "title": "Server non raggiungibile", "body": "Il server ha smesso di rispondere durante il test." },
+    "proxyBufferingSuspected": { "title": "Possibile buffering dell'upload", "body": "Le richieste di upload sono terminate molto dopo la lettura dei dati da parte del server: un proxy o il browser potrebbe trattenere in un buffer i corpi delle richieste." },
+    "browserUploadLimit": { "title": "{browser} potrebbe limitare l'upload", "body": "Su connessioni veloci, il valore di upload può essere limitato dal modo in cui {browser} invia i dati, non dalla rete; la misurazione è quella del server e resta valida. Confrontala con un altro browser sullo stesso dispositivo per distinguere le due cause." },
+    "uploadInterrupted": { "noNumber": "Una richiesta non riuscita ha fermato l'upload prima che potesse restituire un valore. HTTP/2 sul reverse proxy consente all'upload di proseguire in caso di errori transitori.", "title": "Upload interrotto da una richiesta non riuscita", "body": "Con HTTP/1.1 basta una richiesta non riuscita per fermare l'upload: il valore copre quindi l'intervallo fino all'errore. HTTP/2 sul proxy consente all'upload di proseguire in caso di errori transitori." },
+    "responseCompressionDetected": { "title": "Rilevata compressione della risposta", "body": "Un componente lungo il percorso ha compresso i dati del test: i valori di download potrebbero non riflettere la capacità della connessione." },
+    "overheadCompensation": { "title": "Compensazione dell'overhead +{percent}", "body": "Le velocità includono una maggiorazione di +{percent} per l'overhead dei protocolli." },
+    "timerThrottlingDetected": { "title": "Rilevato rallentamento dei timer", "body": "Il browser ha ritardato i timer del test mentre la pagina era visibile, ad esempio per il risparmio energetico. Mantieni lo schermo acceso durante i test." },
+    "pageHidden": { "title": "Pagina nascosta durante il test", "body": "Il browser ha mantenuto il test in esecuzione mentre la pagina era nascosta." },
+    "networkChanged": { "title": "Rete cambiata", "body": "La rete è cambiata durante il test; le fasi completate vengono mantenute." },
+    "websocketReopened": { "title": "WebSocket riaperto", "body": "La connessione per la latenza si è chiusa durante il test ed è stata riaperta." },
+    "websocketUnavailable": { "title": "WebSocket non disponibile — latenza via HTTP", "body": "Il server o un reverse proxy non ha accettato la connessione WebSocket: la latenza viene misurata con richieste HTTP. Altre schede aperte su questo indirizzo potrebbero occupare le 4 connessioni WebSocket del server.", "closed": "La connessione WebSocket si è chiusa dopo la misurazione a riposo: la latenza sotto carico viene misurata con richieste HTTP. La variazione rispetto al valore a riposo confronta quindi due percorsi diversi." },
+    "probeReservation": { "title": "Connessione riservata alle sonde HTTP/1.1 — {n} flussi", "body": "Una connessione HTTP/1.1 viene tenuta libera per la sonda di latenza: il test di velocità usa quindi al massimo {n} flussi." },
+    "basePathMismatch": { "title": "Percorso base non corrispondente", "body": "Il server è configurato per un percorso base diverso da quello di questa pagina." },
+    "actions": { "docs": "Guida all'installazione", "retry": "Riprova", "tryPreset": "Prova {preset}", "browserLimits": "Limiti noti dei browser", "dismiss": "Chiudi" }
+  }
+}

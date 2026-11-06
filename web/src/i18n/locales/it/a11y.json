@@ -1,0 +1,42 @@
+{
+  "a11y": {
+    "skip": "Vai al contenuto principale", "notifications": "Notifiche", "lessThan": "meno di {value}",
+    "live": {
+      "phase": {
+        "info": "Connessione al server", "idle": "Misurazione della latenza a riposo", "download": "Misurazione del download", "upload": "Misurazione dell'upload",
+        "continuousDownload": "Download continuo in corso.", "continuousUpload": "Upload continuo in corso."
+      },
+      "rate": { "download": "Download, {rate}", "upload": "Upload in invio, {rate}" },
+      "headline": { "download": "Risultato download: {rate}", "upload": "Risultato upload: {rate}" },
+      "stoppedNothing": "Test fermato; nessuna misurazione effettuata.",
+      "noHeadline": { "download": "Download terminato senza un valore misurabile", "upload": "Upload terminato senza un valore misurabile" }
+    },
+    "summary": {
+      "status": { "complete": "Test completato.", "partial": "Risultato parziale: il test è stato fermato in anticipo.", "error": "Test non riuscito. Le fasi completate prima dell'errore vengono mantenute." },
+      "download": { "measured": "Download {rate}.", "qualified": "Download {rate}, {qualifiers}.", "insufficient": "Download: dati insufficienti.", "skipped": "Download non eseguito.", "error": "Download non riuscito." },
+      "upload": { "measured": "Upload {rate}.", "qualified": "Upload {rate}, {qualifiers}.", "insufficient": "Upload: dati insufficienti.", "skipped": "Upload non eseguito.", "error": "Upload non riuscito." },
+      "continuous": {
+        "download": "Download medio {rate}, minimo dell'intero test {min}, massimo {max}",
+        "downloadPeak": "Download medio {rate}, minimo dell'intero test {min}, massimo {max}, picco {peak} come p90 dell'ultima ora",
+        "upload": "Upload medio {rate}, minimo dell'intero test {min}, massimo {max}",
+        "uploadPeak": "Upload medio {rate}, minimo dell'intero test {min}, massimo {max}, picco {peak} come p90 dell'ultima ora",
+        "sentence": "{figures}.", "qualified": "{figures}, {qualifiers}.", "downloadNotRun": "Download non eseguito.", "uploadNotRun": "Upload non eseguito."
+      },
+      "partial": "parziale, fermato in anticipo", "lowConfidence": "bassa attendibilità: {reasons}", "idle": "Latenza a riposo {median}.", "idleJitter": "Latenza a riposo {median}, jitter {jitter}.", "idleUnavailable": "Latenza a riposo non disponibile.",
+      "grade": "Voto bufferbloat {grade}, {words}, aumento di {increase} sotto carico.", "notGraded": "Bufferbloat non valutato: {reason}.",
+      "notGradedReasons": { "noIdle": "latenza a riposo assente", "noLoaded": "latenza sotto carico assente", "noGradable": "nessuna direzione valutabile", "incomplete": "test incompleto" },
+      "grades": { "aPlus": "bufferbloat minimo", "a": "bufferbloat basso", "b": "bufferbloat lieve", "c": "bufferbloat moderato", "d": "bufferbloat elevato", "f": "bufferbloat grave" },
+      "responsiveness": "Reattività HTTP sotto carico, condivisione della connessione non verificabile, su {protocol}: {directions}.",
+      "responsivenessNotReported": "Reattività HTTP sotto carico, condivisione della connessione non verificabile, su un protocollo non comunicato: {directions}.",
+      "rpm": {
+        "pair": "{first}; {second}", "download": "download {state}", "upload": "upload {state}", "measured": "{rpm} scambi di andata e ritorno al minuto, misurati", "uncertain": "{rpm} scambi di andata e ritorno al minuto, valore incerto",
+        "needsH2": "non disponibile, richiede HTTP/2 o HTTP/3 sul reverse proxy", "treatedH1": "non disponibile, protocollo non comunicato: trattato come HTTP/1.1", "insufficient": "non disponibile, campioni insufficienti"
+      },
+      "quality": "Valutazioni della qualità, da considerare un limite superiore perché la perdita di pacchetti non viene misurata: {experiences}.",
+      "qualityBasis": "Valutazioni della qualità, {basis}, da considerare un limite superiore perché la perdita di pacchetti non viene misurata: {experiences}.",
+      "experience": "{name}: qualità {value}", "experiences": { "streaming": "streaming", "gaming": "gioco online", "rtc": "videochiamate" },
+      "bands": { "great": "ottima", "good": "buona", "average": "discreta", "poor": "scarsa", "bad": "pessima" },
+      "data": "Dati utilizzati {data}.", "notices": "Avviso: {titles}. | Avvisi: {titles}."
+    }
+  }
+}

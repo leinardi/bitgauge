@@ -1,0 +1,23 @@
+{
+  "share": {
+    "title": "Condividi risultato", "open": "Condividi", "description": "Solo velocità e latenza. Il tuo indirizzo IP e le note non vengono mai inclusi.", "close": "Chiudi",
+    "grade": "Voto bufferbloat {grade} · bufferbloat {word}", "overhead": "+{percent} di compensazione dell'overhead",
+    "image": {
+      "title": "Immagine da condividere", "size": "1200 × 630 PNG", "preview": "Immagine da condividere: {summary}", "download": "↓ Download", "upload": "↑ Upload",
+      "idle": "{ms} ms a riposo", "jitter": "{ms} ms di jitter", "loaded": "+{ms} ms sotto carico ({qualifier})", "bufferbloat": "bufferbloat",
+      "save": "Scarica immagine", "saved": "Immagine scaricata.", "failed": "Il browser non è riuscito a creare l'immagine.", "share": "Condividi", "shareVia": "Condividi tramite…",
+      "shareHint": "Invia l'immagine al pannello di condivisione del sistema", "shareTitle": "Risultato BitGauge", "basisDownload": "solo download", "basisUpload": "solo upload"
+    },
+    "text": {
+      "heading": "Riepilogo testuale", "copy": "Copia riepilogo", "copyShort": "Copia", "copied": "Riepilogo copiato.", "denied": "Accesso agli appunti negato",
+      "deniedBody": "Il testo qui sotto è selezionato: premi Ctrl+C (⌘C su Mac) per copiarlo.", "title": "BitGauge", "titleLabel": "BitGauge · {label}",
+      "downloadRate": "Download {rate}", "uploadRate": "Upload {rate}", "qualified": "{value} ({qualifier})", "idle": "Latenza a riposo {ms} ms", "jitter": "Jitter {ms} ms",
+      "loaded": "Latenza sotto carico +{ms} ms ({qualifier})", "download": "download", "upload": "upload", "server": "Server: {server}", "vsIdle": "rispetto al valore a riposo via {path}"
+    },
+    "include": { "label": "Includi etichetta", "note": "Aggiunge «{label}» all'immagine e al testo. L'indirizzo IP e la nota non vengono mai condivisi.", "none": "nessuna etichetta impostata" },
+    "qualifiers": {
+      "partial": "parziale", "insufficient": "dati insufficienti", "skipped": "non eseguito", "error": "errore", "lowConfidence": "bassa attendibilità", "cpuBound": "limitato dalla CPU di questo dispositivo",
+      "lowConfidenceReasons": "bassa attendibilità: {reasons}", "reasons": { "rampUnsettled": "incremento dei flussi non stabilizzato", "insufficientSamples": "campioni insufficienti", "unstable": "misurazione instabile" }
+    }
+  }
+}

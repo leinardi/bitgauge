@@ -22,7 +22,7 @@ import '@/styles/index.css'
 import { createApp } from 'vue'
 
 import App from '@/App.vue'
-import { createAppI18n } from '@/i18n'
+import { createAppI18n, loadLocaleMessages } from '@/i18n'
 import { readStored } from '@/lib/settingsStorage'
 import { appHistory, createAppRouter } from '@/router'
 
@@ -39,7 +39,13 @@ function storedLanguage(): string | null {
   }
 }
 
-createApp(App, { pagePath })
-  .use(createAppRouter(appHistory(document)))
-  .use(createAppI18n(window.location.search, navigator.languages, storedLanguage()))
-  .mount('#app')
+async function mount(): Promise<void> {
+  const i18n = createAppI18n(window.location.search, navigator.languages, storedLanguage())
+  await loadLocaleMessages(i18n, i18n.global.locale.value)
+  createApp(App, { pagePath })
+    .use(createAppRouter(appHistory(document)))
+    .use(i18n)
+    .mount('#app')
+}
+
+void mount()

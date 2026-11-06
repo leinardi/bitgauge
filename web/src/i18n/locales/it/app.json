@@ -1,0 +1,24 @@
+{
+  "app": {
+    "pageTitle": "{page} · BitGauge",
+    "brand": { "home": "Pagina iniziale di BitGauge", "bit": "Bit", "gauge": "Gauge" },
+    "nav": { "label": "Navigazione principale", "test": "Test", "history": "Cronologia", "settings": "Impostazioni", "about": "Informazioni" },
+    "theme": { "label": "Tema", "light": "Chiaro", "dark": "Scuro", "system": "Come il sistema", "current": "Tema: {theme}" },
+    "server": {
+      "connected": "Server connesso", "unreachable": "Server non raggiungibile", "stateConnected": ", connesso", "stateUnreachable": ", non raggiungibile", "unreachableTag": "Non raggiungibile", "unreachableTagShort": "· Non raggiungibile"
+    },
+    "offline": {
+      "title": "Server non raggiungibile", "body": "BitGauge non riesce a contattare il server all'indirizzo {host}. Per avviare un test occorre attendere che risponda.", "retry": "Riprova"
+    },
+    "basePath": {
+      "eyebrow": "Percorso base non corrispondente",
+      "title": "Il percorso base non corrisponde a questo URL",
+      "body": "BitGauge è configurato per {basePath}, ma questa pagina è stata servita da {pagePath}. L'API risponde su un percorso diverso, quindi non è possibile eseguire test da qui.",
+      "apiBody": "Questa pagina è stata servita per il percorso base {basePath}, ma l'API del server indica {apiBasePath}. La pagina e l'API non concordano, quindi non è possibile eseguire test da qui.",
+      "pagePath": "Percorso della pagina", "serverBasePath": "Percorso base del server", "apiBasePath": "Percorso base indicato dall'API", "hintLabel": "Indicazione per la configurazione", "hintTitle": "Come risolvere",
+      "hint": "Imposta server.base_path (BITGAUGE_SERVER__BASE_PATH) sul prefisso del percorso inoltrato dal reverse proxy, mantieni il prefisso nelle richieste inoltrate anziché rimuoverlo e riavvia BitGauge.",
+      "reload": "Ricarica", "docs": "Guida all'installazione"
+    },
+    "toast": { "dismiss": "Chiudi", "undoWithin": "Puoi annullare entro {n} s." }
+  }
+}

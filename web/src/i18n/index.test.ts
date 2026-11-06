@@ -28,6 +28,11 @@ describe('detectLocale', () => {
   it.each([
     ['?lang=en', ['de-AT'], 'en'],
     ['?LANG=EN', [], 'en'],
+    ['?lang=it', ['en-US'], 'it'],
+    ['?LANG=IT', [], 'it'],
+    ['?lang=xx', ['it-IT'], 'it'],
+    ['', ['it-CH', 'en-US'], 'it'],
+    ['', ['fr-FR', 'it-IT'], 'it'],
     ['?lang=xx', ['en-GB'], 'en'],
     ['', ['de-AT', 'en-US'], 'en'],
     ['', ['de'], 'en'],
@@ -38,6 +43,9 @@ describe('detectLocale', () => {
 
   it.each([
     ['', ['de-AT'], 'EN', 'en'],
+    ['', ['en-US'], 'it', 'it'],
+    ['?lang=en', ['it-IT'], 'it', 'en'],
+    ['?lang=it', ['en-US'], 'en', 'it'],
     ['?lang=xx', [], 'en', 'en'],
     // A stored language that is not shipped is passed over for the browser's.
     ['', ['en-US'], 'xx', 'en'],
