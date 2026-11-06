@@ -481,7 +481,7 @@ dependencies = [
 [[package]]
 name = "go-compat"
 version = "0.1.0"
-source = "git+https://github.com/leinardi/rust-common?rev=5da82ad299ce541720fba968e8c4aa00eb24400f#5da82ad299ce541720fba968e8c4aa00eb24400f"
+source = "git+https://github.com/leinardi/rust-common?rev=6d7bf52c92c8114a13dee785df4a17a90df2300f#6d7bf52c92c8114a13dee785df4a17a90df2300f"
 dependencies = [
  "jiff",
 ]
@@ -544,7 +544,7 @@ dependencies = [
 [[package]]
 name = "http-framing"
 version = "0.1.0"
-source = "git+https://github.com/leinardi/rust-common?rev=5da82ad299ce541720fba968e8c4aa00eb24400f#5da82ad299ce541720fba968e8c4aa00eb24400f"
+source = "git+https://github.com/leinardi/rust-common?rev=6d7bf52c92c8114a13dee785df4a17a90df2300f#6d7bf52c92c8114a13dee785df4a17a90df2300f"
 
 [[package]]
 name = "httparse"
@@ -1173,6 +1173,18 @@ dependencies = [
  "serde_json",
  "sha2",
  "tar",
+ "tempfile",
+ "testenv-core",
+]
+
+[[package]]
+name = "testenv-core"
+version = "0.1.0"
+source = "git+https://github.com/leinardi/rust-common?rev=6d7bf52c92c8114a13dee785df4a17a90df2300f#6d7bf52c92c8114a13dee785df4a17a90df2300f"
+dependencies = [
+ "go-compat",
+ "jiff",
+ "regex",
  "tempfile",
 ]
 

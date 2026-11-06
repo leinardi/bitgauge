@@ -353,7 +353,8 @@ fn an_unchanged_scratch_workspace_passes() {
     assert_eq!(scratch_problems(|_, _| {}), Vec::<String>::new());
 }
 
-/// Negative control: `testenv` added as a normal dependency is refused.
+/// Negative control: `testenv` added as a normal dependency is refused, and so is the shared
+/// crate it brings along (`testenv-core`).
 #[test]
 fn testenv_as_a_normal_dependency_is_refused() {
     let problems = scratch_problems(|_, dependencies| {
@@ -361,7 +362,10 @@ fn testenv_as_a_normal_dependency_is_refused() {
     });
     assert_eq!(
         problems,
-        ["the shipped graph contains the test crate testenv"]
+        [
+            "the shipped graph contains the test crate testenv",
+            "the shipped graph contains the shared crate testenv-core, which bitgauge does not ship",
+        ]
     );
 }
 

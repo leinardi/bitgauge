@@ -20,15 +20,15 @@
 // Adapted from swarm-scheduler-exporter/testenv/src/envid.rs at 722b8a3, MIT, Copyright (c) 2026 Roberto Leinardi
 
 //! An environment's identity: its envid, the labels every resource of it carries, its resource
-//! names, and the owner process.
+//! names, and the owner process. The envid's bytes and the names derived from it are
+//! [`ENV_IDS`], on rust-common's `testenv-core`; the labels and the owner stay BitGauge's.
 
-use std::fmt::{self, Write as _};
-use std::fs::{self, File};
-use std::io::{self, Read as _};
+use std::fmt;
+use std::fs;
+use std::io;
 use std::process;
 
-/// Random bytes in an envid: 8 hex characters.
-const ENV_ID_BYTES: usize = 4;
+use testenv_core::envid::{EnvIds, random_hex};
 
 /// Namespaces every label this crate applies.
 pub const LABEL_PREFIX: &str = "io.github.leinardi.bitgauge.test";
@@ -41,7 +41,17 @@ pub const LABEL_STARTED: &str = "io.github.leinardi.bitgauge.test.started";
 /// `true` on the marker of an environment kept after a failure.
 pub const LABEL_KEEP: &str = "io.github.leinardi.bitgauge.test.keep";
 
-const NAME_PREFIX: &str = "bitgauge-test-";
+/// How BitGauge names its environments: 4 random bytes (8 hex characters), [`LABEL_ENV_ID`], and
+/// resource names `bitgauge-test-<envid>-<base>` ([`EnvIds::resource_name`]); the docker
+/// `--filter` value that selects one environment's resources is [`EnvIds::cli_filter`].
+pub const ENV_IDS: EnvIds = EnvIds {
+    bytes: 4,
+    label: LABEL_ENV_ID,
+    prefix: "bitgauge-test",
+};
+
+/// The prefix of a test's temporary directories, the first argument of the runner's `main`.
+pub const TEMP_DIR_PREFIX: &str = "bitgauge-test-";
 
 /// A random 8-character hex identifier for one environment.
 ///
@@ -49,24 +59,7 @@ const NAME_PREFIX: &str = "bitgauge-test-";
 ///
 /// `/dev/urandom` cannot be read.
 pub fn generate_env_id() -> io::Result<String> {
-    let mut bytes = [0_u8; ENV_ID_BYTES];
-    File::open("/dev/urandom").and_then(|mut source| source.read_exact(&mut bytes))?;
-    Ok(bytes.iter().fold(String::new(), |mut hex, byte| {
-        let _ = write!(hex, "{byte:02x}");
-        hex
-    }))
-}
-
-/// The name of one resource of an environment: `bitgauge-test-<envid>-<base>`.
-#[must_use]
-pub fn resource_name(env_id: &str, base: &str) -> String {
-    format!("{NAME_PREFIX}{env_id}-{base}")
-}
-
-/// The docker `--filter` value that selects one environment's resources.
-#[must_use]
-pub fn label_filter(env_id: &str) -> String {
-    format!("label={LABEL_ENV_ID}={env_id}")
+    random_hex(ENV_IDS.bytes)
 }
 
 /// The process that created an environment.
@@ -144,25 +137,32 @@ pub fn parse_owner(value: &str) -> Result<Owner, BadOwner> {
 
 #[cfg(test)]
 mod tests {
-    use super::{Owner, generate_env_id, parse_owner, resource_name};
+    use super::{ENV_IDS, Owner, generate_env_id, parse_owner};
 
-    /// Go: `TestGenerateEnvID`.
+    /// Go: `TestGenerateEnvID`, for BitGauge's configuration (the randomness itself is tested in
+    /// rust-common's `testenv-core`, `envid::tests::an_envid_is_random_lowercase_hex`).
     #[test]
     fn generate_env_id_is_random_hex() {
         let first = generate_env_id().unwrap();
-        let second = generate_env_id().unwrap();
         assert!(
-            first.len() == 8 && first.chars().all(|char| char.is_ascii_hexdigit()),
-            "env ID {first:?} is not 8 hex characters"
+            first.len() == 8
+                && first
+                    .chars()
+                    .all(|char| char.is_ascii_digit() || ('a'..='f').contains(&char)),
+            "env ID {first:?} is not 8 lowercase hex characters"
         );
-        assert!(
-            first.chars().all(|char| !char.is_ascii_uppercase()),
-            "{first}"
+        assert_ne!(
+            first,
+            generate_env_id().unwrap(),
+            "two env IDs are the same"
         );
-        assert_ne!(first, second, "two env IDs are the same");
         assert_eq!(
-            resource_name(&first, "bitgauge"),
+            ENV_IDS.resource_name(&first, "bitgauge"),
             format!("bitgauge-test-{first}-bitgauge")
+        );
+        assert_eq!(
+            ENV_IDS.cli_filter(&first),
+            format!("label=io.github.leinardi.bitgauge.test.envid={first}")
         );
     }
 

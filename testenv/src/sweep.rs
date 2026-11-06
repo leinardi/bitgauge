@@ -283,7 +283,7 @@ mod tests {
         stale_after_from_env, sweep,
     };
     use crate::docker::tests::FakeDocker;
-    use crate::envid::{LABEL_ENV_ID, label_filter};
+    use crate::envid::{ENV_IDS, LABEL_ENV_ID};
 
     fn now() -> Timestamp {
         "2026-10-09T12:00:00Z".parse().unwrap()
@@ -409,7 +409,7 @@ mod tests {
             row("live0000", "here:100", "")
         );
         let network_rows = format!("{}\n", row("kept0000", "here:200", "true"));
-        let dead = format!("ps -aq --filter {}", label_filter("dead0000"));
+        let dead = format!("ps -aq --filter {}", ENV_IDS.cli_filter("dead0000"));
         let runner = Arc::new(FakeDocker::answering(&[
             (&containers, &container_rows),
             (&networks, &network_rows),
@@ -428,7 +428,7 @@ mod tests {
         assert_eq!(runner.ran("rm "), ["rm -f -v c-dead"]);
         for list in runner.ran("ps -aq") {
             assert!(
-                list.contains(&label_filter("dead0000")),
+                list.contains(&ENV_IDS.cli_filter("dead0000")),
                 "the sweep listed resources of an environment it spared: {list}"
             );
         }
@@ -439,8 +439,8 @@ mod tests {
     #[test]
     fn remove_all_takes_every_environment() {
         let [containers, networks, _] = list_commands();
-        let live = format!("ps -aq --filter {}", label_filter("live0000"));
-        let kept = format!("network ls -q --filter {}", label_filter("kept0000"));
+        let live = format!("ps -aq --filter {}", ENV_IDS.cli_filter("live0000"));
+        let kept = format!("network ls -q --filter {}", ENV_IDS.cli_filter("kept0000"));
         let runner = Arc::new(FakeDocker::answering(&[
             (&containers, "live0000|here:1|2026-10-09T12:00:00Z|\n"),
             (&networks, "kept0000|here:1|2026-10-09T12:00:00Z|true\n"),

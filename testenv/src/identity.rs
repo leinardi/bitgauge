@@ -53,6 +53,7 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 use sha2::{Digest as _, Sha256};
+use testenv_core::identity::{Answer, Quoting, Text, excerpt};
 
 use crate::docker::Output;
 use crate::env::{Env, EnvError};
@@ -70,24 +71,37 @@ pub const REVISION_LABEL: &str = "org.opencontainers.image.revision";
 pub const BINARY_PATH: &str = "/bitgauge";
 /// The binary's name in a layer.
 pub const BINARY_NAME: &str = "bitgauge";
-/// The argument the check runs the binary with.
-pub const IDENTITY_FLAG: &str = "-help";
+/// The argument the check runs the binary with (rust-common's `testenv-core`).
+pub use testenv_core::identity::IDENTITY_FLAG;
 
 /// The exit code the Rust binary refuses [`IDENTITY_FLAG`] with: a command line that cannot run.
-pub const RUST_REFUSAL_EXIT_CODE: i32 = 2;
+pub const RUST_REFUSAL_EXIT_CODE: i64 = 2;
 /// What the Rust binary writes to stderr for [`IDENTITY_FLAG`], byte for byte: the pre-scan's
 /// refusal (`CliError::SingleDash` in `src/cli.rs`) and clap's usage. Stdout stays empty.
 pub const RUST_REFUSAL: &str = "bitgauge: -help is not an option; write it as --help\n\
                                 Usage: bitgauge [OPTIONS]\n       bitgauge <COMMAND>\n";
 
 /// The exit code the Go binary answers [`IDENTITY_FLAG`] with.
-pub const GO_HELP_EXIT_CODE: i32 = 0;
+pub const GO_HELP_EXIT_CODE: i64 = 0;
 /// What the Go binary writes to stdout for [`IDENTITY_FLAG`], byte for byte (`usage` in
 /// `cmd/bitgauge/main.go`).
 pub const GO_USAGE: &str =
     "usage: bitgauge [serve|healthcheck] [--config /etc/bitgauge/config.yaml]\n";
 /// How the Go binary's stderr starts for [`IDENTITY_FLAG`]: the `flag` package's defaults.
 pub const GO_FLAG_USAGE_PREFIX: &str = "Usage of bitgauge serve:\n";
+
+/// The Rust binary's whole answer to [`IDENTITY_FLAG`].
+pub const RUST_ANSWER: Answer = Answer {
+    exit_code: RUST_REFUSAL_EXIT_CODE,
+    stdout: Text::Empty,
+    stderr: Text::Exact(RUST_REFUSAL),
+};
+/// The Go binary's whole answer to [`IDENTITY_FLAG`].
+pub const GO_ANSWER: Answer = Answer {
+    exit_code: GO_HELP_EXIT_CODE,
+    stdout: Text::Exact(GO_USAGE),
+    stderr: Text::Prefix(GO_FLAG_USAGE_PREFIX),
+};
 
 /// Which build of BitGauge an image holds.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -280,8 +294,8 @@ impl fmt::Display for IdentityError {
                     formatter,
                     "image {image} is not the {expected} build: {IDENTITY_FLAG} {status} with \
                      stdout {} and stderr {}, want {}",
-                    excerpt(&answer.stdout),
-                    excerpt(&answer.stderr),
+                    excerpt(&answer.stdout, Quoting::Debug),
+                    excerpt(&answer.stderr, Quoting::Debug),
                     want(*expected)
                 )
             }
@@ -347,15 +361,6 @@ fn want(implementation: Implementation) -> String {
     }
 }
 
-/// The first line of `text`, quoted, with the byte count when there is more.
-fn excerpt(text: &str) -> String {
-    let first = text.lines().next().unwrap_or_default();
-    if first.len() + 1 >= text.len() {
-        return format!("{text:?}");
-    }
-    format!("{first:?} (first line of {} bytes)", text.len())
-}
-
 /// Judges the answer `image` gave to [`IDENTITY_FLAG`] against `expected`, whole: the exit code,
 /// stdout and stderr.
 ///
@@ -367,19 +372,11 @@ pub fn check_help(
     image: &str,
     answer: &Output,
 ) -> Result<(), IdentityError> {
-    let matches = match expected {
-        Implementation::Go => {
-            answer.status == Some(GO_HELP_EXIT_CODE)
-                && answer.stdout == GO_USAGE
-                && answer.stderr.starts_with(GO_FLAG_USAGE_PREFIX)
-        }
-        Implementation::Rust => {
-            answer.status == Some(RUST_REFUSAL_EXIT_CODE)
-                && answer.stdout.is_empty()
-                && answer.stderr == RUST_REFUSAL
-        }
+    let want = match expected {
+        Implementation::Go => GO_ANSWER,
+        Implementation::Rust => RUST_ANSWER,
     };
-    if matches {
+    if want.matches(answer.status.map(i64::from), &answer.stdout, &answer.stderr) {
         return Ok(());
     }
     Err(IdentityError::Help {
