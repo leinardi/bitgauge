@@ -577,11 +577,18 @@ fn make_stamp_checks_refuse_mutations() {
         "src/buildinfo.rs",
         &files.version_rs,
         |text| with(&version_rs, text),
-        &[literal(
-            "a stamp the version module does not read",
-            r#"option_env!("BITGAUGE_DATE")"#,
-            r#"option_env!("OTHER_DATE")"#,
-        )],
+        &[
+            literal(
+                "the stamps read under another prefix",
+                r#"buildinfo!("BITGAUGE","#,
+                r#"buildinfo!("OTHER","#,
+            ),
+            literal(
+                "buildinfo! imported from another crate",
+                "use service_kit::{Defaults, EmptyStamp, buildinfo};",
+                "use service_kit::{Defaults, EmptyStamp};\nuse other::buildinfo;",
+            ),
+        ],
     );
     assert_refuses(
         RUST_RELEASE_MK,

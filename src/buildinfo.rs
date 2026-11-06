@@ -20,7 +20,11 @@
 //! The version, commit and build date stamped into the binary at compile time from
 //! `BITGAUGE_VERSION`, `BITGAUGE_COMMIT` and `BITGAUGE_DATE`, which the builds set to the values
 //! the Go build stamped with `-ldflags -X` (backend.md section 1). `GET /api/v1/info` and the
-//! startup log line report them.
+//! startup log line report them. service-kit's `buildinfo!` reads the stamps; the defaults and
+//! the empty-stamp rule are BitGauge's.
+
+pub use service_kit::BuildInfo as Build;
+use service_kit::{Defaults, EmptyStamp, buildinfo};
 
 /// The version of a binary built without a stamped version, such as a plain `cargo build`.
 pub const DEFAULT_VERSION: &str = "dev";
@@ -28,43 +32,23 @@ pub const DEFAULT_VERSION: &str = "dev";
 /// The commit or build date of a binary that was not stamped with it.
 pub const UNKNOWN: &str = "unknown";
 
-/// The build information of the running binary.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Build {
-    /// The release version, or [`DEFAULT_VERSION`] when unstamped.
-    pub version: &'static str,
-    /// The source commit, or [`UNKNOWN`] when unstamped.
-    pub commit: &'static str,
-    /// The build date as RFC 3339 UTC text, or [`UNKNOWN`] when unstamped.
-    pub date: &'static str,
-}
+/// [`DEFAULT_VERSION`] and [`UNKNOWN`] for anything the build did not stamp; an empty stamp counts
+/// as unstamped, as the Go build's empty `-X` value did.
+const DEFAULTS: Defaults = Defaults {
+    version: DEFAULT_VERSION,
+    commit: UNKNOWN,
+    date: UNKNOWN,
+    empty: EmptyStamp::Unstamped,
+};
+
+/// The stamps, read in this crate so they see its build environment.
+const BUILD: Build = buildinfo!("BITGAUGE", DEFAULTS);
 
 /// The build information of the running binary, with [`DEFAULT_VERSION`] and [`UNKNOWN`] in place
 /// of anything the build did not stamp.
 #[must_use]
 pub fn info() -> Build {
-    resolve(
-        option_env!("BITGAUGE_VERSION"),
-        option_env!("BITGAUGE_COMMIT"),
-        option_env!("BITGAUGE_DATE"),
-    )
-}
-
-/// The stamps with their defaults; an empty stamp counts as unstamped, as the Go build's empty
-/// `-X` value did.
-fn resolve(
-    version: Option<&'static str>,
-    commit: Option<&'static str>,
-    date: Option<&'static str>,
-) -> Build {
-    let or = |stamp: Option<&'static str>, fallback| {
-        stamp.filter(|stamp| !stamp.is_empty()).unwrap_or(fallback)
-    };
-    Build {
-        version: or(version, DEFAULT_VERSION),
-        commit: or(commit, UNKNOWN),
-        date: or(date, UNKNOWN),
-    }
+    BUILD
 }
 
 #[cfg(test)]
@@ -85,7 +69,7 @@ mod tests {
         );
     }
 
-    /// Go: `TestResolve`
+    /// Go: `TestResolve`, on BitGauge's defaults.
     #[test]
     fn resolve_fills_the_defaults() {
         let build = |version, commit, date| Build {
@@ -124,7 +108,11 @@ mod tests {
                 build("dev", "abc", "2026-10-12T08:00:00Z"),
             ),
         ] {
-            assert_eq!(resolve(version, commit, date), want, "{name}");
+            assert_eq!(
+                Build::resolve(version, commit, date, DEFAULTS),
+                want,
+                "{name}"
+            );
         }
     }
 }

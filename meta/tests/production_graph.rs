@@ -74,7 +74,7 @@ const SHARED_CRATES: &[&str] = &[
 ];
 
 /// The ones the shipped binary uses; the others may only be dev or test dependencies.
-const SHIPPED_SHARED: &[&str] = &["go-compat", "http-framing", "tracing-setup"];
+const SHIPPED_SHARED: &[&str] = &["go-compat", "http-framing", "service-kit", "tracing-setup"];
 
 /// How cargo is told to resolve: the repository against its lockfile, a scratch copy offline.
 #[derive(Clone, Copy)]
