@@ -120,10 +120,11 @@ counts as `fix:`), so avoid a word ending in `feat` or `fix` right before a colo
   `X-Forwarded-For` only through `server.trusted_proxies`. Configuration is read-only and validated
   fail-closed (exit status 2).
 - **Shared code lives in rust-common.** The crates shared with the sibling Rust projects come from
-  `leinardi/rust-common`, a git dependency pinned by `rev` in `[workspace.dependencies]`
-  ([Shared Crates](docs/rust-port.md#shared-crates)). A behaviour BitGauge needs differently is a
-  parameter there, never a fork or copy here; a fix to shared code lands in rust-common first and
-  reaches BitGauge by a pin bump. BitGauge's intended differences from the siblings:
+  `leinardi/rust-common`, a git dependency pinned by its release tag in
+  `[workspace.dependencies]` ([Shared Crates](docs/rust-port.md#shared-crates)). A behaviour
+  BitGauge needs differently is a parameter there, never a fork or copy here; a fix to shared code
+  lands in rust-common first and reaches BitGauge by a pin bump. BitGauge's intended differences
+  from the siblings:
   - the root `clippy.toml` bans file writes, connects, name lookups and the print macros beside the
     wall-clock reads the siblings ban too, and `deny.toml` bans HTTP clients, stores and RPC, since
     the server never stores a result and never calls out;
