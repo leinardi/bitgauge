@@ -196,6 +196,15 @@ lto = true
 codegen-units = 1
 strip = true
 
+# make run's binary (.mk/run.mk): optimized like the release, so a speed test still measures the
+# network, but without the release's fat LTO and single codegen unit, and incremental, so a rebuild
+# after an edit takes seconds rather than half a minute. Never shipped.
+[profile.dist-local]
+inherits = "release"
+lto = false
+codegen-units = 16
+incremental = true
+
 # Line tables only for the workspace and no debug info for the dependencies: backtraces keep
 # their files and lines, and the debug and test binaries shrink to a fraction of their size.
 [profile.dev]

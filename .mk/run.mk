@@ -31,8 +31,12 @@ RUN_BIND      ?= 0.0.0.0
 RUN_PORT      ?= 8080
 RUN_LOG_LEVEL ?= debug
 
+# make run builds the binary in the dist-local profile (Cargo.toml): optimized, without the
+# release's fat LTO. On the sub-make's command line, so the rust-dist that build runs in its own
+# make sees it too.
 .PHONY: run
-run: build ## Build the SPA and the release binary, then serve them on the LAN until Ctrl+C (RUN_BIND, RUN_PORT, ARGS)
+run: ## Build the SPA and a dist-local binary, then serve them on the LAN until Ctrl+C (RUN_BIND, RUN_PORT, ARGS)
+	$(MAKE) build RUST_DIST_PROFILE=dist-local
 	@if [ "$(RUN_BIND)" = "0.0.0.0" ]; then \
 	  echo "BitGauge: http://localhost:$(RUN_PORT)/"; \
 	  if command -v ip >/dev/null 2>&1; then \
