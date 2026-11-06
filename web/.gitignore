@@ -1,6 +1,7 @@
 node_modules/
 .cache/
 dist/*
+.dist-staging/
 !dist/.gitkeep
 *.local
 .env

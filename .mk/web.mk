@@ -53,6 +53,16 @@ WEB_BUILD_NEXT ?= $(if $(MK_COMMON_GO_INCLUDED),go-build,$(if $(MK_COMMON_RUST_I
 
 WEB_INSTALLED := $(WEB_DIR)/node_modules/.package-lock.json
 
+# Opt-in: the directory a binary embeds the built app from (say $(WEB_DIR)/dist). Set, web-build
+# builds into WEB_DIST_STAGING (a directory under WEB_DIR, relative to it: npm runs the build there)
+# and then copies into WEB_DIST_SYNC_DIR only the files whose content changed, deleting the ones the
+# build no longer makes. A file the build left as it was keeps its modification time, so an embed
+# that rebuilds on newer files (Cargo's rerun-if-changed) does not rebuild the binary for a rebuild
+# of the same app. Needs rsync, and a build script that takes vite build's flags (vite build alone).
+# Empty (the default): the build writes where the app's build script says.
+WEB_DIST_SYNC_DIR ?=
+WEB_DIST_STAGING  ?= .dist-staging
+
 # The touch makes the hidden lockfile newer than its prerequisites even when npm leaves it as it was.
 # .npmrc counts only where it exists, so a missing one is not a missing prerequisite.
 $(WEB_INSTALLED): $(WEB_DIR)/package.json $(WEB_DIR)/package-lock.json $(wildcard $(WEB_DIR)/.npmrc)
@@ -76,8 +86,8 @@ web-demo: $(WEB_INSTALLED) ## Start the Vite dev server in demo mode
 	npm --prefix "$(WEB_DIR)" run dev:demo
 
 .PHONY: web-build
-web-build: $(WEB_INSTALLED) ## Install the dependencies when needed, then build the web app
-	npm --prefix "$(WEB_DIR)" run build
+web-build: $(WEB_INSTALLED) ## Install the dependencies when needed, then build the web app (WEB_DIST_SYNC_DIR)
+	$(if $(strip $(WEB_DIST_SYNC_DIR)),npm --prefix "$(WEB_DIR)" run build -- --outDir "$(WEB_DIST_STAGING)" --emptyOutDir && rsync -r --checksum --delete "$(WEB_DIR)/$(WEB_DIST_STAGING)/" "$(WEB_DIST_SYNC_DIR)/",npm --prefix "$(WEB_DIR)" run build)
 
 .PHONY: web-build-demo
 web-build-demo: $(WEB_INSTALLED) ## Install the dependencies when needed, then build the demo web app

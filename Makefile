@@ -48,17 +48,28 @@ DIST_DIR ?= dist
 
 # Stamped the way release.yaml stamps a release: the version is the tag without its v only when
 # HEAD is exactly a tag and the tree is clean, and otherwise dev, what an unstamped binary reports
-# (src/buildinfo.rs); the commit is a fixed 7-character prefix; the date is the build's, in UTC. A
+# (src/buildinfo.rs); the commit is a fixed 7-character prefix; the date is HEAD's commit date in
+# UTC (rust.mk's GIT_COMMIT_DATE, the clock's only outside git), the date release.yaml stamps. A
 # local build's About screen then reads "dev · 34c88f5 · <date>". rust.mk hands the three to the
 # binary as BITGAUGE_VERSION, BITGAUGE_COMMIT and BITGAUGE_DATE (RUST_STAMP_PREFIX), docker.mk to
-# the image.
+# the image. A stamp that moves only with a commit keeps a repeated build a cache hit: a new date
+# on every make would recompile the crate that reads it each time.
 GIT_VERSION ?= $(or $(patsubst v%,%,$(filter-out %-dirty,$(shell git describe --tags --exact-match --dirty 2>/dev/null))),dev)
 GIT_COMMIT  ?= $(or $(shell git rev-parse HEAD 2>/dev/null | cut -c1-7),none)
-BUILD_DATE  ?= $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
+BUILD_DATE  ?= $(or $(GIT_COMMIT_DATE),$(shell date -u +"%Y-%m-%dT%H:%M:%SZ"))
 RUST_STAMP_PREFIX := BITGAUGE
 
-# The release binary make build leaves (web.mk's web-build, then rust.mk's rust-dist), the one
-# make e2e, make run and the end-to-end fixtures (web/e2e/fixtures/server.ts) start.
+# rust-build unstamped, as rust-test builds: the two share the bitgauge crate's units instead of
+# each recompiling it after the other. rust-dist, rust-run and the release builds stay stamped.
+RUST_BUILD_ENV :=
+
+# web-build syncs only the changed files into web/dist, which build.rs watches
+# (rerun-if-changed): a rebuild of an unchanged SPA does not rebuild the binary that embeds it.
+WEB_DIST_SYNC_DIR := $(REPO_ROOT)/web/dist
+
+# The binary make build leaves (web.mk's web-build, then rust.mk's rust-dist), the one make e2e,
+# make run and the end-to-end fixtures (web/e2e/fixtures/server.ts) start: the release profile's,
+# or the dist-local profile's after make run (.mk/run.mk).
 DIST_BIN := $(REPO_ROOT)/$(DIST_DIR)/$(BIN_NAME)
 
 # Docker image coordinates: one image, built from the shipped Dockerfile.
