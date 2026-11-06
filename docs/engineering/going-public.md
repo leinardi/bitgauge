@@ -61,10 +61,13 @@ commit-message hook is replaced by the `conventional-commits` job.
 is commented out at the top of the workflow, to save Actions minutes. `harness.yaml` is dispatched
 by hand, and its nightly `schedule:` block is commented out.
 
-- [ ] **Run `make audit-deps` and triage every finding** before the repository is made public,
+- [x] **Run `make audit-deps` and triage every finding** before the repository is made public,
       the same way as
       [health-audit.md §1](health-audit.md#1-run-make-audit-deps-and-triage-what-it-finds).
       Whatever the scan reports on the day the repository opens is what the first reader sees.
+      Done 2026-11-07: cargo-deny clean, npm audit clean for the production dependencies; 15
+      moderate advisories (`minimatch`, `glob`) only in lint and test tooling, below the `high`
+      gate, with no fix short of downgrading eslint. Run it again on the day if that day is later.
 - [ ] Uncomment the `schedule:` block of `scheduled-scan.yaml`, and dispatch the workflow once by
       hand to see it pass.
 - [ ] Uncomment the nightly `schedule:` block of `harness.yaml`, the accuracy harness's CI tier
@@ -113,9 +116,13 @@ The project is GPL-3.0-or-later ([`LICENSE`](../../LICENSE)).
 
 - [x] A header check: `scripts/check-license-headers.sh`, run by the `license headers` hook in
       `pre-commit-all`, fails a source file without the GPL header.
-- [ ] A dependency-license check. GPL-3.0 constrains what may be linked in, and a transitive
+- [x] A dependency-license check. GPL-3.0 constrains what may be linked in, and a transitive
       dependency under an incompatible license is much more expensive to remove after the first
-      release.
+      release. The Rust graph is gated by cargo-deny's `[licenses]` allow list in
+      [`deny.toml`](../../deny.toml). The web production dependencies (`npm ls --omit=dev`) were
+      checked by hand on 2026-11-07: MIT, Apache-2.0, ISC, BSD-2-Clause, BSD-3-Clause and 0BSD,
+      plus MPL-2.0 for the build-only `lightningcss`, all compatible. Check again by hand when a
+      runtime dependency is added to `web/package.json`.
 
 ## 7. Nice to Have: Coverage Reporting
 
