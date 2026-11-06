@@ -308,7 +308,8 @@ pub fn runtime_problems(path: &str, content: &str) -> Vec<String> {
 
 /// The version stamps: `BITGAUGE_VERSION`, `_COMMIT` and `_DATE`, which the version module reads
 /// at compile time, set in the RUN that runs cargo zigbuild from the build arguments, and by make
-/// from its git values in `rust-build` and in the release recipe.
+/// from its git values in `rust-dist`, `rust-run` and the release recipe (`rust-build` builds
+/// unstamped, as the tests do: `RUST_BUILD_ENV :=` in the Makefile).
 const STAMPS: Stamps<'static> = Stamps {
     prefix: "BITGAUGE",
     fields: &STAMP_FIELDS,

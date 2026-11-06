@@ -34,7 +34,7 @@ authors = ["Roberto Leinardi"]
 repository = "https://github.com/leinardi/bitgauge"
 
 # The crates shared with the other Rust projects, from leinardi/rust-common: a git dependency
-# pinned by the release tag (`tag = "v0.2.1"`) with `version = "0.2"`, the tag's
+# pinned by the release tag (`tag = "v0.3.0"`) with `version = "0.3"`, the tag's
 # `<major>.<minor>`, which keeps cargo-deny's `wildcards = "deny"` satisfied and makes cargo refuse
 # a checkout of another version. To move the pin, change the `tag` and `version` on every
 # rust-common line and run `cargo fetch` (not `cargo update -p`); `git diff Cargo.lock` must touch
@@ -44,12 +44,12 @@ repository = "https://github.com/leinardi/bitgauge"
 # `path = "../rust-common/crates/<name>"`, never in a release or image build (its paths are not
 # remapped, and the image's build context does not hold them).
 [workspace.dependencies]
-go-compat = { git = "https://github.com/leinardi/rust-common", tag = "v0.2.1", version = "0.2" }
-http-framing = { git = "https://github.com/leinardi/rust-common", tag = "v0.2.1", version = "0.2" }
-repo-meta = { git = "https://github.com/leinardi/rust-common", tag = "v0.2.1", version = "0.2" }
-service-kit = { git = "https://github.com/leinardi/rust-common", tag = "v0.2.1", version = "0.2" }
-testenv-core = { git = "https://github.com/leinardi/rust-common", tag = "v0.2.1", version = "0.2" }
-tracing-setup = { git = "https://github.com/leinardi/rust-common", tag = "v0.2.1", version = "0.2" }
+go-compat = { git = "https://github.com/leinardi/rust-common", tag = "v0.3.0", version = "0.3" }
+http-framing = { git = "https://github.com/leinardi/rust-common", tag = "v0.3.0", version = "0.3" }
+repo-meta = { git = "https://github.com/leinardi/rust-common", tag = "v0.3.0", version = "0.3" }
+service-kit = { git = "https://github.com/leinardi/rust-common", tag = "v0.3.0", version = "0.3" }
+testenv-core = { git = "https://github.com/leinardi/rust-common", tag = "v0.3.0", version = "0.3" }
+tracing-setup = { git = "https://github.com/leinardi/rust-common", tag = "v0.3.0", version = "0.3" }
 
 # The lint set lives here once. Every member opts in with `[lints] workspace = true` (a member does
 # not inherit it otherwise, and meta/tests/lint_inheritance.rs asserts that each one does).

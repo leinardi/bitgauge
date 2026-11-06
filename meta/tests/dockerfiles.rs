@@ -496,7 +496,7 @@ fn release_checks_refuse_mutations() {
 }
 
 /// The make side of the release binaries' stamps: the make variables release.yaml passes reach
-/// the static build and `rust-build` as `BITGAUGE_VERSION`, `BITGAUGE_COMMIT` and
+/// the static build, `rust-dist` and `rust-run` as `BITGAUGE_VERSION`, `BITGAUGE_COMMIT` and
 /// `BITGAUGE_DATE`, which the Rust build reads at compile time (`release_workflow` holds
 /// release.yaml to passing them), as the image's build stage sets them in its cargo zigbuild RUN.
 #[test]
@@ -567,8 +567,13 @@ fn make_stamp_checks_refuse_mutations() {
             ),
             literal("no stamps at all", "RUST_VERSION_ENV =", "RUST_ENV ="),
             regex(
-                "rust-build unstamped",
-                r"(?m)^(rust-build:.*\n\t)\$\(RUST_VERSION_ENV\) ",
+                "rust-dist unstamped",
+                r"(?m)^(rust-dist:.*\n\t)\$\(RUST_VERSION_ENV\) ",
+                "${1}",
+            ),
+            regex(
+                "rust-run unstamped",
+                r"(?m)^(rust-run:.*\n\t)\$\(RUST_VERSION_ENV\) ",
                 "${1}",
             ),
         ],
