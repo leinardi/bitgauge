@@ -70,8 +70,8 @@ The bans apply to the shipped `bitgauge` package only, outside `#[cfg(test)]`
 - **The production graph** ([`meta/tests/production_graph.rs`](../../../meta/tests/production_graph.rs)):
   `cargo tree` of the shipped package, features unified, holds neither test crate nor a banned
   crate, and no hyper or hyper-util `client` or `http2` feature, no tokio `fs` or `process`, no
-  axum `ws` or `http2`; of the rust-common crates exactly `SHIPPED_SHARED` (`go-compat`,
-  `service-kit`, `tracing-setup`); the musl release view too.
+  axum `ws` or `http2`; of the rust-common crates exactly `SHIPPED_SHARED` (`service-kit`,
+  `tracing-setup`); the musl release view too.
 
 They are pinned because a rule that stops matching fails nothing on its own:
 [`meta/tests/lint_exemptions.rs`](../../../meta/tests/lint_exemptions.rs) (rust-common's

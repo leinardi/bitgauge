@@ -55,7 +55,7 @@ Working rules for the port:
 | client_golang | prometheus-client | OpenMetrics text only; no `go_*` or `process_*` |
 | koanf + yaml.v3 + mapstructure | serde-saphyr into a spanned raw tree, our own env merge, a typed walker that collects every problem | serde derive stops at the first error, which the spec forbids |
 | `time.ParseDuration` | `jiff::fmt::friendly::SpanParser` to `SignedDuration` |  |
-| `net/url.Parse`, `unicode.IsPrint`, `time.Duration.String`, `%v` floats, `strconv.Quote` | `src/config/url.rs` in the tree; the others from rust-common's `go-compat` (`gofmt.rs` keeps a duration beyond Go's `i64` nanoseconds) | They decide which values are decode problems and how problem lines read; no crates.io crate matches Go |
+| `net/url.Parse`, `unicode.IsPrint`, `time.Duration.String`, `%v` floats, `strconv.Quote` | `src/config/url.rs` ports `url.Parse` (it decides which values are decode problems); the rest is plain Rust text in `src/config/text.rs`: `{:?}` quoting, `f64` `Display`, jiff's friendly duration, `char::is_control` | Problem lines read differently from the Go binary's (see [Shared Crates](#shared-crates)) |
 | `flag` | clap 4 derive behind an argument pre-scan |  |
 | `embed.FS` | include_dir | `web/dist/.gitkeep` keeps a clean checkout compiling |
 | crypto/rand | getrandom |  |
@@ -103,8 +103,8 @@ and binary, without `#[cfg(test)]`. Test infrastructure has its own rules.
     isahc, surf, sqlx, rusqlite, diesel, sled, redb, redis, tonic and similar);
   - these features are not enabled: hyper's `client` and `http2`; hyper-util's `client`,
     `client-legacy` and `http2`; tokio's `fs` and `process`; axum's `ws` and `http2`;
-  - of the rust-common crates it holds exactly `SHIPPED_SHARED`: `go-compat`,
-    `service-kit` and `tracing-setup`. The others (go-slog, go-prom, go-http, docker-engine and
+  - of the rust-common crates it holds exactly `SHIPPED_SHARED`: `service-kit` and
+    `tracing-setup`. The others (go-slog, go-prom, go-http, docker-engine and
     the rest) would bring an HTTP stack, a logger or a client the binary does not use;
   - the `bitgauge` dev-dependencies do not include `testenv`;
   - the same check runs on the `--target x86_64-unknown-linux-musl` view the release builds.
@@ -241,24 +241,29 @@ carry rust-common's headers, not this ledger's.
 
 | Crate | Replaces | What BitGauge parameterises |
 | --- | --- | --- |
-| `go-compat` | `src/config/printable.rs` and the `%v`, `strconv.Quote` and `time.Duration` ports in `src/config/`; the harness's quoting, integer parsing, JSON floats, RFC 3339 time, line scanning, errno text and `path.Clean` | Nothing; `src/config/gofmt.rs` keeps a duration beyond Go's `i64` nanoseconds |
+| `go-compat` (testenv only, until the harness moves to std) | The harness's quoting, integer parsing, JSON floats, RFC 3339 time, line scanning, errno text and `path.Clean` | Nothing |
 | `service-kit` (feature `http`) | The `option_env!` reads in `src/buildinfo.rs`; the accept loop, connection driver, deadlines and shutdown sequence of `src/server/` (the former `conn.rs` and `timeouts.rs`, with `http-framing`) | `buildinfo!("BITGAUGE", …)` with `dev`, `unknown`, `unknown` and an empty stamp unstamped; for the server, 10 s head, 30 s write stall, 16 KiB and 100 headers, upgrades, and the `Abort` wrapper in `src/server/http.rs`; the runtime, signals and exit codes stay BitGauge's |
 | `tracing-setup` | The subscriber build in `src/logger.rs`; the unit tests' capture writer | Target and JSON span fields off; the log settings, `LogError`, the stdout or stderr choice and the fallback stay in `src/logger.rs`; the unit tests log into `tracing_setup::testing::Capture` (dev feature `testing`) |
 | `repo-meta` (meta only) | `meta/src/repo.rs`, the Markdown link checker and the Dockerfile reader | This repository's parameters for each check: the link checker's file list, the lint members, the boundary allowlist (`SystemClock` reserved), the vacuous flags, the header harness, the toolchain and release pins, the image rules. The clippy configuration checks, the test-support `cfg` rule, the release workflow rules, the test images, the docs facts, the web pins and the untagged-test scan stay local |
 | `testenv-core` (feature `sync`; testenv only) | `testenv/src/runner.rs`, `run_filter.rs`, `gitenv.rs`; the generic halves of `toolgate.rs`, `envid.rs` and `identity.rs` | The `bitgauge-test-` temp-dir prefix; the tool `Gate` (`BITGAUGE_REQUIRE_TOOLS`, eslint and fallow under `web/node_modules/.bin`, the closed `Tool` enum); `EnvIds` (4 bytes, the envid label, `bitgauge-test`); the identity `Answer`s for each build (`RUST_ANSWER`, `GO_ANSWER`), quoted with `Quoting::Debug`; the labels, owner helpers and sweep stay BitGauge's |
 
-The release graph ships `go-compat`, `service-kit` and `tracing-setup` only
-([Lint Boundary](#lint-boundary)). Taking go-compat changed three outputs to Go's own,
-each with a test:
+The release graph ships `service-kit` and `tracing-setup` only ([Lint Boundary](#lint-boundary)).
+The configuration's problem lines and effective list no longer use rust-common's `go-compat`: they
+are written in plain Rust formatting, in `src/config/text.rs`. What reads differently from the Go
+binary, and from earlier Rust builds:
 
-- a float exactly halfway between two shortest forms rounds to even (`951606.00048828125` is
-  `951606.0004882812`, not `…813`): `problem_float_ties_round_to_even`;
-- the harness quotes on Go's Unicode 15 tables, so an unassigned code point such as U+0378 is
-  escaped: `continuous_minutes_quote_as_go`;
-- the harness words an errno as Go's table does (errno 524, `RFS specific error`), not by
-  lower-casing the C library's text: `path_error_words_errno_as_go`.
+- a quoted value is Rust's `{:?}` (`"a\u{7f}"`), not `strconv.Quote` (`"a\x7f"`);
+- a float is `f64`'s `Display`, which never uses an exponent (`1e+21` is `1000000000000000000000`)
+  and takes the shortest digits that round-trip, so `951606.00048828125` is `951606.0004882813`
+  where Go's `%v` took the even `…4882812` (`problem_float_ties_round_away`);
+- a duration is jiff's friendly form: `1m 30s`, `1s 500ms`, `2h`, `1µs 500ns`, where Go wrote `1m30s`,
+  `1.5s`, `2h0m0s`, `1.5µs` (`duration_text_forms`);
+- the display-name rule rejects control characters (`char::is_control`) where Go's `IsPrint` also
+  rejected unassigned code points and non-ASCII spaces other than U+0020, so a label such as
+  `"a\u{a0}b"` is now accepted.
 
-The configuration's `IsPrint` table already matched Go's, so its output did not change.
+Which values are decode problems is unchanged: `url.Parse` is still ported, and the parsers that
+decide a problem's kind are untouched.
 
 ## Findings During the Port
 
@@ -292,7 +297,8 @@ not expect.
   validated, and the networkQuality rule reads the result, so `src/config/url.rs` ports go1.26's
   `parse`, `parseHost` and `unescape`. The display-name rule and the quoting of values use Go's
   `unicode.IsPrint`, pasted as a table generated by go1.26.10 (Unicode 15.0) into
-  `src/config/printable.rs` (now go-compat's `quote::is_print`, [Shared Crates](#shared-crates)).
+  `src/config/printable.rs` (later go-compat's `quote::is_print`, now `char::is_control`;
+  [Shared Crates](#shared-crates)).
   A list element that does not decode leaves a placeholder (`0.0.0.0/32` for a trusted proxy), as
   Go's decoder leaves a zero value, so the list keeps its length for the networkQuality rule; it is
   never served, since any problem is fatal.
@@ -644,7 +650,7 @@ Go package to Rust module, by the phase that ported it.
 
 | Go | Rust | Phase |
 | --- | --- | --- |
-| `internal/config` | `src/config/`: `mod.rs` (`Config`, `Problem`, `EXIT_INVALID_CONFIG`), `load.rs` (`load`, `load_from`, `Loaded`, the environment), `raw.rs` (the raw tree, with each value's location), `decode.rs` (the key table and the walker), `types.rs` (`Size`, `Listen`, `Cidr`, `Origin`, `Warmup`), `validate.rs` (`validate`, `check`), `warn.rs`, `effective.rs`, `preset.rs`, `url.rs` (Go's `url.Parse`), `gofmt.rs` (a duration as Go writes it); Go's `IsPrint`, `strconv.Quote`, `%v` and `Duration` text from `go-compat`. `ReportProblems`, `ReportWarnings` and `StderrLogger` move to phase 6 with the logger | 5 |
+| `internal/config` | `src/config/`: `mod.rs` (`Config`, `Problem`, `EXIT_INVALID_CONFIG`), `load.rs` (`load`, `load_from`, `Loaded`, the environment), `raw.rs` (the raw tree, with each value's location), `decode.rs` (the key table and the walker), `types.rs` (`Size`, `Listen`, `Cidr`, `Origin`, `Warmup`), `validate.rs` (`validate`, `check`), `warn.rs`, `effective.rs`, `preset.rs`, `url.rs` (Go's `url.Parse`), `text.rs` (a quoted text, a float and a duration in plain Rust formatting). `ReportProblems`, `ReportWarnings` and `StderrLogger` move to phase 6 with the logger | 5 |
 | `internal/buildinfo` | `src/buildinfo.rs` (`info`, `Build`, the stamps through `service-kit`'s `buildinfo!`) | 6 |
 | `internal/logger` | `src/logger.rs` (`stdout`, `to_writer`, `stderr_text`, `text_to`, `parse_level`, `Format`, `LogError`; the subscriber is `tracing-setup`'s); `ReportProblems`, `ReportWarnings` and the startup line in `src/config/report.rs` | 6 |
 | `internal/clientip` | `src/clientip.rs` (`address_class`, `suggested_label`, `version`, `Labeler`, `Rule`, `Deriver`, `Client`); the middleware and context helpers move to phase 12 | 6 |

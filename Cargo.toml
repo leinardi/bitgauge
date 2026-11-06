@@ -96,9 +96,6 @@ path = "src/main.rs"
 # The server is service-kit's HTTP/1 server on hyper (docs/rust-port.md, Server Design): no
 # client, no HTTP/2.
 [dependencies]
-# Go's strconv quoting and IsPrint, %v floats and time.Duration text, ported byte for byte
-# (rust-common, jiff only): the configuration's problem lines and effective list.
-go-compat.workspace = true
 # The logger's subscriber: tracing-subscriber's text or flat JSON, no ANSI, UTC timestamps
 # (rust-common); the log settings are parsed here.
 tracing-setup.workspace = true

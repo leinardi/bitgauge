@@ -24,10 +24,9 @@ use std::fmt::Display;
 
 use jiff::SignedDuration;
 
-use go_compat::float::format_g;
-use go_compat::quote::is_print;
+use super::text::float as format_g;
 
-use super::gofmt::duration;
+use super::text::duration;
 use super::url::{self, Url};
 use super::{
     Cidr, Compat, Config, DurationRange, LabelRule, Limits, Loaded, Log, Metrics, Origin,
@@ -180,7 +179,7 @@ impl Checker {
     fn printable(&mut self, key: &str, text: &str) {
         let length = text.chars().count();
         if !(MIN_DISPLAY_NAME_CHARS..=MAX_DISPLAY_NAME_CHARS).contains(&length)
-            || !text.chars().all(is_print)
+            || text.chars().any(char::is_control)
         {
             self.add(
                 key,

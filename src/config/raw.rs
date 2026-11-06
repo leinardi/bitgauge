@@ -89,7 +89,7 @@ impl fmt::Display for Raw {
             Self::Bool(value) => write!(formatter, "{value}"),
             Self::Int(value) => write!(formatter, "{value}"),
             Self::Wide(value) => write!(formatter, "{value}"),
-            Self::Float(value) => formatter.write_str(&go_compat::float::format_g(*value)),
+            Self::Float(value) => formatter.write_str(&super::text::float(*value)),
             Self::Text(text) => formatter.write_str(text),
             Self::List(items) => {
                 let mut shown = String::from("[");

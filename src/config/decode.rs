@@ -31,8 +31,8 @@ use std::str::FromStr;
 
 use jiff::SignedDuration;
 
-use go_compat::float::format_g;
-use go_compat::quote::quote;
+use super::text::float as format_g;
+use super::text::quote;
 
 use super::raw::{Map, Node, Raw};
 use super::types::{PLACEHOLDER_CIDR, ValueError, parse_duration};

@@ -27,9 +27,7 @@ use std::str::FromStr;
 use jiff::SignedDuration;
 use jiff::fmt::friendly::SpanParser;
 
-use go_compat::quote::quote;
-
-use super::gofmt::duration as go_duration;
+use super::text::{duration as go_duration, float, quote};
 use super::url;
 
 /// A value that does not parse as its key's type. The text is the rule shown on the problem
@@ -108,7 +106,7 @@ impl Size {
         if number < 0.0 || number.fract() != 0.0 || number >= LIMIT {
             return Err(ValueError::Size(format!(
                 "{} is not a whole, non-negative number of bytes",
-                go_compat::float::format_g(number)
+                float(number)
             )));
         }
         #[expect(

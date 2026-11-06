@@ -116,7 +116,6 @@ dependencies = [
  "clap",
  "futures-util",
  "getrandom",
- "go-compat",
  "http",
  "http-body",
  "http-body-util",

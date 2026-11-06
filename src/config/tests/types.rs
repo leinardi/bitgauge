@@ -21,7 +21,7 @@
 
 use jiff::SignedDuration;
 
-use crate::config::gofmt::duration;
+use crate::config::text::duration;
 use crate::config::url;
 use crate::config::{Cidr, Listen, Size, ValueError};
 
@@ -68,32 +68,25 @@ fn parse_size() {
     }
 }
 
-/// The text forms of the Go binary's problem lines (no Go test: Go printed them natively).
+/// The text forms of a duration in the problem lines and the effective list: jiff's friendly form,
+/// units separated by a space, no fractions (the Go binary wrote `1.5s`, `1m30s`, `2h0m0s`).
 #[test]
-fn go_text_forms() {
+fn duration_text_forms() {
     for (nanos, want) in [
         (0, "0s"),
         (750, "750ns"),
-        (1500, "1.5µs"),
+        (1500, "1µs 500ns"),
         (500_000_000, "500ms"),
         (10_000_000_000, "10s"),
-        (90_000_000_000, "1m30s"),
-        (600_000_000_000, "10m0s"),
-        (7_200_000_000_000, "2h0m0s"),
-        (1_500_000_000, "1.5s"),
-        (-1_500_000_000, "-1.5s"),
+        (90_000_000_000, "1m 30s"),
+        (600_000_000_000, "10m"),
+        (7_200_000_000_000, "2h"),
+        (1_500_000_000, "1s 500ms"),
+        (-1_500_000_000, "1s 500ms ago"),
     ] {
         assert_eq!(duration(SignedDuration::from_nanos(nanos)), want);
     }
-    // Beyond Go's i64 nanoseconds, which jiff reads: the same hour form.
-    for (value, want) in [
-        (SignedDuration::MAX, "2562047788015215h30m7.999999999s"),
-        (SignedDuration::MIN, "-2562047788015215h30m8.999999999s"),
-        (SignedDuration::from_hours(3_000_000), "3000000h0m0s"),
-        (SignedDuration::new(9_223_372_037, 0), "2562047h47m17s"),
-    ] {
-        assert_eq!(duration(value), want);
-    }
+    assert_eq!(duration(SignedDuration::from_hours(3_000_000)), "3000000h");
     assert_eq!(Size::MIB.times(256).to_string(), "256 MiB");
     assert_eq!(Size::new(1000).to_string(), "1000 bytes");
     assert_eq!(Size::new(0).to_string(), "0 bytes");

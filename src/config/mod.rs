@@ -32,11 +32,11 @@ use jiff::SignedDuration;
 
 mod decode;
 mod effective;
-mod gofmt;
 mod load;
 mod preset;
 mod raw;
 mod report;
+mod text;
 mod types;
 pub(crate) mod url;
 mod validate;

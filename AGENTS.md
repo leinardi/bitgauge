@@ -134,7 +134,7 @@ counts as `fix:`), so avoid a word ending in `feat` or `fix` right before a colo
     write stall, 16 KiB heads, not go-http's four Go timeouts), its own signals (a `sigwait` thread,
     since tokio's signal socketpair would trip the strace policy) and its own healthcheck (the one
     exempted connect, blocking std code);
-  - the release graph holds only `go-compat`, `service-kit` and `tracing-setup`
+  - the release graph holds only `service-kit` and `tracing-setup`
     (`SHIPPED_SHARED` in `meta/tests/production_graph.rs`): the other crates would bring an HTTP
     stack, a logger or a client the binary does not use; `repo-meta` and `testenv-core` are for
     tests only.

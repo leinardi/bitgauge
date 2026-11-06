@@ -21,7 +21,7 @@
 //! (configuration-security.md section 6). Nothing in it is secret.
 
 use super::decode::{FIELDS, Slot};
-use super::gofmt::duration;
+use super::text::duration;
 use super::{Config, Size};
 
 /// One key's value on the startup line, typed so the text and JSON formats can each write it

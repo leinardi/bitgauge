@@ -75,7 +75,7 @@ const SHARED_CRATES: &[&str] = &[
 ];
 
 /// The ones the shipped binary uses; the others may only be dev or test dependencies.
-const SHIPPED_SHARED: &[&str] = &["go-compat", "service-kit", "tracing-setup"];
+const SHIPPED_SHARED: &[&str] = &["service-kit", "tracing-setup"];
 
 /// How cargo is told to resolve: the repository against its lockfile, a scratch copy offline.
 #[derive(Clone, Copy)]
@@ -365,6 +365,8 @@ fn testenv_as_a_normal_dependency_is_refused() {
         problems,
         [
             "the shipped graph contains the test crate testenv",
+            // testenv still depends on go-compat until the harness moves to std.
+            "the shipped graph contains the shared crate go-compat, which bitgauge does not ship",
             "the shipped graph contains the shared crate testenv-core, which bitgauge does not ship",
         ]
     );

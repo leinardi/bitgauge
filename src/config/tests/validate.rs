@@ -908,10 +908,11 @@ metrics:
     );
 }
 
-/// A problem line's float as Go's `%v` writes it: 951606.00048828125 lies exactly halfway between
-/// the shortest candidates `…4882812` and `…4882813`, and Go takes the even one.
+/// A problem line's float as Rust's `Display` writes it: 951606.00048828125 lies exactly halfway
+/// between the shortest candidates `…4882812` and `…4882813`; Rust takes `…4882813` where Go's
+/// `%v` took the even `…4882812`.
 #[test]
-fn problem_float_ties_round_to_even() {
+fn problem_float_ties_round_away() {
     let problems = problems_for(
         "test_defaults:\n  overhead_compensation_percent: 951606.00048828125\n",
         &[],
@@ -924,7 +925,7 @@ fn problem_float_ties_round_to_even() {
         lines,
         [(
             "test_defaults.overhead_compensation_percent",
-            "951606.0004882812"
+            "951606.0004882813"
         )]
     );
 }

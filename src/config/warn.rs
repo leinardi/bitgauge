@@ -19,7 +19,7 @@
 
 //! The warnings of configuration.md section 4: settings that are valid but probably unintended.
 
-use super::gofmt::duration;
+use super::text::duration;
 use super::{Config, Problem, TestDefaults};
 
 /// The settings that are valid but probably unintended (configuration.md section 4). They are
