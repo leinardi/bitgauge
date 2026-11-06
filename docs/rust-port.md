@@ -51,17 +51,17 @@ Working rules for the port:
 | --- | --- | --- |
 | net/http server, chi | axum 0.8 (`default-features = false`, no `ws`), hyper 1 http1 server, hyper-util (`tokio` only; no `server-graceful`), tower | Our own accept loop and connection driver ([Connection Driver](#connection-driver)) |
 | coder/websocket | tokio-tungstenite on `hyper::upgrade::on` | Handshake checked by hand, as in Go |
-| log/slog | tracing + tracing-subscriber (`fmt`, `json`) | tracing's default text and JSON, UTC timestamps |
+| log/slog | tracing + tracing-subscriber (`fmt`, `json`), built by rust-common's `tracing-setup` | tracing's default text and JSON, UTC timestamps; target and JSON span fields off |
 | client_golang | prometheus-client | OpenMetrics text only; no `go_*` or `process_*` |
 | koanf + yaml.v3 + mapstructure | serde-saphyr into a spanned raw tree, our own env merge, a typed walker that collects every problem | serde derive stops at the first error, which the spec forbids |
 | `time.ParseDuration` | `jiff::fmt::friendly::SpanParser` to `SignedDuration` |  |
-| `net/url.Parse`, `unicode.IsPrint`, `time.Duration.String`, `%v` floats, `strconv.Quote` | In-tree ports in `src/config/` (`url.rs`, `printable.rs`, `gofmt.rs`) | They decide which values are decode problems and how problem lines read; no crate matches Go |
+| `net/url.Parse`, `unicode.IsPrint`, `time.Duration.String`, `%v` floats, `strconv.Quote` | `src/config/url.rs` in the tree; the others from rust-common's `go-compat` (`gofmt.rs` keeps a duration beyond Go's `i64` nanoseconds) | They decide which values are decode problems and how problem lines read; no crates.io crate matches Go |
 | `flag` | clap 4 derive behind an argument pre-scan |  |
 | `embed.FS` | include_dir | `web/dist/.gitkeep` keeps a clean checkout compiling |
 | crypto/rand | getrandom |  |
 | errors | thiserror, one enum per module |  |
 | goroutines, `context` | tokio (hand-built multi-thread runtime), tokio-util `CancellationToken` and `TaskTracker` |  |
-| `-ldflags -X` | `option_env!("BITGAUGE_VERSION")`, `_COMMIT`, `_DATE`; defaults `dev` and `unknown` |  |
+| `-ldflags -X` | rust-common's `service-kit` `buildinfo!("BITGAUGE", …)`: `option_env!` on `BITGAUGE_VERSION`, `_COMMIT`, `_DATE`; defaults `dev` and `unknown`, an empty stamp unstamped |  |
 | depguard, forbidigo | `deny.toml` `[bans]` and clippy disallowed lists, scoped per crate | [Lint Boundary](#lint-boundary) |
 
 ## Lint Boundary
@@ -91,9 +91,10 @@ and binary, without `#[cfg(test)]`. Test infrastructure has its own rules.
     expected: the grid, the limiter and the deadlines use `tokio::time::Instant`, and tracing's
     timestamps are its own.
 - **Pinned by a meta-test** (`meta/tests/lint_exemptions.rs`, modeled on swarm-device-access's
-  `unsafe_allowlist`): every `expect` or `allow` of `disallowed_methods`, `disallowed_macros` or
-  `disallowed_types` in the `bitgauge` package is in exactly those files and items, and
-  `#[cfg(test)]` guards `src/test_support.rs`.
+  `unsafe_allowlist`, running rust-common's `repo-meta` allowlist check on this list): every
+  `expect` or `allow` of `disallowed_methods`, `disallowed_macros` or `disallowed_types` in the
+  `bitgauge` package is in exactly those files and items; an exemption that matches nothing fails,
+  except the reserved `SystemClock` one; and `#[cfg(test)]` guards `src/test_support.rs`.
 - **Dependency graph and features** (`meta/tests/production_graph.rs`):
   - it reads the resolved production features, with feature edges, through
     `cargo tree -p bitgauge -e features,normal,build --prefix none --format "{p} {f}"`.
@@ -102,19 +103,24 @@ and binary, without `#[cfg(test)]`. Test infrastructure has its own rules.
     isahc, surf, sqlx, rusqlite, diesel, sled, redb, redis, tonic and similar);
   - these features are not enabled: hyper's `client` and `http2`; hyper-util's `client`,
     `client-legacy` and `http2`; tokio's `fs` and `process`; axum's `ws` and `http2`;
+  - of the rust-common crates it holds exactly `SHIPPED_SHARED`: `go-compat`, `http-framing`,
+    `service-kit` and `tracing-setup`. The others (go-slog, go-prom, go-http, docker-engine and
+    the rest) would bring an HTTP stack, a logger or a client the binary does not use;
   - the `bitgauge` dev-dependencies do not include `testenv`;
   - the same check runs on the `--target x86_64-unknown-linux-musl` view the release builds.
 - **Negative controls:** a scratch crate carrying the root `clippy.toml` with `std::fs::write` in
   a plain module fails clippy; the same call under an `expect` in a file not on the allowlist
   fails the meta-test; and in scratch copies of the workspace manifest the production-graph check
   rejects `testenv` added as a normal dependency, hyper's `client` feature enabled on the
-  `bitgauge` package, and a banned crate added.
+  `bitgauge` package, a banned crate added, a shared crate it does not ship (go-slog) added, and
+  each shipped shared crate dropped.
 
 ## Server Design
 
 ### Connection Driver
 
-`src/server/conn.rs`, with `timeouts.rs` and `framing.rs` adapted from swarm-scheduler-exporter.
+`src/server/conn.rs`, with `timeouts.rs` adapted from swarm-scheduler-exporter and the `Framer`
+from rust-common's `http-framing`.
 The driver does not use hyper-util's `GracefulShutdown`: its `watch()` does not accept hyper's
 HTTP/1 `UpgradeableConnection`, and its `shutdown()` future must be polled. Each accepted
 connection is driven directly inside one task: on `stop` it calls `graceful_shutdown()` on the
@@ -209,8 +215,8 @@ note.
 Reused MIT and Apache-2.0 files, both compatible with the GPL, carry BitGauge's GPL-3.0-or-later
 header plus one provenance line: "Adapted from \<repo\>/\<path\> at \<commit\>, \<license\>,
 Copyright (c) \<year\> Roberto Leinardi", with the source's own license and year. Not reused:
-swarm-scheduler-exporter's slog, Prometheus and net/http-wire ports, which keep Go's output byte
-for byte where this port does not.
+swarm-scheduler-exporter's slog, Prometheus and net/http-wire ports (rust-common's go-slog, go-prom
+and go-http since), which keep Go's output byte for byte where this port does not.
 
 | Source | Commit | What | Adaptation |
 | --- | --- | --- | --- |
@@ -221,15 +227,43 @@ for byte where this port does not.
 | swarm-scheduler-exporter | `722b8a3` | `deny.toml` | BitGauge's bans (HTTP clients, stores, RPC); `[licenses.private] ignore`; MIT only so far |
 | swarm-scheduler-exporter | `722b8a3` | `.mk/rust.mk` | `BITGAUGE_*` stamps from the Go build's variables; no `rust-run` yet |
 | swarm-scheduler-exporter | `722b8a3` | `scripts/hooks/rustfmt-on-edit.sh` | Unchanged logic |
-| swarm-scheduler-exporter | `722b8a3` | `meta/src/repo.rs` | `tracked_or_new` (tracked and untracked, not ignored) in place of `tracked` |
+| swarm-scheduler-exporter | `722b8a3` | `meta/src/repo.rs` | `tracked_or_new` (tracked and untracked, not ignored) in place of `tracked`; now rust-common's `repo-meta` ([Shared Crates](#shared-crates)) |
 | swarm-scheduler-exporter | `722b8a3` | `meta/tests/workspace_lints.rs` | Became `meta/tests/lint_inheritance.rs`, with the clippy configuration checks and the scratch-crate control |
-| swarm-scheduler-exporter | `b670952` | `src/server/framing.rs`, `src/server/framing/tests.rs` | Unchanged framing; the module doc names BitGauge's pipelined head |
+| swarm-scheduler-exporter | `b670952` | `src/server/framing.rs`, `src/server/framing/tests.rs` | Unchanged framing; the module doc names BitGauge's pipelined head; now rust-common's `http-framing` ([Shared Crates](#shared-crates)) |
 | swarm-scheduler-exporter | `b670952` | `src/server/timeouts.rs` | BitGauge's states (head, body, idle, upgraded) in place of Go's four timeouts; a 30 s write stall in place of `WriteTimeout`; the read waker kept so a new deadline is armed at once; the drain on `poll_shutdown`; `wait_until_idle` for shutdown |
 | swarm-device-access | `4cd31c4` | `meta/tests/unsafe_allowlist.rs` | The pattern only, for `meta/tests/lint_exemptions.rs`; no file copied |
 | swarm-scheduler-exporter | `e57d989` | `deployments/docker/Dockerfile` (MIT, 2025) | Became `deployments/docker/Dockerfile.rust`: the shipped Dockerfile's `web` and runtime stages; the same zig, cargo-zigbuild and `rust-std` pins; the `BITGAUGE_*` stamps; the cargo home and `rust-src` remapped as `.mk/rust-release.mk` remaps them |
 | swarm-device-access | `4cd31c4` | `.mk/rust-release.mk` (Apache-2.0) | The same pins and static build; binaries into `dist/rust/`, after `web-build`; `rust-image` for the candidate |
 
 Rows are added by the phase that copies a file.
+
+### Shared Crates
+
+Code the sibling ports also carry is a dependency on
+[leinardi/rust-common](https://github.com/leinardi/rust-common) instead, a git dependency pinned
+by `rev` in `[workspace.dependencies]`; its files carry rust-common's headers, not this ledger's.
+
+| Crate | Replaces | What BitGauge parameterises |
+| --- | --- | --- |
+| `http-framing` | `src/server/framing.rs` and its tests, byte for byte | Nothing; `src/server/timeouts.rs` reads its `Framer` |
+| `go-compat` | `src/config/printable.rs` and the `%v`, `strconv.Quote` and `time.Duration` ports in `src/config/`; the harness's quoting, integer parsing, JSON floats, RFC 3339 time, line scanning, errno text and `path.Clean` | Nothing; `src/config/gofmt.rs` keeps a duration beyond Go's `i64` nanoseconds |
+| `service-kit` (no features) | The `option_env!` reads in `src/buildinfo.rs` | `buildinfo!("BITGAUGE", …)` with `dev`, `unknown`, `unknown` and an empty stamp unstamped; the runtime, signals and exit codes stay BitGauge's |
+| `tracing-setup` | The subscriber build in `src/logger.rs`; the unit tests' capture writer | Target and JSON span fields off; the log settings, `LogError`, the stdout or stderr choice and the fallback stay in `src/logger.rs`; the unit tests log into `tracing_setup::testing::Capture` (dev feature `testing`) |
+| `repo-meta` (meta only) | `meta/src/repo.rs`, the Markdown link checker and the Dockerfile reader | This repository's parameters for each check: the link checker's file list, the lint members, the boundary allowlist (`SystemClock` reserved), the vacuous flags, the header harness, the toolchain and release pins, the image rules. The clippy configuration checks, the test-support `cfg` rule, the release workflow rules, the test images, the docs facts, the web pins and the untagged-test scan stay local |
+| `testenv-core` (feature `sync`; testenv only) | `testenv/src/runner.rs`, `run_filter.rs`, `gitenv.rs`; the generic halves of `toolgate.rs`, `envid.rs` and `identity.rs` | The `bitgauge-test-` temp-dir prefix; the tool `Gate` (`BITGAUGE_REQUIRE_TOOLS`, eslint and fallow under `web/node_modules/.bin`, the closed `Tool` enum); `EnvIds` (4 bytes, the envid label, `bitgauge-test`); the identity `Answer`s for each build (`RUST_ANSWER`, `GO_ANSWER`), quoted with `Quoting::Debug`; the labels, owner helpers and sweep stay BitGauge's |
+
+The release graph ships `http-framing`, `go-compat`, `service-kit` and `tracing-setup` only
+([Lint Boundary](#lint-boundary)). Taking go-compat changed three outputs to Go's own,
+each with a test:
+
+- a float exactly halfway between two shortest forms rounds to even (`951606.00048828125` is
+  `951606.0004882812`, not `…813`): `problem_float_ties_round_to_even`;
+- the harness quotes on Go's Unicode 15 tables, so an unassigned code point such as U+0378 is
+  escaped: `continuous_minutes_quote_as_go`;
+- the harness words an errno as Go's table does (errno 524, `RFS specific error`), not by
+  lower-casing the C library's text: `path_error_words_errno_as_go`.
+
+The configuration's `IsPrint` table already matched Go's, so its output did not change.
 
 ## Findings During the Port
 
@@ -263,9 +297,10 @@ not expect.
   validated, and the networkQuality rule reads the result, so `src/config/url.rs` ports go1.26's
   `parse`, `parseHost` and `unescape`. The display-name rule and the quoting of values use Go's
   `unicode.IsPrint`, pasted as a table generated by go1.26.10 (Unicode 15.0) into
-  `src/config/printable.rs`. A list element that does not decode leaves a placeholder (`0.0.0.0/32`
-  for a trusted proxy), as Go's decoder leaves a zero value, so the list keeps its length for the
-  networkQuality rule; it is never served, since any problem is fatal.
+  `src/config/printable.rs` (now go-compat's `quote::is_print`, [Shared Crates](#shared-crates)).
+  A list element that does not decode leaves a placeholder (`0.0.0.0/32` for a trusted proxy), as
+  Go's decoder leaves a zero value, so the list keeps its length for the networkQuality rule; it is
+  never served, since any problem is fatal.
 - **Phase 5, a differential run.** The rule tables of the Go config tests and a dozen more
   cases, 165 in all, went through the Go loader and the Rust one: identical problem keys and
   values in every case. The rule texts differ only where a library wrote them (`netip`,
@@ -555,10 +590,12 @@ not expect.
 - **Phase 17, the testenv crate.** `testenv/` holds the Docker suites in Rust: the docker CLI
   runner, environments and the sweep, gitenv, toolgate, the `harness = false` runner with a
   Go-style `--run`, netguard, the syscall analyser and the identity check (`testenv/src/identity.rs`,
-  adapted from swarm-device-access). The image suite (`tests/image`, feature `image`) and the
-  harness runners (`tests/harness`, feature `harness`) take the image `make test-impl-image`
-  built for `BITGAUGE_TEST_IMPL` (`bitgauge:go-test` or `bitgauge:rust-candidate`) and never build
-  BitGauge themselves; the identity check and its crossed control run before any test. The probe
+  adapted from swarm-device-access). The runner, the `--run` filter and gitenv are now
+  `testenv-core`'s, re-exported under their old paths ([Shared Crates](#shared-crates)). The image
+  suite (`tests/image`, feature `image`) and the harness runners (`tests/harness`, feature
+  `harness`) take the image `make test-impl-image` built for `BITGAUGE_TEST_IMPL`
+  (`bitgauge:go-test` or `bitgauge:rust-candidate`) and never build BitGauge themselves; the
+  identity check and its crossed control run before any test. The probe
   is a std-only Rust program the image suite compiles with `rustc` for the musl target, so no
   Cargo target, and thus no workspace clippy run, covers it; it is linted with `clippy-driver`.
   The Rust candidate's serve and healthcheck traces (`testenv/tests/testdata/syscalltrace/rust-*`)
@@ -612,9 +649,9 @@ Go package to Rust module, by the phase that ported it.
 
 | Go | Rust | Phase |
 | --- | --- | --- |
-| `internal/config` | `src/config/`: `mod.rs` (`Config`, `Problem`, `EXIT_INVALID_CONFIG`), `load.rs` (`load`, `load_from`, `Loaded`, the environment), `raw.rs` (the raw tree, with each value's location), `decode.rs` (the key table and the walker), `types.rs` (`Size`, `Listen`, `Cidr`, `Origin`, `Warmup`), `validate.rs` (`validate`, `check`), `warn.rs`, `effective.rs`, `preset.rs`, `url.rs` (Go's `url.Parse`), `gofmt.rs`, `printable.rs` (Go's `IsPrint`). `ReportProblems`, `ReportWarnings` and `StderrLogger` move to phase 6 with the logger | 5 |
-| `internal/buildinfo` | `src/buildinfo.rs` (`info`, `Build`, the `option_env!` stamps) | 6 |
-| `internal/logger` | `src/logger.rs` (`stdout`, `to_writer`, `stderr_text`, `text_to`, `parse_level`, `Format`, `LogError`); `ReportProblems`, `ReportWarnings` and the startup line in `src/config/report.rs` | 6 |
+| `internal/config` | `src/config/`: `mod.rs` (`Config`, `Problem`, `EXIT_INVALID_CONFIG`), `load.rs` (`load`, `load_from`, `Loaded`, the environment), `raw.rs` (the raw tree, with each value's location), `decode.rs` (the key table and the walker), `types.rs` (`Size`, `Listen`, `Cidr`, `Origin`, `Warmup`), `validate.rs` (`validate`, `check`), `warn.rs`, `effective.rs`, `preset.rs`, `url.rs` (Go's `url.Parse`), `gofmt.rs` (a duration as Go writes it); Go's `IsPrint`, `strconv.Quote`, `%v` and `Duration` text from `go-compat`. `ReportProblems`, `ReportWarnings` and `StderrLogger` move to phase 6 with the logger | 5 |
+| `internal/buildinfo` | `src/buildinfo.rs` (`info`, `Build`, the stamps through `service-kit`'s `buildinfo!`) | 6 |
+| `internal/logger` | `src/logger.rs` (`stdout`, `to_writer`, `stderr_text`, `text_to`, `parse_level`, `Format`, `LogError`; the subscriber is `tracing-setup`'s); `ReportProblems`, `ReportWarnings` and the startup line in `src/config/report.rs` | 6 |
 | `internal/clientip` | `src/clientip.rs` (`address_class`, `suggested_label`, `version`, `Labeler`, `Rule`, `Deriver`, `Client`); the middleware and context helpers move to phase 12 | 6 |
 | `internal/ratelimit` | `src/ratelimit.rs` (`Limiter`, `Options`, `Permit`, `Limit`, `LimitError`, the codes); `Clock` and `TokioClock` in `src/clock.rs`; the middleware and `Refuse` are `Limit` in `src/handlers/limit.rs` and `refuse` in `src/handlers/envelope.rs` (phases 10 and 11) | 7 |
 | `internal/metrics` | `src/metrics.rs` (`Metrics`, `Route`, `Transfer`), `src/metrics/labels.rs` (`Group`, `Direction`, `UNMATCHED`, the code slots), `src/metrics/endpoint.rs` (`encode`, `respond`, `CONTENT_TYPE`) | 8 |
@@ -622,7 +659,7 @@ Go package to Rust module, by the phase that ported it.
 | `internal/compat/openspeedtest` | `src/compat/openspeedtest.rs` (`routes`, `Deps`, `ROWS`, the sizes and paths); `Row` in `src/compat.rs` | 11 |
 | `internal/compat/librespeed` | `src/compat/librespeed.rs` (`routes`, `Deps`, `ROWS`, `/getIP`, the server list), `src/compat/librespeed/cors.rs` | 11 |
 | `internal/compat/nq` | `src/compat/nq.rs` (`routes`, `Deps`, `ROWS`, the config) | 11 |
-| `internal/server` (`server.go` settings, `shutdown.go`) | `src/server/conn.rs` (`serve`, `drive`, `Lifecycle`, `Outcome`), `src/server/timeouts.rs` (`Timeouts`, `ConnState`, `ConnIo`), `src/server/framing.rs`, `src/server/upgrade.rs`, `src/server/signals.rs`, `src/server/mod.rs` (`finish_process`) | 4 |
+| `internal/server` (`server.go` settings, `shutdown.go`) | `src/server/conn.rs` (`serve`, `drive`, `Lifecycle`, `Outcome`), `src/server/timeouts.rs` (`Timeouts`, `ConnState`, `ConnIo`), the `Framer` from `http-framing`, `src/server/upgrade.rs`, `src/server/signals.rs`, `src/server/mod.rs` (`finish_process`) | 4 |
 | `internal/server` (router, middleware) | `src/server/routes.rs` (`route_table`, `check_routes`, `mounted_routes`, `Owner`, `Route`), `src/server/classify.rs` (`Classifier`, `Group`, `set_headers`, `content_security_policy`), `src/server/router.rs` (`app`, `router`, `Groups`), `src/server/middleware.rs` (`Stack`, `Observer`, `record_route`; Go's `clientip.Middleware` is its client IP stage, which stores the `Client`); the native routes and their CORS in `src/handlers/routes.rs` (`native_routes`, `Native`, `NATIVE_ROUTES`) | 12 |
 | `web/embed*.go` | `src/web.rs` (`Spa`, `RenderError`, `route_patterns`, `ROOT_ASSETS`, `METHODS`), `src/web/files.rs` (one file's answer: the content types, the ranges, the conditional headers, `not_found`, `plain_error`); `build.rs` | 12 |
 | `cmd/bitgauge` | `src/main.rs`; `src/command.rs` (`run`, `Process`, `Mode`, `SHUTDOWN_GRACE`, the startup order); `src/cli.rs` (`parse`, `Parsed`, `Options`, `CliError`, the pre-scan); `src/healthcheck.rs` (`answers`, `address`, `TIMEOUT`); `src/server/listen.rs` (`bind`, `addresses`, `zone_index`) | 13 |
@@ -646,4 +683,4 @@ it did not port, with the reason.
 | `cmd/bitgauge` | `TestParseArgs` in the `src/cli.rs` tests; `TestHealthcheckAddress` and `TestHealthcheckExitCodes` in `src/healthcheck/tests.rs`; `TestServeExitsTwoOnInvalidConfig` in `src/command/tests.rs` and `tests/cli.rs`; `TestServeAndHealthcheck`, `TestServeExitsOneWithoutTheSPA` and `TestCompatibilityLayersOnTheStartupLine` in `src/command/tests.rs`; the process-mode startup and its signals in `tests/process_mode.rs`; `TestMain` is Cargo's binary build | 13 |
 | (the Go binary) | `tests/wire.rs` replays the Go binary's recorded answers (`tests/testdata/wire/`) | 14 |
 | `test/docs`, `test/disturls`, `test/distdemo`, `test/chunksize`, `test/licenseheaders`, `test/toolchain`, `test/deployments`, `test/dockerfiles`, `test/boundary` | `meta/tests/` under the Go package's name (`docs.rs`, `toolchain.rs` for the pins, `compat_boundary.rs`, one file per `test/toolchain` test file); `boundary_test.go` is the lint boundary of phase 3 (`lint_exemptions.rs`, `lint_inheritance.rs`); `untagged_tests_test.go` moves to phase 17 with the toolgate | 16 |
-| `test/internal/...`, `test/image`, `test/harness` | `testenv/src/` (one module per Go package; the harness logic in `testenv/src/harness/`, unit-tested untagged), `testenv/tests/image/`, `testenv/tests/netguard.rs`, `testenv/tests/harness/`; `untagged_tests_test.go` in `meta/tests/untagged_tests.rs` | 17 |
+| `test/internal/...`, `test/image`, `test/harness` | `testenv/src/` (one module per Go package; the runner, `run_filter` and `gitenv` from `testenv-core`, with their tests there; the harness logic in `testenv/src/harness/`, unit-tested untagged), `testenv/tests/image/`, `testenv/tests/netguard.rs`, `testenv/tests/harness/`; `untagged_tests_test.go` in `meta/tests/untagged_tests.rs` | 17 |

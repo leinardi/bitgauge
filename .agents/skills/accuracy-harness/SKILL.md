@@ -162,10 +162,11 @@ syscall layer's guarantee ([security.md
 
 ## 4. Cleanup touches only the run's own envid
 
-`testenv` (`envid.rs`, `sweep.rs`) labels every container, network and volume a run creates with
-`io.github.leinardi.bitgauge.test.envid`, `.owner` (`<hostname>:<pid>` of the cargo test process)
-and `.started` (RFC 3339); names are `bitgauge-test-<envid>-<base>`. Each profile-and-browser run
-has its own envid, recorded in the report.
+`testenv` (`envid.rs`, on `testenv-core`'s `EnvIds`, and `sweep.rs`) labels every container,
+network and volume a run creates with `io.github.leinardi.bitgauge.test.envid`, `.owner`
+(`<hostname>:<pid>` of the cargo test process) and `.started` (RFC 3339); names are
+`bitgauge-test-<envid>-<base>`. Each profile-and-browser run has its own envid, recorded in the
+report.
 
 - **Down** removes only the run's own envid, containers first.
 - **Keep on failure:** with `HARNESS_KEEP_ON_FAILURE=1`, a run that errored or failed its
