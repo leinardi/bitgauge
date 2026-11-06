@@ -49,7 +49,7 @@ Working rules for the port:
 
 | Go | Rust | Note |
 | --- | --- | --- |
-| net/http server, chi | axum 0.8 (`default-features = false`, no `ws`), hyper 1 http1 server, hyper-util (`tokio` only; no `server-graceful`), tower | Our own accept loop and connection driver ([Connection Driver](#connection-driver)) |
+| net/http server, chi | axum 0.8 (`default-features = false`, no `ws`), hyper 1 http1 server, hyper-util (`tokio` only; no `server-graceful`), tower | service-kit's HTTP/1 server ([Connection Driver](#connection-driver)) |
 | coder/websocket | tokio-tungstenite on `hyper::upgrade::on` | Handshake checked by hand, as in Go |
 | log/slog | tracing + tracing-subscriber (`fmt`, `json`), built by rust-common's `tracing-setup` | tracing's default text and JSON, UTC timestamps; target and JSON span fields off |
 | client_golang | prometheus-client | OpenMetrics text only; no `go_*` or `process_*` |
@@ -103,7 +103,7 @@ and binary, without `#[cfg(test)]`. Test infrastructure has its own rules.
     isahc, surf, sqlx, rusqlite, diesel, sled, redb, redis, tonic and similar);
   - these features are not enabled: hyper's `client` and `http2`; hyper-util's `client`,
     `client-legacy` and `http2`; tokio's `fs` and `process`; axum's `ws` and `http2`;
-  - of the rust-common crates it holds exactly `SHIPPED_SHARED`: `go-compat`, `http-framing`,
+  - of the rust-common crates it holds exactly `SHIPPED_SHARED`: `go-compat`,
     `service-kit` and `tracing-setup`. The others (go-slog, go-prom, go-http, docker-engine and
     the rest) would bring an HTTP stack, a logger or a client the binary does not use;
   - the `bitgauge` dev-dependencies do not include `testenv`;
@@ -119,36 +119,31 @@ and binary, without `#[cfg(test)]`. Test infrastructure has its own rules.
 
 ### Connection Driver
 
-`src/server/conn.rs`, with `timeouts.rs` adapted from swarm-scheduler-exporter and the `Framer`
-from rust-common's `http-framing`.
-The driver does not use hyper-util's `GracefulShutdown`: its `watch()` does not accept hyper's
-HTTP/1 `UpgradeableConnection`, and its `shutdown()` future must be polled. Each accepted
-connection is driven directly inside one task: on `stop` it calls `graceful_shutdown()` on the
-pinned connection and keeps polling it until it ends or `cut` fires.
+service-kit's `http::serve` (rust-common, feature `http`), configured in `src/server/http.rs`. It
+was extracted from this repository's accept loop and driver, and replaced them. `serve` takes the
+bound listener, the router and a `ServerConfig`, and owns the accept loop (with its backoff), one
+tracked task per connection, `TCP_NODELAY`, hyper's `graceful_shutdown` on `stop`, and the drain
+and cut. Each request carries a `Lifecycle` and a `Peer` in its extensions. `src/server/http.rs`
+adds the one thing BitGauge needs on top: a response carrying `Abort` fails the service, so hyper
+closes the connection without a status line.
 
-The fallback, if `graceful_shutdown` on the pinned `UpgradeableConnection` does not finish an
-in-flight response and close an idle one: on `stop` a shared `closing` flag is raised, the
-service adds `Connection: close` to every response, and `ConnIo` expires a connection in the
-keep-alive idle state at once. Whether it was needed is recorded under
-[Findings During the Port](#findings-during-the-port).
+| Setting | Value |
+| --- | --- |
+| Head | hyper's `header_read_timeout`, 10 s: the head must be complete 10 s after the accept, after the previous response (an idle keep-alive connection, pipelined or not) |
+| Body | none at connection level; the handler owns it |
+| Write stall | 30 s: a write that makes no progress ends the connection (service-kit's `StallIo`, under hyper, so a body streamed after the handler returned and an upgraded socket are covered) |
+| Upgraded | no connection deadline; the WebSocket idle timer owns it |
+| Head size | `max_header_size` 16 KiB and `max_headers` 100: hyper answers 431 |
+| Shutdown | `drain` 10 s after `stop`, then `cut`, then 1 s for the tracker (`CUT_WAIT`) |
 
-hyper's `header_read_timeout` stays off, because hyper arms it on every idle keep-alive. A
-`Framer` parses the request framing in `poll_read`, so `ConnIo` knows whether the bytes hyper has
-buffered belong to a request that has not started yet:
+Behaviour that changed with the move to service-kit, and was accepted:
 
-| State | Starts | Read deadline | Ends |
-| --- | --- | --- | --- |
-| Initial head | accept | accept + 10 s | head complete |
-| Body | head complete | none at connection level; the handler owns it | response done |
-| Keep-alive idle | response done, nothing buffered | now + 120 s until the first byte | first byte |
-| Keep-alive head | first byte after idle | first byte + 10 s | head complete |
-| Pipelined head | response done with the next request's bytes already read | now + 10 s, no idle phase | head complete |
-| Upgraded | 101 sent | none from `ConnIo`; the WebSocket idle timer owns it | close |
-
-In every state a write without progress for 30 s returns `TimedOut`; an expiry is `TimedOut`, and
-hyper drops the connection without a response; `is_write_vectored()` is forwarded;
-`poll_shutdown` drains reads for up to 500 ms, so a 413 or 408 is not lost to an RST; and
-`max_header_size(16 KiB)` makes hyper answer 431.
+- there is no separate 120 s keep-alive idle timeout: an idle connection closes after the 10 s
+  head timeout, as hyper arms it;
+- an upgrade request in flight exactly at `stop` is refused: hyper's `graceful_shutdown` answers
+  the request in flight with `Connection: close`, which turns the `101` into a refused upgrade
+  (`upgrade_racing_stop_is_refused`);
+- a closing connection no longer reads and discards for 500 ms before it closes.
 
 ### Shutdown and Signals
 
@@ -246,14 +241,13 @@ carry rust-common's headers, not this ledger's.
 
 | Crate | Replaces | What BitGauge parameterises |
 | --- | --- | --- |
-| `http-framing` | `src/server/framing.rs` and its tests, byte for byte | Nothing; `src/server/timeouts.rs` reads its `Framer` |
 | `go-compat` | `src/config/printable.rs` and the `%v`, `strconv.Quote` and `time.Duration` ports in `src/config/`; the harness's quoting, integer parsing, JSON floats, RFC 3339 time, line scanning, errno text and `path.Clean` | Nothing; `src/config/gofmt.rs` keeps a duration beyond Go's `i64` nanoseconds |
-| `service-kit` (no features) | The `option_env!` reads in `src/buildinfo.rs` | `buildinfo!("BITGAUGE", …)` with `dev`, `unknown`, `unknown` and an empty stamp unstamped; the runtime, signals and exit codes stay BitGauge's |
+| `service-kit` (feature `http`) | The `option_env!` reads in `src/buildinfo.rs`; the accept loop, connection driver, deadlines and shutdown sequence of `src/server/` (the former `conn.rs` and `timeouts.rs`, with `http-framing`) | `buildinfo!("BITGAUGE", …)` with `dev`, `unknown`, `unknown` and an empty stamp unstamped; for the server, 10 s head, 30 s write stall, 16 KiB and 100 headers, upgrades, and the `Abort` wrapper in `src/server/http.rs`; the runtime, signals and exit codes stay BitGauge's |
 | `tracing-setup` | The subscriber build in `src/logger.rs`; the unit tests' capture writer | Target and JSON span fields off; the log settings, `LogError`, the stdout or stderr choice and the fallback stay in `src/logger.rs`; the unit tests log into `tracing_setup::testing::Capture` (dev feature `testing`) |
 | `repo-meta` (meta only) | `meta/src/repo.rs`, the Markdown link checker and the Dockerfile reader | This repository's parameters for each check: the link checker's file list, the lint members, the boundary allowlist (`SystemClock` reserved), the vacuous flags, the header harness, the toolchain and release pins, the image rules. The clippy configuration checks, the test-support `cfg` rule, the release workflow rules, the test images, the docs facts, the web pins and the untagged-test scan stay local |
 | `testenv-core` (feature `sync`; testenv only) | `testenv/src/runner.rs`, `run_filter.rs`, `gitenv.rs`; the generic halves of `toolgate.rs`, `envid.rs` and `identity.rs` | The `bitgauge-test-` temp-dir prefix; the tool `Gate` (`BITGAUGE_REQUIRE_TOOLS`, eslint and fallow under `web/node_modules/.bin`, the closed `Tool` enum); `EnvIds` (4 bytes, the envid label, `bitgauge-test`); the identity `Answer`s for each build (`RUST_ANSWER`, `GO_ANSWER`), quoted with `Quoting::Debug`; the labels, owner helpers and sweep stay BitGauge's |
 
-The release graph ships `http-framing`, `go-compat`, `service-kit` and `tracing-setup` only
+The release graph ships `go-compat`, `service-kit` and `tracing-setup` only
 ([Lint Boundary](#lint-boundary)). Taking go-compat changed three outputs to Go's own,
 each with a test:
 
@@ -272,19 +266,19 @@ Fallbacks taken, premises that turned out false, and anything else a phase found
 not expect.
 
 - **Phase 4, the pinned `graceful_shutdown()`.** It finishes an in-flight response and closes an
-  idle connection, so the `closing`-flag fallback was not applied. But called while a request is
-  in flight, it disables keep-alive, and hyper 1.12 then appends `close` to that response's
-  `Connection` header (`enforce_version` in `proto/h1/conn.rs`) and closes after it: a `101`
-  written after `stop` reads `Connection: Upgrade, close`, and the upgrade never happens. The
-  fallback would break a `101` the same way. The driver instead waits, on `stop`, until no request
-  is in flight (`ConnState::wait_until_idle`: no head started, no response pending) or the response
-  in flight at `stop` is done, then calls `graceful_shutdown()`, which closes the connection; `cut`
+  idle connection, so the `closing`-flag fallback was not applied. But called while a request is in
+  flight, it disables keep-alive, and hyper 1.12 then appends `close` to that response's
+  `Connection` header (`enforce_version` in `proto/h1/conn.rs`) and closes after it: a `101` written
+  after `stop` reads `Connection: Upgrade, close`, and the upgrade never happens. The fallback would
+  break a `101` the same way. The driver instead waits, on `stop`, until no request is in flight
+  (the former `ConnState::wait_until_idle`: no head started, no response pending; service-kit's
+  refused upgrade replaced it, see [Connection Driver](#connection-driver)) or the response in
+  flight at `stop` is done, then calls `graceful_shutdown()`, which closes the connection; `cut`
   still bounds the wait. The second bound keeps a pipelining client from holding the connection to
   the end of the grace: as under Go's `Shutdown`, it is closed after the current response, here
-  after at most one more already-read request, answered with `Connection: close`. A response
-  already in flight at `stop` no longer gains `Connection: close`; the connection still closes
-  after it. The upgrade-race test (`upgrade_racing_stop_gets_the_101_then_1001`) failed before and
-  passes after.
+  after at most one more already-read request, answered with `Connection: close`. A response already
+  in flight at `stop` no longer gains `Connection: close`; the connection still closes after it. The
+  upgrade-race test (`upgrade_racing_stop_gets_the_101_then_1001`) failed before and passes after.
 - **Phase 4, the drain on close.** `poll_shutdown` drains reads for up to 500 ms, and a client that
   keeps its end open after the server's FIN holds the connection task, and so the shutdown, for
   that long. Browsers and `curl` close on EOF; the loopback tests close too, as they would.
@@ -589,22 +583,22 @@ not expect.
   no `cargo deny` (only `make rust-deny`, its hook and the CI rust job do), and no file pins the
   cargo-deny version; `audit_deps.rs` pins today's set, and the cutover adds `rust-deny` to it.
 - **Phase 17, the testenv crate.** `testenv/` holds the Docker suites in Rust: the docker CLI
-  runner, environments and the sweep, gitenv, toolgate, the `harness = false` runner with a
-  Go-style `--run`, netguard, the syscall analyser and the identity check (`testenv/src/identity.rs`,
-  adapted from swarm-device-access). The runner, the `--run` filter and gitenv are now
-  `testenv-core`'s, re-exported under their old paths ([Shared Crates](#shared-crates)). The image
-  suite (`tests/image`, feature `image`) and the harness runners (`tests/harness`, feature
-  `harness`) take the image `make test-impl-image` built for `BITGAUGE_TEST_IMPL`
-  (`bitgauge:go-test` or `bitgauge:rust-candidate`) and never build BitGauge themselves; the
-  identity check and its crossed control run before any test. The probe
-  is a std-only Rust program the image suite compiles with `rustc` for the musl target, so no
-  Cargo target, and thus no workspace clippy run, covers it; it is linted with `clippy-driver`.
-  The Rust candidate's serve and healthcheck traces (`testenv/tests/testdata/syscalltrace/rust-*`)
-  pass the policies unchanged. `make rust-test-image` and the harness targets run cargo and refuse
-  to run without `BITGAUGE_TEST_IMPL`; `harness.yaml` passes `go`, the shipped implementation.
-  Found while porting: the first Rust CI tier failed ci-500k-300ms on loaded latency (+190 ms
-  over WebSocket against +14 ms on the Go image), because the accept loop left Nagle on where Go
-  sets TCP_NODELAY; `src/server/conn.rs` now sets it on every accepted connection (the trap is in
+  runner, environments and the sweep, gitenv, toolgate, the `harness = false` runner with a Go-style
+  `--run`, netguard, the syscall analyser and the identity check (`testenv/src/identity.rs`, adapted
+  from swarm-device-access). The runner, the `--run` filter and gitenv are now `testenv-core`'s,
+  re-exported under their old paths ([Shared Crates](#shared-crates)). The image suite
+  (`tests/image`, feature `image`) and the harness runners (`tests/harness`, feature `harness`) take
+  the image `make test-impl-image` built for `BITGAUGE_TEST_IMPL` (`bitgauge:go-test` or
+  `bitgauge:rust-candidate`) and never build BitGauge themselves; the identity check and its crossed
+  control run before any test. The probe is a std-only Rust program the image suite compiles with
+  `rustc` for the musl target, so no Cargo target, and thus no workspace clippy run, covers it; it
+  is linted with `clippy-driver`. The Rust candidate's serve and healthcheck traces
+  (`testenv/tests/testdata/syscalltrace/rust-*`) pass the policies unchanged. `make rust-test-image`
+  and the harness targets run cargo and refuse to run without `BITGAUGE_TEST_IMPL`; `harness.yaml`
+  passes `go`, the shipped implementation. Found while porting: the first Rust CI tier failed
+  ci-500k-300ms on loaded latency (+190 ms over WebSocket against +14 ms on the Go image), because
+  the accept loop left Nagle on where Go sets TCP_NODELAY; the accept loop (then
+  `src/server/conn.rs`, now service-kit's) sets it on every accepted connection (the trap is in
   `rust-port-go`). Neither image is byte-reproducible across rebuilds of one commit from a dirty
   tree; the identity check compares the copied binary against the image's own layer, so it is
   unaffected.
@@ -660,7 +654,7 @@ Go package to Rust module, by the phase that ported it.
 | `internal/compat/openspeedtest` | `src/compat/openspeedtest.rs` (`routes`, `Deps`, `ROWS`, the sizes and paths); `Row` in `src/compat.rs` | 11 |
 | `internal/compat/librespeed` | `src/compat/librespeed.rs` (`routes`, `Deps`, `ROWS`, `/getIP`, the server list), `src/compat/librespeed/cors.rs` | 11 |
 | `internal/compat/nq` | `src/compat/nq.rs` (`routes`, `Deps`, `ROWS`, the config) | 11 |
-| `internal/server` (`server.go` settings, `shutdown.go`) | `src/server/conn.rs` (`serve`, `drive`, `Lifecycle`, `Outcome`), `src/server/timeouts.rs` (`Timeouts`, `ConnState`, `ConnIo`), the `Framer` from `http-framing`, `src/server/upgrade.rs`, `src/server/signals.rs`, `src/server/mod.rs` (`finish_process`) | 4 |
+| `internal/server` (`server.go` settings, `shutdown.go`) | `src/server/http.rs` (`serve`, `config`) over service-kit's `http::serve` (`Lifecycle`, `Outcome`), `src/server/upgrade.rs`, `src/server/signals.rs`, `src/server/mod.rs` (`finish_process`) | 4 |
 | `internal/server` (router, middleware) | `src/server/routes.rs` (`route_table`, `check_routes`, `mounted_routes`, `Owner`, `Route`), `src/server/classify.rs` (`Classifier`, `Group`, `set_headers`, `content_security_policy`), `src/server/router.rs` (`app`, `router`, `Groups`), `src/server/middleware.rs` (`Stack`, `Observer`, `record_route`; Go's `clientip.Middleware` is its client IP stage, which stores the `Client`); the native routes and their CORS in `src/handlers/routes.rs` (`native_routes`, `Native`, `NATIVE_ROUTES`) | 12 |
 | `web/embed*.go` | `src/web.rs` (`Spa`, `RenderError`, `route_patterns`, `ROOT_ASSETS`, `METHODS`), `src/web/files.rs` (one file's answer: the content types, the ranges, the conditional headers, `not_found`, `plain_error`); `build.rs` | 12 |
 | `cmd/bitgauge` | `src/main.rs`; `src/command.rs` (`run`, `Process`, `Mode`, `SHUTDOWN_GRACE`, the startup order); `src/cli.rs` (`parse`, `Parsed`, `Options`, `CliError`, the pre-scan); `src/healthcheck.rs` (`answers`, `address`, `TIMEOUT`); `src/server/listen.rs` (`bind`, `addresses`, `zone_index`) | 13 |

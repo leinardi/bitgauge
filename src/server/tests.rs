@@ -17,8 +17,9 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Loopback tests of the connection driver and the shutdown sequence, on the real clock with
-//! short injected timeouts, against a test-only echo service with an upgrade route.
+//! Loopback tests of the server's settings and the shutdown sequence (service-kit's `serve`), on
+//! the real clock with short injected timeouts, against a test-only echo service with an upgrade
+//! route.
 
 mod echo;
 mod headers;
@@ -30,8 +31,6 @@ mod router;
 mod shutdown;
 mod stack;
 
-use std::error::Error as _;
-use std::io;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
@@ -45,23 +44,30 @@ use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::tungstenite::protocol::frame::coding::CloseCode;
 
 use self::echo::{EchoService, Hooks};
-use super::conn::{self, Lifecycle, Outcome};
-use super::timeouts::Timeouts;
+use super::{Lifecycle, Outcome, config, serve};
 use crate::test_support::dial_loopback;
+use service_kit::http::{CUT_WAIT, ServerConfig};
 
-/// Short timeouts, so the deadlines are seen in well under a second each.
-const SHORT: Timeouts = Timeouts {
-    head: Duration::from_millis(400),
-    idle: Duration::from_millis(1500),
-    write_stall: Duration::from_millis(500),
-    shutdown_drain: Duration::from_millis(500),
-};
+/// The server's head timeout in the tests, short so it is seen in well under a second.
+const HEAD: Duration = Duration::from_millis(400);
+
+/// The server's write-stall timeout in the tests.
+const WRITE_STALL: Duration = Duration::from_millis(500);
+
+/// The server's settings with short timeouts, so the deadlines are seen in well under a second
+/// each, and `drain` as the shutdown grace.
+fn short(drain: Duration) -> ServerConfig {
+    let mut settings = config(drain);
+    settings.header_read_timeout = HEAD;
+    settings.write_stall_timeout = WRITE_STALL;
+    settings
+}
 
 /// The shutdown grace of the tests.
 const GRACE: Duration = Duration::from_millis(800);
 
-/// The test echo socket's idle timeout: longer than the head and idle deadlines together, so a
-/// socket outliving those is shown to end by its own timer.
+/// The test echo socket's idle timeout: longer than the head timeout several times over, so a
+/// socket outliving it is shown to end by its own timer.
 const SOCKET_IDLE: Duration = Duration::from_millis(2500);
 
 /// Slack for scheduling on a busy test machine.
@@ -77,15 +83,15 @@ struct Server {
     served: JoinHandle<Outcome>,
 }
 
-async fn start(timeouts: Timeouts, grace: Duration) -> Server {
+async fn start(grace: Duration) -> Server {
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let address = listener.local_addr().unwrap();
     let lifecycle = Lifecycle::new();
     let hooks = Arc::new(Hooks::default());
-    let service = EchoService::new(lifecycle.clone(), Arc::clone(&hooks), SOCKET_IDLE);
+    let service = EchoService::new(Arc::clone(&hooks), SOCKET_IDLE);
     let served = tokio::spawn({
         let lifecycle = lifecycle.clone();
-        async move { conn::serve(listener, service, &lifecycle, timeouts, grace).await }
+        async move { serve(listener, service, short(grace), &lifecycle).await }
     });
     Server {
         address,
@@ -173,70 +179,43 @@ fn assert_between(elapsed: Duration, low: Duration, high: Duration, what: &str) 
 
 #[tokio::test]
 async fn fresh_connection_is_closed_at_the_head_timeout_not_the_idle_one() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let mut stream = server.connect().await;
     let connected = Instant::now();
     let (read, closed) = read_until_closed(&mut stream).await;
     assert!(read.is_empty(), "a response was written: {read:?}");
     assert_between(
         closed - connected,
-        SHORT.head.saturating_sub(SLACK),
-        SHORT.head + SLACK,
+        HEAD.saturating_sub(SLACK),
+        HEAD + SLACK,
         "closed",
     );
 }
 
+/// An idle keep-alive connection is bounded by the same head timeout (hyper arms it when the
+/// connection goes idle): there is no separate, longer idle timeout.
 #[tokio::test]
-async fn keep_alive_past_the_head_timeout_is_closed_at_idle() {
-    let server = start(SHORT, GRACE).await;
+async fn idle_keep_alive_is_closed_at_the_head_timeout() {
+    let server = start(GRACE).await;
     let mut stream = server.connect().await;
     stream.write_all(GET).await.unwrap();
     let (head, body) = read_response(&mut stream).await;
     let answered = Instant::now();
     assert!(head.starts_with("HTTP/1.1 200"), "{head}");
     assert_eq!(body, b"ok");
-    let (_, closed) = read_until_closed(&mut stream).await;
+    let (rest, closed) = read_until_closed(&mut stream).await;
+    assert!(rest.is_empty(), "{rest:?}");
     assert_between(
         closed - answered,
-        SHORT.idle.saturating_sub(SLACK),
-        SHORT.idle + SLACK,
+        HEAD.saturating_sub(SLACK),
+        HEAD + SLACK,
         "closed",
     );
 }
 
 #[tokio::test]
-async fn head_dripped_after_idle_is_cut_a_head_timeout_after_its_first_byte() {
-    let server = start(SHORT, GRACE).await;
-    let mut stream = server.connect().await;
-    stream.write_all(GET).await.unwrap();
-    read_response(&mut stream).await;
-    tokio::time::sleep(Duration::from_millis(300)).await;
-    let first_byte = Instant::now();
-    let (mut reader, mut writer) = stream.into_split();
-    let drip = tokio::spawn(async move {
-        for byte in b"GET /slow HTTP/1.1\r\nHost: test\r\n" {
-            if writer.write_all(&[*byte]).await.is_err() {
-                return;
-            }
-            tokio::time::sleep(Duration::from_millis(50)).await;
-        }
-    });
-    let mut buf = Vec::new();
-    let _ = reader.read_to_end(&mut buf).await;
-    let closed = Instant::now();
-    drip.abort();
-    assert!(buf.is_empty(), "a response was written: {buf:?}");
-    assert_between(
-        closed - first_byte,
-        SHORT.head.saturating_sub(SLACK),
-        SHORT.head + SLACK,
-        "cut",
-    );
-}
-
-#[tokio::test]
 async fn two_pipelined_requests_in_one_write_are_both_answered() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let mut stream = server.connect().await;
     stream
         .write_all(
@@ -255,7 +234,7 @@ async fn two_pipelined_requests_in_one_write_are_both_answered() {
 
 #[tokio::test]
 async fn pipelined_partial_head_is_cut_a_head_timeout_after_the_first_response() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let mut stream = server.connect().await;
     stream
         .write_all(b"GET / HTTP/1.1\r\nHost: test\r\n\r\nGET /second HTTP/1.1\r\nHo")
@@ -273,15 +252,15 @@ async fn pipelined_partial_head_is_cut_a_head_timeout_after_the_first_response()
     assert!(rest.is_empty(), "a second response was written: {rest:?}");
     assert_between(
         closed - answered,
-        SHORT.head.saturating_sub(SLACK),
-        SHORT.head + SLACK,
+        HEAD.saturating_sub(SLACK),
+        HEAD + SLACK,
         "cut",
     );
 }
 
 #[tokio::test]
 async fn slow_upload_body_is_not_cut() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let mut stream = server.connect().await;
     stream
         .write_all(b"POST /upload HTTP/1.1\r\nHost: test\r\nContent-Length: 12\r\n\r\n")
@@ -297,68 +276,50 @@ async fn slow_upload_body_is_not_cut() {
     assert_eq!(body, b"12");
 }
 
-/// Whether `error`, or anything it wraps, is an I/O timeout.
-fn is_timed_out(error: &hyper::Error) -> bool {
-    let mut source = error.source();
-    while let Some(cause) = source {
-        if cause
-            .downcast_ref::<io::Error>()
-            .is_some_and(|io| io.kind() == io::ErrorKind::TimedOut)
-        {
-            return true;
-        }
-        source = cause.source();
-    }
-    false
-}
-
+/// A client that stops reading a response that never ends is cut once a write has waited the
+/// write-stall timeout: the socket buffers fill, every write then waits, and the server closes.
+/// Without the cut the endless body would outlast any read below.
 #[tokio::test]
 async fn stalled_reader_is_cut_after_the_write_stall_timeout() {
-    let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
-    let address = listener.local_addr().unwrap();
-    let lifecycle = Lifecycle::new();
-    let service = EchoService::new(lifecycle.clone(), Arc::new(Hooks::default()), SOCKET_IDLE);
-    let mut client = dial_loopback(address).await;
-    let (stream, _) = listener.accept().await.unwrap();
-    client
+    let server = start(GRACE).await;
+    let mut stream = server.connect().await;
+    stream
         .write_all(b"GET /endless HTTP/1.1\r\nHost: test\r\n\r\n")
         .await
         .unwrap();
-    // The client never reads: the socket buffers fill, then every write waits.
-    let started = Instant::now();
-    let result = timeout(
-        Duration::from_secs(10),
-        conn::drive(stream, service, &lifecycle, SHORT),
-    )
-    .await
-    .expect("the stalled connection is cut");
-    let error = result.expect_err("the connection ends with an error");
-    assert!(is_timed_out(&error), "not a timeout: {error:?}");
+    // The client does not read for three stall timeouts, so the stall is certain to have passed
+    // and been acted on.
+    tokio::time::sleep(WRITE_STALL * 3).await;
+    let (read, _) = timeout(Duration::from_secs(10), read_until_closed(&mut stream))
+        .await
+        .expect("the stalled connection is cut");
+    // What was read is what the buffers held: far less than a server that went on would send.
+    assert!(read.len() < 256 * 1024 * 1024, "{} bytes", read.len());
     assert!(
-        started.elapsed() >= SHORT.write_stall,
-        "cut before the stall timeout"
+        read.starts_with(b"HTTP/1.1 200"),
+        "{:?}",
+        String::from_utf8_lossy(&read[..read.len().min(64)])
     );
-    drop(client);
 }
 
 #[tokio::test]
-async fn upgraded_socket_is_not_cut_by_the_head_or_idle_deadlines() {
-    let server = start(SHORT, GRACE).await;
+async fn upgraded_socket_is_not_cut_by_the_head_timeout() {
+    let server = start(GRACE).await;
     let stream = server.connect().await;
     let (mut socket, _) = tokio_tungstenite::client_async("ws://test/ws", stream)
         .await
         .unwrap();
-    tokio::time::sleep(SHORT.idle + SHORT.head).await;
+    tokio::time::sleep(HEAD * 4).await;
     socket.send(Message::text("ping")).await.unwrap();
     let echoed = socket.next().await.unwrap().unwrap();
     assert_eq!(echoed, Message::text("ping"));
 }
 
-/// A silent upgraded socket outlives the head and idle deadlines and is closed by its own idle
+/// A silent upgraded socket outlives the head timeout and is closed by its own idle
 /// timer, with 1000.
 #[tokio::test]
 async fn silent_upgraded_socket_is_closed_by_its_idle_timer() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let stream = server.connect().await;
     let (mut socket, _) = tokio_tungstenite::client_async("ws://test/ws", stream)
         .await
@@ -376,7 +337,7 @@ async fn silent_upgraded_socket_is_closed_by_its_idle_timer() {
 /// The drain on close keeps a 413 answered without reading from being lost to a reset.
 #[tokio::test]
 async fn response_before_the_body_survives_the_close() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let mut stream = server.connect().await;
     stream
         .write_all(b"POST /too-large HTTP/1.1\r\nHost: test\r\nContent-Length: 100000000\r\n\r\n")
@@ -400,7 +361,7 @@ async fn response_before_the_body_survives_the_close() {
 
 #[tokio::test]
 async fn head_over_16_kib_is_answered_431() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let mut stream = server.connect().await;
     let mut request = b"GET / HTTP/1.1\r\nHost: test\r\nX-Pad: ".to_vec();
     request.extend(std::iter::repeat_n(b'a', 17 * 1024));
@@ -413,15 +374,15 @@ async fn head_over_16_kib_is_answered_431() {
 
 #[tokio::test]
 async fn no_connections_stops_at_once() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let outcome = server.stop_within(SLACK).await;
-    assert!(matches!(outcome, Outcome::Stopped), "{outcome:?}");
+    assert!(matches!(outcome, Outcome::Drained), "{outcome:?}");
 }
 
 /// QA-126: a long target consumes the head budget, not an independent 414 limit.
 #[tokio::test]
 async fn long_request_target_is_answered_431() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let mut stream = server.connect().await;
     let request = format!(
         "GET /{} HTTP/1.1\r\nHost: test\r\n\r\n",
@@ -436,7 +397,7 @@ async fn long_request_target_is_answered_431() {
 /// QA-126: this HTTP/1-only listener closes an HTTP/2 prior-knowledge preface silently.
 #[tokio::test]
 async fn http2_preface_is_closed_without_a_response() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let mut stream = server.connect().await;
     stream
         .write_all(b"PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n")
@@ -448,7 +409,7 @@ async fn http2_preface_is_closed_without_a_response() {
 
 #[tokio::test]
 async fn idle_keep_alive_is_closed_and_the_server_stops() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let mut stream = server.connect().await;
     stream.write_all(GET).await.unwrap();
     read_response(&mut stream).await;
@@ -458,7 +419,7 @@ async fn idle_keep_alive_is_closed_and_the_server_stops() {
     drop(stream);
     assert!(rest.is_empty(), "{rest:?}");
     let outcome = stopped.await.unwrap();
-    assert!(matches!(outcome, Outcome::Stopped), "{outcome:?}");
+    assert!(matches!(outcome, Outcome::Drained), "{outcome:?}");
 }
 
 /// Reads a chunked response until the server closes, then closes too, as a browser does; whether
@@ -471,7 +432,7 @@ async fn read_chunked_to_end(mut stream: TcpStream) -> bool {
 
 #[tokio::test]
 async fn download_ending_inside_the_grace_completes() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let mut stream = server.connect().await;
     stream
         .write_all(b"GET /download?ms=400 HTTP/1.1\r\nHost: test\r\nConnection: close\r\n\r\n")
@@ -482,14 +443,14 @@ async fn download_ending_inside_the_grace_completes() {
     let stopped = tokio::spawn(server.stop_within(GRACE + SLACK));
     assert!(read_chunked_to_end(stream).await, "the download was cut");
     let outcome = stopped.await.unwrap();
-    assert!(matches!(outcome, Outcome::Stopped), "{outcome:?}");
+    assert!(matches!(outcome, Outcome::Drained), "{outcome:?}");
 }
 
 /// The same on a keep-alive connection: the response in flight at `stop` completes, and then the
 /// server closes the connection by itself.
 #[tokio::test]
 async fn keep_alive_download_completes_and_then_the_connection_is_closed() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let mut stream = server.connect().await;
     stream
         .write_all(b"GET /download?ms=400 HTTP/1.1\r\nHost: test\r\n\r\n")
@@ -500,14 +461,14 @@ async fn keep_alive_download_completes_and_then_the_connection_is_closed() {
     let stopped = tokio::spawn(server.stop_within(GRACE + SLACK));
     assert!(read_chunked_to_end(stream).await, "the download was cut");
     let outcome = stopped.await.unwrap();
-    assert!(matches!(outcome, Outcome::Stopped), "{outcome:?}");
+    assert!(matches!(outcome, Outcome::Drained), "{outcome:?}");
 }
 
 /// Go: `TestRunCutsRequestsAfterTheGrace`, with a short grace; the 10 s grace itself is the
 /// command's, which phase 13 ports.
 #[tokio::test]
 async fn download_past_the_grace_is_cut() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let mut stream = server.connect().await;
     stream
         .write_all(b"GET /download?ms=5000 HTTP/1.1\r\nHost: test\r\n\r\n")
@@ -516,8 +477,8 @@ async fn download_past_the_grace_is_cut() {
     let mut first = [0_u8; 1];
     stream.read_exact(&mut first).await.unwrap();
     let stopping = Instant::now();
-    let outcome = server.stop_within(GRACE + conn::CUT_WAIT + SLACK).await;
-    assert!(matches!(outcome, Outcome::GraceExceeded), "{outcome:?}");
+    let outcome = server.stop_within(GRACE + CUT_WAIT + SLACK).await;
+    assert!(matches!(outcome, Outcome::DeadlineExceeded), "{outcome:?}");
     assert!(stopping.elapsed() >= GRACE, "cut before the grace");
     assert!(!read_chunked_to_end(stream).await, "the download completed");
     assert_eq!(super::exit_code(&outcome), std::process::ExitCode::FAILURE);
@@ -541,7 +502,7 @@ where
 /// handler it is `shutdown::stop_closes_websockets_with_going_away`.
 #[tokio::test]
 async fn open_websockets_each_get_1001() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let mut sockets = Vec::new();
     for _ in 0..2 {
         let stream = server.connect().await;
@@ -555,30 +516,37 @@ async fn open_websockets_each_get_1001() {
         assert_eq!(close_code(socket).await, Some(CloseCode::Away));
     }
     let outcome = stopped.await.unwrap();
-    assert!(matches!(outcome, Outcome::Stopped), "{outcome:?}");
+    assert!(matches!(outcome, Outcome::Drained), "{outcome:?}");
     assert_eq!(super::exit_code(&outcome), std::process::ExitCode::SUCCESS);
 }
 
-/// The 101 is written after `stop`: the socket's task was registered first, so shutdown awaits it
-/// and it closes with 1001.
+/// An upgrade request in flight when `stop` comes is refused: service-kit shuts the connection
+/// down gracefully, which answers the request in flight with `Connection: close`, and that turns
+/// the `101` into a refused upgrade. The socket's task, registered before the `101`, ends with the
+/// failed upgrade, and the shutdown completes.
 #[tokio::test]
-async fn upgrade_racing_stop_gets_the_101_then_1001() {
-    let server = start(SHORT, GRACE).await;
+async fn upgrade_racing_stop_is_refused() {
+    let server = start(GRACE).await;
     let stream = server.connect().await;
     let client = tokio::spawn(async move {
-        let (mut socket, response) = tokio_tungstenite::client_async("ws://test/ws-slow", stream)
+        tokio_tungstenite::client_async("ws://test/ws-slow", stream)
             .await
-            .unwrap();
-        assert_eq!(response.status(), http::StatusCode::SWITCHING_PROTOCOLS);
-        close_code(&mut socket).await
+            .map(|(_, response)| response.status())
     });
     server.hooks.slow_reached.notified().await;
     server.lifecycle.stop();
     tokio::time::sleep(Duration::from_millis(50)).await;
     server.hooks.slow_release.notify_one();
-    assert_eq!(client.await.unwrap(), Some(CloseCode::Away));
+    let upgraded = timeout(Duration::from_secs(5), client)
+        .await
+        .expect("an answer in time")
+        .unwrap();
+    assert!(
+        !matches!(upgraded, Ok(status) if status == http::StatusCode::SWITCHING_PROTOCOLS),
+        "{upgraded:?}"
+    );
     let outcome = timeout(GRACE, server.served).await.unwrap().unwrap();
-    assert!(matches!(outcome, Outcome::Stopped), "{outcome:?}");
+    assert!(matches!(outcome, Outcome::Drained), "{outcome:?}");
 }
 
 /// The scheduling gap: the upgrade resolves after the HTTP task has ended, and is held there by a
@@ -586,7 +554,7 @@ async fn upgrade_racing_stop_gets_the_101_then_1001() {
 /// sent its 1001.
 #[tokio::test]
 async fn shutdown_awaits_a_socket_whose_upgrade_resolves_after_the_http_task() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let stream = server.connect().await;
     let (mut socket, response) = tokio_tungstenite::client_async("ws://test/ws-held", stream)
         .await
@@ -602,22 +570,22 @@ async fn shutdown_awaits_a_socket_whose_upgrade_resolves_after_the_http_task() {
     server.hooks.held_release.notify_one();
     assert_eq!(close_code(&mut socket).await, Some(CloseCode::Away));
     let outcome = timeout(GRACE, server.served).await.unwrap().unwrap();
-    assert!(matches!(outcome, Outcome::Stopped), "{outcome:?}");
+    assert!(matches!(outcome, Outcome::Drained), "{outcome:?}");
 }
 
 /// `cut` while the upgrade is still pending ends the socket task without a close frame, and the
 /// tracker's wait completes.
 #[tokio::test]
 async fn cut_while_the_upgrade_is_pending_ends_without_a_close() {
-    let server = start(SHORT, GRACE).await;
+    let server = start(GRACE).await;
     let stream = server.connect().await;
     let (mut socket, _) = tokio_tungstenite::client_async("ws://test/ws-held", stream)
         .await
         .unwrap();
     server.hooks.held_resolved.notified().await;
     let tracker = server.lifecycle.tracker().clone();
-    let outcome = server.stop_within(GRACE + conn::CUT_WAIT + SLACK).await;
-    assert!(matches!(outcome, Outcome::GraceExceeded), "{outcome:?}");
+    let outcome = server.stop_within(GRACE + CUT_WAIT + SLACK).await;
+    assert!(matches!(outcome, Outcome::DeadlineExceeded), "{outcome:?}");
     assert!(tracker.is_empty(), "a task outlived the cut");
     match timeout(Duration::from_secs(5), socket.next())
         .await
@@ -627,37 +595,4 @@ async fn cut_while_the_upgrade_is_pending_ends_without_a_close() {
         Some(Ok(other)) => panic!("an unexpected frame: {other:?}"),
         None | Some(Err(_)) => {}
     }
-}
-
-/// A connection the driver serves has Nagle off, as Go's net package leaves it: a small echo or
-/// ping answer is sent at once, not held for the peer's delayed ACK. A second handle on the
-/// server's socket reads the option the driver set.
-#[tokio::test]
-async fn a_served_connection_has_nagle_off() {
-    let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
-    let address = listener.local_addr().unwrap();
-    let mut client = dial_loopback(address).await;
-    let (accepted, _) = listener.accept().await.unwrap();
-    let accepted = accepted.into_std().unwrap();
-    let observer = accepted.try_clone().unwrap();
-    assert!(
-        !observer.nodelay().unwrap(),
-        "a fresh socket already had TCP_NODELAY"
-    );
-    let lifecycle = Lifecycle::new();
-    let service = EchoService::new(lifecycle.clone(), Arc::new(Hooks::default()), SOCKET_IDLE);
-    let driven = tokio::spawn({
-        let lifecycle = lifecycle.clone();
-        let stream = TcpStream::from_std(accepted).unwrap();
-        async move { conn::drive(stream, service, &lifecycle, SHORT).await }
-    });
-    client.write_all(GET).await.unwrap();
-    let mut answer = [0_u8; 12];
-    timeout(Duration::from_secs(5), client.read_exact(&mut answer))
-        .await
-        .unwrap()
-        .unwrap();
-    assert!(observer.nodelay().unwrap(), "the driver left Nagle on");
-    drop(client);
-    let _ = timeout(Duration::from_secs(5), driven).await;
 }

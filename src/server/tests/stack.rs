@@ -53,11 +53,10 @@ use crate::handlers::{
 use crate::metrics::{Direction, Group as MetricsGroup, Metrics};
 use crate::ratelimit::{Limiter, Options};
 use crate::server::classify::Classifier;
-use crate::server::conn::{self, Lifecycle, Outcome, Peer};
 use crate::server::middleware::{Observer, Stack, record_route};
 use crate::server::router::{Groups, app};
 use crate::server::routes::mounted_routes;
-use crate::server::timeouts::Timeouts;
+use crate::server::{Lifecycle, Outcome, Peer, config, serve};
 use crate::test_support::dial_loopback;
 use crate::web::{Files, ROOT_ASSETS, Spa, not_found};
 
@@ -123,7 +122,6 @@ pub(super) fn groups(
     spa: Option<Arc<Spa>>,
     limiter: &Limiter,
     meter: &Arc<Metrics>,
-    lifecycle: &Lifecycle,
 ) -> Groups {
     let source = RandomSource::new().expect("a random source");
     let epoch = Epoch::new().expect("an epoch");
@@ -136,7 +134,6 @@ pub(super) fn groups(
             &config.server.cors.allowed_origins,
             WEBSOCKET_IDLE,
             Arc::clone(meter),
-            lifecycle.clone(),
         ),
         info: Arc::new(Info::new(
             config,
@@ -241,8 +238,7 @@ impl TestStack {
             &mounted_routes(config),
         ));
         let lifecycle = Lifecycle::new();
-        let stack = app(config, groups(config, spa, &limiter, &meter, &lifecycle))
-            .expect("no route problems");
+        let stack = app(config, groups(config, spa, &limiter, &meter)).expect("no route problems");
         Self::serve(stack, lifecycle).await
     }
 
@@ -252,16 +248,7 @@ impl TestStack {
         let address = listener.local_addr().expect("an address");
         let served = tokio::spawn({
             let lifecycle = lifecycle.clone();
-            async move {
-                conn::serve(
-                    listener,
-                    stack,
-                    &lifecycle,
-                    Timeouts::SERVER,
-                    Duration::from_secs(1),
-                )
-                .await
-            }
+            async move { serve(listener, stack, config(Duration::from_secs(1)), &lifecycle).await }
         });
         Self {
             address,

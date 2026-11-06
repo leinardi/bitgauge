@@ -53,7 +53,7 @@ use crate::clientip::Client;
 use crate::config::{Origin, url};
 use crate::metrics::Metrics;
 use crate::ratelimit::Limiter;
-use crate::server::conn::Lifecycle;
+use crate::server::Lifecycle;
 use crate::server::upgrade::{SocketShutdown, spawn_socket_task};
 
 mod message;
@@ -82,7 +82,6 @@ pub struct WebSockets {
 struct Inner {
     limiter: Limiter,
     meter: Arc<Metrics>,
-    lifecycle: Lifecycle,
     allowed: HashSet<String>,
     idle: Duration,
 }
@@ -97,7 +96,6 @@ impl WebSockets {
         allowed_origins: &[Origin],
         idle: Duration,
         meter: Arc<Metrics>,
-        lifecycle: Lifecycle,
     ) -> Self {
         let allowed = allowed_origins
             .iter()
@@ -107,7 +105,6 @@ impl WebSockets {
             inner: Arc::new(Inner {
                 limiter,
                 meter,
-                lifecycle,
                 allowed,
                 idle,
             }),
@@ -150,14 +147,21 @@ impl WebSockets {
             Ok(permit) => permit,
             Err(refused) => return super::refuse(request.version(), &refused, &self.inner.meter),
         };
+        // The connection's own lifecycle, which the server stores in every request: the socket's
+        // task is registered on its tracker and obeys its `stop` and `cut`.
+        let Some(lifecycle) = request.extensions().get::<Lifecycle>().cloned() else {
+            return error_response(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CODE_INTERNAL,
+                "server lifecycle unavailable",
+                None,
+            );
+        };
         let upgrade = hyper::upgrade::on(&mut request);
         let inner = Arc::clone(&self.inner);
-        spawn_socket_task(
-            &self.inner.lifecycle,
-            upgrade,
-            permit,
-            move |io, shutdown| serve(io, shutdown, inner, client.address),
-        );
+        spawn_socket_task(&lifecycle, upgrade, permit, move |io, shutdown| {
+            serve(io, shutdown, inner, client.address)
+        });
         let mut response = Response::new(Body::empty());
         *response.status_mut() = StatusCode::SWITCHING_PROTOCOLS;
         let headers = response.headers_mut();

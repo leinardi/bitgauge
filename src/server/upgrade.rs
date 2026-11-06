@@ -36,7 +36,7 @@ use hyper::upgrade::Upgraded;
 use hyper_util::rt::TokioIo;
 use tokio_util::sync::CancellationToken;
 
-use super::conn::Lifecycle;
+use super::Lifecycle;
 
 /// What an upgraded socket's code is told about shutdown.
 #[derive(Debug, Clone)]
@@ -61,7 +61,7 @@ where
 {
     let stop = lifecycle.stop_token().clone();
     let cut = lifecycle.cut_token().clone();
-    lifecycle.tracker().spawn(async move {
+    lifecycle.spawn(async move {
         let _guard = guard;
         let upgraded = tokio::select! {
             biased;

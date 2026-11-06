@@ -47,8 +47,8 @@ use http_body::{Body as HttpBody, Frame, SizeHint};
 use tokio::time::Instant;
 use tower_service::Service;
 
+use super::Peer;
 use super::classify::{Classifier, Group, base_of, set_headers};
-use super::conn::Peer;
 use super::routes::mounted_routes;
 use crate::clientip::Deriver;
 use crate::config::Config;

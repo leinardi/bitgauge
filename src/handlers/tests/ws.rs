@@ -45,7 +45,7 @@ use crate::handlers::{WEBSOCKET_IDLE, WEBSOCKET_READ_LIMIT, WebSockets};
 use crate::logger;
 use crate::metrics::Metrics;
 use crate::ratelimit::{Limiter, Options, WEBSOCKETS_PER_CLIENT};
-use crate::server::conn::Lifecycle;
+use crate::server::Lifecycle;
 use tracing_setup::testing::Capture;
 
 /// A failsafe against a hang, far above what any test here waits for; not a wait for state.
@@ -85,10 +85,12 @@ impl WsServer {
             .iter()
             .map(|origin| origin.parse().expect("an origin"))
             .collect();
-        let echo = WebSockets::new(limiter, &allowed, idle, Arc::clone(&meter), sockets.clone());
+        let echo = WebSockets::new(limiter, &allowed, idle, Arc::clone(&meter));
+        let handler_sockets = sockets.clone();
         let router = Router::new().route(
             "/",
             any(move |mut request: Request| async move {
+                request.extensions_mut().insert(handler_sockets.clone());
                 request.extensions_mut().insert(Client {
                     address: IpAddr::V4(Ipv4Addr::LOCALHOST),
                     peer_trusted: false,

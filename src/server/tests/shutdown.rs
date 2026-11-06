@@ -32,21 +32,28 @@ use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::tungstenite::protocol::frame::coding::CloseCode;
 
 use super::stack::{TestStack, test_config};
-use crate::server::conn::{self, MAX_HEADER_SIZE, MAX_HEADERS, Outcome};
-use crate::server::timeouts::Timeouts;
+use crate::server::http::{HEAD_TIMEOUT, MAX_HEADER_SIZE, MAX_HEADERS, WRITE_STALL};
 use crate::server::{GRACE_EXCEEDED, exit_code};
+use crate::server::{Lifecycle, Outcome, config, serve};
 use crate::test_support::dial_loopback;
 use tracing_setup::testing::Capture;
 
 const FAILSAFE: Duration = Duration::from_secs(30);
 
-/// Go: `TestNewServerSettings`: a 10 s head, a 120 s idle and a 16 KiB head, and no deadline on a
-/// request's body or its response beyond the write stall (`body_has_no_connection_deadline`).
+/// Go: `TestNewServerSettings`: a 10 s head (an idle keep-alive connection's wait included), a
+/// 30 s write stall and a 16 KiB head, and no deadline on a request's body or its response beyond
+/// the write stall (`slow_upload_body_is_not_cut`).
 #[test]
 fn server_settings() {
-    assert_eq!(Timeouts::SERVER.head, Duration::from_secs(10));
-    assert_eq!(Timeouts::SERVER.idle, Duration::from_secs(120));
-    assert_eq!(Timeouts::SERVER.write_stall, Duration::from_secs(30));
+    let settings = config(Duration::from_secs(10));
+    assert_eq!(HEAD_TIMEOUT, Duration::from_secs(10));
+    assert_eq!(settings.header_read_timeout, Duration::from_secs(10));
+    assert_eq!(WRITE_STALL, Duration::from_secs(30));
+    assert_eq!(settings.write_stall_timeout, Duration::from_secs(30));
+    assert_eq!(settings.drain, Duration::from_secs(10));
+    assert_eq!(settings.max_header_size, Some(16 * 1024));
+    assert_eq!(settings.max_headers, Some(100));
+    assert!(settings.upgrades);
     assert_eq!(MAX_HEADER_SIZE, 16 * 1024);
     assert_eq!(MAX_HEADERS, 100);
     assert!(!GRACE_EXCEEDED.is_empty());
@@ -84,7 +91,7 @@ async fn stop_closes_websockets_with_going_away() {
         .expect("the end in time");
     assert!(end.is_none(), "{end:?}");
     let outcome = stopped.await.expect("the stop did not panic");
-    assert!(matches!(outcome, Outcome::Stopped), "{outcome:?}");
+    assert!(matches!(outcome, Outcome::Drained), "{outcome:?}");
     assert_eq!(exit_code(&outcome), std::process::ExitCode::SUCCESS);
     // The listener is gone: its address can be bound again.
     assert!(
@@ -101,15 +108,14 @@ async fn a_listener_failure_is_reported() {
     // A listening socket shut down fails every accept with EINVAL, which is not transient.
     nix::sys::socket::shutdown(listener.as_raw_fd(), nix::sys::socket::Shutdown::Both)
         .expect("a shutdown");
-    let lifecycle = conn::Lifecycle::new();
+    let lifecycle = Lifecycle::new();
     let outcome = timeout(
         FAILSAFE,
-        conn::serve(
+        serve(
             listener,
-            super::echo::EchoService::new(lifecycle.clone(), Arc::default(), FAILSAFE),
+            super::echo::EchoService::new(Arc::default(), FAILSAFE),
+            config(Duration::from_secs(1)),
             &lifecycle,
-            Timeouts::SERVER,
-            Duration::from_secs(1),
         ),
     )
     .await

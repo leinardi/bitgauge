@@ -47,7 +47,7 @@ use tokio::time::Instant;
 
 use bitgauge::command::{self, Mode, Process};
 use bitgauge::config::Config;
-use bitgauge::server::conn::Lifecycle;
+use bitgauge::server::Lifecycle;
 use bitgauge::web::{Files, RenderError, Spa};
 use bytes::Bytes;
 use serde_json::Value;

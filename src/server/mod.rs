@@ -18,7 +18,7 @@
  */
 
 //! The HTTP server: the route table, the router of the route groups and the global middleware,
-//! the accept loop and connection driver, the connection deadlines, the upgraded-socket tasks,
+//! service-kit's server with BitGauge's settings, the upgraded-socket tasks,
 //! the shutdown signals and the end of the process.
 
 use std::process::ExitCode;
@@ -26,19 +26,19 @@ use std::process::ExitCode;
 use tokio::runtime::Runtime;
 
 pub mod classify;
-pub mod conn;
+pub mod http;
 pub mod listen;
 pub mod middleware;
 pub mod router;
 pub mod routes;
 pub mod signals;
-pub mod timeouts;
 pub mod upgrade;
 
 #[cfg(test)]
 mod tests;
 
-pub use conn::{Lifecycle, Outcome, serve};
+pub use http::{config, serve};
+pub use service_kit::http::{Lifecycle, Outcome, Peer};
 
 /// How long the runtime may take to stop after the shutdown sequence: the backstop for a task
 /// that ignored `cut`.
@@ -61,15 +61,15 @@ pub fn finish_process(runtime: Runtime, outcome: &Outcome) -> ExitCode {
 #[must_use]
 pub fn exit_code(outcome: &Outcome) -> ExitCode {
     match outcome {
-        Outcome::Stopped => ExitCode::SUCCESS,
-        Outcome::GraceExceeded | Outcome::ListenerFailed(_) => ExitCode::FAILURE,
+        Outcome::Drained => ExitCode::SUCCESS,
+        Outcome::DeadlineExceeded | Outcome::ListenerFailed(_) => ExitCode::FAILURE,
     }
 }
 
 fn log_outcome(outcome: &Outcome) {
     match outcome {
-        Outcome::Stopped => tracing::info!("stopped"),
-        Outcome::GraceExceeded => tracing::error!(error = GRACE_EXCEEDED, "server stopped"),
+        Outcome::Drained => tracing::info!("stopped"),
+        Outcome::DeadlineExceeded => tracing::error!(error = GRACE_EXCEEDED, "server stopped"),
         Outcome::ListenerFailed(error) => {
             tracing::error!(error = %format_args!("serve: {error}"), "server stopped");
         }

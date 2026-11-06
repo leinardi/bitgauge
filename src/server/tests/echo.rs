@@ -45,7 +45,7 @@ use tokio_tungstenite::tungstenite::protocol::frame::coding::CloseCode;
 use tokio_tungstenite::tungstenite::protocol::{CloseFrame, Role};
 use tower_service::Service;
 
-use crate::server::conn::Lifecycle;
+use crate::server::Lifecycle;
 use crate::server::upgrade::{SocketShutdown, spawn_socket_task};
 
 type Body = BoxBody<Bytes, Infallible>;
@@ -63,19 +63,14 @@ pub(super) struct Hooks {
 
 #[derive(Debug, Clone)]
 pub(super) struct EchoService {
-    lifecycle: Lifecycle,
     hooks: Arc<Hooks>,
     /// A socket that receives no message for this long is closed with 1000.
     socket_idle: Duration,
 }
 
 impl EchoService {
-    pub(super) fn new(lifecycle: Lifecycle, hooks: Arc<Hooks>, socket_idle: Duration) -> Self {
-        Self {
-            lifecycle,
-            hooks,
-            socket_idle,
-        }
+    pub(super) fn new(hooks: Arc<Hooks>, socket_idle: Duration) -> Self {
+        Self { hooks, socket_idle }
     }
 }
 
@@ -173,11 +168,11 @@ async fn websocket(
     service: EchoService,
     kind: Upgrade,
 ) -> Response<Body> {
-    let EchoService {
-        lifecycle,
-        hooks,
-        socket_idle,
-    } = service;
+    let EchoService { hooks, socket_idle } = service;
+    // The lifecycle the server stores in every request, as the WebSocket handler takes it.
+    let Some(lifecycle) = request.extensions().get::<Lifecycle>().cloned() else {
+        return text(StatusCode::INTERNAL_SERVER_ERROR, "no lifecycle");
+    };
     let Some(key) = request.headers().get(header::SEC_WEBSOCKET_KEY).cloned() else {
         return text(StatusCode::BAD_REQUEST, "no key");
     };

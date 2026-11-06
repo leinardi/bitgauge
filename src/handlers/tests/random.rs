@@ -27,7 +27,7 @@ use http_body_util::BodyExt as _;
 
 use super::support::no_transfer;
 use crate::handlers::{BUFFER_SIZE, MAX_FRAME, RandomBody, RandomSource};
-use crate::server::timeouts::Timeouts;
+use crate::server::http::WRITE_STALL;
 
 /// Every frame of a body, in order.
 async fn frames(mut body: RandomBody) -> Vec<Bytes> {
@@ -62,7 +62,7 @@ fn new_buffer_is_four_mib_of_random_bytes() {
         bytes.iter().any(|&byte| byte != 0),
         "the buffer is all zeros"
     );
-    assert_eq!(Timeouts::SERVER.write_stall, Duration::from_secs(30));
+    assert_eq!(WRITE_STALL, Duration::from_secs(30));
 }
 
 /// Go: `TestWriteRandomExactCountAndWrapAround`

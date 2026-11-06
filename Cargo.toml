@@ -45,7 +45,6 @@ repository = "https://github.com/leinardi/bitgauge"
 # remapped, and the image's build context does not hold them).
 [workspace.dependencies]
 go-compat = { git = "https://github.com/leinardi/rust-common", rev = "2179ec42584417bcea437b90b168f632890babe6" }
-http-framing = { git = "https://github.com/leinardi/rust-common", rev = "2179ec42584417bcea437b90b168f632890babe6" }
 repo-meta = { git = "https://github.com/leinardi/rust-common", rev = "2179ec42584417bcea437b90b168f632890babe6" }
 service-kit = { git = "https://github.com/leinardi/rust-common", rev = "2179ec42584417bcea437b90b168f632890babe6" }
 testenv-core = { git = "https://github.com/leinardi/rust-common", rev = "2179ec42584417bcea437b90b168f632890babe6" }
@@ -94,21 +93,19 @@ path = "src/lib.rs"
 name = "bitgauge"
 path = "src/main.rs"
 
-# The server is hyper's HTTP/1 server on BitGauge's own accept loop and connection driver
-# (docs/rust-port.md, Server Design): no client, no HTTP/2, no hyper-util graceful helper.
+# The server is service-kit's HTTP/1 server on hyper (docs/rust-port.md, Server Design): no
+# client, no HTTP/2.
 [dependencies]
-# HTTP/1 request framing over the bytes a connection read, as hyper frames them (rust-common, std
-# only): the server's timeouts tell a pipelined request from an idle connection with it.
-http-framing.workspace = true
 # Go's strconv quoting and IsPrint, %v floats and time.Duration text, ported byte for byte
 # (rust-common, jiff only): the configuration's problem lines and effective list.
 go-compat.workspace = true
 # The logger's subscriber: tracing-subscriber's text or flat JSON, no ANSI, UTC timestamps
 # (rust-common); the log settings are parsed here.
 tracing-setup.workspace = true
-# The build stamps' reads, `buildinfo!` (rust-common, no features: no runtime or signals, which
-# stay BitGauge's own).
-service-kit.workspace = true
+# The build stamps' reads, `buildinfo!`, and the HTTP/1 server (rust-common, feature `http`: accept
+# loop, connection driver, head and write-stall deadlines, drain and cut). The signals stay
+# BitGauge's own.
+service-kit = { workspace = true, features = ["http"] }
 # The router and the handlers' request and response body; MatchedPath labels the metrics.
 axum = { version = "0.8.9", default-features = false, features = ["matched-path"] }
 bytes = "1.12.1"

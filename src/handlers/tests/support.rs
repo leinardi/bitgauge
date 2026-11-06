@@ -40,8 +40,7 @@ use tokio::time::{Instant, Sleep, sleep_until};
 
 use crate::handlers::Body;
 use crate::metrics::{Direction, Group, Metrics, Route, Transfer};
-use crate::server::conn::{self, Lifecycle};
-use crate::server::timeouts::Timeouts;
+use crate::server::{Lifecycle, config, serve};
 use crate::test_support::dial_loopback;
 
 /// A transfer that counts nothing, for a test that does not look at the metrics.
@@ -231,16 +230,7 @@ impl Loopback {
         let lifecycle = Lifecycle::new();
         tokio::spawn({
             let lifecycle = lifecycle.clone();
-            async move {
-                conn::serve(
-                    listener,
-                    router,
-                    &lifecycle,
-                    Timeouts::SERVER,
-                    Duration::from_secs(1),
-                )
-                .await
-            }
+            async move { serve(listener, router, config(Duration::from_secs(1)), &lifecycle).await }
         });
         Self { address, lifecycle }
     }

@@ -48,12 +48,12 @@ use crate::handlers::{
 };
 use crate::metrics::{Direction, Group as MetricsGroup, Metrics};
 use crate::ratelimit::{Limiter, Options};
-use crate::server::conn::{self, Lifecycle, Outcome};
 use crate::server::router::{Groups, app};
 use crate::server::routes::{check_routes, mounted_routes};
 use crate::server::signals::{block_shutdown_signals, spawn_signal_thread};
-use crate::server::timeouts::Timeouts;
-use crate::server::{finish_process, listen};
+use crate::server::{
+    Lifecycle, Outcome, config as server_config, finish_process, listen, serve as serve_http,
+};
 use crate::web::{RenderError, Spa};
 use crate::{healthcheck, logger};
 
@@ -235,7 +235,6 @@ async fn start(
         (source, epoch),
         &limiter,
         &meter,
-        lifecycle,
     );
     let stack = app(config, groups).map_err(|problems| invalid(&problems))?;
     let listener = listen::bind(&config.server.listen).map_err(|error| {
@@ -257,7 +256,7 @@ async fn start(
         "starting"
     );
     log_effective(config);
-    Ok(conn::serve(listener, stack, lifecycle, Timeouts::SERVER, SHUTDOWN_GRACE).await)
+    Ok(serve_http(listener, stack, server_config(SHUTDOWN_GRACE), lifecycle).await)
 }
 
 /// Logs route problems the collision check left, which cannot happen after it passed, and
@@ -300,7 +299,6 @@ pub(crate) fn groups(
     (source, epoch): (RandomSource, Epoch),
     limiter: &Limiter,
     meter: &Arc<Metrics>,
-    lifecycle: &Lifecycle,
 ) -> Groups {
     let transfer = |group, direction| meter.transfer(group, direction);
     let rules: Vec<Rule> = config
@@ -322,7 +320,6 @@ pub(crate) fn groups(
             &config.server.cors.allowed_origins,
             WEBSOCKET_IDLE,
             Arc::clone(meter),
-            lifecycle.clone(),
         ),
         info: Arc::new(Info::new(
             config,

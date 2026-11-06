@@ -39,7 +39,7 @@ use std::thread;
 use std::time::Duration;
 
 use bitgauge::command::{self, Mode, Process};
-use bitgauge::server::conn::Lifecycle;
+use bitgauge::server::Lifecycle;
 use bitgauge::web::{Files, ROOT_ASSETS, RenderError, Spa};
 use bytes::Bytes;
 use nix::sys::signal::{Signal, kill};

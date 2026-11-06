@@ -130,11 +130,11 @@ counts as `fix:`), so avoid a word ending in `feat` or `fix` right before a colo
     the server never stores a result and never calls out;
   - metrics on prometheus-client, OpenMetrics only (a maintainer decision), not go-prom; logs are
     tracing's, through tracing-setup, not go-slog's;
-  - its own connection deadlines (`src/server/timeouts.rs`: head, body, idle and upgraded states
-    and a 30 s write stall, not go-http's four Go timeouts), its own signals (a `sigwait` thread,
+  - service-kit's server with its own settings (`src/server/http.rs`: a 10 s head timeout, a 30 s
+    write stall, 16 KiB heads, not go-http's four Go timeouts), its own signals (a `sigwait` thread,
     since tokio's signal socketpair would trip the strace policy) and its own healthcheck (the one
     exempted connect, blocking std code);
-  - the release graph holds only `go-compat`, `http-framing`, `service-kit` and `tracing-setup`
+  - the release graph holds only `go-compat`, `service-kit` and `tracing-setup`
     (`SHIPPED_SHARED` in `meta/tests/production_graph.rs`): the other crates would bring an HTTP
     stack, a logger or a client the binary does not use; `repo-meta` and `testenv-core` are for
     tests only.

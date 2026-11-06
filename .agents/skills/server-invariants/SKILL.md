@@ -71,7 +71,7 @@ The bans apply to the shipped `bitgauge` package only, outside `#[cfg(test)]`
   `cargo tree` of the shipped package, features unified, holds neither test crate nor a banned
   crate, and no hyper or hyper-util `client` or `http2` feature, no tokio `fs` or `process`, no
   axum `ws` or `http2`; of the rust-common crates exactly `SHIPPED_SHARED` (`go-compat`,
-  `http-framing`, `service-kit`, `tracing-setup`); the musl release view too.
+  `service-kit`, `tracing-setup`); the musl release view too.
 
 They are pinned because a rule that stops matching fails nothing on its own:
 [`meta/tests/lint_exemptions.rs`](../../../meta/tests/lint_exemptions.rs) (rust-common's
@@ -177,9 +177,9 @@ and [compatibility.md](../../../docs/features/compatibility.md) (summary: `wire-
   which checks the cap on every frame, so a lying or missing `Content-Length` stops at the cap
   ([backend.md §2.2](../../../docs/features/technical-stack/backend.md#22-upload-and-every-route-that-drains-a-body)).
 - The upload lifetime is one 120 s deadline from handler entry over every frame read; every
-  write is held to a 30 s stall rule. The connection driver (`src/server/conn.rs`,
-  `src/server/timeouts.rs`) sets the head and keep-alive deadlines and hyper's header limits
-  (`MAX_HEADERS`, `MAX_HEADER_SIZE`), and no global read or write timeout, which would cut long
+  write is held to a 30 s stall rule. service-kit's server, with the settings of
+  `src/server/http.rs`, sets the head timeout (idle keep-alive included) and hyper's header
+  limits (`MAX_HEADERS`, `MAX_HEADER_SIZE`), and no global read or write timeout, which would cut long
   transfers.
 - Test a lying `Content-Length` and an over-cap request.
 

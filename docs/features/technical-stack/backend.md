@@ -172,12 +172,12 @@ whole file.
 
 ## 5. Server Settings and Graceful Shutdown
 
-- hyper's HTTP/1 server serves each connection from BitGauge's own accept loop, and a connection
-  wrapper keeps its deadlines: a request head must complete within 10 s of the accept or of its
-  first byte, a keep-alive connection may stay idle 120 s, a pipelined head gets 10 s with no idle
-  phase, and neither a body (its handler owns that deadline, §2.2) nor an upgraded socket (the
-  WebSocket idle timer owns it) has a connection deadline. Every write is held to the 30 s stall
-  rule (§2.1). The request head is limited to exactly 16 KiB, with at most 100 headers. There is
+- hyper's HTTP/1 server serves each connection from service-kit's accept loop (rust-common), with
+  these deadlines: a request head must complete within 10 s, an idle keep-alive connection's wait
+  for its next request included (hyper's header-read timeout, so there is no longer idle period),
+  and neither a body (its handler owns that deadline, §2.2) nor an upgraded socket (the WebSocket
+  idle timer owns it) has a connection deadline. Every write is held to the 30 s stall rule
+  (§2.1). The request head is limited to exactly 16 KiB, with at most 100 headers. There is
   no global read or write timeout.
 - On `SIGTERM` or `SIGINT` the server stops accepting connections, closes WebSockets with status
   1001 (going away), lets each connection finish the request in flight and then closes it, all

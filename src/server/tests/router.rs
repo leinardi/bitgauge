@@ -29,7 +29,6 @@ use super::stack::{REQUESTS_PER_MINUTE, TestStack, groups, limiter, test_config,
 use crate::buildinfo;
 use crate::config::{Config, Origin};
 use crate::metrics::Metrics;
-use crate::server::conn::Lifecycle;
 use crate::server::router::router;
 use crate::server::routes::{Owner, check_routes, route_table};
 
@@ -380,7 +379,7 @@ async fn router_runs_the_collision_check() {
     config.metrics.path = "/upload".to_owned();
     let limiter = limiter(&config);
     let meter = Arc::new(Metrics::new(buildinfo::info(), || 0, &[]));
-    let groups = groups(&config, None, &limiter, &meter, &Lifecycle::new());
+    let groups = groups(&config, None, &limiter, &meter);
     let problems = router(&config, groups).expect_err("a collision");
     assert_eq!(problems.len(), 1, "{problems:?}");
     assert_eq!(problems[0].key, "metrics.path");

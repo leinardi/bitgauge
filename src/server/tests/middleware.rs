@@ -44,7 +44,7 @@ use crate::config::Config;
 use crate::handlers::{Abort, Body};
 use crate::logger;
 use crate::metrics::Metrics;
-use crate::server::conn::Lifecycle;
+use crate::server::Lifecycle;
 use crate::server::routes::mounted_routes;
 use crate::test_support::dial_loopback;
 use tracing_setup::testing::Capture;
@@ -186,7 +186,7 @@ async fn the_client_ip_stage_stores_the_derived_client() {
             .expect("a request");
         request
             .extensions_mut()
-            .insert(crate::server::conn::Peer(peer.parse().expect("a peer")));
+            .insert(crate::server::Peer(peer.parse().expect("a peer")));
         let mut stack = stack.clone();
         let answer: Result<_, Infallible> = tower_service::Service::call(&mut stack, request).await;
         assert_eq!(
