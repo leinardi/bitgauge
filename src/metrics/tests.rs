@@ -33,7 +33,7 @@ use http_body_util::{BodyExt, Full};
 
 use super::*;
 use crate::logger;
-use crate::test_support::Capture;
+use tracing_setup::testing::Capture;
 
 const BUILD: Build = Build {
     version: "0.2.0",

@@ -26,7 +26,7 @@ use crate::config::{
     Config, LabelRule, Log, Problem, Warmup, check, log_effective, report_problems, report_warnings,
 };
 use crate::logger;
-use crate::test_support::Capture;
+use tracing_setup::testing::Capture;
 
 fn problem(key: &str, value: &str, rule: &str) -> Problem {
     Problem {

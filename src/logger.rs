@@ -19,13 +19,15 @@
 
 //! The logger of decisions.md section 6: tracing's text or JSON format at the configured level
 //! (configuration.md section 2.5), with UTC timestamps, writing to stdout. What may and may never
-//! be logged is configuration-security.md section 6; this module only builds the logger. The
-//! rendering is tracing's, not slog's (rust-port.md, row 1): the messages, the fields and the
-//! levels are kept.
+//! be logged is configuration-security.md section 6; this module parses the log settings and
+//! builds the logger with rust-common's `tracing-setup`, the target and the JSON span fields
+//! hidden. The rendering is tracing's, not slog's (rust-port.md, row 1): the messages, the fields
+//! and the levels are kept.
 
 use std::str::FromStr;
 
 use tracing::{Dispatch, Level};
+use tracing_setup::Options;
 use tracing_subscriber::fmt::MakeWriter;
 
 /// The `log.format` values.
@@ -126,26 +128,21 @@ where
     build(writer, Format::Text, Level::INFO)
 }
 
+/// rust-common's subscriber, without the target and the JSON span fields.
 fn build<W>(writer: W, format: Format, level: Level) -> Dispatch
 where
     W: for<'writer> MakeWriter<'writer> + Send + Sync + 'static,
 {
-    let builder = tracing_subscriber::fmt()
-        .with_writer(writer)
-        .with_max_level(level)
-        .with_ansi(false)
-        .with_target(false);
-    match format {
-        Format::Text => Dispatch::new(builder.finish()),
-        Format::Json => Dispatch::new(
-            builder
-                .json()
-                .flatten_event(true)
-                .with_current_span(false)
-                .with_span_list(false)
-                .finish(),
-        ),
-    }
+    let format = match format {
+        Format::Text => tracing_setup::Format::Text,
+        Format::Json => tracing_setup::Format::Json,
+    };
+    tracing_setup::build(
+        writer,
+        format,
+        level,
+        Options::new().target(false).span_fields(false),
+    )
 }
 
 #[cfg(test)]

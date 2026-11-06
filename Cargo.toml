@@ -101,6 +101,9 @@ http-framing.workspace = true
 # Go's strconv quoting and IsPrint, %v floats and time.Duration text, ported byte for byte
 # (rust-common, jiff only): the configuration's problem lines and effective list.
 go-compat.workspace = true
+# The logger's subscriber: tracing-subscriber's text or flat JSON, no ANSI, UTC timestamps
+# (rust-common); the log settings are parsed here.
+tracing-setup.workspace = true
 # The router and the handlers' request and response body; MatchedPath labels the metrics.
 axum = { version = "0.8.9", default-features = false, features = ["matched-path"] }
 bytes = "1.12.1"
@@ -146,7 +149,8 @@ tokio = { version = "1.54.1", default-features = false, features = [
 tokio-util = { version = "0.7.20", default-features = false, features = ["rt"] }
 tower-service = "0.3.3"
 tracing = { version = "0.1.44", default-features = false, features = ["std"] }
-tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "json", "std"] }
+# MakeWriter, the bound of the logger's writers.
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "std"] }
 
 [dev-dependencies]
 # The server tests' HTTP/1 client on a loopback connection.
@@ -154,6 +158,8 @@ hyper = { version = "1.12.0", default-features = false, features = ["client", "h
 # The second-signal test sends its child the signals; the listener-failure test shuts a
 # listening socket down.
 nix = { version = "0.30.1", default-features = false, features = ["net", "process", "signal", "socket"] }
+# Capture, the writer the unit tests log into.
+tracing-setup = { workspace = true, features = ["testing"] }
 # The paused clock (start_paused) and the test I/O.
 tokio = { version = "1.54.1", default-features = false, features = [
     "io-util",

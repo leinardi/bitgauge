@@ -46,7 +46,8 @@ use crate::logger;
 use crate::metrics::Metrics;
 use crate::server::conn::Lifecycle;
 use crate::server::routes::mounted_routes;
-use crate::test_support::{Capture, dial_loopback};
+use crate::test_support::dial_loopback;
+use tracing_setup::testing::Capture;
 
 /// Logs at `level` as JSON into the returned capture while the guards live. The tests that
 /// use it run on one thread, so the default dispatcher is the one every task sees.

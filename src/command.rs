@@ -188,7 +188,7 @@ fn runtime(mode: Mode, dispatch: &Dispatch, lifecycle: &Lifecycle) -> std::io::R
         Mode::Process => {
             block_shutdown_signals()?;
             // Nothing set a global default before, so this cannot fail.
-            let _ = tracing::dispatcher::set_global_default(dispatch.clone());
+            let _ = tracing_setup::install_global(dispatch.clone());
             spawn_signal_thread(lifecycle.stop_token().clone())?;
             Builder::new_multi_thread().enable_all().build()
         }
