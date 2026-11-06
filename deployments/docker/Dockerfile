@@ -130,15 +130,17 @@ WORKDIR /src
 COPY . .
 COPY --from=web /src/web/dist ./web/dist
 
-# The registry and the target directory are BuildKit caches, so the binary is copied out of them.
-# The registry cache is shared by both platforms' builds, which run in parallel: sharing=locked
-# serializes them, since two cargo processes unpacking the same crate into it fail with
-# "File exists". The target cache is per platform and needs no lock. The version stamps are the
+# The registry, the git checkouts (the rust-common crates) and the target directory are BuildKit
+# caches, so the binary is copied out of them. The registry and git caches are shared by both
+# platforms' builds, which run in parallel: sharing=locked serializes them, since two cargo
+# processes unpacking the same crate into one fail with "File exists". The target cache is per
+# platform and needs no lock. The version stamps are the
 # ones make rust-dist sets, and the paths are remapped as .mk/rust-release.mk remaps them: the
 # checkout is /src already, the cargo home becomes /cargo, and the toolchain's rust-src, when the
 # image has it, the /rustc/<commit> the standard library was built with. RUSTFLAGS is set, not
 # inherited, and with --target cargo applies it to the binary and not to build scripts.
 RUN --mount=type=cache,target=/root/.cargo/registry,id=cargo-registry,sharing=locked \
+	--mount=type=cache,target=/root/.cargo/git,id=cargo-git,sharing=locked \
 	--mount=type=cache,target=/src/target,id=bitgauge-cargo-target-${TARGETARCH} \
 	triple="$(cat /tmp/triple)" \
 	&& rust_src="$(rustc --print sysroot)/lib/rustlib/src/rust" \
