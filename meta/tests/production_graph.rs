@@ -28,8 +28,8 @@
 //! - hyper's `client` and `http2`, hyper-util's `client`, `client-legacy` and `http2`, tokio's `fs`
 //!   and `process`, and axum's `ws` and `http2` are not enabled.
 //! - Of the leinardi/rust-common crates, the graph holds exactly the ones bitgauge ships
-//!   (`SHIPPED_SHARED`): none of go-slog, go-prom, go-http, docker-engine or the others, which
-//!   would bring an HTTP stack, a logger or a client the binary does not use.
+//!   (`SHIPPED_SHARED`): none of clock, docker-client, repo-meta, testenv-core or the others, which
+//!   would bring a client, a clock or test helpers the binary does not use.
 //! - The `bitgauge` dev-dependencies do not include `testenv`.
 //! - The same check runs on the `x86_64-unknown-linux-musl` view the release builds.
 //!
@@ -58,16 +58,11 @@ const FORBIDDEN_FEATURES: &[(&str, &[&str])] = &[
 /// The release target whose view is checked beside the host's.
 const RELEASE_TARGET: &str = "x86_64-unknown-linux-musl";
 
-/// Every crate of leinardi/rust-common, by package name.
+/// Every crate of leinardi/rust-common that stays after its Go-compatibility crates are removed,
+/// by package name.
 const SHARED_CRATES: &[&str] = &[
     "clock",
     "docker-client",
-    "docker-engine",
-    "go-compat",
-    "go-http",
-    "go-prom",
-    "go-slog",
-    "http-framing",
     "repo-meta",
     "service-kit",
     "testenv-core",
@@ -370,17 +365,17 @@ fn testenv_as_a_normal_dependency_is_refused() {
     );
 }
 
-/// Negative control: a shared crate bitgauge does not ship (go-slog, a logger) in the shipped
+/// Negative control: a shared crate bitgauge does not ship (clock) in the shipped
 /// graph is refused.
 #[test]
 fn an_unshipped_shared_crate_is_refused() {
     let problems = scratch_problems(|dir, dependencies| {
-        stub_crate(dir, "go-slog", &[]);
-        dependencies.insert("go-slog".to_owned(), path_dependency("stubs/go-slog", &[]));
+        stub_crate(dir, "clock", &[]);
+        dependencies.insert("clock".to_owned(), path_dependency("stubs/clock", &[]));
     });
     assert_eq!(
         problems,
-        ["the shipped graph contains the shared crate go-slog, which bitgauge does not ship"]
+        ["the shipped graph contains the shared crate clock, which bitgauge does not ship"]
     );
 }
 

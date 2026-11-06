@@ -104,15 +104,15 @@ and binary, without `#[cfg(test)]`. Test infrastructure has its own rules.
   - these features are not enabled: hyper's `client` and `http2`; hyper-util's `client`,
     `client-legacy` and `http2`; tokio's `fs` and `process`; axum's `ws` and `http2`;
   - of the rust-common crates it holds exactly `SHIPPED_SHARED`: `service-kit` and
-    `tracing-setup`. The others (go-slog, go-prom, go-http, docker-engine and
-    the rest) would bring an HTTP stack, a logger or a client the binary does not use;
+    `tracing-setup`. The others (clock, docker-client, repo-meta, testenv-core)
+    would bring a client, a clock or test helpers the binary does not use;
   - the `bitgauge` dev-dependencies do not include `testenv`;
   - the same check runs on the `--target x86_64-unknown-linux-musl` view the release builds.
 - **Negative controls:** a scratch crate carrying the root `clippy.toml` with `std::fs::write` in
   a plain module fails clippy; the same call under an `expect` in a file not on the allowlist
   fails the meta-test; and in scratch copies of the workspace manifest the production-graph check
   rejects `testenv` added as a normal dependency, hyper's `client` feature enabled on the
-  `bitgauge` package, a banned crate added, a shared crate it does not ship (go-slog) added, and
+  `bitgauge` package, a banned crate added, a shared crate it does not ship (clock) added, and
   each shipped shared crate dropped.
 
 ## Server Design
@@ -202,7 +202,7 @@ note.
 | 10 | **Upload reads:** follow hyper's read buffer; the grid counts per frame. | backend.md §2.2 |
 | 11 | **WebSocket JSON:** case-sensitive keys; a duplicate key, a top-level `null` or invalid UTF-8 closes with 1007; raw values are echoed byte for byte. | wire-protocol.md §6; backend.md §2.3; testing.md §1 |
 | 12 | **SPA:** HEAD allowed on SPA routes; unknown extensions are `application/octet-stream`; multi-range gets 200. | compatibility.md §5; backend.md §4; wire-protocol.md |
-| 13 | **Connection deadlines:** Go's states are kept ([Connection Driver](#connection-driver)); only the mechanism changes. | backend.md §5 |
+| 13 | **Connection deadlines:** service-kit's server keeps a 10 s head (an idle keep-alive wait included) and a 30 s write stall; Go's separate 120 s idle and pipelined-head states are gone ([Connection Driver](#connection-driver)). | backend.md §5 |
 | 14 | **Go runtime variables** have no effect. | build-packaging.md |
 
 ## Reuse Ledger
@@ -210,8 +210,8 @@ note.
 Reused MIT and Apache-2.0 files, both compatible with the GPL, carry BitGauge's GPL-3.0-or-later
 header plus one provenance line: "Adapted from \<repo\>/\<path\> at \<commit\>, \<license\>,
 Copyright (c) \<year\> Roberto Leinardi", with the source's own license and year. Not reused:
-swarm-scheduler-exporter's slog, Prometheus and net/http-wire ports (rust-common's go-slog, go-prom
-and go-http since), which keep Go's output byte for byte where this port does not.
+swarm-scheduler-exporter's slog, Prometheus and net/http-wire ports: their job is done by
+rust-common's `tracing-setup`, by prometheus-client and by service-kit's `http`.
 
 | Source | Commit | What | Adaptation |
 | --- | --- | --- | --- |
@@ -224,8 +224,8 @@ and go-http since), which keep Go's output byte for byte where this port does no
 | swarm-scheduler-exporter | `722b8a3` | `scripts/hooks/rustfmt-on-edit.sh` | Unchanged logic |
 | swarm-scheduler-exporter | `722b8a3` | `meta/src/repo.rs` | `tracked_or_new` (tracked and untracked, not ignored) in place of `tracked`; now rust-common's `repo-meta` ([Shared Crates](#shared-crates)) |
 | swarm-scheduler-exporter | `722b8a3` | `meta/tests/workspace_lints.rs` | Became `meta/tests/lint_inheritance.rs`, with the clippy configuration checks and the scratch-crate control |
-| swarm-scheduler-exporter | `b670952` | `src/server/framing.rs`, `src/server/framing/tests.rs` | Unchanged framing; the module doc names BitGauge's pipelined head; now rust-common's `http-framing` ([Shared Crates](#shared-crates)) |
-| swarm-scheduler-exporter | `b670952` | `src/server/timeouts.rs` | BitGauge's states (head, body, idle, upgraded) in place of Go's four timeouts; a 30 s write stall in place of `WriteTimeout`; the read waker kept so a new deadline is armed at once; the drain on `poll_shutdown`; `wait_until_idle` for shutdown |
+| swarm-scheduler-exporter | `b670952` | `src/server/framing.rs`, `src/server/framing/tests.rs` | Request framing for the pipelined-head deadline; since removed with that deadline, when the server moved to service-kit's `http` ([Shared Crates](#shared-crates)) |
+| swarm-scheduler-exporter | `b670952` | `src/server/timeouts.rs` | The connection deadlines and the write stall; since extracted into service-kit's `http` (its `StallIo`) and removed here ([Connection Driver](#connection-driver)) |
 | swarm-device-access | `4cd31c4` | `meta/tests/unsafe_allowlist.rs` | The pattern only, for `meta/tests/lint_exemptions.rs`; no file copied |
 | swarm-scheduler-exporter | `e57d989` | `deployments/docker/Dockerfile` (MIT, 2025) | Became `deployments/docker/Dockerfile.rust`: the shipped Dockerfile's `web` and runtime stages; the same zig, cargo-zigbuild and `rust-std` pins; the `BITGAUGE_*` stamps; the cargo home and `rust-src` remapped as `.mk/rust-release.mk` remaps them |
 | swarm-device-access | `4cd31c4` | `.mk/rust-release.mk` (Apache-2.0) | The same pins and static build; binaries into `dist/rust/`, after `web-build`; `rust-image` for the candidate |
