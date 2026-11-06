@@ -20,8 +20,7 @@
 //! The client's CPU and memory over one browser run (testing.md section 5's CPU and memory
 //! counters), read from its own cgroup v2 files.
 
-use go_compat::parse_int::parse_uint;
-use go_compat::quote::quote;
+use super::gofmt::quote;
 use serde::Serialize;
 
 /// The client container's cpu.stat, as its private cgroup namespace shows it.
@@ -62,7 +61,8 @@ pub fn cpu_usage_micros(cpu_stat: &str) -> Result<u64, String> {
         if key != "usage_usec" {
             continue;
         }
-        return parse_uint(value, 10)
+        return value
+            .parse::<u64>()
             .map_err(|error| format!("{CGROUP_ERROR}: usage_usec {}: {error}", quote(value)));
     }
     Err(format!("{CGROUP_ERROR}: cpu.stat has no usage_usec"))
@@ -75,7 +75,8 @@ pub fn cpu_usage_micros(cpu_stat: &str) -> Result<u64, String> {
 /// A value that is not a whole number, such as `max`.
 pub fn memory_peak(content: &str) -> Result<u64, String> {
     let value = content.trim();
-    parse_uint(value, 10)
+    value
+        .parse::<u64>()
         .map_err(|error| format!("{CGROUP_ERROR}: memory.peak {}: {error}", quote(value)))
 }
 
@@ -106,8 +107,7 @@ mod tests {
         assert_eq!(
             cpu_usage_micros("usage_usec many\n"),
             Err(
-                "unreadable cgroup counters: usage_usec \"many\": strconv.ParseUint: parsing \
-                 \"many\": invalid syntax"
+                "unreadable cgroup counters: usage_usec \"many\": invalid digit found in string"
                     .to_owned()
             )
         );

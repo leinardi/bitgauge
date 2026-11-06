@@ -479,14 +479,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "go-compat"
-version = "0.3.0"
-source = "git+https://github.com/leinardi/rust-common?rev=16ea3044310039235b50846d4ddc58e355f8120c#16ea3044310039235b50846d4ddc58e355f8120c"
-dependencies = [
- "jiff",
-]
-
-[[package]]
 name = "granit-parser"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1190,7 +1182,6 @@ name = "testenv"
 version = "0.0.0"
 dependencies = [
  "flate2",
- "go-compat",
  "jiff",
  "regex",
  "serde",

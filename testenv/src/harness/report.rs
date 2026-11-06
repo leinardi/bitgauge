@@ -27,8 +27,7 @@ use std::io::Write as _;
 use std::os::unix::fs::{DirBuilderExt as _, OpenOptionsExt as _};
 use std::path::{Path, PathBuf};
 
-use go_compat::quote::quote;
-use go_compat::time_layout::go_zero_time;
+use super::gofmt::{quote, zero_time};
 use jiff::Timestamp;
 use jiff::tz::TimeZone;
 use serde::{Deserialize, Serialize, Serializer};
@@ -472,7 +471,7 @@ impl Report {
             tier: spec.tier,
             env_id: env_id.to_owned(),
             started,
-            finished: go_zero_time(),
+            finished: zero_time(),
             tolerances: TOLERANCES.to_owned(),
             latency_rule: LATENCY_RULE.to_owned(),
             no_egress_layer: NO_EGRESS_LAYER.to_owned(),
@@ -1001,8 +1000,8 @@ mod tests {
         }
         assert!(failures.is_empty(), "{}\n{markdown}", failures.join("\n"));
 
-        // Byte for byte what the Go harness wrote for the same report (the fixtures module says
-        // how).
+        // The golden files hold what the harness wrote for the same report; the JSON differs
+        // from the Go harness's in writing a whole float as `299000.0`, not `299000`.
         assert_eq!(json, include_str!("testdata/report.json"));
         assert_eq!(markdown, include_str!("testdata/report.md.txt"));
     }

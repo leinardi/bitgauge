@@ -29,8 +29,7 @@
 use std::fmt;
 use std::sync::Arc;
 
-use go_compat::parse_int::parse_uint;
-use go_compat::quote::quote;
+use super::gofmt::quote;
 
 use super::profiles::{Profile, TierSpec};
 use super::shaper::{loss_command, shaper_commands};
@@ -371,7 +370,7 @@ impl Probe<'_> {
         let out = self
             .exec(container, &["stat", "-c", "%i", dir])
             .map_err(|error| PreflightError::cgroups(&format!("stat {dir}: {error}")))?;
-        parse_uint(out.trim(), 10).map_err(|error| {
+        out.trim().parse::<u64>().map_err(|error| {
             PreflightError::cgroups(&format!("inode of {dir} {}: {error}", quote(&out)))
         })
     }

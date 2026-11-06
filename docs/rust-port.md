@@ -241,16 +241,20 @@ carry rust-common's headers, not this ledger's.
 
 | Crate | Replaces | What BitGauge parameterises |
 | --- | --- | --- |
-| `go-compat` (testenv only, until the harness moves to std) | The harness's quoting, integer parsing, JSON floats, RFC 3339 time, line scanning, errno text and `path.Clean` | Nothing |
 | `service-kit` (feature `http`) | The `option_env!` reads in `src/buildinfo.rs`; the accept loop, connection driver, deadlines and shutdown sequence of `src/server/` (the former `conn.rs` and `timeouts.rs`, with `http-framing`) | `buildinfo!("BITGAUGE", …)` with `dev`, `unknown`, `unknown` and an empty stamp unstamped; for the server, 10 s head, 30 s write stall, 16 KiB and 100 headers, upgrades, and the `Abort` wrapper in `src/server/http.rs`; the runtime, signals and exit codes stay BitGauge's |
 | `tracing-setup` | The subscriber build in `src/logger.rs`; the unit tests' capture writer | Target and JSON span fields off; the log settings, `LogError`, the stdout or stderr choice and the fallback stay in `src/logger.rs`; the unit tests log into `tracing_setup::testing::Capture` (dev feature `testing`) |
 | `repo-meta` (meta only) | `meta/src/repo.rs`, the Markdown link checker and the Dockerfile reader | This repository's parameters for each check: the link checker's file list, the lint members, the boundary allowlist (`SystemClock` reserved), the vacuous flags, the header harness, the toolchain and release pins, the image rules. The clippy configuration checks, the test-support `cfg` rule, the release workflow rules, the test images, the docs facts, the web pins and the untagged-test scan stay local |
 | `testenv-core` (feature `sync`; testenv only) | `testenv/src/runner.rs`, `run_filter.rs`, `gitenv.rs`; the generic halves of `toolgate.rs`, `envid.rs` and `identity.rs` | The `bitgauge-test-` temp-dir prefix; the tool `Gate` (`BITGAUGE_REQUIRE_TOOLS`, eslint and fallow under `web/node_modules/.bin`, the closed `Tool` enum); `EnvIds` (4 bytes, the envid label, `bitgauge-test`); the identity `Answer`s for each build (`RUST_ANSWER`, `GO_ANSWER`), quoted with `Quoting::Debug`; the labels, owner helpers and sweep stay BitGauge's |
 
 The release graph ships `service-kit` and `tracing-setup` only ([Lint Boundary](#lint-boundary)).
-The configuration's problem lines and effective list no longer use rust-common's `go-compat`: they
-are written in plain Rust formatting, in `src/config/text.rs`. What reads differently from the Go
-binary, and from earlier Rust builds:
+Neither the binary nor the test environment uses rust-common's `go-compat` any more. The
+configuration's problem lines and effective list are written in plain Rust formatting, in
+`src/config/text.rs`; the harness's quoting, integer parsing, JSON floats, timestamps, line
+scanning, errno text and path cleaning are std's, serde_json's and jiff's
+(`testenv/src/harness/gofmt.rs`). The harness's report JSON writes a whole float as `299000.0`,
+where the Go harness wrote `299000`; its quoted values use Rust's `Debug` escapes; a path error
+carries std's error text. What reads differently in the configuration's output, from the Go binary
+and from earlier Rust builds:
 
 - a quoted value is Rust's `{:?}` (`"a\u{7f}"`), not `strconv.Quote` (`"a\x7f"`);
 - a float is `f64`'s `Display`, which never uses an exponent (`1e+21` is `1000000000000000000000`)

@@ -24,7 +24,7 @@
 use std::fmt;
 use std::time::Duration;
 
-use go_compat::quote::quote;
+use super::gofmt::quote;
 use serde::Serialize;
 
 use super::latency::SOURCE_RESERVED;

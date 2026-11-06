@@ -23,8 +23,7 @@
 use std::fmt;
 use std::time::Duration;
 
-use go_compat::parse_int::parse_int;
-use go_compat::quote::quote;
+use super::gofmt::quote;
 use serde::Deserialize;
 
 use super::gofmt;
@@ -97,7 +96,9 @@ pub fn tbf_sent_bytes(out: &str) -> Result<i64, OutputError> {
                 quote(TBF_QDISC)
             )));
         }
-        return parse_int(fields[1], 10).map_err(|error| OutputError::Tbf(error.to_string()));
+        return fields[1]
+            .parse::<i64>()
+            .map_err(|error| OutputError::Tbf(error.to_string()));
     }
     Err(OutputError::Tbf(format!("no {}", quote(TBF_QDISC))))
 }
@@ -295,10 +296,7 @@ pub fn received_bits_per_second(
         .collect();
 
     if rates.is_empty() {
-        return Err(OutputError::Iperf3(format!(
-            "no interval after {}",
-            go_compat::duration::format(i64::try_from(settle.as_nanos()).unwrap_or(i64::MAX))
-        )));
+        return Err(OutputError::Iperf3(format!("no interval after {settle:?}")));
     }
 
     rates.sort_by(f64::total_cmp);
@@ -537,7 +535,7 @@ mod tests {
         }
         assert_eq!(
             tbf_sent_bytes("qdisc tbf 2: x\n Sent many bytes\n").map_err(|error| error.to_string()),
-            Err("unreadable tc output: strconv.ParseInt: parsing \"many\": invalid syntax".into())
+            Err("unreadable tc output: invalid digit found in string".into())
         );
         assert!(failures.is_empty(), "{}", failures.join("\n"));
     }

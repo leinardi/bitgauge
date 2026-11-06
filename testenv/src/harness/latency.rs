@@ -23,7 +23,7 @@
 //! HTTP/2 or HTTP/3 probe waits behind its own load connection's data, which the ping does not,
 //! so it is recorded with the ping figures and not judged.
 
-use go_compat::quote::quote;
+use super::gofmt::quote;
 
 use super::evaluate::ROUNDING;
 use super::ping::{PHASE_DOWNLOAD, PHASE_UPLOAD, Ping, PingPhase};

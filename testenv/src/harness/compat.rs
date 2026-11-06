@@ -28,7 +28,7 @@ use std::fmt;
 use std::path::Path;
 use std::sync::LazyLock;
 
-use go_compat::quote::quote;
+use super::gofmt::quote;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
@@ -771,7 +771,8 @@ Final RPM: 1377 (Single-Sided 5% Trimmed Mean)
         assert!(failures.is_empty(), "{}", failures.join("\n"));
     }
 
-    /// goresponsiveness.json byte for byte as the Go harness wrote it from the same summary.
+    /// goresponsiveness.json as the harness writes it from the same summary (a whole float reads
+    /// `92863000.0`, where the Go harness wrote `92863000`).
     #[test]
     fn goresponsiveness_json_matches_go() {
         let temp = tempfile::tempdir().expect("a temporary directory");

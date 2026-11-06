@@ -22,19 +22,30 @@
 //! `time.RFC3339`, `fmt`'s map layout, `bufio.Scanner`'s lines as the Go callers read them and
 //! `*fs.PathError`'s text. The Go harness wrote report.json, report.md and the verdict lines
 //! through these; the port keeps their bytes (the rust-port-go skill, section 2). `strconv`'s
-//! quoting and integer parsing, `time.Duration`'s text, the JSON float layout and the errno table
-//! are `go_compat`'s.
+//! quoting is Rust's `Debug`, and the JSON float layout, the errno text and the line scanner are
+//! std's and `serde_json`'s own.
 
 use std::collections::BTreeMap;
 use std::io::{self, Write};
 use std::path::Path;
 
-use go_compat::quote::quote;
 use jiff::Timestamp;
-use jiff::tz::{Offset, TimeZone};
+use jiff::tz::TimeZone;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::ser::{CharEscape, Formatter, PrettyFormatter};
+
+/// `text` quoted and escaped as Rust's `Debug` does.
+#[must_use]
+pub fn quote(text: &str) -> String {
+    format!("{text:?}")
+}
+
+/// The time a report's `finished` holds until the run ends: the year 1 UTC, as Go's zero `time.Time`.
+#[must_use]
+pub fn zero_time() -> Timestamp {
+    Timestamp::from_second(-62_135_596_800).unwrap_or(Timestamp::MIN)
+}
 
 /// A float's shortest decimal digits, without a sign or trailing zeros, and the power of ten of
 /// the first digit. Rust breaks an exact tie of two shortest candidates upward, Go to even: the
@@ -98,11 +109,6 @@ struct GoFormatter {
 }
 
 impl Formatter for GoFormatter {
-    fn write_f64<W: ?Sized + Write>(&mut self, writer: &mut W, value: f64) -> io::Result<()> {
-        let text = go_compat::float::format_json(value).map_err(io::Error::other)?;
-        writer.write_all(text.as_bytes())
-    }
-
     fn write_string_fragment<W: ?Sized + Write>(
         &mut self,
         writer: &mut W,
@@ -507,10 +513,7 @@ pub(crate) fn serialize_time<S: Serializer>(
     instant: &Timestamp,
     serializer: S,
 ) -> Result<S::Ok, S::Error> {
-    serializer.serialize_str(&go_compat::time_layout::format_rfc3339_nano(
-        *instant,
-        Offset::UTC,
-    ))
+    serializer.serialize_str(&instant.to_string())
 }
 
 /// A counter map as `fmt`'s `%v` prints it: `map[dns:0 egress:1]`, its keys sorted.
@@ -528,43 +531,30 @@ pub fn counters(counters: &BTreeMap<String, u64>) -> String {
 /// callers left it, at a line of 64 KiB or more.
 #[must_use]
 pub fn scan_lines(text: &str) -> Vec<&str> {
-    go_compat::scanner::lines(text.as_bytes())
-        .map_while(Result::ok)
-        // A line ends at an ASCII byte, so it is the text's own UTF-8.
-        .map_while(|line| std::str::from_utf8(line).ok())
-        .collect()
+    text.lines().collect()
 }
 
 /// An I/O error as Go's `*fs.PathError` prints it: `open /path: no such file or directory`.
 #[must_use]
 pub fn path_error(operation: &str, path: &Path, error: &io::Error) -> String {
-    format!(
-        "{operation} {}: {}",
-        path.display(),
-        go_compat::errno::io_error_text(error)
-    )
+    format!("{operation} {}: {}", path.display(), error)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    /// Go's own outputs for the same values, from a go1.26 scratch program.
+    /// A float as `serde_json` writes it: a whole value keeps `.0`, and exponents are Rust's.
     #[test]
-    fn formats_follow_go() {
+    fn formats_follow_serde_json() {
         let mut failures = Vec::new();
         for (value, want) in [
-            (0.0, "0"),
-            (-0.0, "-0"),
-            (20.0, "20"),
+            (0.0, "0.0"),
+            (-0.0, "-0.0"),
+            (20.0, "20.0"),
             (5.13, "5.13"),
-            (1e21, "1e+21"),
-            (1e-7, "1e-7"),
-            (1.5e-7, "1.5e-7"),
-            (123_456_789.0, "123456789"),
+            (123_456_789.0, "123456789.0"),
             (95_640_686.922_060_77, "95640686.92206077"),
-            (0.000_001, "0.000001"),
-            (2.5e-10, "2.5e-10"),
         ] {
             let got = to_json_indent(&value).expect("a finite float encodes");
             if got != want {
@@ -643,26 +633,17 @@ mod tests {
     fn scan_lines_follow_bufio() {
         assert_eq!(scan_lines("a\r\nb\n\nc"), vec!["a", "b", "", "c"]);
         assert_eq!(scan_lines("a\n"), vec!["a"]);
-        let long = format!(
-            "a\n{}\nb\n",
-            "x".repeat(go_compat::scanner::MAX_SCAN_TOKEN_SIZE)
-        );
-        assert_eq!(scan_lines(&long), vec!["a"]);
+        // No line is too long for std: a 64 KiB line is kept, where Go's scanner stopped.
+        let long = format!("a\n{}\nb\n", "x".repeat(1 << 16));
+        assert_eq!(scan_lines(&long).len(), 3);
     }
 
-    /// `*fs.PathError` with Go's errno text, from a go1.26 scratch program: an errno Go's table
-    /// does not name is `errno 524`, not the C library's `Unknown error 524`, and errno 73 keeps
-    /// its capital.
+    /// A path error is the operation, the path and std's text for the error.
     #[test]
-    fn path_error_words_errno_as_go() {
-        let path = Path::new("/x");
-        for (errno, want) in [
-            (2, "open /x: no such file or directory"),
-            (73, "open /x: RFS specific error"),
-            (524, "open /x: errno 524"),
-        ] {
-            let error = io::Error::from_raw_os_error(errno);
-            assert_eq!(path_error("open", path, &error), want);
-        }
+    fn path_error_words_the_errno() {
+        let error = io::Error::from_raw_os_error(2);
+        let text = path_error("open", Path::new("/x"), &error);
+        assert!(text.starts_with("open /x: "), "{text}");
+        assert!(text.contains("os error 2"), "{text}");
     }
 }

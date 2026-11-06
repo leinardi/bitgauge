@@ -26,7 +26,6 @@ use std::collections::BTreeMap;
 use std::path::Path;
 use std::sync::LazyLock;
 
-use go_compat::parse_int::parse_int;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
@@ -115,9 +114,9 @@ pub fn parse_ping(output: &str) -> Vec<PingSample> {
         .split('\n')
         .filter_map(|line| {
             let captures = PING_REPLY.captures(line.trim())?;
-            let seconds = parse_int(&captures[1], 10).ok()?;
+            let seconds = captures[1].parse::<i64>().ok()?;
             let padded = format!("{}{}", &captures[2], "0".repeat(NANO_DIGITS));
-            let fraction = parse_int(&padded[..NANO_DIGITS], 10).ok()?;
+            let fraction = padded[..NANO_DIGITS].parse::<i64>().ok()?;
             let rtt = gofmt::parse_float(&captures[3]).ok()?;
             let arrived = WallTime::from_unix(seconds, fraction);
             Some(PingSample {

@@ -19,7 +19,7 @@
 
 //! Go's `strconv.Unquote`, which decides which strace arguments are paths (strace's `"\1\0"` is
 //! not a Go string literal, so it is no path). No crate matches it; `path.Clean` and `path.Join`,
-//! which place the paths, are `go_compat::filepath`'s.
+//! which place the paths, are `policy::clean`'s.
 
 /// Go's `strconv.Unquote`: the bytes of a Go string literal in double quotes, backquotes or
 /// single quotes, or `None` when `text` is not exactly one.

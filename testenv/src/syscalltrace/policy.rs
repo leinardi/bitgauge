@@ -24,7 +24,6 @@ use std::fmt;
 use std::net::{IpAddr, SocketAddr};
 use std::sync::LazyLock;
 
-use go_compat::filepath::{clean, join};
 use regex::Regex;
 
 use super::gostr::unquote;
@@ -444,12 +443,37 @@ fn paths(event: &Event) -> Vec<String> {
         if !path.starts_with('/') && index > 0 {
             let dir = parse_descriptor(&event.args[index - 1]);
             if dir.kind == KIND_PATH {
-                path = join(&[&dir.path, &path]);
+                path = clean(&format!("{}/{path}", dir.path));
             }
         }
         names.push(clean(&path));
     }
     names
+}
+
+/// `path` cleaned lexically: `.` and empty elements dropped, `..` resolved against the elements
+/// before it (at the root, dropped), the result `/`-rooted when the path was and `.` when empty.
+fn clean(path: &str) -> String {
+    let rooted = path.starts_with('/');
+    let mut kept: Vec<&str> = Vec::new();
+    for element in path.split('/') {
+        match element {
+            "" | "." => {}
+            ".." => match kept.last() {
+                Some(&last) if last != ".." => {
+                    kept.pop();
+                }
+                _ if rooted => {}
+                _ => kept.push(".."),
+            },
+            name => kept.push(name),
+        }
+    }
+    match (rooted, kept.is_empty()) {
+        (true, _) => format!("/{}", kept.join("/")),
+        (false, true) => ".".to_owned(),
+        (false, false) => kept.join("/"),
+    }
 }
 
 /// Whether a path is under `/dev` or `/proc`, where a write changes no stored state -- except

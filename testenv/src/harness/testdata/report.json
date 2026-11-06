@@ -13,24 +13,24 @@
       "status": "pass",
       "shaped": true,
       "selfTest": {
-        "downloadBitsPerSecond": 299000,
-        "uploadBitsPerSecond": 301000,
-        "seconds": 5
+        "downloadBitsPerSecond": 299000.0,
+        "uploadBitsPerSecond": 301000.0,
+        "seconds": 5.0
       },
       "referenceBefore": {
-        "downloadBitsPerSecond": 298000,
-        "uploadBitsPerSecond": 297000,
-        "seconds": 20
+        "downloadBitsPerSecond": 298000.0,
+        "uploadBitsPerSecond": 297000.0,
+        "seconds": 20.0
       },
       "referenceAfter": {
-        "downloadBitsPerSecond": 296000,
-        "uploadBitsPerSecond": 299500,
-        "seconds": 20
+        "downloadBitsPerSecond": 296000.0,
+        "uploadBitsPerSecond": 299500.0,
+        "seconds": 20.0
       },
       "reference": {
-        "downloadBitsPerSecond": 297000,
-        "uploadBitsPerSecond": 298250,
-        "seconds": 20
+        "downloadBitsPerSecond": 297000.0,
+        "uploadBitsPerSecond": 298250.0,
+        "seconds": 20.0
       },
       "result": {
         "status": "complete",
@@ -38,34 +38,34 @@
         "protocol": "",
         "download": {
           "status": "measured",
-          "bitsPerSecond": 281000,
-          "windowMs": 12400,
-          "bytes": 0,
+          "bitsPerSecond": 281000.0,
+          "windowMs": 12400.0,
+          "bytes": 0.0,
           "streams": 0,
           "loadedLatency": {
             "source": "websocket",
             "samples": 40,
-            "medianMs": 760,
-            "increaseMs": 160
+            "medianMs": 760.0,
+            "increaseMs": 160.0
           },
           "responsiveness": {
             "state": "measured",
             "protocol": "h2",
             "samples": 31,
-            "rpm": 95
+            "rpm": 95.0
           }
         },
         "upload": {
           "status": "measured",
-          "bitsPerSecond": 290000,
-          "windowMs": 11000,
-          "bytes": 0,
+          "bitsPerSecond": 290000.0,
+          "windowMs": 11000.0,
+          "bytes": 0.0,
           "streams": 0,
           "loadedLatency": {
             "source": "websocket",
             "samples": 40,
-            "medianMs": 790,
-            "increaseMs": 190
+            "medianMs": 790.0,
+            "increaseMs": 190.0
           },
           "responsiveness": {
             "state": "unavailable_h1",
@@ -76,9 +76,9 @@
         "bufferbloat": {
           "grade": "C",
           "basis": "download+upload",
-          "increaseMs": 190
+          "increaseMs": 190.0
         },
-        "dataUsedBytes": 0,
+        "dataUsedBytes": 0.0,
         "notices": null
       },
       "attempt": 1,
@@ -88,22 +88,22 @@
         "log": "exports/floor-300k-600ms-vpn/firefox.ping.txt",
         "idle": {
           "samples": 30,
-          "medianMs": 600
+          "medianMs": 600.0
         },
         "download": {
           "samples": 60,
-          "medianMs": 750,
-          "increaseMs": 150
+          "medianMs": 750.0,
+          "increaseMs": 150.0
         },
         "upload": {
           "samples": 60,
-          "medianMs": 770,
-          "increaseMs": 170
+          "medianMs": 770.0,
+          "increaseMs": 170.0
         }
       },
       "clientUsage": {
         "cpuSeconds": 40.5,
-        "wallSeconds": 27,
+        "wallSeconds": 27.0,
         "peakMemoryBytes": 812400000
       },
       "egress": {
@@ -113,18 +113,18 @@
       },
       "compat": {
         "librespeed": {
-          "downloadBitsPerSecond": 280000,
-          "uploadBitsPerSecond": 270000
+          "downloadBitsPerSecond": 280000.0,
+          "uploadBitsPerSecond": 270000.0
         },
         "goresponsiveness": {
-          "downloadBitsPerSecond": 250000,
-          "uploadBitsPerSecond": 240000,
-          "rpm": 61,
+          "downloadBitsPerSecond": 250000.0,
+          "uploadBitsPerSecond": 240000.0,
+          "rpm": 61.0,
           "estimate": true
         },
         "openspeedtest": {
-          "downloadBitsPerSecond": 275000,
-          "uploadBitsPerSecond": 265000
+          "downloadBitsPerSecond": 275000.0,
+          "uploadBitsPerSecond": 265000.0
         }
       }
     },

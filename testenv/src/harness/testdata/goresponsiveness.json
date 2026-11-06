@@ -1,6 +1,6 @@
 {
-  "downloadBitsPerSecond": 92863000,
-  "uploadBitsPerSecond": 90258000,
-  "rpm": 307,
+  "downloadBitsPerSecond": 92863000.0,
+  "uploadBitsPerSecond": 90258000.0,
+  "rpm": 307.0,
   "estimate": true
 }

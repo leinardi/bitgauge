@@ -24,7 +24,7 @@
 
 use std::collections::BTreeMap;
 
-use go_compat::quote::quote;
+use super::gofmt::quote;
 
 use super::profiles::{
     GBIT, MBIT, PathBRule, Profile, RESPONSIVENESS_H1, RESPONSIVENESS_MEASURED,

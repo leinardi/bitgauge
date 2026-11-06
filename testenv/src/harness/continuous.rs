@@ -29,9 +29,7 @@ use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use go_compat::parse_int::atoi;
-use go_compat::quote::quote;
-use go_compat::time_layout::go_zero_time;
+use super::gofmt::{quote, zero_time};
 use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 
@@ -78,7 +76,7 @@ pub fn continuous_minutes(value: &str) -> Result<i64, String> {
     if trimmed.is_empty() {
         return Ok(CONTINUOUS_MINUTES_DEFAULT);
     }
-    match atoi(trimmed) {
+    match trimmed.parse::<i64>() {
         Ok(minutes) if minutes >= CONTINUOUS_MINUTES_MIN => Ok(minutes),
         Ok(_) | Err(_) => Err(format!(
             "HARNESS_CONTINUOUS_MINUTES must be a whole number of at least \
@@ -294,7 +292,7 @@ impl ContinuousReport {
             env_id: env_id.to_owned(),
             run_env_id: String::new(),
             started,
-            finished: go_zero_time(),
+            finished: zero_time(),
             rule: CONTINUOUS_RULE.to_owned(),
             no_egress_layer: NO_EGRESS_LAYER.to_owned(),
             status: Status::Failed,
@@ -571,12 +569,12 @@ mod tests {
         assert!(failures.is_empty(), "{}", failures.join("\n"));
     }
 
-    /// The refusal quotes the value as Go's `strconv.Quote` does, from a go1.26 scratch program:
-    /// U+0378 is unassigned in Go's Unicode 15 tables, so Go escapes it.
+    /// The refusal quotes the value as Rust's `Debug` does: U+0378 is escaped as `\u{378}` (Go
+    /// wrote `\u0378`).
     #[test]
-    fn continuous_minutes_quote_as_go() {
+    fn continuous_minutes_quote_the_value() {
         let refused = continuous_minutes("6\u{378}").expect_err("not a whole number");
-        assert!(refused.ends_with(r#", not "6\u0378""#), "{refused}");
+        assert!(refused.ends_with(r#", not "6\u{378}""#), "{refused}");
     }
 
     /// The sample file of a clean run, written where the driver writes it.
