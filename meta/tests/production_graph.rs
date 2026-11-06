@@ -60,8 +60,9 @@ const RELEASE_TARGET: &str = "x86_64-unknown-linux-musl";
 
 /// Every crate of leinardi/rust-common, by package name.
 const SHARED_CRATES: &[&str] = &[
+    "clock",
+    "docker-client",
     "docker-engine",
-    "go-clock",
     "go-compat",
     "go-http",
     "go-prom",
