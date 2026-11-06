@@ -908,6 +908,27 @@ metrics:
     );
 }
 
+/// A problem line's float as Go's `%v` writes it: 951606.00048828125 lies exactly halfway between
+/// the shortest candidates `…4882812` and `…4882813`, and Go takes the even one.
+#[test]
+fn problem_float_ties_round_to_even() {
+    let problems = problems_for(
+        "test_defaults:\n  overhead_compensation_percent: 951606.00048828125\n",
+        &[],
+    );
+    let lines: Vec<(&str, &str)> = problems
+        .iter()
+        .map(|problem| (problem.key.as_str(), problem.value.as_str()))
+        .collect();
+    assert_eq!(
+        lines,
+        [(
+            "test_defaults.overhead_compensation_percent",
+            "951606.0004882812"
+        )]
+    );
+}
+
 /// Go: `TestDecodeFailureIsNotReportedTwice`. The listen value does not decode, so it keeps its
 /// valid default and validation adds no port-range problem for the same key.
 #[test]

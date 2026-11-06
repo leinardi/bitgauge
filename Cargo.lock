@@ -116,6 +116,7 @@ dependencies = [
  "clap",
  "futures-util",
  "getrandom",
+ "go-compat",
  "http",
  "http-body",
  "http-body-util",
@@ -475,6 +476,14 @@ dependencies = [
  "libc",
  "r-efi",
  "rand_core",
+]
+
+[[package]]
+name = "go-compat"
+version = "0.1.0"
+source = "git+https://github.com/leinardi/rust-common?rev=5da82ad299ce541720fba968e8c4aa00eb24400f#5da82ad299ce541720fba968e8c4aa00eb24400f"
+dependencies = [
+ "jiff",
 ]
 
 [[package]]
@@ -1157,6 +1166,7 @@ name = "testenv"
 version = "0.0.0"
 dependencies = [
  "flate2",
+ "go-compat",
  "jiff",
  "regex",
  "serde",

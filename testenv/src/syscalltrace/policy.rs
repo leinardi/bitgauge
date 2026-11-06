@@ -24,9 +24,10 @@ use std::fmt;
 use std::net::{IpAddr, SocketAddr};
 use std::sync::LazyLock;
 
+use go_compat::filepath::{clean, join};
 use regex::Regex;
 
-use super::gostr::{clean, join, unquote};
+use super::gostr::unquote;
 use super::parse::Event;
 
 /// The strace `-e` argument the policies are written against: every call that opens, names or
@@ -443,7 +444,7 @@ fn paths(event: &Event) -> Vec<String> {
         if !path.starts_with('/') && index > 0 {
             let dir = parse_descriptor(&event.args[index - 1]);
             if dir.kind == KIND_PATH {
-                path = join(&dir.path, &path);
+                path = join(&[&dir.path, &path]);
             }
         }
         names.push(clean(&path));

@@ -24,8 +24,10 @@ use std::fmt::Display;
 
 use jiff::SignedDuration;
 
-use super::gofmt::{duration, float};
-use super::printable::is_print;
+use go_compat::float::format_g;
+use go_compat::quote::is_print;
+
+use super::gofmt::duration;
 use super::url::{self, Url};
 use super::{
     Cidr, Compat, Config, DurationRange, LabelRule, Limits, Loaded, Log, Metrics, Origin,
@@ -360,8 +362,8 @@ impl Checker {
         if !(0.0..=MAX_OVERHEAD_PERCENT).contains(&percent) {
             self.add(
                 "test_defaults.overhead_compensation_percent",
-                float(percent),
-                format!("must be between 0 and {}", float(MAX_OVERHEAD_PERCENT)),
+                format_g(percent),
+                format!("must be between 0 and {}", format_g(MAX_OVERHEAD_PERCENT)),
             );
         }
     }

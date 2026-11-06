@@ -98,6 +98,9 @@ path = "src/main.rs"
 # HTTP/1 request framing over the bytes a connection read, as hyper frames them (rust-common, std
 # only): the server's timeouts tell a pipelined request from an idle connection with it.
 http-framing.workspace = true
+# Go's strconv quoting and IsPrint, %v floats and time.Duration text, ported byte for byte
+# (rust-common, jiff only): the configuration's problem lines and effective list.
+go-compat.workspace = true
 # The router and the handlers' request and response body; MatchedPath labels the metrics.
 axum = { version = "0.8.9", default-features = false, features = ["matched-path"] }
 bytes = "1.12.1"

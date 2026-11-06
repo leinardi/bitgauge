@@ -17,9 +17,9 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! The two Go library functions the policies decide with: `strconv.Unquote`, which decides which
-//! strace arguments are paths (strace's `"\1\0"` is not a Go string literal, so it is no path),
-//! and `path.Clean`, which places them. No crate matches either.
+//! Go's `strconv.Unquote`, which decides which strace arguments are paths (strace's `"\1\0"` is
+//! not a Go string literal, so it is no path). No crate matches it; `path.Clean` and `path.Join`,
+//! which place the paths, are `go_compat::filepath`'s.
 
 /// Go's `strconv.Unquote`: the bytes of a Go string literal in double quotes, backquotes or
 /// single quotes, or `None` when `text` is not exactly one.
@@ -110,47 +110,9 @@ fn hex(digits: &[u8]) -> Option<u32> {
     Some(value)
 }
 
-/// Go's `path.Clean`: the shortest equivalent slash path, lexically.
-pub(super) fn clean(path: &str) -> String {
-    if path.is_empty() {
-        return ".".to_owned();
-    }
-    let rooted = path.starts_with('/');
-    let mut parts: Vec<&str> = Vec::new();
-    for part in path.split('/') {
-        match part {
-            "" | "." => {}
-            ".." => {
-                if parts.last().is_some_and(|last| *last != "..") {
-                    parts.pop();
-                } else if !rooted {
-                    parts.push("..");
-                }
-            }
-            part => parts.push(part),
-        }
-    }
-    let joined = parts.join("/");
-    match (rooted, joined.is_empty()) {
-        (true, _) => format!("/{joined}"),
-        (false, true) => ".".to_owned(),
-        (false, false) => joined,
-    }
-}
-
-/// Go's `path.Join` of two elements.
-pub(super) fn join(dir: &str, name: &str) -> String {
-    match (dir.is_empty(), name.is_empty()) {
-        (true, true) => String::new(),
-        (true, false) => clean(name),
-        (false, true) => clean(dir),
-        (false, false) => clean(&format!("{dir}/{name}")),
-    }
-}
-
 #[cfg(test)]
 mod tests {
-    use super::{clean, join, unquote};
+    use super::unquote;
 
     /// `strconv.Unquote` on the shapes strace prints, Go's answers taken from its documented
     /// grammar.
@@ -179,28 +141,5 @@ mod tests {
         ] {
             assert_eq!(unquote(bad), None, "{bad}");
         }
-    }
-
-    /// `path.Clean` and `path.Join`, Go's documented examples.
-    #[test]
-    fn clean_is_gos() {
-        for (path, want) in [
-            ("a/c", "a/c"),
-            ("a//c", "a/c"),
-            ("a/c/.", "a/c"),
-            ("a/c/b/..", "a/c"),
-            ("/../a/c", "/a/c"),
-            ("/../a/b/../././/c", "/a/c"),
-            ("", "."),
-            ("..", ".."),
-            ("../../a", "../../a"),
-            ("/", "/"),
-            ("/dev/../etc/passwd", "/etc/passwd"),
-        ] {
-            assert_eq!(clean(path), want, "{path}");
-        }
-        assert_eq!(join("/srv", "data/out"), "/srv/data/out");
-        assert_eq!(join("", "out"), "out");
-        assert_eq!(join("/", "../x"), "/x");
     }
 }

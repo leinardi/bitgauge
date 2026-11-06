@@ -23,8 +23,9 @@
 //! HTTP/2 or HTTP/3 probe waits behind its own load connection's data, which the ping does not,
 //! so it is recorded with the ping figures and not judged.
 
+use go_compat::quote::quote;
+
 use super::evaluate::ROUNDING;
-use super::gofmt;
 use super::ping::{PHASE_DOWNLOAD, PHASE_UPLOAD, Ping, PingPhase};
 use super::profiles::Profile;
 use super::report::{Direction, ResultSummary, Run};
@@ -245,7 +246,7 @@ fn judge_fallback(expect: &str, result: &ResultSummary) -> Vec<String> {
         if loaded.source != expect {
             findings.push(format!(
                 "{name}: loaded latency from {}, want {expect}",
-                gofmt::quote(&loaded.source)
+                quote(&loaded.source)
             ));
         }
         if loaded.samples < MIN_FALLBACK_SAMPLES {

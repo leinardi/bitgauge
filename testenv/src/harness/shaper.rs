@@ -23,6 +23,8 @@
 use std::fmt;
 use std::time::Duration;
 
+use go_compat::parse_int::parse_int;
+use go_compat::quote::quote;
 use serde::Deserialize;
 
 use super::gofmt;
@@ -92,12 +94,12 @@ pub fn tbf_sent_bytes(out: &str) -> Result<i64, OutputError> {
         if fields.len() < 3 || fields[0] != "Sent" || fields[2] != "bytes" {
             return Err(OutputError::Tbf(format!(
                 "no Sent line under {}",
-                gofmt::quote(TBF_QDISC)
+                quote(TBF_QDISC)
             )));
         }
-        return gofmt::parse_int("ParseInt", fields[1]).map_err(OutputError::Tbf);
+        return parse_int(fields[1], 10).map_err(|error| OutputError::Tbf(error.to_string()));
     }
-    Err(OutputError::Tbf(format!("no {}", gofmt::quote(TBF_QDISC))))
+    Err(OutputError::Tbf(format!("no {}", quote(TBF_QDISC))))
 }
 
 /// The TCP payload rate a correct shaper lets through at a profile's rate: tbf counts whole
@@ -295,7 +297,7 @@ pub fn received_bits_per_second(
     if rates.is_empty() {
         return Err(OutputError::Iperf3(format!(
             "no interval after {}",
-            gofmt::duration(settle)
+            go_compat::duration::format(i64::try_from(settle.as_nanos()).unwrap_or(i64::MAX))
         )));
     }
 
