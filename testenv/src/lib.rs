@@ -26,23 +26,24 @@
 //! - [`docker`]: the [`docker::Runner`] over the docker CLI, and its errors.
 //! - [`env`](mod@env), [`envid`], [`sweep`], [`logger`]: labeled environments, their cleanup and
 //!   the stale sweep (Go's `test/internal/testenv`).
-//! - [`runner`] and [`run_filter`]: the `harness = false` runner with Go's `-run` filter.
+//! - [`runner`] and [`run_filter`]: the `harness = false` runner with Go's `-run` filter, from
+//!   rust-common's `testenv-core` (feature `sync`); the suites pass it [`envid::TEMP_DIR_PREFIX`].
 //! - [`identity`]: the check, before any test, that the image is the expected implementation
 //!   and commit.
 //! - [`netguard`]: the namespace whose egress is counted (Go's `test/internal/netguard`).
 //! - [`syscalltrace`]: the strace parser and policies (Go's `test/internal/syscalltrace`).
-//! - [`gitenv`] and [`toolgate`]: git isolation and gated tools for behavioral tests.
+//! - [`gitenv`] and [`toolgate`]: git isolation (`testenv-core`'s) and gated tools for behavioral
+//!   tests (BitGauge's gate on `testenv-core`'s).
 
 pub mod docker;
 pub mod env;
 pub mod envid;
-pub mod gitenv;
 pub mod harness;
 pub mod identity;
 pub mod logger;
 pub mod netguard;
-pub mod run_filter;
-pub mod runner;
 pub mod sweep;
 pub mod syscalltrace;
 pub mod toolgate;
+
+pub use testenv_core::{gitenv, run_filter, runner};

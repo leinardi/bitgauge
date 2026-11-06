@@ -70,11 +70,14 @@ The bans apply to the shipped `bitgauge` package only, outside `#[cfg(test)]`
 - **The production graph** ([`meta/tests/production_graph.rs`](../../../meta/tests/production_graph.rs)):
   `cargo tree` of the shipped package, features unified, holds neither test crate nor a banned
   crate, and no hyper or hyper-util `client` or `http2` feature, no tokio `fs` or `process`, no
-  axum `ws` or `http2`; the musl release view too.
+  axum `ws` or `http2`; of the rust-common crates exactly `SHIPPED_SHARED` (`go-compat`,
+  `http-framing`, `service-kit`, `tracing-setup`); the musl release view too.
 
 They are pinned because a rule that stops matching fails nothing on its own:
-[`meta/tests/lint_exemptions.rs`](../../../meta/tests/lint_exemptions.rs) allows an `expect` of
-`disallowed_methods`, `disallowed_macros` or `disallowed_types` only on its listed items (§3), and
+[`meta/tests/lint_exemptions.rs`](../../../meta/tests/lint_exemptions.rs) (rust-common's
+`repo-meta` allowlist check on BitGauge's list) allows an `expect` of `disallowed_methods`,
+`disallowed_macros` or `disallowed_types` only on its listed items (§3) and fails a listed item that
+no longer has one, except the reserved `SystemClock`, and
 [`meta/tests/lint_inheritance.rs`](../../../meta/tests/lint_inheritance.rs) holds the lint set and
 the root `clippy.toml` to the crates they must reach (`meta/` and `testenv/` carry their own
 `clippy.toml`, without the I/O and clock bans). The negative controls are listed in

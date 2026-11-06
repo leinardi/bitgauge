@@ -32,7 +32,7 @@ use crate::handlers::{Body, CODE_TABLE_FULL, CODE_TOO_MANY_STREAMS, Limit, ping,
 use crate::logger;
 use crate::metrics::Metrics;
 use crate::ratelimit::{Limiter, Options};
-use crate::test_support::Capture;
+use tracing_setup::testing::Capture;
 
 fn limiter(max_flows: u32, tracked_clients: usize) -> Limiter {
     Limiter::new(

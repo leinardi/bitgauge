@@ -41,8 +41,8 @@ use jiff::Timestamp;
 
 use crate::docker::{DockerCli, DockerError, Output, Runner};
 use crate::envid::{
-    LABEL_ENV_ID, LABEL_KEEP, LABEL_OWNER, LABEL_STARTED, Owner, current_owner, generate_env_id,
-    label_filter, resource_name,
+    ENV_IDS, LABEL_ENV_ID, LABEL_KEEP, LABEL_OWNER, LABEL_STARTED, Owner, current_owner,
+    generate_env_id,
 };
 use crate::logger::{Logger, Value};
 use crate::runner::Test;
@@ -248,7 +248,7 @@ impl Provider for DockerProvider {
     fn down(&self, env: &Env, failed: bool) -> Result<(), EnvError> {
         if failed && env.keep_on_failure {
             let keep = format!("{LABEL_KEEP}=true");
-            let marker = resource_name(&env.id, KEEP_MARKER);
+            let marker = ENV_IDS.resource_name(&env.id, KEEP_MARKER);
             env.docker_timeout(
                 &["network", "create", "--internal", "--label", &keep, &marker],
                 Some(DOWN_TIMEOUT),
@@ -264,7 +264,7 @@ impl Provider for DockerProvider {
             })?;
             env.logger.warn(
                 "kept the failed environment for inspection; the stale sweep leaves it alone",
-                &[("filter", Value::from(label_filter(&env.id)))],
+                &[("filter", Value::from(ENV_IDS.cli_filter(&env.id)))],
             );
             return Ok(());
         }
@@ -317,7 +317,7 @@ impl Env {
     /// The name of one resource of the environment: `bitgauge-test-<envid>-<base>`.
     #[must_use]
     pub fn name(&self, base: &str) -> String {
-        resource_name(&self.id, base)
+        ENV_IDS.resource_name(&self.id, base)
     }
 
     /// The runner the environment's commands go through.
@@ -465,7 +465,7 @@ fn with_labels<'arg>(args: &[&'arg str], labels: &'arg [String]) -> Vec<&'arg st
 ///
 /// A list or remove command failed.
 pub fn remove_env(runner: &dyn Runner, env_id: &str) -> Result<(), EnvError> {
-    let filter = label_filter(env_id);
+    let filter = ENV_IDS.cli_filter(env_id);
     let kinds: [(&[&str], &[&str]); 3] = [
         (&["ps", "-aq", "--filter", &filter], &["rm", "-f", "-v"]),
         (
@@ -499,7 +499,7 @@ pub(crate) mod tests {
 
     use super::{DockerProvider, Env, EnvGuard, Provider, Spec, provider_from_lookup};
     use crate::docker::tests::FakeDocker;
-    use crate::envid::{LABEL_ENV_ID, LABEL_KEEP, LABEL_OWNER, LABEL_STARTED, label_filter};
+    use crate::envid::{ENV_IDS, LABEL_ENV_ID, LABEL_KEEP, LABEL_OWNER, LABEL_STARTED};
     use crate::logger::Logger;
 
     pub(crate) fn up_env(runner: &Arc<FakeDocker>, env_id: &str, keep_on_failure: bool) -> Env {
@@ -558,7 +558,7 @@ pub(crate) mod tests {
     /// Go: `TestDownRemovesOnlyItsOwnEnvironment`: the scope of normal cleanup.
     #[test]
     fn down_removes_only_its_own_environment() {
-        let filter = label_filter("mine0000");
+        let filter = ENV_IDS.cli_filter("mine0000");
         let runner = Arc::new(FakeDocker::answering(&[
             (&format!("ps -aq --filter {filter}"), "c1\nc2\n"),
             (&format!("network ls -q --filter {filter}"), "n1\n"),
@@ -592,7 +592,7 @@ pub(crate) mod tests {
             ("passed with keep set", true, false, false, true),
         ] {
             let runner = Arc::new(FakeDocker::answering(&[(
-                &format!("ps -aq --filter {}", label_filter("env00000")),
+                &format!("ps -aq --filter {}", ENV_IDS.cli_filter("env00000")),
                 "c1\n",
             )]));
             let env = up_env(&runner, "env00000", keep);
@@ -619,7 +619,7 @@ pub(crate) mod tests {
     #[test]
     fn guard_tears_down_once() {
         let runner = Arc::new(FakeDocker::answering(&[(
-            &format!("ps -aq --filter {}", label_filter("guard000")),
+            &format!("ps -aq --filter {}", ENV_IDS.cli_filter("guard000")),
             "c1\n",
         )]));
         let provider: Arc<dyn Provider> = Arc::new(DockerProvider::new(Arc::clone(&runner) as _));

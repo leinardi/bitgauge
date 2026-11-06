@@ -24,6 +24,8 @@
 
 use std::collections::BTreeMap;
 
+use go_compat::quote::quote;
+
 use super::profiles::{
     GBIT, MBIT, PathBRule, Profile, RESPONSIVENESS_H1, RESPONSIVENESS_MEASURED,
     RESPONSIVENESS_UNCERTAIN,
@@ -337,7 +339,7 @@ impl Run {
                 Some(got) if !path_b_holds(profile.path_b, got) => findings.push(format!(
                     "{name}: path B {} (protocol {}, {} samples), want {}",
                     got.state,
-                    super::gofmt::quote(&got.protocol),
+                    quote(&got.protocol),
                     got.samples,
                     path_b_want(profile.path_b)
                 )),

@@ -21,7 +21,7 @@
 
 use jiff::SignedDuration;
 
-use crate::config::gofmt::{duration, float, quote};
+use crate::config::gofmt::duration;
 use crate::config::url;
 use crate::config::{Cidr, Listen, Size, ValueError};
 
@@ -85,21 +85,15 @@ fn go_text_forms() {
     ] {
         assert_eq!(duration(SignedDuration::from_nanos(nanos)), want);
     }
+    // Beyond Go's i64 nanoseconds, which jiff reads: the same hour form.
     for (value, want) in [
-        (1e6, "1e+06"),
-        (100_000.0, "100000"),
-        (1_234_567.0, "1.234567e+06"),
-        (0.0001, "0.0001"),
-        (0.000_01, "1e-05"),
-        (20.5, "20.5"),
-        (-1.0, "-1"),
-        (5.13, "5.13"),
-        (f64::NAN, "NaN"),
-        (f64::INFINITY, "+Inf"),
+        (SignedDuration::MAX, "2562047788015215h30m7.999999999s"),
+        (SignedDuration::MIN, "-2562047788015215h30m8.999999999s"),
+        (SignedDuration::from_hours(3_000_000), "3000000h0m0s"),
+        (SignedDuration::new(9_223_372_037, 0), "2562047h47m17s"),
     ] {
-        assert_eq!(float(value), want, "{value}");
+        assert_eq!(duration(value), want);
     }
-    assert_eq!(quote("a\tb\"c\u{1}\u{a0}é"), r#""a\tb\"c\x01\u00a0é""#);
     assert_eq!(Size::MIB.times(256).to_string(), "256 MiB");
     assert_eq!(Size::new(1000).to_string(), "1000 bytes");
     assert_eq!(Size::new(0).to_string(), "0 bytes");

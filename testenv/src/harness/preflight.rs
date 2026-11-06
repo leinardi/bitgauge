@@ -29,7 +29,9 @@
 use std::fmt;
 use std::sync::Arc;
 
-use super::gofmt;
+use go_compat::parse_int::parse_uint;
+use go_compat::quote::quote;
+
 use super::profiles::{Profile, TierSpec};
 use super::shaper::{loss_command, shaper_commands};
 use super::usage::{CGROUP_CPU_STAT, CGROUP_MEMORY_PEAK, cpu_usage_micros, memory_peak};
@@ -185,21 +187,21 @@ fn judge_daemon_cgroups(out: &str) -> Result<(), PreflightError> {
     let Some((driver, version)) = out.trim_end_matches(['\r', '\n']).split_once('\t') else {
         return Err(PreflightError::cgroups(&format!(
             "unreadable docker info answer {}",
-            gofmt::quote(out)
+            quote(out)
         )));
     };
     if driver == "none" || driver.is_empty() {
         return Err(PreflightError::cgroups(&format!(
             "the daemon reports cgroup driver {} (rootless without cgroups?), so a container's \
              cgroup counters would be the daemon's, not the client's",
-            gofmt::quote(driver)
+            quote(driver)
         )));
     }
     if version != "2" {
         return Err(PreflightError::cgroups(&format!(
             "the daemon reports cgroup version {}, and the client's cpu.stat and memory.peak \
              need cgroup v2",
-            gofmt::quote(version)
+            quote(version)
         )));
     }
     Ok(())
@@ -369,8 +371,8 @@ impl Probe<'_> {
         let out = self
             .exec(container, &["stat", "-c", "%i", dir])
             .map_err(|error| PreflightError::cgroups(&format!("stat {dir}: {error}")))?;
-        gofmt::parse_uint(out.trim()).map_err(|error| {
-            PreflightError::cgroups(&format!("inode of {dir} {}: {error}", gofmt::quote(&out)))
+        parse_uint(out.trim(), 10).map_err(|error| {
+            PreflightError::cgroups(&format!("inode of {dir} {}: {error}", quote(&out)))
         })
     }
 
@@ -408,7 +410,7 @@ impl Probe<'_> {
 fn cgroup_dir(found: &str) -> Result<String, PreflightError> {
     let dirs: Vec<&str> = found.split_whitespace().collect();
     let [dir] = dirs.as_slice() else {
-        let quoted: Vec<String> = dirs.iter().map(|dir| gofmt::quote(dir)).collect();
+        let quoted: Vec<String> = dirs.iter().map(|dir| quote(dir)).collect();
         return Err(PreflightError::cgroups(&format!(
             "the host's cgroup tree holds {} directories named after the container, not one: [{}]",
             dirs.len(),
@@ -521,7 +523,7 @@ pub fn preflight_checks(value: &str) -> Result<(bool, bool), String> {
         _ => Err(format!(
             "unknown preflight {}; use {PREFLIGHT_ACCOUNTING}, {PREFLIGHT_SHAPING} or nothing \
              for both",
-            gofmt::quote(value)
+            quote(value)
         )),
     }
 }

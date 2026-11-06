@@ -22,22 +22,14 @@
 //! repository, and on scratch repositories that each hold one kind of file the script must reject
 //! or let through, so an edit that blinds the script to a file kind fails here.
 //!
-//! The scratch repositories run git with an isolated environment: under the commit hook git
-//! exports the location of the repository being committed (`GIT_INDEX_FILE` and others), and a
-//! `git add` in a scratch repository with that environment would write into the real index.
+//! The harness is rust-common's `repo_meta::scratch::HeaderHarness`: the scratch repositories run
+//! git and the script with an isolated environment (under the commit hook git exports the
+//! location of the repository being committed, `GIT_INDEX_FILE` and others, and a `git add` in a
+//! scratch repository with that environment would write into the real index), and the cases run
+//! in parallel. The cases are BitGauge's.
 
-use std::env;
-use std::fs;
-use std::num::NonZeroUsize;
-use std::os::unix::fs::PermissionsExt;
-use std::path::Path;
-use std::process::{Command, Output};
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::thread;
-
-use meta::repo;
-
-const SCRIPT_PATH: &str = "scripts/check-license-headers.sh";
+use repo_meta::report;
+use repo_meta::scratch::{HeaderCase, HeaderHarness};
 
 const GO_HEADER: &str = "/*
  * This file is part of BitGauge.
@@ -118,42 +110,20 @@ const MAKEFILE_WITH_HEADER: &str = concat!(
     "MK_COMMON_FILES := docker.mk help.mk\n"
 );
 
-/// Marks scratch files that are written but never added: the check reads tracked files only.
-const UNTRACKED_PREFIX: &str = "untracked/";
+/// The checker, with the Makefile every scratch repository holds unless a case brings its own;
+/// files under `untracked/` are written but never added, since the check reads tracked files only.
+const HARNESS: HeaderHarness<'static> = HeaderHarness {
+    script: "scripts/check-license-headers.sh",
+    base_files: &[("Makefile", MAKEFILE_WITH_HEADER)],
+    untracked_prefix: "untracked/",
+};
 
-/// The variables that point git at a repository other than the working directory's.
-const REPOSITORY_VARS: [&str; 9] = [
-    "GIT_DIR",
-    "GIT_INDEX_FILE",
-    "GIT_WORK_TREE",
-    "GIT_OBJECT_DIRECTORY",
-    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
-    "GIT_COMMON_DIR",
-    "GIT_PREFIX",
-    "GIT_NAMESPACE",
-    "GIT_CEILING_DIRECTORIES",
-];
-
-/// A scratch-repository case: its name, its files, and whether the check must accept it.
-struct Case {
-    name: &'static str,
-    files: Vec<(&'static str, String)>,
-    pass: bool,
-}
-
-fn case(name: &'static str, files: &[(&'static str, &str)], pass: bool) -> Case {
-    Case {
-        name,
-        files: files
-            .iter()
-            .map(|(path, content)| (*path, (*content).to_owned()))
-            .collect(),
-        pass,
-    }
+fn case(name: &str, files: &[(&str, &str)], pass: bool) -> HeaderCase {
+    HeaderCase::new(name, files, pass)
 }
 
 /// The first half of the Go case table, split only to keep each function short.
-fn cases() -> Vec<Case> {
+fn cases() -> Vec<HeaderCase> {
     let go = "internal/x/x.go";
     vec![
         case("go file with the header", &[(go, GO_HEADER)], true),
@@ -239,7 +209,7 @@ fn cases() -> Vec<Case> {
 }
 
 /// The rest of the Go case table: the remaining governed files, the window, and the exemptions.
-fn more_cases() -> Vec<Case> {
+fn more_cases() -> Vec<HeaderCase> {
     let go = "internal/x/x.go";
     vec![
         case(
@@ -315,150 +285,13 @@ fn more_cases() -> Vec<Case> {
     ]
 }
 
-/// `command` without the variables that redirect git and without the user's global and system
-/// configuration.
-fn isolated(command: &mut Command) -> &mut Command {
-    for (name, _) in env::vars_os() {
-        let name = name.to_string_lossy();
-        if REPOSITORY_VARS.contains(&name.as_ref()) || name.starts_with("GIT_CONFIG") {
-            command.env_remove(name.as_ref());
-        }
-    }
-    command
-        .env("GIT_CONFIG_GLOBAL", "/dev/null")
-        .env("GIT_CONFIG_NOSYSTEM", "1")
-}
-
-fn combined(output: &Output) -> String {
-    format!(
-        "{}{}",
-        String::from_utf8_lossy(&output.stdout),
-        String::from_utf8_lossy(&output.stderr)
-    )
-}
-
-fn git(directory: &Path, args: &[&str]) {
-    let output = isolated(Command::new("git").args(args).current_dir(directory))
-        .output()
-        .unwrap_or_else(|error| panic!("run git {args:?}: {error}"));
-    assert!(
-        output.status.success(),
-        "git {args:?}: {}\n{}",
-        output.status,
-        combined(&output)
-    );
-}
-
-/// Creates a git repository at `directory` holding the checker, a Makefile and `files`.
-fn scratch_repo(directory: &Path, script: &str, files: &[(&str, String)]) {
-    let mut all: Vec<(&str, &str)> = files
-        .iter()
-        .map(|(path, content)| (*path, content.as_str()))
-        .collect();
-    all.push((SCRIPT_PATH, script));
-    if !files.iter().any(|(path, _)| *path == "Makefile") {
-        all.push(("Makefile", MAKEFILE_WITH_HEADER));
-    }
-    for (name, content) in &all {
-        let target = directory.join(name);
-        if let Some(parent) = target.parent() {
-            fs::create_dir_all(parent)
-                .unwrap_or_else(|error| panic!("create the directory of {name}: {error}"));
-        }
-        fs::write(&target, content).unwrap_or_else(|error| panic!("write {name}: {error}"));
-        fs::set_permissions(&target, fs::Permissions::from_mode(0o600))
-            .unwrap_or_else(|error| panic!("set the mode of {name}: {error}"));
-    }
-    fs::set_permissions(
-        directory.join(SCRIPT_PATH),
-        fs::Permissions::from_mode(0o700),
-    )
-    .unwrap_or_else(|error| panic!("make the checker executable: {error}"));
-    git(directory, &["init", "--quiet"]);
-    for (name, _) in &all {
-        if !name.starts_with(UNTRACKED_PREFIX) {
-            git(directory, &["add", "--", name]);
-        }
-    }
-}
-
-/// What is wrong with the check's verdict on `case`, if anything.
-fn case_problem(script: &str, case: &Case) -> Option<String> {
-    let directory =
-        tempfile::tempdir().unwrap_or_else(|error| panic!("create a scratch directory: {error}"));
-    scratch_repo(directory.path(), script, &case.files);
-    let output =
-        isolated(Command::new(directory.path().join(SCRIPT_PATH)).current_dir(directory.path()))
-            .output()
-            .unwrap_or_else(|error| panic!("run the checker: {error}"));
-    let accepted = output.status.success();
-    if case.pass && !accepted {
-        return Some(format!(
-            "{}: rejected, want accepted: {}\n{}",
-            case.name,
-            output.status,
-            combined(&output)
-        ));
-    }
-    if !case.pass && accepted {
-        return Some(format!(
-            "{}: accepted, want rejected:\n{}",
-            case.name,
-            combined(&output)
-        ));
-    }
-    None
-}
-
-/// Runs `run` on every item, on as many threads as the machine has cores, in item order.
-fn parallel_map<T: Sync, R: Send>(items: &[T], run: impl Fn(&T) -> R + Sync) -> Vec<R> {
-    let next = AtomicUsize::new(0);
-    let workers = thread::available_parallelism()
-        .map_or(1, NonZeroUsize::get)
-        .min(items.len());
-    let mut results: Vec<(usize, R)> = thread::scope(|scope| {
-        let handles: Vec<_> = (0..workers)
-            .map(|_| {
-                scope.spawn(|| {
-                    let mut done = Vec::new();
-                    loop {
-                        let index = next.fetch_add(1, Ordering::Relaxed);
-                        let Some(item) = items.get(index) else {
-                            return done;
-                        };
-                        done.push((index, run(item)));
-                    }
-                })
-            })
-            .collect();
-        handles
-            .into_iter()
-            .flat_map(|handle| {
-                handle
-                    .join()
-                    .unwrap_or_else(|payload| std::panic::resume_unwind(payload))
-            })
-            .collect()
-    });
-    results.sort_by_key(|(index, _)| *index);
-    results.into_iter().map(|(_, result)| result).collect()
-}
-
 /// Go: `TestRepositoryHeaders`. The repository passes its own license header check, run with
 /// the repository's own git environment: under the commit hook it names the index being
 /// committed.
 #[test]
 fn repository_headers() {
-    let output = Command::new(repo::path(SCRIPT_PATH))
-        .current_dir(repo::root())
-        .output()
-        .unwrap_or_else(|error| panic!("run the checker: {error}"));
-    assert!(
-        output.status.success(),
-        "the repository fails its own license header check: {}\n{}",
-        output.status,
-        combined(&output)
-    );
+    let problems = HARNESS.check_repository(&meta::repo());
+    assert!(problems.is_empty(), "{}", report(&problems));
 }
 
 /// Go: `TestHeaderCases`. The check, run on scratch repositories one file kind at a time,
@@ -466,12 +299,8 @@ fn repository_headers() {
 /// through each exempt, untracked or ungoverned file.
 #[test]
 fn header_cases() {
-    let script = repo::read(SCRIPT_PATH);
     let mut all = cases();
     all.extend(more_cases());
-    let problems: Vec<String> = parallel_map(&all, |case| case_problem(&script, case))
-        .into_iter()
-        .flatten()
-        .collect();
-    assert!(problems.is_empty(), "{}", problems.join("\n"));
+    let problems = HARNESS.run_cases(&meta::repo(), &all);
+    assert!(problems.is_empty(), "{}", report(&problems));
 }

@@ -24,9 +24,9 @@
 use std::fmt;
 use std::time::Duration;
 
+use go_compat::quote::quote;
 use serde::Serialize;
 
-use super::gofmt;
 use super::latency::SOURCE_RESERVED;
 
 /// One of the three tiers of testing.md section 5.
@@ -220,17 +220,17 @@ impl fmt::Display for SelectError {
             Self::UnknownTier(name) => write!(
                 formatter,
                 "unknown harness tier {}; want ci, floor or ceiling",
-                gofmt::quote(name)
+                quote(name)
             ),
             Self::UnknownProfile { name, tier } => write!(
                 formatter,
                 "unknown harness profile {} in tier {tier}",
-                gofmt::quote(name)
+                quote(name)
             ),
             Self::UnknownBrowser { name, tier } => write!(
                 formatter,
                 "unknown harness browser {} in tier {tier}",
-                gofmt::quote(name)
+                quote(name)
             ),
         }
     }

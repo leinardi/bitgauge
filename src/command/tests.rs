@@ -29,8 +29,9 @@ use tokio::io::{AsyncReadExt as _, AsyncWriteExt as _};
 use super::{Mode, Process, compatibility_layers, run};
 use crate::config::Config;
 use crate::server::conn::Lifecycle;
-use crate::test_support::{Capture, dial_loopback};
+use crate::test_support::dial_loopback;
 use crate::web::{Files, ROOT_ASSETS, RenderError, Spa};
+use tracing_setup::testing::Capture;
 
 /// The scratch SPA of the tests that run serve: a checkout that has not built the SPA embeds
 /// none.

@@ -33,6 +33,24 @@ license = "GPL-3.0-or-later"
 authors = ["Roberto Leinardi"]
 repository = "https://github.com/leinardi/bitgauge"
 
+# The crates shared with the other Rust projects, from leinardi/rust-common: a git dependency
+# pinned by the release tag (`tag = "v0.2.1"`) with `version = "0.2"`, the tag's
+# `<major>.<minor>`, which keeps cargo-deny's `wildcards = "deny"` satisfied and makes cargo refuse
+# a checkout of another version. To move the pin, change the `tag` and `version` on every
+# rust-common line and run `cargo fetch` (not `cargo update -p`); `git diff Cargo.lock` must touch
+# only the rust-common packages' lines. Each member opts in with `<name>.workspace = true` and its
+# own features. Local work on both repositories: an uncommitted
+# `[patch."https://github.com/leinardi/rust-common"]` table naming each crate with
+# `path = "../rust-common/crates/<name>"`, never in a release or image build (its paths are not
+# remapped, and the image's build context does not hold them).
+[workspace.dependencies]
+go-compat = { git = "https://github.com/leinardi/rust-common", tag = "v0.2.1", version = "0.2" }
+http-framing = { git = "https://github.com/leinardi/rust-common", tag = "v0.2.1", version = "0.2" }
+repo-meta = { git = "https://github.com/leinardi/rust-common", tag = "v0.2.1", version = "0.2" }
+service-kit = { git = "https://github.com/leinardi/rust-common", tag = "v0.2.1", version = "0.2" }
+testenv-core = { git = "https://github.com/leinardi/rust-common", tag = "v0.2.1", version = "0.2" }
+tracing-setup = { git = "https://github.com/leinardi/rust-common", tag = "v0.2.1", version = "0.2" }
+
 # The lint set lives here once. Every member opts in with `[lints] workspace = true` (a member does
 # not inherit it otherwise, and meta/tests/lint_inheritance.rs asserts that each one does).
 [workspace.lints.rust]
@@ -79,6 +97,18 @@ path = "src/main.rs"
 # The server is hyper's HTTP/1 server on BitGauge's own accept loop and connection driver
 # (docs/rust-port.md, Server Design): no client, no HTTP/2, no hyper-util graceful helper.
 [dependencies]
+# HTTP/1 request framing over the bytes a connection read, as hyper frames them (rust-common, std
+# only): the server's timeouts tell a pipelined request from an idle connection with it.
+http-framing.workspace = true
+# Go's strconv quoting and IsPrint, %v floats and time.Duration text, ported byte for byte
+# (rust-common, jiff only): the configuration's problem lines and effective list.
+go-compat.workspace = true
+# The logger's subscriber: tracing-subscriber's text or flat JSON, no ANSI, UTC timestamps
+# (rust-common); the log settings are parsed here.
+tracing-setup.workspace = true
+# The build stamps' reads, `buildinfo!` (rust-common, no features: no runtime or signals, which
+# stay BitGauge's own).
+service-kit.workspace = true
 # The router and the handlers' request and response body; MatchedPath labels the metrics.
 axum = { version = "0.8.9", default-features = false, features = ["matched-path"] }
 bytes = "1.12.1"
@@ -124,7 +154,8 @@ tokio = { version = "1.54.1", default-features = false, features = [
 tokio-util = { version = "0.7.20", default-features = false, features = ["rt"] }
 tower-service = "0.3.3"
 tracing = { version = "0.1.44", default-features = false, features = ["std"] }
-tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "json", "std"] }
+# MakeWriter, the bound of the logger's writers.
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "std"] }
 
 [dev-dependencies]
 # The server tests' HTTP/1 client on a loopback connection.
@@ -132,6 +163,8 @@ hyper = { version = "1.12.0", default-features = false, features = ["client", "h
 # The second-signal test sends its child the signals; the listener-failure test shuts a
 # listening socket down.
 nix = { version = "0.30.1", default-features = false, features = ["net", "process", "signal", "socket"] }
+# Capture, the writer the unit tests log into.
+tracing-setup = { workspace = true, features = ["testing"] }
 # The paused clock (start_paused) and the test I/O.
 tokio = { version = "1.54.1", default-features = false, features = [
     "io-util",

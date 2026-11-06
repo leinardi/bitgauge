@@ -68,6 +68,8 @@ product cannot check for itself: the lint boundary (`meta/tests/lint_exemptions.
 `lint_inheritance.rs`, `production_graph.rs`, `compat_boundary.rs`), image and action pins, the
 no-egress layers (`testenv/src/netguard.rs`, `testenv/src/syscalltrace`), the Docker test
 environments (`testenv/src/env.rs`, `envid.rs`, `sweep.rs`), a `scripts/check-*.sh` and its driver.
+Many of them run rust-common's `repo-meta` or `testenv-core` with BitGauge's parameters: review the
+parameters here, and a flaw in the shared check itself is fixed in rust-common first.
 Try to make the guarded thing go wrong and see whether the test still notices. A test that passes
 because its input is empty, its rule never ran, its pattern no longer matches any file or its tool
 was skipped is a false pass, and a high-severity finding.
@@ -152,9 +154,10 @@ a standing decision to let a linter stay silent. The workspace lints require a `
 unfixable or merely inconvenient. Demand the attempt: for a complexity or length rule, was the
 extraction tried and what broke? For a cast or a `too_many_arguments`, why is the type or the
 grouping wrong here? A reason that restates the rule, or no reason, is a finding; an `expect` of a
-`disallowed_*` lint outside the items `lint_exemptions.rs` lists fails that test. The same goes for
-a lint disabled or narrowed in the root `Cargo.toml` `[workspace.lints]`, a `clippy.toml`,
-`deny.toml`, `web/eslint.config.ts` or `.pre-commit-config.yaml`.
+`disallowed_*` lint outside the items `lint_exemptions.rs` lists fails that test, as does a listed
+item (other than the reserved `SystemClock`) that no longer carries one. The same goes for a lint
+disabled or narrowed in the root `Cargo.toml` `[workspace.lints]`, a `clippy.toml`, `deny.toml`,
+`web/eslint.config.ts` or `.pre-commit-config.yaml`.
 
 ### (d) Cross-file duplication
 

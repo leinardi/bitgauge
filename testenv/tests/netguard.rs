@@ -31,6 +31,7 @@ use std::sync::Arc;
 
 use testenv::docker::DockerCli;
 use testenv::env::{Env, Provider, Spec, new_provider};
+use testenv::envid::TEMP_DIR_PREFIX;
 use testenv::logger::Logger;
 use testenv::netguard::{self, Guard, NetguardError, Options, controls, iperf3};
 use testenv::runner::{self, OrFatal as _, Test, TestCase, TestResult};
@@ -62,7 +63,7 @@ const TESTS: &[TestCase<Suite>] = &[
 ];
 
 fn main() -> ExitCode {
-    runner::main(TESTS, setup)
+    runner::main(TEMP_DIR_PREFIX, TESTS, setup)
 }
 
 /// Sweeps abandoned environments of earlier runs, then builds the tools image once.

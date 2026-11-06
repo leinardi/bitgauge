@@ -101,3 +101,5 @@ deny = [
 unknown-registry = "deny"
 unknown-git = "deny"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+# The shared crates (Cargo.toml [workspace.dependencies]), pinned by release tag.
+allow-git = ["https://github.com/leinardi/rust-common"]

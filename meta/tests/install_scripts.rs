@@ -24,7 +24,6 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use meta::repo;
 use regex::Regex;
 use serde::Deserialize;
 
@@ -54,7 +53,7 @@ struct LockedPackage {
 /// which turns an unreviewed dependency install script from a warning into a failed install.
 #[test]
 fn npm_install_fails_on_unreviewed_scripts() {
-    let npmrc = repo::read("web/.npmrc");
+    let npmrc = meta::repo().read("web/.npmrc");
     // RE2's ASCII \s, spelled out: Rust's \s is Unicode-aware.
     let pattern =
         Regex::new(r"(?m)^strict-allow-scripts[\t\n\f\r ]*=[\t\n\f\r ]*true[\t\n\f\r ]*$")
@@ -71,9 +70,9 @@ fn npm_install_fails_on_unreviewed_scripts() {
 /// cannot evaluate one.
 #[test]
 fn every_locked_install_script_is_reviewed() {
-    let manifest: Manifest = serde_json::from_str(&repo::read("web/package.json"))
+    let manifest: Manifest = serde_json::from_str(&meta::repo().read("web/package.json"))
         .unwrap_or_else(|error| panic!("parse web/package.json: {error}"));
-    let lockfile: Lockfile = serde_json::from_str(&repo::read("web/package-lock.json"))
+    let lockfile: Lockfile = serde_json::from_str(&meta::repo().read("web/package-lock.json"))
         .unwrap_or_else(|error| panic!("parse web/package-lock.json: {error}"));
     let allow_scripts = manifest.allow_scripts.unwrap_or_default();
     let mut used = BTreeSet::new();

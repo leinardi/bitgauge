@@ -18,11 +18,22 @@
  */
 
 //! Repository meta-tests: checks on the repository itself rather than on the server. The tests
-//! live under `tests/`; this library holds what they share.
+//! live under `tests/` and run rust-common's `repo-meta` checks on this repository, each with its
+//! parameters, beside the checks that are BitGauge's own; this library holds what they share.
 
 pub mod cargo;
-pub mod repo;
 pub mod script;
+
+use std::path::Path;
+
+use repo_meta::Repo;
 
 /// The shipped Dockerfile, the one release image.
 pub const SHIPPED_DOCKERFILE: &str = "deployments/docker/Dockerfile";
+
+/// This repository: the meta crate sits one level below its root. The root is fixed at compile
+/// time, so a test binary checks the checkout it was built from.
+#[must_use]
+pub fn repo() -> Repo {
+    Repo::new(Path::new(env!("CARGO_MANIFEST_DIR")).join(".."))
+}

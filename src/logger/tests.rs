@@ -22,7 +22,7 @@
 use tracing::Level;
 
 use super::*;
-use crate::test_support::Capture;
+use tracing_setup::testing::Capture;
 
 /// Go: `TestParseLevel`
 #[test]

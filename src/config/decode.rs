@@ -31,7 +31,9 @@ use std::str::FromStr;
 
 use jiff::SignedDuration;
 
-use super::gofmt::{float, quote};
+use go_compat::float::format_g;
+use go_compat::quote::quote;
+
 use super::raw::{Map, Node, Raw};
 use super::types::{PLACEHOLDER_CIDR, ValueError, parse_duration};
 use super::{Cidr, Config, LabelRule, Listen, Origin, Problem, Size, Warmup};
@@ -427,7 +429,7 @@ fn finite(value: &Raw) -> Result<(), String> {
     match value {
         Raw::Float(number) if !number.is_finite() => Err(format!(
             "invalid number: {} is not a finite number",
-            float(*number)
+            format_g(*number)
         )),
         Raw::Null
         | Raw::Bool(_)
@@ -479,7 +481,7 @@ fn integer(value: &Raw) -> Result<i64, String> {
         }
         Raw::Float(number) => Err(format!(
             "invalid number: {} is not a whole number",
-            float(*number)
+            format_g(*number)
         )),
         Raw::Null | Raw::Bool(_) | Raw::List(_) | Raw::Map(_) => Err(expected(value, "an integer")),
     }

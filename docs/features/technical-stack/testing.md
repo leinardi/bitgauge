@@ -362,8 +362,9 @@ and anything about networks the project does not target.
   a Playwright driver in `web/harness/` that opens the URL with the preset's parameters, waits for
   the result and downloads its JSON. Pure logic (the profile table, report rendering, under
   `testenv/src/harness/`) needs no feature and runs with `cargo test`. Shared pieces live in
-  `testenv/src/` (environment IDs, labels, scoped cleanup, netguard). Every harness target requires
-  `BITGAUGE_TEST_IMPL=rust` and builds the shipped image first.
+  `testenv/src/` (environment IDs, on rust-common's `testenv-core`, labels, scoped cleanup,
+  netguard). Every harness target requires `BITGAUGE_TEST_IMPL=rust` and builds the shipped image
+  first.
 - **Preflight.** A runner refuses a daemon it cannot trust before it builds BitGauge's image or
   starts a topology; a refusal fails the invocation, never skips it. The client's CPU and memory
   are its container's own cgroup v2 counters, and a daemon without per-container cgroups (a

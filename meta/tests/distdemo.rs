@@ -25,7 +25,7 @@
 use std::path::{Path, PathBuf};
 use std::process::ExitStatus;
 
-use meta::{repo, script};
+use meta::script;
 use tempfile::TempDir;
 
 /// The script under test, relative to the root.
@@ -172,7 +172,7 @@ fn dist_demo_free_catches_the_demo_sources() {
     ]
     .map(|relative| {
         let name = relative.rsplit('/').next().unwrap_or(relative);
-        let content = std::fs::read(repo::path(relative))
+        let content = std::fs::read(meta::repo().path(relative))
             .unwrap_or_else(|error| panic!("read {relative}: {error}"));
         (name, content)
     });

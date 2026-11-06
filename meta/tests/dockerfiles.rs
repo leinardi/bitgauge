@@ -23,13 +23,14 @@
 //! `release.yaml` publishes and how.
 //!
 //! The shipped Dockerfile is the Rust build; the Go build and the Rust candidate it replaced are
-//! gone (`docs/rust-port.md`). Every check is a function of the text, and each is also run on
-//! input built to break it.
+//! gone (`docs/rust-port.md`). The Dockerfile reader and the generic image rules are
+//! rust-common's `repo_meta::dockerfile` and `repo_meta::image`, with BitGauge's parameters
+//! (`dockerfiles/images.rs`); what `deployments/docker` holds, the test images, the Makefile's
+//! image target and the release workflow's rules are BitGauge's own. Every check is a function of
+//! the text, and each is also run on input built to break it.
 
 #[path = "dockerfiles/images.rs"]
 mod images;
-#[path = "dockerfiles/reader.rs"]
-mod reader;
 #[path = "dockerfiles/release.rs"]
 mod release;
 
@@ -37,17 +38,16 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::sync::LazyLock;
 
-use meta::{SHIPPED_DOCKERFILE, repo};
+use meta::SHIPPED_DOCKERFILE;
 use regex::Regex;
+use repo_meta::dockerfile;
+use repo_meta::image;
 
-use images::RUST_BUILD_REPOSITORY;
+use images::{BuildFiles, MAKEFILE, RUST_MK, RUST_RELEASE_MK};
 use release::{RELEASE_IMAGE, RELEASE_WORKFLOW, WANT_PLATFORMS};
 
 const SHIPPED_DIR: &str = "deployments/docker";
 const WORKFLOWS_DIR: &str = ".github/workflows";
-const MAKEFILE: &str = "Makefile";
-const RUST_TOOLCHAIN: &str = "rust-toolchain.toml";
-const RUST_RELEASE_MK: &str = ".mk/rust-release.mk";
 
 fn pattern(text: &str) -> Regex {
     Regex::new(text).unwrap_or_else(|error| panic!("pattern {text}: {error}"))
@@ -57,21 +57,12 @@ fn base_name(path: &str) -> &str {
     path.rsplit_once('/').map_or(path, |(_, name)| name)
 }
 
-/// Matches Dockerfile, `<name>.Dockerfile` and `Dockerfile.<name>`, but not the
-/// `Dockerfile.<name>.dockerignore` that `BuildKit` reads beside one.
-fn is_dockerfile(name: &str) -> bool {
-    name == "Dockerfile"
-        || name.ends_with(".Dockerfile")
-        || (name.starts_with("Dockerfile.") && !name.ends_with(".dockerignore"))
-}
-
-/// Every Dockerfile in the repository, tracked or new. Asking git rather than walking keeps the
-/// ignored trees (`target/`, `node_modules/`, `dist/`) out without naming them.
+/// Every Dockerfile in the repository, tracked or new (`Dockerfile`, `<name>.Dockerfile` and
+/// `Dockerfile.<name>`, but not the `Dockerfile.<name>.dockerignore` `BuildKit` reads beside one).
+/// Asking git rather than walking keeps the ignored trees (`target/`, `node_modules/`, `dist/`)
+/// out without naming them.
 fn all_dockerfiles() -> Vec<String> {
-    let found: Vec<String> = repo::tracked_or_new(&["*Dockerfile*"])
-        .into_iter()
-        .filter(|path| is_dockerfile(base_name(path)))
-        .collect();
+    let found = image::dockerfiles(&meta::repo());
     assert!(
         found.iter().any(|path| path == SHIPPED_DOCKERFILE),
         "the search did not find {SHIPPED_DOCKERFILE}, so it would find nothing else either"
@@ -81,7 +72,8 @@ fn all_dockerfiles() -> Vec<String> {
 
 /// The workflow files directly under `.github/workflows`.
 fn workflows() -> Vec<String> {
-    repo::files_under(WORKFLOWS_DIR, &[".yaml", ".yml"])
+    meta::repo()
+        .files_under(WORKFLOWS_DIR, &[".yaml", ".yml"])
         .into_iter()
         .filter(|path| {
             path.strip_prefix(WORKFLOWS_DIR)
@@ -90,9 +82,8 @@ fn workflows() -> Vec<String> {
         .collect()
 }
 
-fn rust_pins() -> images::RustPins {
-    images::rust_pins(&repo::read(RUST_TOOLCHAIN), &repo::read(RUST_RELEASE_MK))
-        .unwrap_or_else(|error| panic!("read the Rust release pins: {error}"))
+fn build_files() -> BuildFiles {
+    BuildFiles::read(&meta::repo())
 }
 
 /// What `deployments/docker` may hold: the shipped Dockerfile alone. `names` are the Dockerfiles
@@ -115,27 +106,7 @@ fn docker_dir_problems(names: &[String]) -> Vec<String> {
 /// the line. An image Dockerfile must carry one (`required`); another may use the builder's
 /// default frontend, but if it names one, the same rule holds.
 fn syntax_problems(path: &str, content: &str, required: bool) -> Vec<String> {
-    let Some(syntax) = reader::syntax(content) else {
-        return if required {
-            vec![format!(
-                "{path} has no syntax parser directive on its first line"
-            )]
-        } else {
-            Vec::new()
-        };
-    };
-    let mut problems = Vec::new();
-    if reader::repository(&syntax) != "docker/dockerfile" {
-        problems.push(format!(
-            "{path} reads with the frontend {syntax:?}, want docker/dockerfile"
-        ));
-    }
-    if !reader::digest_pinned(&syntax) {
-        problems.push(format!(
-            "{path} reads with the frontend {syntax:?}, which is not pinned by digest"
-        ));
-    }
-    problems
+    repo_meta::strings(&image::syntax_problems(path, content, required))
 }
 
 static DOCKER_TARGETS: LazyLock<Regex> =
@@ -170,10 +141,10 @@ fn test_image_problems(
     referrers: &BTreeMap<&str, String>,
 ) -> Vec<String> {
     let mut problems = Vec::new();
-    match reader::parse(content) {
+    match dockerfile::parse(content) {
         Ok(stages) => {
             for stage in stages {
-                if !reader::base_pinned(&stage.image) {
+                if !dockerfile::base_pinned(&stage.image) {
                     problems.push(format!(
                         "{path}: FROM {:?} is neither a dhi.io reference pinned by an explicit \
                          tag alone nor another literal reference pinned by tag and digest",
@@ -194,35 +165,19 @@ fn test_image_problems(
     problems
 }
 
-static PLATFORM_DECLARATION: LazyLock<Regex> =
-    LazyLock::new(|| pattern(r"(?mi)^\s*(?:-\s*)?(platforms?|PLATFORMS)\s*:\s*(.+)$"));
+/// The platforms an image may be built for (decisions.md section 27): dhi.io/static has no
+/// arm/v7.
+const FORBIDDEN_PLATFORMS: [&str; 2] = ["linux/arm/v", "linux/386"];
 
-/// The two platforms (decisions.md section 27) wherever a workflow names platforms:
-/// dhi.io/static has no arm/v7.
-fn platform_problems(workflow: &str, content: &str) -> Vec<String> {
-    let mut problems = Vec::new();
-    for found in PLATFORM_DECLARATION.captures_iter(content) {
-        let key = found.get(1).map_or("", |key| key.as_str());
-        let value = found
-            .get(2)
-            .map_or("", |value| value.as_str())
-            .trim()
-            .trim_matches(['"', '\'']);
-        if value.starts_with("${{") {
-            continue;
-        }
-        if value != WANT_PLATFORMS {
-            problems.push(format!(
-                "{workflow} declares {key} {value:?}, want {WANT_PLATFORMS:?}"
-            ));
-        }
-    }
-    if content.contains("linux/arm/v") || content.contains("linux/386") {
-        problems.push(format!(
-            "{workflow} names a platform other than {WANT_PLATFORMS}"
-        ));
-    }
-    problems
+/// The two platforms wherever `workflows` (path and text) name platforms, and a literal
+/// declaration in release.yaml, which the image is built for.
+fn platform_problems(workflows: &[(String, String)]) -> Vec<String> {
+    repo_meta::strings(&image::platform_problems(
+        workflows,
+        RELEASE_WORKFLOW,
+        WANT_PLATFORMS,
+        &FORBIDDEN_PLATFORMS,
+    ))
 }
 
 /// One way to break a file: replace the first `old` with `new`, or, with `regex`, the first match
@@ -298,7 +253,7 @@ fn assert_no_problems(problems: &[String]) {
 /// ships. Any other file there would look shipped to every reader and be built by nothing.
 #[test]
 fn shipped_dockerfile_is_the_only_one() {
-    let names: Vec<String> = fs::read_dir(repo::path(SHIPPED_DIR))
+    let names: Vec<String> = fs::read_dir(meta::repo().path(SHIPPED_DIR))
         .unwrap_or_else(|error| panic!("read {SHIPPED_DIR}: {error}"))
         .map(|entry| {
             entry
@@ -307,7 +262,7 @@ fn shipped_dockerfile_is_the_only_one() {
                 .to_string_lossy()
                 .into_owned()
         })
-        .filter(|name| is_dockerfile(name))
+        .filter(|name| image::is_dockerfile_path(name))
         .collect();
     assert_no_problems(&docker_dir_problems(&names));
 }
@@ -319,7 +274,9 @@ fn shipped_dockerfile_is_the_only_one() {
 fn syntax_directive_is_pinned() {
     let problems: Vec<String> = all_dockerfiles()
         .iter()
-        .flat_map(|path| syntax_problems(path, &repo::read(path), path == SHIPPED_DOCKERFILE))
+        .flat_map(|path| {
+            syntax_problems(path, &meta::repo().read(path), path == SHIPPED_DOCKERFILE)
+        })
         .collect();
     assert_no_problems(&problems);
 }
@@ -330,19 +287,20 @@ fn syntax_directive_is_pinned() {
 fn shipped_stages() {
     assert_no_problems(&images::layout_problems(
         SHIPPED_DOCKERFILE,
-        &repo::read(SHIPPED_DOCKERFILE),
+        &meta::repo().read(SHIPPED_DOCKERFILE),
     ));
 }
 
 /// Go: `TestBuildStages`. Both build stages run on the build platform, web from dhi.io/node and
-/// build from dhi.io/rust. The tags' toolchain lines are the toolchain pins'
+/// build from exactly `dhi.io/rust:<release>-debian13-dev`, and neither fetches anything its
+/// rules do not name. The other files that write the Rust release are the toolchain pins'
 /// (meta/tests/toolchain.rs).
 #[test]
 fn build_stages() {
     assert_no_problems(&images::build_stage_problems(
         SHIPPED_DOCKERFILE,
-        &repo::read(SHIPPED_DOCKERFILE),
-        RUST_BUILD_REPOSITORY,
+        &meta::repo().read(SHIPPED_DOCKERFILE),
+        &build_files(),
     ));
 }
 
@@ -352,15 +310,16 @@ fn build_stages() {
 fn runtime_stage() {
     assert_no_problems(&images::runtime_problems(
         SHIPPED_DOCKERFILE,
-        &repo::read(SHIPPED_DOCKERFILE),
+        &meta::repo().read(SHIPPED_DOCKERFILE),
     ));
 }
 
 /// The Makefile and release.yaml, the files that build and release the product image.
 fn referrers() -> BTreeMap<&'static str, String> {
-    let mut referrers = BTreeMap::from([(MAKEFILE, repo::read(MAKEFILE))]);
-    if repo::path(RELEASE_WORKFLOW).is_file() {
-        referrers.insert(RELEASE_WORKFLOW, repo::read(RELEASE_WORKFLOW));
+    let repo = meta::repo();
+    let mut referrers = BTreeMap::from([(MAKEFILE, repo.read(MAKEFILE))]);
+    if repo.path(RELEASE_WORKFLOW).is_file() {
+        referrers.insert(RELEASE_WORKFLOW, repo.read(RELEASE_WORKFLOW));
     }
     referrers
 }
@@ -370,11 +329,15 @@ fn referrers() -> BTreeMap<&'static str, String> {
 /// never built or released as a product image.
 #[test]
 fn other_dockerfiles_are_test_only() {
-    let mut problems = makefile_target_problems(&repo::read(MAKEFILE));
+    let mut problems = makefile_target_problems(&meta::repo().read(MAKEFILE));
     let referrers = referrers();
     for path in all_dockerfiles() {
         if path != SHIPPED_DOCKERFILE {
-            problems.extend(test_image_problems(&path, &repo::read(&path), &referrers));
+            problems.extend(test_image_problems(
+                &path,
+                &meta::repo().read(&path),
+                &referrers,
+            ));
         }
     }
     assert_no_problems(&problems);
@@ -384,11 +347,14 @@ fn other_dockerfiles_are_test_only() {
 /// linux/arm64 (decisions.md section 27).
 #[test]
 fn platforms() {
-    let problems: Vec<String> = workflows()
-        .iter()
-        .flat_map(|workflow| platform_problems(workflow, &repo::read(workflow)))
-        .collect();
-    assert_no_problems(&problems);
+    let workflows = workflows();
+    assert!(
+        workflows
+            .iter()
+            .any(|workflow| workflow == RELEASE_WORKFLOW),
+        "the scan did not see {RELEASE_WORKFLOW}: {workflows:?}"
+    );
+    assert_no_problems(&platform_problems(&meta::repo().read_all(&workflows)));
 }
 
 /// Go: `TestReleaseWorkflow`. What release.yaml publishes and how (docs/release.md,
@@ -398,7 +364,9 @@ fn platforms() {
 /// actions and images it runs are pinned.
 #[test]
 fn release_workflow() {
-    assert_no_problems(&release::release_problems(&repo::read(RELEASE_WORKFLOW)));
+    assert_no_problems(&release::release_problems(
+        &meta::repo().read(RELEASE_WORKFLOW),
+    ));
 }
 
 /// The mutations of `release_checks_refuse_mutations`, one broken rule each.
@@ -521,37 +489,53 @@ fn release_checks_refuse_mutations() {
     };
     assert_refuses(
         RELEASE_WORKFLOW,
-        &repo::read(RELEASE_WORKFLOW),
+        &meta::repo().read(RELEASE_WORKFLOW),
         check,
         &mutations,
     );
 }
 
-const RUST_MK: &str = ".mk/rust.mk";
-
 /// The make side of the release binaries' stamps: the make variables release.yaml passes reach
-/// the static build as `BITGAUGE_VERSION`, `BITGAUGE_COMMIT` and `BITGAUGE_DATE`, which the Rust
-/// build reads at compile time (`release_workflow` holds release.yaml to passing them).
+/// the static build and `rust-build` as `BITGAUGE_VERSION`, `BITGAUGE_COMMIT` and
+/// `BITGAUGE_DATE`, which the Rust build reads at compile time (`release_workflow` holds
+/// release.yaml to passing them), as the image's build stage sets them in its cargo zigbuild RUN.
 #[test]
 fn release_binaries_are_stamped() {
-    assert_no_problems(&release::make_stamp_problems(
-        &repo::read(MAKEFILE),
-        &repo::read(RUST_MK),
-        &repo::read(RUST_RELEASE_MK),
+    assert_no_problems(&images::stamp_problems(
+        SHIPPED_DOCKERFILE,
+        &meta::repo().read(SHIPPED_DOCKERFILE),
+        &build_files(),
     ));
 }
 
-/// The negative control of `release_binaries_are_stamped`: another stamp prefix or none, a stamp
-/// set from another variable or dropped, or the static build without the stamps.
+/// The stamp problems of the shipped Dockerfile against `files`.
+fn make_stamp_problems(files: &BuildFiles) -> Vec<String> {
+    images::stamp_problems(
+        SHIPPED_DOCKERFILE,
+        &meta::repo().read(SHIPPED_DOCKERFILE),
+        files,
+    )
+}
+
+/// The negative control of `release_binaries_are_stamped`: another stamp prefix or none, one
+/// overridden by a later assignment, a stamp set from another variable or dropped, the build
+/// recipe or the static build without the stamps, or the version module not reading one.
 #[test]
 fn make_stamp_checks_refuse_mutations() {
-    let makefile = repo::read(MAKEFILE);
-    let rust_mk = repo::read(RUST_MK);
-    let release_mk = repo::read(RUST_RELEASE_MK);
+    let files = build_files();
+    let with = |change: &dyn Fn(&mut BuildFiles, &str), text: &str| {
+        let mut changed = files.clone();
+        change(&mut changed, text);
+        make_stamp_problems(&changed)
+    };
+    let makefile = |files: &mut BuildFiles, text: &str| text.clone_into(&mut files.makefile);
+    let rust_mk = |files: &mut BuildFiles, text: &str| text.clone_into(&mut files.rust_mk);
+    let release_mk = |files: &mut BuildFiles, text: &str| text.clone_into(&mut files.release_mk);
+    let version_rs = |files: &mut BuildFiles, text: &str| text.clone_into(&mut files.version_rs);
     assert_refuses(
         MAKEFILE,
-        &makefile,
-        |text| release::make_stamp_problems(text, &rust_mk, &release_mk),
+        &files.makefile,
+        |text| with(&makefile, text),
         &[
             literal(
                 "another prefix",
@@ -559,12 +543,17 @@ fn make_stamp_checks_refuse_mutations() {
                 "RUST_STAMP_PREFIX := OTHER",
             ),
             literal("no prefix", "RUST_STAMP_PREFIX := BITGAUGE", ""),
+            literal(
+                "the prefix overridden",
+                "RUST_STAMP_PREFIX := BITGAUGE\n",
+                "RUST_STAMP_PREFIX := BITGAUGE\nRUST_STAMP_PREFIX += X\n",
+            ),
         ],
     );
     assert_refuses(
         RUST_MK,
-        &rust_mk,
-        |text| release::make_stamp_problems(&makefile, text, &release_mk),
+        &files.rust_mk,
+        |text| with(&rust_mk, text),
         &[
             literal(
                 "the commit from another variable",
@@ -577,12 +566,34 @@ fn make_stamp_checks_refuse_mutations() {
                 "",
             ),
             literal("no stamps at all", "RUST_VERSION_ENV =", "RUST_ENV ="),
+            regex(
+                "rust-build unstamped",
+                r"(?m)^(rust-build:.*\n\t)\$\(RUST_VERSION_ENV\) ",
+                "${1}",
+            ),
+        ],
+    );
+    assert_refuses(
+        "src/buildinfo.rs",
+        &files.version_rs,
+        |text| with(&version_rs, text),
+        &[
+            literal(
+                "the stamps read under another prefix",
+                r#"buildinfo!("BITGAUGE","#,
+                r#"buildinfo!("OTHER","#,
+            ),
+            literal(
+                "buildinfo! imported from another crate",
+                "use service_kit::{Defaults, EmptyStamp, buildinfo};",
+                "use service_kit::{Defaults, EmptyStamp};\nuse other::buildinfo;",
+            ),
         ],
     );
     assert_refuses(
         RUST_RELEASE_MK,
-        &release_mk,
-        |text| release::make_stamp_problems(&makefile, &rust_mk, text),
+        &files.release_mk,
+        |text| with(&release_mk, text),
         &[literal(
             "the static build unstamped",
             r#"RUSTFLAGS="$(RUST_RELEASE_RUSTFLAGS)" $(RUST_VERSION_ENV)"#,
@@ -610,12 +621,12 @@ fn assert_reference_rules() {
         ("a stage name, not a ref", "build".to_owned()),
     ] {
         assert!(
-            !reader::digest_pinned(&image),
+            !dockerfile::digest_pinned(&image),
             "{name} ({image:?}) passes as digest-pinned"
         );
     }
     assert!(
-        reader::digest_pinned(&format!("dhi.io/static:20250419{DIGEST}")),
+        dockerfile::digest_pinned(&format!("dhi.io/static:20250419{DIGEST}")),
         "a literal tag plus digest does not pass as digest-pinned"
     );
     for (name, image) in [
@@ -635,12 +646,12 @@ fn assert_reference_rules() {
         ("a stage name, not a ref", "build".to_owned()),
     ] {
         assert!(
-            !reader::tag_pinned(&image),
+            !dockerfile::tag_pinned(&image),
             "{name} ({image:?}) passes as pinned by an explicit tag alone"
         );
     }
     assert!(
-        reader::tag_pinned("dhi.io/rust:1.98.1-debian13-dev"),
+        dockerfile::tag_pinned("dhi.io/rust:1.98.1-debian13-dev"),
         "a literal explicit tag does not pass as tag-pinned"
     );
     for (image, want) in [
@@ -651,17 +662,12 @@ fn assert_reference_rules() {
         ("docker.io/library/alpine:3.23".to_owned(), false),
         ("evil.example/dhi.io/static:20250419".to_owned(), false),
     ] {
-        assert_eq!(reader::base_pinned(&image), want, "base_pinned({image:?})");
+        assert_eq!(
+            dockerfile::base_pinned(&image),
+            want,
+            "base_pinned({image:?})"
+        );
     }
-}
-
-fn joined(stage: &reader::Stage) -> String {
-    stage
-        .instructions
-        .iter()
-        .map(|instruction| format!("{} {}", instruction.keyword, instruction.args))
-        .collect::<Vec<_>>()
-        .join("\n")
 }
 
 /// Go: `TestParseRejectsWhatTheAssertionsMustNotMiss`. The negative control for the reader: each
@@ -670,14 +676,14 @@ fn joined(stage: &reader::Stage) -> String {
 #[test]
 fn parse_rejects_what_the_assertions_must_not_miss() {
     assert_reference_rules();
-    let stages = reader::parse(&format!(
+    let stages = dockerfile::parse(&format!(
         "FROM a:1{DIGEST} AS one\nRUN echo \\\n  two\n# note\nFROM b:2{DIGEST}\nUSER 1:1\n"
     ))
     .unwrap_or_else(|error| panic!("parse: {error}"));
     assert!(
         matches!(stages.as_slice(), [one, two]
             if one.name == "one" && two.name.is_empty()
-                && joined(one) == "RUN echo two" && joined(two) == "USER 1:1"),
+                && one.joined() == "RUN echo two" && two.joined() == "USER 1:1"),
         "parsed {stages:?}"
     );
 
@@ -697,13 +703,13 @@ fn parse_rejects_what_the_assertions_must_not_miss() {
         ),
         ("a directive with no value", "# syntax=\n".to_owned()),
     ] {
-        let syntax = reader::syntax(&content);
+        let syntax = dockerfile::syntax(&content);
         assert!(
             syntax.is_none(),
             "{name}: read the syntax directive {syntax:?}, which BuildKit ignores"
         );
     }
-    let syntax = reader::syntax(&format!(
+    let syntax = dockerfile::syntax(&format!(
         "# check=error=true\n#Syntax = docker/dockerfile:1.7{DIGEST}\n"
     ));
     assert_eq!(
@@ -712,10 +718,22 @@ fn parse_rejects_what_the_assertions_must_not_miss() {
         "a directive after another directive"
     );
 
-    assert!(
-        reader::parse(&format!("FROM a:1{DIGEST}\nRUN echo \\\n")).is_err(),
-        "a file ending inside a continuation parsed"
-    );
+    for (name, content) in [
+        (
+            "a file ending inside a continuation",
+            format!("FROM a:1{DIGEST}\nRUN echo \\\n"),
+        ),
+        (
+            "another escape character",
+            format!("# escape=`\nFROM a:1{DIGEST}\nRUN echo `\n  two\n"),
+        ),
+        (
+            "a heredoc",
+            format!("FROM a:1{DIGEST}\nRUN <<EOF\nFROM b:2{DIGEST}\nEOF\n"),
+        ),
+    ] {
+        assert!(dockerfile::parse(&content).is_err(), "{name} parsed");
+    }
 }
 
 /// The negative control of `shipped_stages`: the shipped Dockerfile with a stage unpinned, from
@@ -723,7 +741,7 @@ fn parse_rejects_what_the_assertions_must_not_miss() {
 #[test]
 fn layout_checks_refuse_mutations() {
     let path = SHIPPED_DOCKERFILE;
-    let content = repo::read(path);
+    let content = meta::repo().read(path);
     let runtime = "dhi.io/static:20250419";
     assert_refuses(
         path,
@@ -743,15 +761,17 @@ fn layout_checks_refuse_mutations() {
     );
 }
 
-/// The negative control of `build_stages`: a build stage emulated or from another base.
+/// The negative control of `build_stages`: a build stage emulated, from another base, or fetching
+/// what its rules do not name.
 #[test]
 fn build_stage_checks_refuse_mutations() {
-    let (path, repository) = (SHIPPED_DOCKERFILE, RUST_BUILD_REPOSITORY);
-    let content = repo::read(path);
+    let path = SHIPPED_DOCKERFILE;
+    let content = meta::repo().read(path);
+    let files = build_files();
     assert_refuses(
         path,
         &content,
-        |text| images::build_stage_problems(path, text, repository),
+        |text| images::build_stage_problems(path, text, &files),
         &[
             literal(
                 "the web stage emulated",
@@ -773,6 +793,21 @@ fn build_stage_checks_refuse_mutations() {
                 r"dhi\.io/rust:",
                 "dhi.io/gcc:",
             ),
+            literal(
+                "a fetch in the web stage",
+                "RUN npm run build",
+                "RUN curl -fsSL -o /tmp/x https://example.com/x && npm run build",
+            ),
+            literal(
+                "an arm labelled by alternatives before the real one",
+                "\t\tamd64) triple=",
+                "\t\tamd64|x86_64) triple=x86_64-unknown-linux-gnu; std_sha256=${STD_SHA} ;; \\\n\t\tamd64) triple=",
+            ),
+            literal(
+                "an unlisted fetch beside a listed one",
+                "curl -fsSL -o /tmp/zig.tar.xz",
+                "curl -fsSL -o /tmp/extra https://example.com/extra && curl -fsSL -o /tmp/zig.tar.xz",
+            ),
         ],
     );
 }
@@ -781,7 +816,7 @@ fn build_stage_checks_refuse_mutations() {
 #[test]
 fn runtime_checks_refuse_mutations() {
     let path = SHIPPED_DOCKERFILE;
-    let content = repo::read(path);
+    let content = meta::repo().read(path);
     assert_refuses(
         path,
         &content,
@@ -840,7 +875,7 @@ fn runtime_checks_refuse_mutations() {
 #[test]
 fn syntax_checks_refuse_mutations() {
     let path = SHIPPED_DOCKERFILE;
-    let content = repo::read(path);
+    let content = meta::repo().read(path);
     assert_refuses(
         path,
         &content,
@@ -886,7 +921,7 @@ fn docker_dir_checks_refuse_mutations() {
 fn makefile_checks_refuse_mutations() {
     assert_refuses(
         MAKEFILE,
-        &repo::read(MAKEFILE),
+        &meta::repo().read(MAKEFILE),
         makefile_target_problems,
         &[
             regex(
@@ -945,8 +980,8 @@ fn platform_checks_refuse_mutations() {
     let declared = format!("PLATFORMS: {WANT_PLATFORMS}");
     assert_refuses(
         RELEASE_WORKFLOW,
-        &repo::read(RELEASE_WORKFLOW),
-        |text| platform_problems(RELEASE_WORKFLOW, text),
+        &meta::repo().read(RELEASE_WORKFLOW),
+        |text| platform_problems(&[(RELEASE_WORKFLOW.to_owned(), text.to_owned())]),
         &[
             literal(
                 "a third platform",
@@ -978,8 +1013,8 @@ fn rust_build_stage() {
     let path = SHIPPED_DOCKERFILE;
     assert_no_problems(&images::rust_build_problems(
         path,
-        &repo::read(path),
-        &rust_pins(),
+        &meta::repo().read(path),
+        &build_files(),
     ));
 }
 
@@ -987,102 +1022,110 @@ fn rust_build_stage() {
 #[test]
 fn rust_build_checks_refuse_mutations() {
     let path = SHIPPED_DOCKERFILE;
-    let pins = rust_pins();
-    let channel = regex::escape(&pins.channel);
-    let tag = format!(r"dhi\.io/rust:{channel}-debian13-dev");
+    let files = build_files();
+    let release = files
+        .release()
+        .unwrap_or_else(|problem| panic!("{problem}"));
     assert_refuses(
         path,
-        &repo::read(path),
-        |text| images::rust_build_problems(path, text, &pins),
-        &[
-            regex(
-                "a rust tag off the channel",
-                tag.as_str(),
-                format!("dhi.io/rust:{}.0-debian13-dev", pins.channel),
-            ),
-            regex(
-                "the alpine variant",
-                tag.as_str(),
-                format!("dhi.io/rust:{}-alpine3.23-dev", pins.channel),
-            ),
-            regex(
-                "a rust-std off the image's toolchain",
-                format!(r"ARG RUST_VERSION={channel}\b"),
-                "ARG RUST_VERSION=1.0.0",
-            ),
-            regex(
-                "the build stage emulated",
-                r"--platform=\$BUILDPLATFORM (dhi\.io/rust)",
-                "${1}",
-            ),
-            regex(
-                "a changed rust-std sha256",
-                r"std_sha256=[0-9a-f]",
-                "std_sha256=x",
-            ),
-            regex(
-                "a changed aarch64 rust-std sha256",
-                r"(aarch64-unknown-linux-musl; std_sha256=)[0-9a-f]",
-                "${1}x",
-            ),
-            regex(
-                "a changed cargo-zigbuild sha256",
-                r"zigbuild_sha256=[0-9a-f]",
-                "zigbuild_sha256=x",
-            ),
-            regex(
-                "a changed zig sha256",
-                r"zig_sha256=[0-9a-f]",
-                "zig_sha256=x",
-            ),
-            regex(
-                "a third rust-std target",
-                r#"(\*\) echo "no Rust target)"#,
-                "riscv64) triple=riscv64gc-unknown-linux-musl; std_sha256=00 ;; ${1}",
-            ),
-            regex(
-                "another zig release",
-                r"ARG ZIG_VERSION=\S+",
-                "ARG ZIG_VERSION=0.0.1",
-            ),
-            regex(
-                "another cargo-zigbuild release",
-                r"ARG CARGO_ZIGBUILD_VERSION=\S+",
-                "ARG CARGO_ZIGBUILD_VERSION=0.0.1",
-            ),
-            literal(
-                "rust-std from elsewhere",
-                "https://static.rust-lang.org/dist/",
-                "https://example.com/dist/",
-            ),
-            literal(
-                "zig unchecked",
-                r#"echo "${zig_sha256}  /tmp/zig.tar.xz" | sha256sum -c -"#,
-                "true",
-            ),
-            regex(
-                "rust-std unchecked",
-                r#"(?m)^\s*&& echo "\$\{std_sha256\}.*\n"#,
-                "",
-            ),
-            literal(
-                "zig for the target platform",
-                r#"case "${BUILDARCH}" in"#,
-                r#"case "${TARGETARCH}" in"#,
-            ),
-            literal("a missing stamp", r#"BITGAUGE_COMMIT="${COMMIT}""#, ""),
-            literal(
-                "a stamp from the wrong argument",
-                r#"BITGAUGE_DATE="${DATE}""#,
-                r#"BITGAUGE_DATE="${COMMIT}""#,
-            ),
-            literal("an undeclared stamp argument", "ARG DATE=\"unknown\"\n", ""),
-            literal("an unlocked build", "--release --locked", "--release"),
-            literal(
-                "the binary left in target",
-                r#"cp "target/${triple}/release/bitgauge" /out/bitgauge"#,
-                "true",
-            ),
-        ],
+        &meta::repo().read(path),
+        |text| images::rust_build_problems(path, text, &files),
+        &rust_build_mutations(&release),
     );
+}
+
+/// The mutations of `rust_build_checks_refuse_mutations`, for the Rust release `release`.
+fn rust_build_mutations(release: &str) -> Vec<Mutation> {
+    let channel = regex::escape(release);
+    let tag = format!(r"dhi\.io/rust:{channel}-debian13-dev");
+    vec![
+        regex(
+            "a rust tag off the channel",
+            tag.as_str(),
+            format!("dhi.io/rust:{release}.0-debian13-dev"),
+        ),
+        regex(
+            "the alpine variant",
+            tag.as_str(),
+            format!("dhi.io/rust:{release}-alpine3.23-dev"),
+        ),
+        regex(
+            "a rust-std off the image's toolchain",
+            format!(r"ARG RUST_VERSION={channel}\b"),
+            "ARG RUST_VERSION=1.0.0",
+        ),
+        regex(
+            "the build stage emulated",
+            r"--platform=\$BUILDPLATFORM (dhi\.io/rust)",
+            "${1}",
+        ),
+        regex(
+            "a changed rust-std sha256",
+            r"std_sha256=[0-9a-f]",
+            "std_sha256=x",
+        ),
+        regex(
+            "a changed aarch64 rust-std sha256",
+            r"(aarch64-unknown-linux-musl; std_sha256=)[0-9a-f]",
+            "${1}x",
+        ),
+        regex(
+            "a changed cargo-zigbuild sha256",
+            r"zigbuild_sha256=[0-9a-f]",
+            "zigbuild_sha256=x",
+        ),
+        regex(
+            "a changed zig sha256",
+            r"zig_sha256=[0-9a-f]",
+            "zig_sha256=x",
+        ),
+        regex(
+            "a third rust-std target",
+            r#"(\*\) echo "no Rust target)"#,
+            "riscv64) triple=riscv64gc-unknown-linux-musl; std_sha256=00 ;; ${1}",
+        ),
+        regex(
+            "another zig release",
+            r"ARG ZIG_VERSION=\S+",
+            "ARG ZIG_VERSION=0.0.1",
+        ),
+        regex(
+            "another cargo-zigbuild release",
+            r"ARG CARGO_ZIGBUILD_VERSION=\S+",
+            "ARG CARGO_ZIGBUILD_VERSION=0.0.1",
+        ),
+        literal(
+            "rust-std from elsewhere",
+            "https://static.rust-lang.org/dist/",
+            "https://example.com/dist/",
+        ),
+        literal(
+            "zig unchecked",
+            r#"echo "${zig_sha256}  /tmp/zig.tar.xz" | sha256sum -c -"#,
+            "true",
+        ),
+        regex(
+            "rust-std unchecked",
+            r#"(?m)^\s*&& echo "\$\{std_sha256\}.*\n"#,
+            "",
+        ),
+        literal(
+            "zig for the target platform",
+            r#"case "${BUILDARCH}" in"#,
+            r#"case "${TARGETARCH}" in"#,
+        ),
+        literal("a missing stamp", r#"BITGAUGE_COMMIT="${COMMIT}""#, ""),
+        literal(
+            "a stamp from the wrong argument",
+            r#"BITGAUGE_DATE="${DATE}""#,
+            r#"BITGAUGE_DATE="${COMMIT}""#,
+        ),
+        literal("an undeclared stamp argument", "ARG DATE=\"unknown\"\n", ""),
+        literal("an unlocked build", "--release --locked", "--release"),
+        literal(
+            "the binary left in target",
+            r#"cp "target/${triple}/release/bitgauge" /out/bitgauge"#,
+            "true",
+        ),
+    ]
 }

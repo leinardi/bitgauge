@@ -27,6 +27,9 @@
 //! - Neither `testenv` nor `meta` appears, and no crate `deny.toml` bans appears.
 //! - hyper's `client` and `http2`, hyper-util's `client`, `client-legacy` and `http2`, tokio's `fs`
 //!   and `process`, and axum's `ws` and `http2` are not enabled.
+//! - Of the leinardi/rust-common crates, the graph holds exactly the ones bitgauge ships
+//!   (`SHIPPED_SHARED`): none of go-slog, go-prom, go-http, docker-engine or the others, which
+//!   would bring an HTTP stack, a logger or a client the binary does not use.
 //! - The `bitgauge` dev-dependencies do not include `testenv`.
 //! - The same check runs on the `x86_64-unknown-linux-musl` view the release builds.
 //!
@@ -38,7 +41,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::Path;
 
-use meta::{cargo, repo};
+use meta::cargo;
 use toml::Table;
 
 /// Crates that are test infrastructure and must never be in the shipped graph.
@@ -54,6 +57,24 @@ const FORBIDDEN_FEATURES: &[(&str, &[&str])] = &[
 
 /// The release target whose view is checked beside the host's.
 const RELEASE_TARGET: &str = "x86_64-unknown-linux-musl";
+
+/// Every crate of leinardi/rust-common, by package name.
+const SHARED_CRATES: &[&str] = &[
+    "docker-engine",
+    "go-clock",
+    "go-compat",
+    "go-http",
+    "go-prom",
+    "go-slog",
+    "http-framing",
+    "repo-meta",
+    "service-kit",
+    "testenv-core",
+    "tracing-setup",
+];
+
+/// The ones the shipped binary uses; the others may only be dev or test dependencies.
+const SHIPPED_SHARED: &[&str] = &["go-compat", "http-framing", "service-kit", "tracing-setup"];
 
 /// How cargo is told to resolve: the repository against its lockfile, a scratch copy offline.
 #[derive(Clone, Copy)]
@@ -161,6 +182,18 @@ fn graph_problems(crates: &BTreeMap<String, BTreeSet<String>>, banned: &[String]
             ));
         }
     }
+    for name in SHARED_CRATES {
+        let shipped = SHIPPED_SHARED.contains(name);
+        match (crates.contains_key(*name), shipped) {
+            (true, false) => problems.push(format!(
+                "the shipped graph contains the shared crate {name}, which bitgauge does not ship"
+            )),
+            (false, true) => {
+                problems.push(format!("the shipped graph lacks the shared crate {name}"));
+            }
+            (true, true) | (false, false) => {}
+        }
+    }
     for (name, forbidden) in FORBIDDEN_FEATURES {
         let Some(enabled) = crates.get(*name) else {
             continue;
@@ -210,28 +243,28 @@ fn parse(text: &str, origin: &str) -> Table {
 }
 
 fn banned() -> Vec<String> {
-    let banned = banned_crates(&parse(&repo::read("deny.toml"), "deny.toml"));
+    let banned = banned_crates(&parse(&meta::repo().read("deny.toml"), "deny.toml"));
     assert!(!banned.is_empty(), "deny.toml bans no crate");
     banned
 }
 
 #[test]
 fn the_host_production_graph_holds_the_boundary() {
-    let crates = resolved_features(&repo::root(), None, Resolve::Locked);
+    let crates = resolved_features(meta::repo().root(), None, Resolve::Locked);
     let problems = graph_problems(&crates, &banned());
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 
 #[test]
 fn the_release_target_production_graph_holds_the_boundary() {
-    let crates = resolved_features(&repo::root(), Some(RELEASE_TARGET), Resolve::Locked);
+    let crates = resolved_features(meta::repo().root(), Some(RELEASE_TARGET), Resolve::Locked);
     let problems = graph_problems(&crates, &banned());
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 
 #[test]
 fn the_dev_dependencies_do_not_include_testenv() {
-    let problems = dev_dependency_problems(&parse(&repo::read("Cargo.toml"), "Cargo.toml"));
+    let problems = dev_dependency_problems(&parse(&meta::repo().read("Cargo.toml"), "Cargo.toml"));
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 
@@ -270,14 +303,14 @@ fn scratch_workspace(change: impl FnOnce(&Path, &mut Table)) -> tempfile::TempDi
     let dir = scratch.path();
     for member in ["meta", "testenv"] {
         let manifest = format!("{member}/Cargo.toml");
-        write(dir, &manifest, &repo::read(&manifest));
+        write(dir, &manifest, &meta::repo().read(&manifest));
         write(dir, &format!("{member}/src/lib.rs"), "");
     }
     write(dir, "src/lib.rs", "");
     write(dir, "src/main.rs", "fn main() {}\n");
-    fs::copy(repo::path("Cargo.lock"), dir.join("Cargo.lock"))
+    fs::copy(meta::repo().path("Cargo.lock"), dir.join("Cargo.lock"))
         .unwrap_or_else(|error| panic!("copy Cargo.lock: {error}"));
-    let mut root = parse(&repo::read("Cargo.toml"), "Cargo.toml");
+    let mut root = parse(&meta::repo().read("Cargo.toml"), "Cargo.toml");
     // The check reads the normal and build graph only, and a control that stubs a crate the
     // dev-dependencies also name (hyper, for the test client) would give it two sources.
     root.remove("dev-dependencies");
@@ -320,7 +353,8 @@ fn an_unchanged_scratch_workspace_passes() {
     assert_eq!(scratch_problems(|_, _| {}), Vec::<String>::new());
 }
 
-/// Negative control: `testenv` added as a normal dependency is refused.
+/// Negative control: `testenv` added as a normal dependency is refused, and so is the shared
+/// crate it brings along (`testenv-core`).
 #[test]
 fn testenv_as_a_normal_dependency_is_refused() {
     let problems = scratch_problems(|_, dependencies| {
@@ -328,8 +362,51 @@ fn testenv_as_a_normal_dependency_is_refused() {
     });
     assert_eq!(
         problems,
-        ["the shipped graph contains the test crate testenv"]
+        [
+            "the shipped graph contains the test crate testenv",
+            "the shipped graph contains the shared crate testenv-core, which bitgauge does not ship",
+        ]
     );
+}
+
+/// Negative control: a shared crate bitgauge does not ship (go-slog, a logger) in the shipped
+/// graph is refused.
+#[test]
+fn an_unshipped_shared_crate_is_refused() {
+    let problems = scratch_problems(|dir, dependencies| {
+        stub_crate(dir, "go-slog", &[]);
+        dependencies.insert("go-slog".to_owned(), path_dependency("stubs/go-slog", &[]));
+    });
+    assert_eq!(
+        problems,
+        ["the shipped graph contains the shared crate go-slog, which bitgauge does not ship"]
+    );
+}
+
+/// Negative control: a shipped shared crate dropped from `[dependencies]` is refused, so the
+/// list cannot keep a crate the binary no longer ships.
+#[test]
+fn a_missing_shipped_shared_crate_is_refused() {
+    for name in SHIPPED_SHARED {
+        let problems = scratch_problems(|_, dependencies| {
+            assert!(
+                dependencies.remove(*name).is_some(),
+                "{name} is not a dependency"
+            );
+        });
+        assert_eq!(
+            problems,
+            [format!("the shipped graph lacks the shared crate {name}")]
+        );
+    }
+}
+
+/// The list of shared crates names each one bitgauge ships.
+#[test]
+fn every_shipped_shared_crate_is_a_shared_crate() {
+    for name in SHIPPED_SHARED {
+        assert!(SHARED_CRATES.contains(name), "{name}");
+    }
 }
 
 /// Negative control: hyper's `client` feature enabled on the `bitgauge` package is refused.

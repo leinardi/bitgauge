@@ -65,6 +65,11 @@ the hooks cannot:
   ([runbook](docs/engineering/accuracy-harness.md)).
 - `web/src/demo/**`: `make web-build`, then `scripts/check-dist-demo-free.sh web/dist`.
 - Demo parity runs on demand only ([runbook](docs/engineering/demo-parity.md)).
+- A `Cargo.toml` or `deny.toml` change, or a rust-common pin bump, needs the network: cargo fetches
+  the git dependency and cargo-deny its advisories. To work on a shared crate locally, point each
+  crate at `../rust-common/crates/<name>` in an uncommitted
+  `[patch."https://github.com/leinardi/rust-common"]` table (the `Cargo.toml` comment); never
+  commit it or build a release or image with it.
 
 ## Commit messages
 
@@ -114,6 +119,25 @@ counts as `fix:`), so avoid a word ending in `feat` or `fix` right before a colo
   responding. Never log request bodies, headers or WebSocket messages. Client IP from
   `X-Forwarded-For` only through `server.trusted_proxies`. Configuration is read-only and validated
   fail-closed (exit status 2).
+- **Shared code lives in rust-common.** The crates shared with the sibling Rust projects come from
+  `leinardi/rust-common`, a git dependency pinned by its release tag in
+  `[workspace.dependencies]` ([Shared Crates](docs/rust-port.md#shared-crates)). A behaviour
+  BitGauge needs differently is a parameter there, never a fork or copy here; a fix to shared code
+  lands in rust-common first and reaches BitGauge by a pin bump. BitGauge's intended differences
+  from the siblings:
+  - the root `clippy.toml` bans file writes, connects, name lookups and the print macros beside the
+    wall-clock reads the siblings ban too, and `deny.toml` bans HTTP clients, stores and RPC, since
+    the server never stores a result and never calls out;
+  - metrics on prometheus-client, OpenMetrics only (a maintainer decision), not go-prom; logs are
+    tracing's, through tracing-setup, not go-slog's;
+  - its own connection deadlines (`src/server/timeouts.rs`: head, body, idle and upgraded states
+    and a 30 s write stall, not go-http's four Go timeouts), its own signals (a `sigwait` thread,
+    since tokio's signal socketpair would trip the strace policy) and its own healthcheck (the one
+    exempted connect, blocking std code);
+  - the release graph holds only `go-compat`, `http-framing`, `service-kit` and `tracing-setup`
+    (`SHIPPED_SHARED` in `meta/tests/production_graph.rs`): the other crates would bring an HTTP
+    stack, a logger or a client the binary does not use; `repo-meta` and `testenv-core` are for
+    tests only.
 - **No gate passes on nothing:** no `--passWithNoTests`, `|| true`, `continue-on-error` or
   `if: false`. Tests outside testenv's `image` and `harness` features never need Docker.
 

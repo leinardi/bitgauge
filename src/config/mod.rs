@@ -35,7 +35,6 @@ mod effective;
 mod gofmt;
 mod load;
 mod preset;
-mod printable;
 mod raw;
 mod report;
 mod types;

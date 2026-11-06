@@ -26,7 +26,6 @@
 
 use std::collections::BTreeSet;
 
-use meta::repo;
 use regex::Regex;
 
 const AUDIT_MK: &str = ".mk/audit-deps.mk";
@@ -115,7 +114,7 @@ fn assert_none(problems: &[String]) {
 /// is fetched `@latest`, which would make two runs of the same commit mean different things.
 #[test]
 fn audit_fetches_nothing_at_latest() {
-    assert_none(&fetch_problems(&repo::read(AUDIT_MK)));
+    assert_none(&fetch_problems(&meta::repo().read(AUDIT_MK)));
 }
 
 /// The fetch control: an `@latest` fetch fails.
@@ -123,7 +122,7 @@ fn audit_fetches_nothing_at_latest() {
 fn fetch_control_fails_on_latest() {
     let fragment = format!(
         "{}\nTOOL ?= example.org/tool@latest\n",
-        repo::read(AUDIT_MK)
+        meta::repo().read(AUDIT_MK)
     );
     assert!(
         !fetch_problems(&fragment).is_empty(),
@@ -135,9 +134,9 @@ fn fetch_control_fails_on_latest() {
 #[test]
 fn audit_deps_runs_the_expected_audits() {
     assert_none(&audit_target_problems(
-        &repo::read(AUDIT_MK),
-        &repo::read(RUST_MK),
-        &repo::read(MAKEFILE),
+        &meta::repo().read(AUDIT_MK),
+        &meta::repo().read(RUST_MK),
+        &meta::repo().read(MAKEFILE),
     ));
 }
 
@@ -145,9 +144,9 @@ fn audit_deps_runs_the_expected_audits() {
 /// checks one package only (no scope, an empty default, or the Makefile clearing it) fails.
 #[test]
 fn audit_deps_control_fails_on_another_set() {
-    let audit = repo::read(AUDIT_MK);
-    let rust = repo::read(RUST_MK);
-    let makefile = repo::read(MAKEFILE);
+    let audit = meta::repo().read(AUDIT_MK);
+    let rust = meta::repo().read(RUST_MK);
+    let makefile = meta::repo().read(MAKEFILE);
     let rule = pattern(r"(?m)^audit-deps:[^#\n]*")
         .find(&audit)
         .map_or_else(

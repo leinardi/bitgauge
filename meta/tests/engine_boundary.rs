@@ -36,7 +36,6 @@ use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::thread;
 
-use meta::repo;
 use testenv::toolgate::{self, Tool};
 
 /// The cases: the file a source pretends to be, the source, and the text the rejection must
@@ -203,7 +202,7 @@ const CASES: &[(&str, &str, &str)] = &[
 fn case_problem(eslint: &PathBuf, (file, source, want): &(&str, &str, &str)) -> Option<String> {
     let mut child = Command::new(eslint)
         .args(["--stdin", "--stdin-filename", file])
-        .current_dir(repo::path("web"))
+        .current_dir(meta::repo().path("web"))
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())

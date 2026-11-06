@@ -35,7 +35,8 @@ use super::stack::{TestStack, test_config};
 use crate::server::conn::{self, MAX_HEADER_SIZE, MAX_HEADERS, Outcome};
 use crate::server::timeouts::Timeouts;
 use crate::server::{GRACE_EXCEEDED, exit_code};
-use crate::test_support::{Capture, dial_loopback};
+use crate::test_support::dial_loopback;
+use tracing_setup::testing::Capture;
 
 const FAILSAFE: Duration = Duration::from_secs(30);
 

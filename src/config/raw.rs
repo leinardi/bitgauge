@@ -29,7 +29,7 @@ use std::fmt::{self, Write as _};
 use serde::de::{self, Deserialize, Deserializer, MapAccess, SeqAccess, Visitor};
 use serde_saphyr::Spanned;
 
-use super::{Location, gofmt};
+use super::Location;
 
 /// A value as the file or the environment gave it.
 #[derive(Debug, Clone, PartialEq)]
@@ -89,7 +89,7 @@ impl fmt::Display for Raw {
             Self::Bool(value) => write!(formatter, "{value}"),
             Self::Int(value) => write!(formatter, "{value}"),
             Self::Wide(value) => write!(formatter, "{value}"),
-            Self::Float(value) => formatter.write_str(&gofmt::float(*value)),
+            Self::Float(value) => formatter.write_str(&go_compat::float::format_g(*value)),
             Self::Text(text) => formatter.write_str(text),
             Self::List(items) => {
                 let mut shown = String::from("[");

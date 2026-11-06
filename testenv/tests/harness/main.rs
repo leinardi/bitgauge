@@ -41,7 +41,7 @@ use std::time::Instant;
 use jiff::Timestamp;
 use testenv::docker::DockerCli;
 use testenv::env::{Env, EnvGuard, Provider, Spec, new_provider};
-use testenv::envid::generate_env_id;
+use testenv::envid::{TEMP_DIR_PREFIX, generate_env_id};
 use testenv::harness::bringup::{Topology, report_dir, up};
 use testenv::harness::evaluate::should_rerun;
 use testenv::harness::gofmt;
@@ -106,7 +106,7 @@ const TESTS: &[TestCase<Suite>] = &[
 ];
 
 fn main() -> ExitCode {
-    runner::main_selected(TESTS, setup)
+    runner::main_selected(TEMP_DIR_PREFIX, TESTS, setup)
 }
 
 /// Go: `TestMain`, plus the implementation requirement and the identity check.

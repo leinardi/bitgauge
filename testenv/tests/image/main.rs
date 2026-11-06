@@ -44,6 +44,7 @@ use std::time::{Duration, Instant};
 use tempfile::TempDir;
 use testenv::docker::DockerCli;
 use testenv::env::{Env, EnvGuard, Provider, Spec, new_provider};
+use testenv::envid::TEMP_DIR_PREFIX;
 use testenv::identity::{self, Expectation, Identity, IdentityError};
 use testenv::logger::Logger;
 use testenv::netguard;
@@ -81,7 +82,7 @@ const TESTS: &[TestCase<Suite>] = &[
 ];
 
 fn main() -> ExitCode {
-    runner::main(TESTS, setup)
+    runner::main(TEMP_DIR_PREFIX, TESTS, setup)
 }
 
 /// Go's `TestMain`, and the identity check that replaces its `buildImage`: reads the

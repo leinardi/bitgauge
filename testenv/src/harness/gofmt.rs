@@ -18,29 +18,23 @@
  */
 
 //! Go's output formats, where the harness's reports and messages carry them: `encoding/json`'s
-//! indented output and syntax errors, `strconv`'s quoting and parse errors, `time.Duration`'s
-//! and RFC 3339 text, and `fmt`'s map layout. The Go harness wrote report.json, report.md and the
-//! verdict lines through these; the port keeps their bytes (the rust-port-go skill, section 2).
+//! indented output and syntax errors, `strconv.FormatFloat(f, 'f', -1, 64)` and `ParseFloat`,
+//! `time.RFC3339`, `fmt`'s map layout, `bufio.Scanner`'s lines as the Go callers read them and
+//! `*fs.PathError`'s text. The Go harness wrote report.json, report.md and the verdict lines
+//! through these; the port keeps their bytes (the rust-port-go skill, section 2). `strconv`'s
+//! quoting and integer parsing, `time.Duration`'s text, the JSON float layout and the errno table
+//! are `go_compat`'s.
 
 use std::collections::BTreeMap;
-use std::fmt::Write as _;
 use std::io::{self, Write};
 use std::path::Path;
-use std::time::Duration;
 
+use go_compat::quote::quote;
 use jiff::Timestamp;
-use jiff::tz::TimeZone;
+use jiff::tz::{Offset, TimeZone};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::ser::{CharEscape, Formatter, PrettyFormatter};
-
-/// The smallest magnitude `encoding/json` writes without an exponent.
-const PLAIN_FROM: f64 = 1e-6;
-/// The magnitude from which `encoding/json` writes an exponent again.
-const PLAIN_BELOW: f64 = 1e21;
-
-/// `bufio.Scanner`'s default maximum token size: a line this long or longer stops the scan.
-const MAX_SCAN_TOKEN: usize = 64 * 1024;
 
 /// A float's shortest decimal digits, without a sign or trailing zeros, and the power of ten of
 /// the first digit. Rust breaks an exact tie of two shortest candidates upward, Go to even: the
@@ -97,28 +91,6 @@ pub fn format_float_plain(value: f64) -> String {
     format!("{sign}{}", plain_layout(&digits, exponent))
 }
 
-/// A float as `encoding/json` writes it: plain between `1e-6` and `1e21` and at zero, and
-/// otherwise with an exponent that carries a sign and no leading zero (`1e+21`, `1e-7`).
-#[must_use]
-pub fn format_float_json(value: f64) -> String {
-    let magnitude = value.abs();
-    if magnitude == 0.0 || (PLAIN_FROM..PLAIN_BELOW).contains(&magnitude) {
-        return format_float_plain(value);
-    }
-    let (digits, exponent) = shortest_digits(value);
-    let sign = if value.is_sign_negative() { "-" } else { "" };
-    let mantissa = if digits.len() > 1 {
-        format!("{}.{}", &digits[..1], &digits[1..])
-    } else {
-        digits
-    };
-    let exponent_sign = if exponent < 0 { '-' } else { '+' };
-    format!(
-        "{sign}{mantissa}e{exponent_sign}{}",
-        exponent.unsigned_abs()
-    )
-}
-
 /// `serde_json`'s pretty formatter with two-space indentation, as `json.MarshalIndent(v, "", "  ")`
 /// lays it out, with Go's escapes and float layout.
 struct GoFormatter {
@@ -127,7 +99,8 @@ struct GoFormatter {
 
 impl Formatter for GoFormatter {
     fn write_f64<W: ?Sized + Write>(&mut self, writer: &mut W, value: f64) -> io::Result<()> {
-        writer.write_all(format_float_json(value).as_bytes())
+        let text = go_compat::float::format_json(value).map_err(io::Error::other)?;
+        writer.write_all(text.as_bytes())
     }
 
     fn write_string_fragment<W: ?Sized + Write>(
@@ -494,124 +467,6 @@ fn quote_char(byte: u8) -> String {
     }
 }
 
-/// Whether Go's `unicode.IsPrint` holds, outside the ASCII range read from Rust's own tables:
-/// control, separator, format and private-use code points are not printable. Go also refuses an
-/// unassigned code point, which Rust's standard library cannot tell apart; no harness text
-/// carries one.
-fn is_print(character: char) -> bool {
-    if character.is_ascii() {
-        return (' '..='~').contains(&character);
-    }
-    let code = u32::from(character);
-    let format = matches!(
-        code,
-        0xAD | 0x600..=0x605
-            | 0x61C
-            | 0x6DD
-            | 0x70F
-            | 0x180E
-            | 0x200B..=0x200F
-            | 0x202A..=0x202E
-            | 0x2060..=0x2064
-            | 0x2066..=0x206F
-            | 0xFEFF
-            | 0xFFF9..=0xFFFB
-    );
-    let private = matches!(code, 0xE000..=0xF8FF | 0xF_0000..=0x10_FFFF);
-    let noncharacter = (0xFDD0..=0xFDEF).contains(&code) || code & 0xFFFE == 0xFFFE;
-    !(character.is_control() || character.is_whitespace() || format || private || noncharacter)
-}
-
-/// `strconv.Quote`: double quotes, with Go's escapes for what is not printable.
-#[must_use]
-pub fn quote(text: &str) -> String {
-    let mut out = String::with_capacity(text.len() + 2);
-    out.push('"');
-    for character in text.chars() {
-        match character {
-            '"' => out.push_str("\\\""),
-            '\\' => out.push_str("\\\\"),
-            printable if is_print(printable) => out.push(printable),
-            '\u{7}' => out.push_str("\\a"),
-            '\u{8}' => out.push_str("\\b"),
-            '\u{c}' => out.push_str("\\f"),
-            '\n' => out.push_str("\\n"),
-            '\r' => out.push_str("\\r"),
-            '\t' => out.push_str("\\t"),
-            '\u{b}' => out.push_str("\\v"),
-            other => {
-                let code = u32::from(other);
-                if code < 0x20 || code == 0x7F {
-                    let _ = write!(out, "\\x{code:02x}");
-                } else if code < 0x1_0000 {
-                    let _ = write!(out, "\\u{code:04x}");
-                } else {
-                    let _ = write!(out, "\\U{code:08x}");
-                }
-            }
-        }
-    }
-    out.push('"');
-    out
-}
-
-/// `strconv.ParseInt(text, 10, 64)` (`function` names the caller in the error, as Go's
-/// `strconv.Atoi` does): an optional sign, then ASCII digits only; out of range is reported at the
-/// digit that overflows, before a later invalid byte.
-///
-/// # Errors
-///
-/// Go's `strconv.NumError` text: `strconv.ParseInt: parsing "x": invalid syntax` or
-/// `value out of range`.
-pub fn parse_int(function: &str, text: &str) -> Result<i64, String> {
-    let (negative, digits) = match text.as_bytes().first() {
-        Some(b'+') => (false, &text[1..]),
-        Some(b'-') => (true, &text[1..]),
-        _ => (false, text),
-    };
-    let magnitude = parse_digits(function, text, digits)?;
-    let limit = if negative {
-        i64::MIN.unsigned_abs()
-    } else {
-        i64::MAX.unsigned_abs()
-    };
-    if magnitude > limit {
-        return Err(num_error(function, text, "value out of range"));
-    }
-    if negative {
-        Ok(0_i64.wrapping_sub_unsigned(magnitude))
-    } else {
-        i64::try_from(magnitude).map_err(|_| num_error(function, text, "value out of range"))
-    }
-}
-
-/// `strconv.ParseUint(text, 10, 64)`: ASCII digits only, without a sign.
-///
-/// # Errors
-///
-/// Go's `strconv.NumError` text, as `parse_int` gives it.
-pub fn parse_uint(text: &str) -> Result<u64, String> {
-    parse_digits("ParseUint", text, text)
-}
-
-/// The digits of a base-10 integer, with Go's order of errors.
-fn parse_digits(function: &str, text: &str, digits: &str) -> Result<u64, String> {
-    if digits.is_empty() {
-        return Err(num_error(function, text, "invalid syntax"));
-    }
-    let mut value: u64 = 0;
-    for byte in digits.bytes() {
-        if !byte.is_ascii_digit() {
-            return Err(num_error(function, text, "invalid syntax"));
-        }
-        value = value
-            .checked_mul(10)
-            .and_then(|tens| tens.checked_add(u64::from(byte - b'0')))
-            .ok_or_else(|| num_error(function, text, "value out of range"))?;
-    }
-    Ok(value)
-}
-
 /// `strconv.ParseFloat(text, 64)` for decimal input: what Rust reads, less a signed NaN, which Go
 /// refuses, and with an overflow to infinity reported as Go reports it. Go also reads hex floats
 /// and `_` after a base prefix; no harness input carries them.
@@ -638,60 +493,6 @@ fn num_error(function: &str, text: &str, reason: &str) -> String {
     format!("strconv.{function}: parsing {}: {reason}", quote(text))
 }
 
-/// `time.Duration.String` for a non-negative duration: `0s`, `500ms`, `1.5µs`, `2s`, `1m30s`.
-#[must_use]
-pub fn duration(value: Duration) -> String {
-    let nanos = u64::try_from(value.as_nanos()).unwrap_or(u64::MAX);
-    if nanos == 0 {
-        return "0s".to_owned();
-    }
-    if nanos < 1_000_000_000 {
-        let (unit, precision) = if nanos < 1_000 {
-            ("ns", 0)
-        } else if nanos < 1_000_000 {
-            ("µs", 3)
-        } else {
-            ("ms", 6)
-        };
-        let (whole, fraction) = split_fraction(nanos, precision);
-        return format!("{whole}{fraction}{unit}");
-    }
-    let (seconds, fraction) = split_fraction(nanos, 9);
-    let minutes = seconds / 60;
-    let hours = minutes / 60;
-    let mut out = String::new();
-    if hours > 0 {
-        let _ = write!(out, "{hours}h");
-    }
-    if minutes > 0 {
-        let _ = write!(out, "{}m", minutes % 60);
-    }
-    let _ = write!(out, "{}{fraction}s", seconds % 60);
-    out
-}
-
-/// Go's `fmtFrac`: the value's whole part, and its last `precision` digits as a fraction without
-/// trailing zeros, empty when they are all zero.
-fn split_fraction(value: u64, precision: u32) -> (u64, String) {
-    let divisor = 10_u64.pow(precision);
-    let mut digits = format!("{:0width$}", value % divisor, width = precision as usize);
-    while digits.ends_with('0') {
-        digits.pop();
-    }
-    let fraction = if digits.is_empty() {
-        digits
-    } else {
-        format!(".{digits}")
-    };
-    (value / divisor, fraction)
-}
-
-/// Go's zero `time.Time`, 0001-01-01T00:00:00Z, which a report's unset finish time reads as.
-#[must_use]
-pub fn zero_time() -> Timestamp {
-    Timestamp::new(-62_135_596_800, 0).unwrap_or(Timestamp::UNIX_EPOCH)
-}
-
 /// A UTC instant in Go's `time.RFC3339` layout: `2026-10-09T12:30:00Z`.
 #[must_use]
 pub fn rfc3339(instant: Timestamp) -> String {
@@ -701,21 +502,15 @@ pub fn rfc3339(instant: Timestamp) -> String {
         .to_string()
 }
 
-/// A UTC instant as `time.Time`'s JSON form, `time.RFC3339Nano`: the fraction without trailing
-/// zeros, none at all on a whole second.
-#[must_use]
-pub fn rfc3339_nano(instant: Timestamp) -> String {
-    let zoned = instant.to_zoned(TimeZone::UTC);
-    let (_, fraction) = split_fraction(u64::try_from(zoned.subsec_nanosecond()).unwrap_or(0), 9);
-    format!("{}{fraction}Z", zoned.strftime("%Y-%m-%dT%H:%M:%S"))
-}
-
-/// Serializes a `Timestamp` field as `time.Time` marshals itself.
+/// Serializes a `Timestamp` field as `time.Time` marshals itself: `time.RFC3339Nano` in UTC.
 pub(crate) fn serialize_time<S: Serializer>(
     instant: &Timestamp,
     serializer: S,
 ) -> Result<S::Ok, S::Error> {
-    serializer.serialize_str(&rfc3339_nano(*instant))
+    serializer.serialize_str(&go_compat::time_layout::format_rfc3339_nano(
+        *instant,
+        Offset::UTC,
+    ))
 }
 
 /// A counter map as `fmt`'s `%v` prints it: `map[dns:0 egress:1]`, its keys sorted.
@@ -733,41 +528,21 @@ pub fn counters(counters: &BTreeMap<String, u64>) -> String {
 /// callers left it, at a line of 64 KiB or more.
 #[must_use]
 pub fn scan_lines(text: &str) -> Vec<&str> {
-    let mut lines = Vec::new();
-    let mut rest = text;
-    while !rest.is_empty() {
-        let (line, next) = match rest.find('\n') {
-            Some(end) => (&rest[..end], &rest[end + 1..]),
-            None => (rest, ""),
-        };
-        if line.len() >= MAX_SCAN_TOKEN {
-            break;
-        }
-        lines.push(line.strip_suffix('\r').unwrap_or(line));
-        rest = next;
-    }
-    lines
+    go_compat::scanner::lines(text.as_bytes())
+        .map_while(Result::ok)
+        // A line ends at an ASCII byte, so it is the text's own UTF-8.
+        .map_while(|line| std::str::from_utf8(line).ok())
+        .collect()
 }
 
 /// An I/O error as Go's `*fs.PathError` prints it: `open /path: no such file or directory`.
 #[must_use]
 pub fn path_error(operation: &str, path: &Path, error: &io::Error) -> String {
-    let reason = error.raw_os_error().map_or_else(
-        || error.to_string(),
-        |code| {
-            let text = io::Error::from_raw_os_error(code).to_string();
-            let text = text
-                .split(" (os error")
-                .next()
-                .unwrap_or(text.as_str())
-                .to_owned();
-            let mut characters = text.chars();
-            characters.next().map_or_else(String::new, |first| {
-                first.to_lowercase().chain(characters).collect()
-            })
-        },
-    );
-    format!("{operation} {}: {reason}", path.display())
+    format!(
+        "{operation} {}: {}",
+        path.display(),
+        go_compat::errno::io_error_text(error)
+    )
 }
 
 #[cfg(test)]
@@ -791,60 +566,10 @@ mod tests {
             (0.000_001, "0.000001"),
             (2.5e-10, "2.5e-10"),
         ] {
-            let got = format_float_json(value);
+            let got = to_json_indent(&value).expect("a finite float encodes");
             if got != want {
-                failures.push(format!("format_float_json({value:e}) = {got}, want {want}"));
+                failures.push(format!("to_json_indent({value:e}) = {got}, want {want}"));
             }
-        }
-        for (value, want) in [
-            (Duration::ZERO, "0s"),
-            (Duration::from_secs(2), "2s"),
-            (Duration::from_millis(2500), "2.5s"),
-            (Duration::from_millis(500), "500ms"),
-            (Duration::from_micros(1500), "1.5ms"),
-            (Duration::from_nanos(1500), "1.5µs"),
-            (Duration::from_nanos(15), "15ns"),
-            (Duration::from_secs(90), "1m30s"),
-            (Duration::from_secs(7200), "2h0m0s"),
-        ] {
-            let got = duration(value);
-            if got != want {
-                failures.push(format!("duration({value:?}) = {got}, want {want}"));
-            }
-        }
-        for (text, want) in [
-            ("many", "\"many\""),
-            ("a\"b\\c", "\"a\\\"b\\\\c\""),
-            ("tab\there", "\"tab\\there\""),
-            ("\u{1}", "\"\\x01\""),
-            ("≠ ±", "\"≠ ±\""),
-            ("\u{a0}", "\"\\u00a0\""),
-        ] {
-            let got = quote(text);
-            if got != want {
-                failures.push(format!("quote({text:?}) = {got}, want {want}"));
-            }
-        }
-        for (text, want) in [
-            ("", Err("strconv.ParseInt: parsing \"\": invalid syntax")),
-            ("+5", Ok(5)),
-            ("-9223372036854775808", Ok(i64::MIN)),
-            (
-                "9223372036854775808",
-                Err("strconv.ParseInt: parsing \"9223372036854775808\": value out of range"),
-            ),
-            (
-                "99999999999999999999x",
-                Err("strconv.ParseInt: parsing \"99999999999999999999x\": value out of range"),
-            ),
-        ] {
-            let got = parse_int("ParseInt", text);
-            if got != want.map_err(str::to_owned) {
-                failures.push(format!("parse_int({text:?}) = {got:?}, want {want:?}"));
-            }
-        }
-        if parse_uint("+5").is_ok() {
-            failures.push("parse_uint read a sign".to_owned());
         }
         for (text, ok) in [
             ("1.5", true),
@@ -918,7 +643,26 @@ mod tests {
     fn scan_lines_follow_bufio() {
         assert_eq!(scan_lines("a\r\nb\n\nc"), vec!["a", "b", "", "c"]);
         assert_eq!(scan_lines("a\n"), vec!["a"]);
-        let long = format!("a\n{}\nb\n", "x".repeat(MAX_SCAN_TOKEN));
+        let long = format!(
+            "a\n{}\nb\n",
+            "x".repeat(go_compat::scanner::MAX_SCAN_TOKEN_SIZE)
+        );
         assert_eq!(scan_lines(&long), vec!["a"]);
+    }
+
+    /// `*fs.PathError` with Go's errno text, from a go1.26 scratch program: an errno Go's table
+    /// does not name is `errno 524`, not the C library's `Unknown error 524`, and errno 73 keeps
+    /// its capital.
+    #[test]
+    fn path_error_words_errno_as_go() {
+        let path = Path::new("/x");
+        for (errno, want) in [
+            (2, "open /x: no such file or directory"),
+            (73, "open /x: RFS specific error"),
+            (524, "open /x: errno 524"),
+        ] {
+            let error = io::Error::from_raw_os_error(errno);
+            assert_eq!(path_error("open", path, &error), want);
+        }
     }
 }

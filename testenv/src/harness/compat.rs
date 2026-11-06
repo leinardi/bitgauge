@@ -28,6 +28,7 @@ use std::fmt;
 use std::path::Path;
 use std::sync::LazyLock;
 
+use go_compat::quote::quote;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
@@ -235,7 +236,7 @@ fn parse_goresponsiveness(output: &str) -> Result<CompatClient, CompatError> {
     let unusable = |line: &str, error: &str| {
         CompatError::new(
             CompatErrorKind::ClientOutput,
-            format!("{UNUSABLE}: {}: {error}", gofmt::quote(line)),
+            format!("{UNUSABLE}: {}: {error}", quote(line)),
         )
     };
 
@@ -431,7 +432,7 @@ fn parse_openspeedtest(data: &[u8]) -> Result<CompatClient, CompatError> {
     if shown.status != OPENSPEEDTEST_DONE {
         return Err(CompatError::new(
             CompatErrorKind::ClientFailed,
-            format!("{FAILED}: the UI ended on {}", gofmt::quote(&shown.status)),
+            format!("{FAILED}: the UI ended on {}", quote(&shown.status)),
         ));
     }
     let download = gofmt::parse_float(shown.download_mbps.trim());

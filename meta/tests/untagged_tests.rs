@@ -31,7 +31,6 @@
 use std::collections::BTreeSet;
 use std::sync::LazyLock;
 
-use meta::repo;
 use regex::Regex;
 use testenv::toolgate::Tool;
 
@@ -162,17 +161,17 @@ fn problems(file: &str, code: &str, rules: &[(Regex, &str)]) -> Vec<String> {
 
 /// Every untagged test file of the workspace, with its test code.
 fn untagged_test_code() -> Vec<(String, String)> {
-    let targets = docker_targets(&repo::read(TESTENV_MANIFEST));
+    let targets = docker_targets(&meta::repo().read(TESTENV_MANIFEST));
     assert!(
         !targets.is_empty(),
         "{TESTENV_MANIFEST} gates no test target behind {DOCKER_FEATURES:?}"
     );
     ["src", "tests", "meta", "testenv"]
         .into_iter()
-        .flat_map(|root| repo::files_under(root, &[".rs"]))
+        .flat_map(|root| meta::repo().files_under(root, &[".rs"]))
         .filter(|file| file != SELF && !in_docker_suite(file, &targets))
         .filter_map(|file| {
-            let code = test_code(&file, &repo::read(&file))?;
+            let code = test_code(&file, &meta::repo().read(&file))?;
             Some((file, code))
         })
         .collect()
@@ -208,11 +207,11 @@ fn tool_gate_list_is_closed() {
     let mut found = Vec::new();
     let mut lookups = 0;
     for root in ["src", "tests", "meta", "testenv"] {
-        for file in repo::files_under(root, &[".rs"]) {
+        for file in meta::repo().files_under(root, &[".rs"]) {
             if file == TOOLGATE || file == SELF {
                 continue;
             }
-            let text = repo::read(&file);
+            let text = meta::repo().read(&file);
             found.extend(problems(&file, &text, &TOOL_LOOKUPS));
             let code = LINE_COMMENT.replace_all(&text, "");
             for call in LOOKUP_CALL.captures_iter(&code) {

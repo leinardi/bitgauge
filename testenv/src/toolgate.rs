@@ -26,14 +26,24 @@
 //! the `image` or `harness` feature and never runs without one. Every gated test looks its tool
 //! up here (`meta/tests/untagged_tests.rs` holds the list closed and the lookups in this file).
 
-use std::env;
-use std::fmt;
-use std::fs;
-use std::io::ErrorKind;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
+
+use testenv_core::toolgate::{Gate, Locate, Note};
 
 /// The variable that turns a missing tool from a note into a failure.
 pub const REQUIRE_ENV: &str = "BITGAUGE_REQUIRE_TOOLS";
+
+/// BitGauge's gate (rust-common's `testenv-core`): [`Tool::ALL`] under the nearest
+/// `web/node_modules/.bin`, a missing tool's note captured by libtest.
+pub const GATE: Gate = Gate {
+    require_env: REQUIRE_ENV,
+    tools: &["eslint", "fallow"],
+    locate: Locate::Ancestors {
+        dir: "web/node_modules/.bin",
+        hint: "run npm ci in web/",
+    },
+    note: Note::Captured,
+};
 
 /// The closed list of tools a test may be gated on; widening it is a decision, not a side
 /// effect of a new test.
@@ -59,111 +69,34 @@ impl Tool {
     }
 }
 
-/// A required tool that is missing.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Required {
-    /// The tool.
-    pub tool: Tool,
-    /// Why it was not found.
-    pub reason: String,
-}
-
-impl fmt::Display for Required {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            formatter,
-            "{} is required ({REQUIRE_ENV}=1) but was not found: {}",
-            self.tool.name(),
-            self.reason
-        )
-    }
-}
-
-impl std::error::Error for Required {}
-
 /// The path of `tool`: `web/node_modules/.bin/<tool>` in the nearest ancestor of the working
-/// directory that has one. `None`, after a note on stderr, when
-/// it is missing and the test should return early.
+/// directory that has one. `None`, after a note on stderr, when it is missing and the test should
+/// return early.
 ///
 /// # Panics
 ///
 /// The tool is missing while [`REQUIRE_ENV`] is `1`: the test fails.
 #[must_use]
 pub fn lookup(tool: Tool) -> Option<PathBuf> {
-    let start = env::current_dir().unwrap_or_default();
-    let required = env::var_os(REQUIRE_ENV).is_some_and(|value| value == "1");
-    lookup_in(tool, &start, required).unwrap_or_else(|error| panic!("{error}"))
-}
-
-/// [`lookup`] from the directory `start`, with `required` for [`REQUIRE_ENV`].
-///
-/// # Errors
-///
-/// [`Required`] when the tool is missing and `required` is set.
-pub fn lookup_in(tool: Tool, start: &Path, required: bool) -> Result<Option<PathBuf>, Required> {
-    match find(tool, start) {
-        Ok(found) => Ok(Some(found)),
-        Err(reason) if required => Err(Required { tool, reason }),
-        Err(reason) => {
-            eprintln!(
-                "note: {} not found ({reason}); set {REQUIRE_ENV}=1 to make this a failure",
-                tool.name()
-            );
-            Ok(None)
-        }
-    }
+    GATE.lookup(tool.name())
 }
 
 /// The repository root: this crate sits one level below it.
 #[must_use]
 pub fn repo_root() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("..")
-}
-
-fn find(tool: Tool, start: &Path) -> Result<PathBuf, String> {
-    let name = tool.name();
-    for dir in start.ancestors() {
-        let candidate = dir.join("web/node_modules/.bin").join(name);
-        match fs::metadata(&candidate) {
-            Ok(_) => return Ok(candidate),
-            Err(error) if error.kind() == ErrorKind::NotFound => {}
-            Err(error) => return Err(format!("stat {}: {error}", candidate.display())),
-        }
-    }
-    Err(format!(
-        "web/node_modules/.bin/{name}: not installed; run npm ci in web/"
-    ))
+    testenv_core::repo_root!()
 }
 
 #[cfg(test)]
 mod tests {
-    use std::fs;
+    use super::{GATE, Tool, repo_root};
 
-    use super::{Tool, lookup_in, repo_root};
-
-    /// A tool is found under the nearest `web/node_modules`, a missing one is `None` unless
-    /// required, and then it is an error naming the variable. (Go's `toolgate` has no test of
-    /// its own; `test/toolchain` pinned its list.)
+    /// The gate's list is [`Tool::ALL`], and the root is this checkout's. (The lookup itself is
+    /// tested in rust-common's `testenv-core`, `toolgate::tests::ancestors_find_or_gate`, with
+    /// this gate.)
     #[test]
-    fn lookup_finds_or_gates() {
-        let dir = tempfile::tempdir().unwrap();
-        assert_eq!(lookup_in(Tool::Eslint, dir.path(), false).unwrap(), None);
-        let web = dir.path().join("web/node_modules/.bin");
-        fs::create_dir_all(&web).unwrap();
-        fs::write(web.join("eslint"), "").unwrap();
-        let nested = dir.path().join("a/b");
-        fs::create_dir_all(&nested).unwrap();
-        assert_eq!(
-            lookup_in(Tool::Eslint, &nested, true).unwrap(),
-            Some(web.join("eslint"))
-        );
-        let error = lookup_in(Tool::Fallow, &nested, true).unwrap_err();
-        assert!(
-            error
-                .to_string()
-                .starts_with("fallow is required (BITGAUGE_REQUIRE_TOOLS=1) but was not found"),
-            "{error}"
-        );
+    fn the_gate_is_the_tool_list() {
+        assert_eq!(Tool::ALL.map(Tool::name), GATE.tools);
         assert_eq!(Tool::ALL.map(Tool::name), ["eslint", "fallow"]);
         assert!(repo_root().join("testenv/Cargo.toml").is_file());
     }

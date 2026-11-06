@@ -23,8 +23,8 @@
 //! reported (an unparsed `server.public_url` keeps its empty default), so the split follows Go's
 //! parser rather than the WHATWG one the `url` crate implements.
 
-use super::gofmt::quote;
 use super::types::parse_addr;
+use go_compat::quote::quote;
 
 /// The components of a parsed URL that the origin rule reads.
 #[derive(Debug, Default, PartialEq, Eq)]

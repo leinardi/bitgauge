@@ -38,6 +38,12 @@ image = []
 harness = []
 
 [dependencies]
+# Go's strconv, time.Duration, encoding/json float, bufio.Scanner, errno and path.Clean behaviour
+# the harness and the syscall policies reproduce (rust-common).
+go-compat.workspace = true
+# The generic test-environment helpers (rust-common): the sync runner and Go's -run filter, the
+# envid bytes and names, the tool gate, git isolation and the identity answers.
+testenv-core = { workspace = true, features = ["sync"] }
 jiff = { version = "0.2.38", default-features = false, features = ["std"] }
 regex = "1.13.1"
 serde = { version = "1.0.229", default-features = false, features = ["derive", "std"] }

@@ -23,21 +23,23 @@
 //! drift apart one edit at a time, and a broken link or a stale number in the contract is a wrong
 //! spec that code then follows.
 //!
+//! The link check is rust-common's `repo_meta::links::Checker`, the port of the Go checker, run
+//! on this repository's own file list: the tracked and new Markdown outside what the project does
+//! not author, and `docs/features` walked through its symlinks.
+//!
 //! Each check is also run on input built to break it, so none passes on nothing.
 
-// A test crate root resolves `mod` against `tests/`, so the helpers name their own path.
+// A test crate root resolves `mod` against `tests/`, so the helper names its own path.
 #[path = "docs/facts.rs"]
 mod facts;
-#[path = "docs/links.rs"]
-mod links;
 
 use std::collections::BTreeSet;
 use std::fs;
 
-use meta::repo;
+use repo_meta::links::{self, Checker};
+use repo_meta::{report, strings};
 
 use facts::{FACTS, NATIVE_ENDPOINTS, UPLOAD_KEYS};
-use links::Checker;
 
 /// Markdown the project does not author: the vendored skills (pinned upstream in
 /// `skills-lock.json`) and the design export (never hand-edited). The parts of the export that
@@ -56,7 +58,8 @@ const FEATURES_DIR: &str = "docs/features";
 /// The project's Markdown outside [`EXCLUDED_TREES`], plus whatever `docs/features` reaches
 /// through symlinks, as sorted slash-separated paths relative to the root.
 fn markdown_files() -> Vec<String> {
-    let mut files: BTreeSet<String> = repo::tracked_or_new(&["*.md"])
+    let mut files: BTreeSet<String> = meta::repo()
+        .tracked_or_new(&["*.md"])
         .into_iter()
         .filter(|rel| !EXCLUDED_TREES.iter().any(|tree| rel.starts_with(tree)))
         .collect();
@@ -75,13 +78,13 @@ fn feature_files() -> Vec<String> {
 
 fn walk(rel: &str, files: &mut Vec<String>) {
     let entries =
-        fs::read_dir(repo::path(rel)).unwrap_or_else(|error| panic!("read {rel}: {error}"));
+        fs::read_dir(meta::repo().path(rel)).unwrap_or_else(|error| panic!("read {rel}: {error}"));
     for entry in entries {
         let entry = entry.unwrap_or_else(|error| panic!("read {rel}: {error}"));
         let child = format!("{rel}/{}", entry.file_name().to_string_lossy());
         // Metadata follows symlinks: a linked directory is walked, a linked page is read.
-        let info =
-            fs::metadata(repo::path(&child)).unwrap_or_else(|error| panic!("{child}: {error}"));
+        let info = fs::metadata(meta::repo().path(&child))
+            .unwrap_or_else(|error| panic!("{child}: {error}"));
         if info.is_dir() {
             walk(&child, files);
         } else if info.is_file() && links::is_markdown(&child) {
@@ -92,11 +95,7 @@ fn walk(rel: &str, files: &mut Vec<String>) {
 
 /// The link problems of `content` read as the repository file `rel`.
 fn link_problems(rel: &str, content: &str) -> Vec<String> {
-    Checker::new(repo::root())
-        .check_text(rel, content)
-        .iter()
-        .map(ToString::to_string)
-        .collect()
+    strings(&Checker::new(meta::repo().root()).check_text(rel, content))
 }
 
 /// The sorted upload telemetry key set.
@@ -110,18 +109,18 @@ fn wanted_upload_keys() -> Vec<String> {
 /// resolves.
 #[test]
 fn relative_links_resolve() {
-    let mut checker = Checker::new(repo::root());
+    let repo = meta::repo();
+    let mut checker = Checker::new(repo.root());
     let files = markdown_files();
     assert!(
         files.iter().any(|rel| rel == "AGENTS.md"),
         "the scan did not see AGENTS.md: {files:?}"
     );
-    let problems: Vec<String> = files
+    let problems: Vec<_> = files
         .iter()
         .flat_map(|rel| checker.check_file(rel))
-        .map(|problem| problem.to_string())
         .collect();
-    assert!(problems.is_empty(), "{}", problems.join("\n"));
+    assert!(problems.is_empty(), "{}", report(&problems));
 }
 
 /// Go: `TestNativeAPIPaths`. The contract names no `/api/v1` path beyond the six native ones,
@@ -131,7 +130,7 @@ fn native_api_paths() {
     let mut problems = Vec::new();
     let mut found = 0;
     for rel in feature_files() {
-        let (unknown_paths, count) = facts::api_paths(&repo::read(&rel));
+        let (unknown_paths, count) = facts::api_paths(&meta::repo().read(&rel));
         found += count;
         problems.extend(unknown_paths.into_iter().map(|unknown| {
             format!(
@@ -155,7 +154,7 @@ fn upload_telemetry_shape() {
     let mut problems = Vec::new();
     let mut found = 0;
     for rel in feature_files() {
-        for keys in facts::upload_objects(&repo::read(&rel)) {
+        for keys in facts::upload_objects(&meta::repo().read(&rel)) {
             found += 1;
             if keys != want {
                 problems.push(format!(
@@ -178,7 +177,7 @@ fn facts_agree() {
     let pages: Vec<(String, String)> = feature_files()
         .into_iter()
         .map(|rel| {
-            let content = repo::read(&rel);
+            let content = meta::repo().read(&rel);
             (rel, content)
         })
         .collect();
@@ -225,11 +224,7 @@ fn checker_finds_broken_links() {
         fs::write(scratch.path().join(name), content)
             .unwrap_or_else(|error| panic!("write {name}: {error}"));
     }
-    let got: Vec<String> = Checker::new(scratch.path().to_path_buf())
-        .check_file("a.md")
-        .iter()
-        .map(ToString::to_string)
-        .collect();
+    let got = strings(&Checker::new(scratch.path()).check_file("a.md"));
     assert_eq!(
         got,
         [
@@ -243,7 +238,7 @@ fn checker_finds_broken_links() {
 /// fragment and one file name broken, while the file on disk stays untouched.
 #[test]
 fn a_broken_link_in_a_copy_of_a_real_page_is_found() {
-    let original = repo::read("AGENTS.md");
+    let original = meta::repo().read("AGENTS.md");
     assert_eq!(link_problems("AGENTS.md", &original), Vec::<String>::new());
     let link = "(docs/release.md#how-to-release)";
     assert!(original.contains(link), "AGENTS.md no longer links {link}");
@@ -325,7 +320,7 @@ fn upload_objects_shorthand() {
 #[test]
 fn drift_in_a_copy_of_the_contract_is_found() {
     let rel = "docs/features/wire-protocol.md";
-    let original = repo::read(rel);
+    let original = meta::repo().read(rel);
     for needle in ["\"firstBucket\":", "\"bucketMs\": 100,"] {
         assert!(
             original.contains(needle),

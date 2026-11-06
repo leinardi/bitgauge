@@ -27,6 +27,8 @@ use std::io::Write as _;
 use std::os::unix::fs::{DirBuilderExt as _, OpenOptionsExt as _};
 use std::path::{Path, PathBuf};
 
+use go_compat::quote::quote;
+use go_compat::time_layout::go_zero_time;
 use jiff::Timestamp;
 use jiff::tz::TimeZone;
 use serde::{Deserialize, Serialize, Serializer};
@@ -316,7 +318,7 @@ pub fn summarize_export(data: &[u8]) -> Result<ResultSummary, String> {
         return Err(format!(
             "the export holds no result: format {} with {} results, want bitgauge.history with \
              one",
-            gofmt::quote(&export.format),
+            quote(&export.format),
             export.results.len()
         ));
     }
@@ -470,7 +472,7 @@ impl Report {
             tier: spec.tier,
             env_id: env_id.to_owned(),
             started,
-            finished: gofmt::zero_time(),
+            finished: go_zero_time(),
             tolerances: TOLERANCES.to_owned(),
             latency_rule: LATENCY_RULE.to_owned(),
             no_egress_layer: NO_EGRESS_LAYER.to_owned(),

@@ -46,7 +46,7 @@ use crate::logger;
 use crate::metrics::Metrics;
 use crate::ratelimit::{Limiter, Options, WEBSOCKETS_PER_CLIENT};
 use crate::server::conn::Lifecycle;
-use crate::test_support::Capture;
+use tracing_setup::testing::Capture;
 
 /// A failsafe against a hang, far above what any test here waits for; not a wait for state.
 const FAILSAFE: Duration = Duration::from_secs(30);

@@ -19,69 +19,34 @@
 
 //! No gate may pass on nothing (AGENTS.md): the files that define gates (the Makefile, the make
 //! fragments, the web scripts, the pre-commit configuration and every YAML file under `.github`)
-//! carry none of the flags that turn a gate with nothing to check, or a failing one, into a pass.
-//! Each flag pattern is also run on a sample written as a gate would carry it.
+//! carry none of the flags that turn a gate with nothing to check, or a failing one, into a pass,
+//! and every clippy run denies warnings. The check is rust-common's
+//! `repo_meta::vacuous::VacuousFlags` with the core, Rust and JavaScript sets; this repository
+//! needs no exception. Each flag is also run on a sample written as a gate would carry it.
 
 use std::fs;
-use std::sync::LazyLock;
 
-use meta::repo;
-use regex::Regex;
+use repo_meta::report;
+use repo_meta::vacuous::{AllowedFragment, VacuousFlags};
 
-/// A pattern written in Go's RE2 syntax, compiled to mean the same in Rust: RE2's `\s`, `\b` and
-/// `\d` are ASCII-only, where Rust's are Unicode-aware, and Rust's ASCII `\s` adds `\v`.
-fn re2(pattern: &str) -> Regex {
-    let translated = pattern
-        .replace(r"\s", r"[\t\n\f\r ]")
-        .replace(r"\b", r"(?-u:\b)")
-        .replace(r"\d", "[0-9]");
-    Regex::new(&translated).unwrap_or_else(|error| panic!("pattern {pattern}: {error}"))
+/// The reviewed exceptions: none.
+const ALLOWED: &[AllowedFragment<'static>] = &[];
+
+fn flags() -> VacuousFlags {
+    VacuousFlags::core().with_rust().with_javascript()
 }
 
-/// The flags that turn a gate with nothing to check, or a failing one, into a pass, each with the
-/// name a finding reports.
-static VACUOUS_FLAGS: LazyLock<Vec<(&str, Regex)>> = LazyLock::new(|| {
-    [
-        ("--passWithNoTests", r"--pass-?[Ww]ith-?[Nn]o-?[Tt]ests"),
-        (
-            "--no-error-on-unmatched-pattern",
-            r"--no-error-on-unmatched-pattern",
-        ),
-        ("|| true", r"\|\|\s*(true\b|:(\s|;|$)|exit\s+0\b)"),
-        ("make's - recipe prefix", r"^\t[@+]*-"),
-        (".IGNORE", r"^\.IGNORE\b"),
-        (
-            "make --ignore-errors",
-            r"\$\(MAKE\).*\s(-[a-zA-Z]*i[a-zA-Z]*|--ignore-errors)\b",
-        ),
-        ("continue-on-error", r"continue-on-error"),
-        (
-            "if: false",
-            r#"\bif:\s*(["']?false["']?\s*$|["']?\$\{\{\s*false\s*\}\}["']?)"#,
-        ),
-    ]
-    .into_iter()
-    .map(|(name, pattern)| (name, re2(pattern)))
-    .collect()
-});
-
-/// Every vacuous flag in `content`, as `line: flag: text`.
-fn vacuous_hits(content: &str) -> Vec<String> {
-    let mut hits = Vec::new();
-    for (index, line) in content.split('\n').enumerate() {
-        for (name, pattern) in VACUOUS_FLAGS.iter() {
-            if pattern.is_match(line) {
-                hits.push(format!("{}: {name}: {}", index + 1, line.trim()));
-            }
-        }
-    }
-    hits
+/// The flags found in `sample`, read as a line of the Makefile.
+fn sample_problems(sample: &str) -> usize {
+    flags()
+        .problems(&[("Makefile".to_owned(), sample.to_owned())], ALLOWED)
+        .len()
 }
 
 /// The regular files directly in `directory` (relative to the root) whose names end with one of
 /// `suffixes`, as paths relative to the root, sorted; a missing directory lists nothing.
 fn glob(directory: &str, suffixes: &[&str]) -> Vec<String> {
-    let entries = match fs::read_dir(repo::path(directory)) {
+    let entries = match fs::read_dir(meta::repo().path(directory)) {
         Ok(entries) => entries,
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Vec::new(),
         Err(error) => panic!("list {directory}: {error}"),
@@ -106,64 +71,30 @@ fn glob(directory: &str, suffixes: &[&str]) -> Vec<String> {
     files
 }
 
-/// Every non-directory under `.github` named `*.yaml` or `*.yml`, as paths relative to the root,
-/// in walk order; a missing `.github` lists nothing.
-fn github_yaml() -> Vec<String> {
-    let mut files = Vec::new();
-    if !repo::path(".github").is_dir() {
-        return files;
-    }
-    walk(".github", &mut files);
-    files
-}
-
-fn walk(directory: &str, files: &mut Vec<String>) {
-    let mut entries: Vec<_> = fs::read_dir(repo::path(directory))
-        .unwrap_or_else(|error| panic!("list {directory}: {error}"))
-        .map(|entry| entry.unwrap_or_else(|error| panic!("list {directory}: {error}")))
-        .collect();
-    entries.sort_by_key(fs::DirEntry::file_name);
-    for entry in entries {
-        let name = entry.file_name().to_string_lossy().into_owned();
-        let relative = format!("{directory}/{name}");
-        let kind = entry
-            .file_type()
-            .unwrap_or_else(|error| panic!("inspect {relative}: {error}"));
-        if kind.is_dir() {
-            walk(&relative, files);
-        } else if [".yaml", ".yml"]
-            .iter()
-            .any(|suffix| name.ends_with(suffix))
-        {
-            files.push(relative);
-        }
-    }
-}
-
 /// Go: `TestNoVacuousFlags`. The Makefile, `web/package.json`, `.pre-commit-config.yaml`, every
 /// `.mk` fragment directly under `.mk/` and every YAML file under `.github` carry no vacuous
-/// flag; finding no make fragment at all fails, since the scan would then check nothing.
+/// flag; finding no make fragment or no workflow at all fails, since the scan would then check
+/// nothing.
 #[test]
 fn no_vacuous_flags() {
+    let repo = meta::repo();
     let fragments = glob(".mk", &[".mk"]);
     assert!(
         !fragments.is_empty(),
         "no make fragments found under .mk/; the scan would check nothing"
     );
+    let github = repo.files_under(".github", &[".yaml", ".yml"]);
+    assert!(
+        !github.is_empty(),
+        "no YAML found under .github; the scan would check nothing"
+    );
     let mut files: Vec<String> = ["Makefile", "web/package.json", ".pre-commit-config.yaml"]
         .map(str::to_owned)
         .into();
     files.extend(fragments);
-    files.extend(github_yaml());
-    let problems: Vec<String> = files
-        .iter()
-        .flat_map(|relative| {
-            vacuous_hits(&repo::read(relative))
-                .into_iter()
-                .map(move |hit| format!("{relative}:{hit}"))
-        })
-        .collect();
-    assert!(problems.is_empty(), "{}", problems.join("\n"));
+    files.extend(github);
+    let problems = flags().problems(&repo.read_all(&files), ALLOWED);
+    assert!(problems.is_empty(), "{}", report(&problems));
 }
 
 /// Go: `TestVacuousFlagsAreRecognized`. Negative control: each flag, written as a gate would
@@ -186,9 +117,20 @@ fn vacuous_flags_are_recognized() {
         "    if: ${{ false }}",
         "    if: 'false'",
         "    if: \"${{ false }}\"",
+        "\tcargo test --workspace --locked --no-run",
+        "        run: cargo clippy --workspace -- --cap-lints warn",
+        "\tcargo clippy --workspace -- -A warnings",
+        "        entry: cargo test --workspace --locked -- --skip slow",
+        "\tcargo test --workspace --exclude meta --locked",
+        "        run: cargo clippy --workspace --all-targets --locked",
     ]
     .into_iter()
-    .filter(|sample| vacuous_hits(sample).is_empty())
+    .filter(|sample| sample_problems(sample) == 0)
     .collect();
     assert!(missed.is_empty(), "no vacuous flag found in {missed:?}");
+    assert_eq!(
+        sample_problems("\t$(CARGO) clippy --workspace --all-targets --locked -- -D warnings"),
+        0,
+        "a clippy run that denies warnings is not a vacuous flag"
+    );
 }

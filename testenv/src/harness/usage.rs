@@ -20,9 +20,9 @@
 //! The client's CPU and memory over one browser run (testing.md section 5's CPU and memory
 //! counters), read from its own cgroup v2 files.
 
+use go_compat::parse_int::parse_uint;
+use go_compat::quote::quote;
 use serde::Serialize;
-
-use super::gofmt;
 
 /// The client container's cpu.stat, as its private cgroup namespace shows it.
 pub const CGROUP_CPU_STAT: &str = "/sys/fs/cgroup/cpu.stat";
@@ -62,12 +62,8 @@ pub fn cpu_usage_micros(cpu_stat: &str) -> Result<u64, String> {
         if key != "usage_usec" {
             continue;
         }
-        return gofmt::parse_uint(value).map_err(|error| {
-            format!(
-                "{CGROUP_ERROR}: usage_usec {}: {error}",
-                gofmt::quote(value)
-            )
-        });
+        return parse_uint(value, 10)
+            .map_err(|error| format!("{CGROUP_ERROR}: usage_usec {}: {error}", quote(value)));
     }
     Err(format!("{CGROUP_ERROR}: cpu.stat has no usage_usec"))
 }
@@ -79,12 +75,8 @@ pub fn cpu_usage_micros(cpu_stat: &str) -> Result<u64, String> {
 /// A value that is not a whole number, such as `max`.
 pub fn memory_peak(content: &str) -> Result<u64, String> {
     let value = content.trim();
-    gofmt::parse_uint(value).map_err(|error| {
-        format!(
-            "{CGROUP_ERROR}: memory.peak {}: {error}",
-            gofmt::quote(value)
-        )
-    })
+    parse_uint(value, 10)
+        .map_err(|error| format!("{CGROUP_ERROR}: memory.peak {}: {error}", quote(value)))
 }
 
 #[cfg(test)]

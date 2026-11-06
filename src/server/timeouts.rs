@@ -50,7 +50,7 @@ use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 use tokio::sync::Notify;
 use tokio::time::{Instant, Sleep};
 
-use super::framing::Framer;
+use http_framing::Framer;
 
 /// The connection timeouts.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
