@@ -156,3 +156,56 @@ async fn malformed_framing_is_hypers_400_and_close() {
         );
     }
 }
+
+/// An upload whose `Content-Length` is over the cap is answered `413` without reading, while the
+/// client is still streaming its body: the whole envelope must reach the client, not be lost to a
+/// reset when the server closes the connection with the body unread. Repeated, since a lost
+/// answer depends on timing.
+#[tokio::test]
+async fn oversized_upload_gets_the_whole_413_envelope() {
+    let mut config = test_config();
+    config.limits.max_upload_bytes = crate::config::Size::MIB;
+    config.limits.requests_per_minute = 10_000;
+    let stack = TestStack::start(&config, None).await;
+    for attempt in 0..20 {
+        let connection = dial_loopback(stack.address).await;
+        let (mut reader, mut writer) = connection.into_split();
+        let head = format!(
+            "POST /api/v1/upload HTTP/1.1\r\nHost: {}\r\nContent-Length: {}\r\n\r\n",
+            stack.address,
+            8 << 20
+        );
+        writer.write_all(head.as_bytes()).await.expect("a write");
+        // The body streams while the server answers; a write error is the server closing.
+        let upload = tokio::spawn(async move {
+            let chunk = vec![0_u8; 64 << 10];
+            for _ in 0..128 {
+                if writer.write_all(&chunk).await.is_err() {
+                    return;
+                }
+            }
+        });
+        let mut answer = Vec::new();
+        let read = tokio::time::timeout(
+            std::time::Duration::from_secs(30),
+            reader.read_to_end(&mut answer),
+        )
+        .await
+        .expect("the connection closed");
+        upload.abort();
+        let text = String::from_utf8_lossy(&answer);
+        assert!(
+            read.is_ok(),
+            "attempt {attempt}: the connection was reset: {read:?}, {text}"
+        );
+        assert!(
+            text.starts_with("HTTP/1.1 413 "),
+            "attempt {attempt}: {text}"
+        );
+        let body = text.split("\r\n\r\n").nth(1).unwrap_or_default();
+        assert!(
+            body.contains("payload_too_large") && body.trim_end().ends_with('}'),
+            "attempt {attempt}: a partial envelope: {body:?}"
+        );
+    }
+}

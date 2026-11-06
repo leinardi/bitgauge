@@ -481,7 +481,7 @@ dependencies = [
 [[package]]
 name = "go-compat"
 version = "0.3.0"
-source = "git+https://github.com/leinardi/rust-common?rev=2179ec42584417bcea437b90b168f632890babe6#2179ec42584417bcea437b90b168f632890babe6"
+source = "git+https://github.com/leinardi/rust-common?rev=16ea3044310039235b50846d4ddc58e355f8120c#16ea3044310039235b50846d4ddc58e355f8120c"
 dependencies = [
  "jiff",
 ]
@@ -860,9 +860,9 @@ dependencies = [
 
 [[package]]
 name = "prometheus-client"
-version = "0.25.1"
+version = "0.25.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1784dc11a05f5a8f57c4a62915686be140f24f70301290b997e317241fa9ffc2"
+checksum = "6d150ad7bf80e60f45769d18a0a8c01028ab8f56355f33ed7bfce3a31f82e696"
 dependencies = [
  "dtoa",
  "itoa",
@@ -954,7 +954,7 @@ checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
 [[package]]
 name = "repo-meta"
 version = "0.3.0"
-source = "git+https://github.com/leinardi/rust-common?rev=2179ec42584417bcea437b90b168f632890babe6#2179ec42584417bcea437b90b168f632890babe6"
+source = "git+https://github.com/leinardi/rust-common?rev=16ea3044310039235b50846d4ddc58e355f8120c#16ea3044310039235b50846d4ddc58e355f8120c"
 dependencies = [
  "regex",
  "serde-saphyr",
@@ -1058,7 +1058,7 @@ dependencies = [
 [[package]]
 name = "service-kit"
 version = "0.3.0"
-source = "git+https://github.com/leinardi/rust-common?rev=2179ec42584417bcea437b90b168f632890babe6#2179ec42584417bcea437b90b168f632890babe6"
+source = "git+https://github.com/leinardi/rust-common?rev=16ea3044310039235b50846d4ddc58e355f8120c#16ea3044310039235b50846d4ddc58e355f8120c"
 dependencies = [
  "bytes",
  "hyper",
@@ -1098,16 +1098,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f40ca3c46823713e0d4209592e8d6e826aa57e928f09752619fc696c499637f6"
 dependencies = [
  "lazy_static",
-]
-
-[[package]]
-name = "signal-hook-registry"
-version = "1.4.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4db69cba1110affc0e9f7bcd48bbf87b3f4fc7c61fc9155afd4c469eb3d6c1b"
-dependencies = [
- "errno",
- "libc",
 ]
 
 [[package]]
@@ -1214,7 +1204,7 @@ dependencies = [
 [[package]]
 name = "testenv-core"
 version = "0.3.0"
-source = "git+https://github.com/leinardi/rust-common?rev=2179ec42584417bcea437b90b168f632890babe6#2179ec42584417bcea437b90b168f632890babe6"
+source = "git+https://github.com/leinardi/rust-common?rev=16ea3044310039235b50846d4ddc58e355f8120c#16ea3044310039235b50846d4ddc58e355f8120c"
 dependencies = [
  "jiff",
  "regex",
@@ -1260,7 +1250,6 @@ dependencies = [
  "libc",
  "mio",
  "pin-project-lite",
- "signal-hook-registry",
  "socket2",
  "tokio-macros",
  "windows-sys",
@@ -1401,7 +1390,7 @@ dependencies = [
 [[package]]
 name = "tracing-setup"
 version = "0.3.0"
-source = "git+https://github.com/leinardi/rust-common?rev=2179ec42584417bcea437b90b168f632890babe6#2179ec42584417bcea437b90b168f632890babe6"
+source = "git+https://github.com/leinardi/rust-common?rev=16ea3044310039235b50846d4ddc58e355f8120c#16ea3044310039235b50846d4ddc58e355f8120c"
 dependencies = [
  "serde_json",
  "tracing",
