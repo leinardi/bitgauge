@@ -43,8 +43,8 @@ jobs:
       - name: Install web dependencies
         run: npm ci --prefix web
 
-      # For the cargo-fmt, cargo-clippy and cargo-machete hooks. The Rust cache is saved only on a
-      # pull request.
+      # For the cargo-fmt, cargo-clippy, cargo-doc and cargo-machete hooks. The Rust cache is saved
+      # only on a pull request.
       - name: Set up Rust
         run: rustup toolchain install --no-self-update
 
