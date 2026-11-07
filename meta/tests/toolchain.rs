@@ -18,21 +18,19 @@
  */
 
 //! The shared version pins: every version written in more than one place is one value
-//! everywhere it is written, and every CI step that installs a pinned tool names it exactly, so
-//! a bump in one file cannot leave another file building, linting or testing with the old one.
+//! everywhere it is written, so a bump in one file cannot leave another file building, linting or
+//! testing with the old one.
 //!
-//! The pins: the Node line, `ShellCheck`, the exact web pins and the action-step rules (ported
-//! from the Go repository's `test/toolchain/pins_test.go`), the Rust release (`rust-toolchain.toml`,
-//! the Cargo `rust-version`, the shipped Dockerfile's build image and `RUST_VERSION`,
-//! `.mk/rust-release.mk`'s `rust-std` and every CI step that names a Rust toolchain), and the
-//! release toolchain pins the shipped Dockerfile repeats from `.mk/rust-release.mk`, the one
-//! record of them.
+//! The pins: the Node line (the Node types, the shipped Dockerfile's web stage and every
+//! node-version input of CI), the Rust release (`rust-toolchain.toml`, the Cargo `rust-version`,
+//! the shipped Dockerfile's build image and `RUST_VERSION`, and `.mk/rust-release.mk`'s
+//! `rust-std`), the zig, cargo-zigbuild and `rust-std` releases and archive digests the shipped
+//! Dockerfile repeats from `.mk/rust-release.mk`, the one record of them, `ShellCheck` and Trivy.
+//! The exact web pins and the node-version input rules (ported from the Go repository's
+//! `test/toolchain/pins_test.go`) are BitGauge's own.
 //!
-//! The generic rules are rust-common's `repo_meta::toolchain` (`one_value`, the Rust release
-//! held exactly, CI toolchains read from the input or a non-commit `@` reference, the release
-//! pins with their exact per-platform arms, `ShellCheck`) with this repository's files; the Node
-//! input rules and the exact web pins are BitGauge's own. The checks are functions of the text,
-//! and each is also run on input built to break it.
+//! Each pin is rust-common's `repo_meta::toolchain::one_value` over the files that write it. The
+//! checks are functions of the text, and each is also run on input built to break it.
 
 use std::collections::BTreeMap;
 use std::fs;
@@ -40,9 +38,7 @@ use std::sync::LazyLock;
 
 use meta::SHIPPED_DOCKERFILE;
 use regex::Regex;
-use repo_meta::toolchain::{
-    self, PinSource, PinValue, RUST_RELEASE_PINS, RustVersion, ToolchainRef,
-};
+use repo_meta::toolchain::{self, PinSource, PinValue};
 use repo_meta::yaml::{self, ActionStep, Value};
 use repo_meta::{Problem, pattern, report};
 
@@ -158,16 +154,150 @@ fn node_line_sources(read: Reader<'_>) -> Vec<PinSource> {
     ]
 }
 
-/// The pre-commit configuration and the action that installs `ShellCheck` in CI.
+const RUST_TOOLCHAIN: &str = "rust-toolchain.toml";
+const RELEASE_MK: &str = ".mk/rust-release.mk";
 const PRE_COMMIT_CONFIG: &str = ".pre-commit-config.yaml";
 const SETUP_SHELLCHECK: &str = ".github/actions/setup-shellcheck/action.yaml";
+const RELEASE_WORKFLOW: &str = ".github/workflows/release.yaml";
+const SCHEDULED_SCAN: &str = ".github/workflows/scheduled-scan.yaml";
 
+/// A `sha256` pin of an archive: the Dockerfile's case arm and `.mk/rust-release.mk`'s variable.
+/// `arm` is the Dockerfile text that introduces the digest and `variable` the make variable.
+fn archive_pin(read: Reader<'_>, what: &str, arm: &str, variable: &str) -> Vec<Problem> {
+    toolchain::one_value(
+        what,
+        &[
+            required(
+                read,
+                SHIPPED_DOCKERFILE,
+                &format!(r"{}([0-9a-f]{{64}})\b", regex::escape(arm)),
+            ),
+            required(
+                read,
+                RELEASE_MK,
+                &format!(
+                    r"(?m)^{}\s*:?=\s*([0-9a-f]{{64}})\s*$",
+                    regex::escape(variable)
+                ),
+            ),
+        ],
+        &[],
+    )
+}
+
+/// The Rust release is one value: `rust-toolchain.toml`'s channel, the Cargo `rust-version`, the
+/// shipped Dockerfile's `dhi.io/rust` build image and `RUST_VERSION`, and `.mk/rust-release.mk`'s
+/// `rust-std`. A channel that is not an exact release (`stable`, `1.98`) differs from the rest.
+fn rust_line_problems(read: Reader<'_>) -> Vec<Problem> {
+    let content = |file: &str| read(file).unwrap_or_default();
+    toolchain::one_value(
+        "Rust release",
+        &[
+            PinSource::rust_channel(RUST_TOOLCHAIN, &content(RUST_TOOLCHAIN)),
+            PinSource::rust_version("Cargo.toml", &content("Cargo.toml")),
+            PinSource::rust_image_tag(SHIPPED_DOCKERFILE, &content(SHIPPED_DOCKERFILE)),
+            PinSource::rust_version_arg(SHIPPED_DOCKERFILE, &content(SHIPPED_DOCKERFILE)),
+            required(
+                read,
+                RELEASE_MK,
+                r"(?m)^RUST_RELEASE_RUST_STD_VERSION\s*:?=\s*(\S+)\s*$",
+            ),
+        ],
+        &[],
+    )
+}
+
+/// The release toolchain the shipped Dockerfile repeats from `.mk/rust-release.mk`: the zig and
+/// cargo-zigbuild releases, and each archive's digest.
+fn release_pin_problems(read: Reader<'_>) -> Vec<Problem> {
+    let mut problems = Vec::new();
+    for (what, dockerfile, variable) in [
+        (
+            "zig release",
+            r"(?m)^ARG ZIG_VERSION=(\S+)\s*$",
+            "RUST_RELEASE_ZIG_VERSION",
+        ),
+        (
+            "cargo-zigbuild release",
+            r"(?m)^ARG CARGO_ZIGBUILD_VERSION=(\S+)\s*$",
+            "RUST_RELEASE_CARGO_ZIGBUILD_VERSION",
+        ),
+    ] {
+        problems.extend(toolchain::one_value(
+            what,
+            &[
+                required(read, SHIPPED_DOCKERFILE, dockerfile),
+                required(
+                    read,
+                    RELEASE_MK,
+                    &format!(r"(?m)^{variable}\s*:?=\s*(\S+)\s*$"),
+                ),
+            ],
+            &[],
+        ));
+    }
+    for arch in ["x86_64", "aarch64"] {
+        problems.extend(archive_pin(
+            read,
+            &format!("zig {arch} digest"),
+            &format!("zig_arch={arch}; zig_sha256="),
+            &format!("RUST_RELEASE_ZIG_SHA256_{arch}"),
+        ));
+    }
+    for asset in ["x86_64-unknown-linux-musl", "aarch64-unknown-linux-gnu"] {
+        problems.extend(archive_pin(
+            read,
+            &format!("cargo-zigbuild {asset} digest"),
+            &format!("zigbuild_asset={asset}; zigbuild_sha256="),
+            &format!("RUST_RELEASE_CARGO_ZIGBUILD_SHA256_{asset}"),
+        ));
+    }
+    for triple in ["x86_64-unknown-linux-musl", "aarch64-unknown-linux-musl"] {
+        problems.extend(archive_pin(
+            read,
+            &format!("rust-std {triple} digest"),
+            &format!("triple={triple}; std_sha256="),
+            &format!("RUST_RELEASE_RUST_STD_SHA256_{triple}"),
+        ));
+    }
+    problems
+}
+
+/// `ShellCheck` is one release: droast's bridge runs the shellcheck on PATH, which CI installs with
+/// setup-shellcheck, and it must be the release the shellcheck-py hook wraps (its rev adds a
+/// fourth component for the wrapper), which Dependabot moves.
 fn shellcheck_problems(read: Reader<'_>) -> Vec<Problem> {
-    toolchain::shellcheck_problems(
-        PRE_COMMIT_CONFIG,
-        &read(PRE_COMMIT_CONFIG).unwrap_or_default(),
-        SETUP_SHELLCHECK,
-        &read(SETUP_SHELLCHECK).unwrap_or_default(),
+    toolchain::one_value(
+        "ShellCheck release",
+        &[
+            required(
+                read,
+                PRE_COMMIT_CONFIG,
+                r"shellcheck-py/shellcheck-py\s+rev:\s*v(\d+\.\d+\.\d+)(?:\.\d+)?\s",
+            ),
+            required(
+                read,
+                SETUP_SHELLCHECK,
+                r"SHELLCHECK_VERSION:\s*v(\d+\.\d+\.\d+)\s",
+            ),
+        ],
+        &[],
+    )
+}
+
+/// Trivy is one release: the release workflow scans with the version the scheduled scan uses.
+fn trivy_problems(read: Reader<'_>) -> Vec<Problem> {
+    toolchain::one_value(
+        "Trivy release",
+        &[
+            required(
+                read,
+                RELEASE_WORKFLOW,
+                r"(?m)^\s*TRIVY_VERSION:\s*(v\S+)\s*$",
+            ),
+            required(read, SCHEDULED_SCAN, r"(?m)^\s*TRIVY_VERSION:\s*(v\S+)\s*$"),
+        ],
+        &[],
     )
 }
 
@@ -193,62 +323,6 @@ fn exact_web_pin_problems(manifest: &str) -> Vec<String> {
             }
         })
         .collect()
-}
-
-const RUST_TOOLCHAIN: &str = "rust-toolchain.toml";
-const RELEASE_MK: &str = ".mk/rust-release.mk";
-
-/// The Rust release's problems: `rust-toolchain.toml` pins an exact release, and the Cargo
-/// `rust-version`, the shipped Dockerfile's `dhi.io/rust` tag and `RUST_VERSION`, the `rust-std`
-/// release `.mk/rust-release.mk` pins and every toolchain CI names (an action's input or its
-/// non-commit `@` reference, a `RUSTUP_TOOLCHAIN`, a `rustup` or `cargo +` command) are exactly
-/// it; a toolchain action that names none must read `rust-toolchain.toml`.
-fn rust_line_problems(read: Reader<'_>) -> Vec<Problem> {
-    let release =
-        match toolchain::rust_release(RUST_TOOLCHAIN, &read(RUST_TOOLCHAIN).unwrap_or_default()) {
-            Ok(release) => release,
-            Err(problem) => return vec![problem],
-        };
-    let mut problems = toolchain::rust_version_problems(
-        "Cargo.toml",
-        &read("Cargo.toml").unwrap_or_default(),
-        &release,
-        RustVersion::Exact,
-    );
-    problems.extend(toolchain::image_rust_problems(
-        SHIPPED_DOCKERFILE,
-        &read(SHIPPED_DOCKERFILE).unwrap_or_default(),
-        &release,
-        RustVersion::Exact,
-    ));
-    problems.extend(toolchain::one_value(
-        "Rust release",
-        &[required(
-            read,
-            RELEASE_MK,
-            r"(?m)^RUST_RELEASE_RUST_STD_VERSION\s*:?=\s*(\d+\.\d+\.\d+)\s*$",
-        )],
-        &[PinValue::new(&release, RUST_TOOLCHAIN)],
-    ));
-    problems.extend(toolchain::ci_toolchain_problems(
-        &github_documents(read),
-        &release,
-        ToolchainRef::InputOrRef,
-    ));
-    problems
-}
-
-/// The release pins the shipped Dockerfile repeats: each tool version and each archive's
-/// `(platform, asset, sha256)` arm is `.mk/rust-release.mk`'s, and every other sha256 in the
-/// Dockerfile is an image or frontend digest.
-fn release_pin_problems(read: Reader<'_>) -> Vec<Problem> {
-    toolchain::release_pin_problems(
-        SHIPPED_DOCKERFILE,
-        &read(SHIPPED_DOCKERFILE).unwrap_or_default(),
-        RELEASE_MK,
-        &read(RELEASE_MK).unwrap_or_default(),
-        &RUST_RELEASE_PINS,
-    )
 }
 
 fn assert_none(problems: &[Problem]) {
@@ -308,25 +382,6 @@ fn node_line_control_fails_on_another_major() {
         &toolchain::one_value("Node line", &node_line_sources(&repo_file), &step),
         "of a CI step",
     );
-}
-
-/// Go: `TestShellCheckIsOneVersion`: droast's `ShellCheck` bridge runs the shellcheck on PATH,
-/// which CI installs with setup-shellcheck; it must be the release the shellcheck-py hook wraps
-/// (its rev adds a fourth component for the wrapper), which Dependabot moves.
-#[test]
-fn shell_check_is_one_version() {
-    assert_none(&shellcheck_problems(&repo_file));
-}
-
-/// The `ShellCheck` control: another release in setup-shellcheck fails.
-#[test]
-fn shell_check_control_fails_on_another_version() {
-    let action = mutated(
-        SETUP_SHELLCHECK,
-        "SHELLCHECK_VERSION: v",
-        "SHELLCHECK_VERSION: v9",
-    );
-    assert_some(&shellcheck_problems(&action), "of setup-shellcheck");
 }
 
 /// Go: `TestExactWebPins`: the tools whose version other files must match are pinned exactly in
@@ -414,21 +469,15 @@ fn action_pin_rules() {
     assert_eq!(problems.len(), 1, "reusable workflow inputs: {problems:?}");
 }
 
-/// The Rust release is one exact release: `rust-toolchain.toml`'s channel, the Cargo
-/// `rust-version`, the shipped Dockerfile's `dhi.io/rust` build image and its `RUST_VERSION`,
-/// `.mk/rust-release.mk`'s `rust-std`, and every Rust toolchain a CI step names; a toolchain
-/// action that names none must read `rust-toolchain.toml`. The image's `debian13-dev` variant is
-/// held by `meta/tests/dockerfiles.rs`.
+/// The Rust release is one exact release in every file that writes it. The image's `debian13-dev`
+/// variant is held by the image's own build.
 #[test]
 fn rust_line_is_one_value() {
     assert_none(&rust_line_problems(&repo_file));
 }
 
-/// The CI workflow whose steps set up Rust.
-const CI_WORKFLOW: &str = ".github/workflows/ci.yaml";
-
-/// The Rust line control: another release in any one file source, a stable channel, a CI step
-/// naming another toolchain, or a CI step that names none fails.
+/// The Rust line control: another release in any one source, or a channel that is not a release,
+/// fails.
 #[test]
 fn rust_line_control_fails_on_another_release() {
     let line = pattern(r#"(?m)^channel\s*=\s*"([^"]+)""#)
@@ -447,7 +496,6 @@ fn rust_line_control_fails_on_another_release() {
             RELEASE_MK,
             format!("RUST_RELEASE_RUST_STD_VERSION := {line}"),
         ),
-        (CI_WORKFLOW, format!("toolchain: {line}")),
     ];
     for (file, text) in cases {
         let read = mutated(file, &text, &text.replace(&line, "1.0.0"));
@@ -459,64 +507,9 @@ fn rust_line_control_fails_on_another_release() {
         r#"channel = "stable""#,
     );
     assert_some(&rust_line_problems(&channel), "of a stable channel");
-    let stable = mutated(
-        CI_WORKFLOW,
-        &format!("toolchain: {line}"),
-        "toolchain: stable",
-    );
-    assert_some(&rust_line_problems(&stable), "of a CI step naming stable");
-    let unnamed = mutated(CI_WORKFLOW, &format!("toolchain: {line}"), "");
-    assert_some(&rust_line_problems(&unnamed), "of a CI step naming none");
-    let script = mutated(
-        CI_WORKFLOW,
-        "run: make rust-test",
-        "run: cargo +nightly test",
-    );
-    assert_some(&rust_line_problems(&script), "of a cargo +nightly script");
 }
 
-/// What the CI rules read as a Rust toolchain: an action's `toolchain` input or non-commit ref, a
-/// `RUSTUP_TOOLCHAIN` variable and a `rustup` or `cargo +` command, while an action that names
-/// none is refused unless it reads `rust-toolchain.toml`.
-#[test]
-fn rust_toolchain_ci_rules() {
-    let content = r"jobs:
-  rust:
-    env:
-      RUSTUP_TOOLCHAIN: nightly
-    steps:
-      - uses: dtolnay/rust-toolchain@0123456789abcdef0123456789abcdef01234567 # master
-        with:
-          toolchain: 1.98.1
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: dtolnay/rust-toolchain@0123456789abcdef0123456789abcdef01234567
-      - uses: actions-rust-lang/setup-rust-toolchain@0123456789abcdef0123456789abcdef01234567
-      - run: rustup toolchain install --no-self-update 1.97.0 && cargo +beta build
-";
-    let documents = [(
-        "sample.yaml".to_owned(),
-        yaml::parse("sample.yaml", content).unwrap_or_else(|problem| panic!("{problem}")),
-    )];
-    let (values, problems) = toolchain::ci_rust_toolchains(&documents, ToolchainRef::InputOrRef);
-    let mut named: Vec<&str> = values.iter().map(|value| value.value.as_str()).collect();
-    named.sort_unstable();
-    assert_eq!(named, ["1.97.0", "1.98.1", "beta", "nightly", "stable"]);
-    assert_eq!(
-        repo_meta::strings(&problems),
-        [
-            "sample.yaml: dtolnay/rust-toolchain names no toolchain, and does not read \
-          rust-toolchain.toml"
-        ]
-    );
-    let wrong = toolchain::ci_toolchain_problems(&documents, "1.98.1", ToolchainRef::InputOrRef);
-    assert_eq!(
-        wrong.len(),
-        5,
-        "every toolchain but 1.98.1, and the action naming none: {wrong:?}"
-    );
-}
-
-/// The zig, cargo-zigbuild and rust-std releases and every archive arm the shipped Dockerfile
+/// The zig, cargo-zigbuild and `rust-std` releases and every archive digest the shipped Dockerfile
 /// checks are `.mk/rust-release.mk`'s, which calls itself the one record of those pins.
 #[test]
 fn rust_release_pins_match_the_makefile() {
@@ -525,8 +518,8 @@ fn rust_release_pins_match_the_makefile() {
 
 static SHA256: LazyLock<Regex> = LazyLock::new(|| pattern(r"\b[0-9a-f]{64}\b"));
 
-/// The release pin control: another zig or cargo-zigbuild release, a changed or extra sha256, or
-/// an archive the `.mk` does not name fails.
+/// The release pin control: another zig or cargo-zigbuild release, or a changed digest in either
+/// file, fails.
 #[test]
 fn rust_release_pin_control_fails_on_a_change() {
     let dockerfile = SHIPPED_DOCKERFILE;
@@ -548,17 +541,46 @@ fn rust_release_pin_control_fails_on_a_change() {
         ),
         mutated(dockerfile, &hash, &changed),
         mutated(RELEASE_MK, &hash, &changed),
-        mutated(
-            dockerfile,
-            "arm64) triple=",
-            &format!(
-                "riscv64) triple=riscv64; std_sha256={} ;;\n\t\tarm64) triple=",
-                "0".repeat(64)
-            ),
-        ),
-        mutated(dockerfile, "SHELL [", &format!("# {changed}\nSHELL [")),
     ];
     for (index, read) in cases.iter().enumerate() {
         assert_some(&release_pin_problems(read), &format!("case {index}"));
+    }
+}
+
+/// Go: `TestShellCheckIsOneVersion`.
+#[test]
+fn shell_check_is_one_version() {
+    assert_none(&shellcheck_problems(&repo_file));
+}
+
+/// The `ShellCheck` control: another release in setup-shellcheck, or in the hook, fails.
+#[test]
+fn shell_check_control_fails_on_another_version() {
+    let action = mutated(
+        SETUP_SHELLCHECK,
+        "SHELLCHECK_VERSION: v",
+        "SHELLCHECK_VERSION: v9",
+    );
+    assert_some(&shellcheck_problems(&action), "of setup-shellcheck");
+    let hook = mutated(
+        PRE_COMMIT_CONFIG,
+        "shellcheck-py/shellcheck-py\n    rev: v",
+        "shellcheck-py/shellcheck-py\n    rev: v9",
+    );
+    assert_some(&shellcheck_problems(&hook), "of the shellcheck-py hook");
+}
+
+/// The release workflow and the scheduled scan install the same Trivy.
+#[test]
+fn trivy_is_one_version() {
+    assert_none(&trivy_problems(&repo_file));
+}
+
+/// The Trivy control: another release in either workflow fails.
+#[test]
+fn trivy_control_fails_on_another_version() {
+    for file in [RELEASE_WORKFLOW, SCHEDULED_SCAN] {
+        let changed = mutated(file, "TRIVY_VERSION: v", "TRIVY_VERSION: v9");
+        assert_some(&trivy_problems(&changed), file);
     }
 }

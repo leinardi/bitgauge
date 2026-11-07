@@ -21,19 +21,47 @@
 //! fragments, the web scripts, the pre-commit configuration and every YAML file under `.github`)
 //! carry none of the flags that turn a gate with nothing to check, or a failing one, into a pass,
 //! and every clippy run denies warnings. The check is rust-common's
-//! `repo_meta::vacuous::VacuousFlags` with the core, Rust and JavaScript sets; this repository
-//! needs no exception. Each flag is also run on a sample written as a gate would carry it.
+//! `repo_meta::vacuous::VacuousFlags` with the core and Rust sets; this repository needs no
+//! exception. The two JavaScript flags (a test runner or a linter that passes on no files) are
+//! BitGauge's own, read from `web/package.json`. Each flag is also run on a sample written as a
+//! gate would carry it.
 
 use std::fs;
 
 use repo_meta::report;
-use repo_meta::vacuous::{AllowedFragment, VacuousFlags};
+use repo_meta::vacuous::{AllowedFragment, Flag, VacuousFlags};
 
 /// The reviewed exceptions: none.
 const ALLOWED: &[AllowedFragment<'static>] = &[];
 
+/// The flags that turn a web gate with nothing to check into a pass.
+fn javascript_flags() -> Vec<Flag> {
+    [
+        ("--passWithNoTests", r"--passWithNoTests\b"),
+        (
+            "--no-error-on-unmatched-pattern",
+            r"--no-error-on-unmatched-pattern\b",
+        ),
+    ]
+    .into_iter()
+    .map(|(name, text)| Flag {
+        name,
+        pattern: repo_meta::pattern(text),
+    })
+    .collect()
+}
+
+/// The names of the JavaScript flags on `manifest`'s lines.
+fn javascript_hits(manifest: &str) -> Vec<&'static str> {
+    javascript_flags()
+        .into_iter()
+        .filter(|flag| manifest.lines().any(|line| flag.pattern.is_match(line)))
+        .map(|flag| flag.name)
+        .collect()
+}
+
 fn flags() -> VacuousFlags {
-    VacuousFlags::core().with_rust().with_javascript()
+    VacuousFlags::core().with_rust()
 }
 
 /// The flags found in `sample`, read as a line of the Makefile.
@@ -95,6 +123,8 @@ fn no_vacuous_flags() {
     files.extend(github);
     let problems = flags().problems(&repo.read_all(&files), ALLOWED);
     assert!(problems.is_empty(), "{}", report(&problems));
+    let hits = javascript_hits(&repo.read("web/package.json"));
+    assert!(hits.is_empty(), "web/package.json carries {hits:?}");
 }
 
 /// Go: `TestVacuousFlagsAreRecognized`. Negative control: each flag, written as a gate would
@@ -102,8 +132,6 @@ fn no_vacuous_flags() {
 #[test]
 fn vacuous_flags_are_recognized() {
     let missed: Vec<&str> = [
-        r#""test": "vitest run --passWithNoTests""#,
-        r#""lint": "eslint src --no-error-on-unmatched-pattern""#,
         "\tnpm --prefix web run lint || true",
         "\tgo vet ./... ||:",
         "\tgo vet ./... || exit 0",
@@ -128,6 +156,14 @@ fn vacuous_flags_are_recognized() {
     .filter(|sample| sample_problems(sample) == 0)
     .collect();
     assert!(missed.is_empty(), "no vacuous flag found in {missed:?}");
+    assert_eq!(
+        javascript_hits(r#""test": "vitest run --passWithNoTests""#),
+        ["--passWithNoTests"]
+    );
+    assert_eq!(
+        javascript_hits(r#""lint": "eslint src --no-error-on-unmatched-pattern""#),
+        ["--no-error-on-unmatched-pattern"]
+    );
     assert_eq!(
         sample_problems("\t$(CARGO) clippy --workspace --all-targets --locked -- -D warnings"),
         0,
