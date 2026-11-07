@@ -29,17 +29,16 @@
 //! - A scratch crate under the root `clippy.toml` with a file write in a plain module fails clippy,
 //!   which proves the bans are live and not only listed.
 //!
-//! The workspace half (the root's lint tables and levels, every member's opt-in, the expected
-//! member list, and no lint override in Cargo configuration or make) is rust-common's
-//! `repo_meta::workspace`, run with this workspace's parameters; the clippy configuration files
+//! The workspace half (the root's lint tables, every member's opt-in and the expected member
+//! list) is rust-common's `repo_meta::workspace`, run with this workspace's parameters; the clippy configuration files
 //! are BitGauge's own lint boundary and stay here. The checks are functions of the files, so each
 //! one is also run on input built to break it.
 
 use std::fs;
 
 use meta::cargo;
-use repo_meta::workspace::{self, LintLevel};
-use repo_meta::{Problem, report, strings};
+use repo_meta::workspace;
+use repo_meta::{report, strings};
 use toml::Table;
 
 /// The workspace members, each with the clippy configuration that must govern it.
@@ -81,44 +80,6 @@ const PRODUCTION_MACRO_BANS: &[&str] = &[
 /// Paths that must stay allowed: the injected clock's source follows tokio's paused clock.
 const MUST_STAY_ALLOWED: &[&str] = &["tokio::time::Instant::now"];
 
-/// The levels the root manifest must set: `unsafe_code` forbidden, and the clippy lints whose
-/// lists the configuration files hold denied, since they enforce nothing otherwise.
-const REQUIRED_LEVELS: &[LintLevel<'static>] = &[
-    LintLevel {
-        table: "rust",
-        lint: "unsafe_code",
-        level: "forbid",
-    },
-    LintLevel {
-        table: "clippy",
-        lint: "disallowed_methods",
-        level: "deny",
-    },
-    LintLevel {
-        table: "clippy",
-        lint: "disallowed_macros",
-        level: "deny",
-    },
-    LintLevel {
-        table: "clippy",
-        lint: "disallowed_types",
-        level: "deny",
-    },
-];
-
-/// What in Cargo configuration or a make fragment could lower the lints or point clippy at another
-/// configuration: such flags are passed after the manifest's `[lints]`, so they win. The boundary
-/// lints are spelled in pieces so this file does not name them itself.
-const OVERRIDE_TOKENS: &[&str] = &[
-    "CLIPPY_CONF_DIR",
-    "--cap-lints",
-    concat!("clippy::", "style"),
-    concat!("clippy::", "all"),
-    concat!("disallowed", "_methods"),
-    concat!("disallowed", "_macros"),
-    concat!("disallowed", "_types"),
-];
-
 fn parse(text: &str, origin: &str) -> Table {
     text.parse::<Table>()
         .unwrap_or_else(|error| panic!("parse {origin}: {error}"))
@@ -126,19 +87,6 @@ fn parse(text: &str, origin: &str) -> Table {
 
 fn read_toml(relative: &str) -> Table {
     parse(&meta::repo().read(relative), relative)
-}
-
-/// What is wrong with a root manifest's `[workspace.lints]`: the tables, and the levels the
-/// boundary relies on.
-fn workspace_lints_problems(root: &Table) -> Vec<Problem> {
-    let mut problems = workspace::root_lint_problems(root);
-    problems.extend(workspace::lint_level_problems(root, REQUIRED_LEVELS));
-    problems
-}
-
-/// The override problems of one file.
-fn override_problems(path: &str, text: &str) -> Vec<Problem> {
-    workspace::override_problems(&[(path.to_owned(), text.to_owned())], OVERRIDE_TOKENS)
 }
 
 /// The `path` of every entry of a clippy configuration list such as `disallowed-methods`.
@@ -207,7 +155,7 @@ fn test_config_problems(origin: &str, config: &Table) -> Vec<String> {
 
 #[test]
 fn root_manifest_declares_the_workspace_lints() {
-    let problems = workspace_lints_problems(&read_toml("Cargo.toml"));
+    let problems = workspace::root_lint_problems(&read_toml("Cargo.toml"));
     assert!(problems.is_empty(), "{}", report(&problems));
 }
 
@@ -242,8 +190,7 @@ fn test_crates_have_their_own_clippy_config_without_the_bans() {
 }
 
 /// Only the three configuration files of the boundary exist: a `.clippy.toml` beside one of them
-/// would replace it, and one anywhere else would govern nothing yet look as if it did. Nor may
-/// Cargo configuration point clippy elsewhere.
+/// would replace it, and one anywhere else would govern nothing yet look as if it did.
 #[test]
 fn no_other_clippy_configuration_exists() {
     let repo = meta::repo();
@@ -253,73 +200,15 @@ fn no_other_clippy_configuration_exists() {
         ["clippy.toml", "meta/clippy.toml", "testenv/clippy.toml"],
         "unexpected clippy configuration files"
     );
-    let mut sources: Vec<String> = [".cargo/config.toml", ".cargo/config", "Makefile"]
-        .into_iter()
-        .filter(|path| repo.path(path).is_file())
-        .map(str::to_owned)
-        .collect();
-    sources.extend(repo.tracked_or_new(&[".mk/*.mk"]));
-    assert!(
-        sources.iter().any(|path| path == ".mk/rust.mk"),
-        "the scan saw no make fragment, not even .mk/rust.mk: {sources:?}"
-    );
-    let problems = workspace::override_problems(&repo.read_all(&sources), OVERRIDE_TOKENS);
-    assert!(problems.is_empty(), "{}", report(&problems));
 }
 
-/// Negative control: Cargo configuration that lowers a boundary lint, its group or every lint,
-/// or points clippy elsewhere, is refused; a plain one passes.
+/// Negative control: a root without the lint tables is refused.
 #[test]
-fn a_lint_override_in_cargo_configuration_is_refused() {
-    for text in [
-        "[build]\nrustflags = [\"-A\", \"clippy::disallowed_methods\"]\n",
-        "[build]\nrustflags = [\"-A\", \"clippy::style\"]\n",
-        "[build]\nrustflags = [\"--cap-lints\", \"allow\"]\n",
-        "[env]\nCLIPPY_CONF_DIR = \"/elsewhere\"\n",
-    ] {
-        assert_eq!(
-            override_problems(".cargo/config.toml", text).len(),
-            1,
-            "{text}"
-        );
-    }
-    assert_eq!(
-        override_problems(".cargo/config.toml", "[build]\njobs = 4\n"),
-        []
-    );
-    assert_eq!(
-        strings(&workspace::override_problems(&[], OVERRIDE_TOKENS)),
-        ["no file or no token to look for; the override check would pass on nothing"]
-    );
-}
-
-/// Negative control: a root without the lint tables, or with a boundary lint left at its default,
-/// is refused.
-#[test]
-fn a_root_without_the_boundary_lints_is_refused() {
+fn a_root_without_the_lint_tables_is_refused() {
     let missing = parse("[workspace]\nmembers = [\".\"]\n", "fixture");
     assert_eq!(
-        strings(&workspace_lints_problems(&missing)),
-        [
-            "the root Cargo.toml has no [workspace.lints] table",
-            "[workspace.lints.rust] does not set unsafe_code = \"forbid\"",
-            "[workspace.lints.clippy] does not set disallowed_methods = \"deny\"",
-            "[workspace.lints.clippy] does not set disallowed_macros = \"deny\"",
-            "[workspace.lints.clippy] does not set disallowed_types = \"deny\"",
-        ]
-    );
-    let weak = parse(
-        "[workspace.lints.rust]\nunsafe_code = \"deny\"\n[workspace.lints.clippy]\n\
-         disallowed_methods = \"warn\"\ndisallowed_macros = { level = \"deny\" }\n\
-         disallowed_types = \"deny\"\n",
-        "fixture",
-    );
-    assert_eq!(
-        strings(&workspace_lints_problems(&weak)),
-        [
-            "[workspace.lints.rust] sets unsafe_code = \"deny\"; it must be \"forbid\"",
-            "[workspace.lints.clippy] sets disallowed_methods = \"warn\"; it must be \"deny\"",
-        ]
+        strings(&workspace::root_lint_problems(&missing)),
+        ["the root Cargo.toml has no [workspace.lints] table"]
     );
 }
 

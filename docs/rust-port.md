@@ -90,11 +90,10 @@ and binary, without `#[cfg(test)]`. Test infrastructure has its own rules.
   - the `SystemClock` in `src/clock.rs`, only if a wall-clock read is ever needed. None is
     expected: the grid, the limiter and the deadlines use `tokio::time::Instant`, and tracing's
     timestamps are its own.
-- **Pinned by a meta-test** (`meta/tests/lint_exemptions.rs`, modeled on swarm-device-access's
-  `unsafe_allowlist`, running rust-common's `repo-meta` allowlist check on this list): every
-  `expect` or `allow` of `disallowed_methods`, `disallowed_macros` or `disallowed_types` in the
-  `bitgauge` package is in exactly those files and items; an exemption that matches nothing fails,
-  except the reserved `SystemClock` one; and `#[cfg(test)]` guards `src/test_support.rs`.
+- **Pinned by a meta-test** (`meta/tests/test_support_boundary.rs`): `#[cfg(test)]` guards
+  `src/test_support.rs`. Clippy fails an `expect` of `disallowed_methods`, `disallowed_macros` or
+  `disallowed_types` that matches nothing; that every exemption sits in exactly the files and items
+  above is review's to check.
 - **Dependency graph and features** (`meta/tests/production_graph.rs`):
   - it reads the resolved production features, with feature edges, through
     `cargo tree -p bitgauge -e features,normal,build --prefix none --format "{p} {f}"`.

@@ -17,7 +17,8 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! What the unit tests share. Compiled under `#[cfg(test)]` only (`meta/tests/lint_exemptions.rs`).
+//! What the unit tests share. Compiled under `#[cfg(test)]` only
+//! (`meta/tests/test_support_boundary.rs`).
 
 use std::net::SocketAddr;
 

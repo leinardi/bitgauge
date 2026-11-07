@@ -74,10 +74,9 @@ The bans apply to the shipped `bitgauge` package only, outside `#[cfg(test)]`
   `tracing-setup`); the musl release view too.
 
 They are pinned because a rule that stops matching fails nothing on its own:
-[`meta/tests/lint_exemptions.rs`](../../../meta/tests/lint_exemptions.rs) (rust-common's
-`repo-meta` allowlist check on BitGauge's list) allows an `expect` of `disallowed_methods`,
-`disallowed_macros` or `disallowed_types` only on its listed items (§3) and fails a listed item that
-no longer has one, except the reserved `SystemClock`, and
+clippy fails an `expect` of `disallowed_methods`, `disallowed_macros` or `disallowed_types` that
+matches nothing, [`meta/tests/test_support_boundary.rs`](../../../meta/tests/test_support_boundary.rs)
+holds `src/test_support.rs` (the `dial_loopback` helper) to `#[cfg(test)]`, and
 [`meta/tests/lint_inheritance.rs`](../../../meta/tests/lint_inheritance.rs) holds the lint set and
 the root `clippy.toml` to the crates they must reach (`meta/` and `testenv/` carry their own
 `clippy.toml`, without the I/O and clock bans). The negative controls are listed in
@@ -105,7 +104,7 @@ it drives Docker and dials localhost. A production item that only tests call is 
 under the base path, at the `server.listen` host, or `127.0.0.1` for an empty host or `0.0.0.0` and
 `::1` for `[::]`; 3 s timeout, exit `0` on `204`, `1` otherwise. The one exemption is the `connect`
 function in `src/healthcheck.rs`, an `#[expect(clippy::disallowed_methods, reason = "…")]` that
-`lint_exemptions.rs` pins to that item (the others are the test-only `dial_loopback` helpers). Never
+clippy fails once it matches nothing (the others are the test-only `dial_loopback` helpers). Never
 add another, and keep everything but the request out of that function. At runtime
 `syscalltrace::policy::check_healthcheck` fails a non-loopback target, any other `connect`, more
 than one, a send on another socket and any file write.

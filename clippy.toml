@@ -25,8 +25,8 @@
 #
 # The server never stores a result and never calls out (AGENTS.md): no file write, no outbound
 # connection, no name lookup, and no wall-clock read outside the injected clock. An exemption is an
-# #[expect(clippy::disallowed_methods, reason = "...")] on one item, and
-# meta/tests/lint_exemptions.rs pins the few that may exist.
+# #[expect(clippy::disallowed_methods, reason = "...")] on one item, which clippy itself fails
+# once it matches nothing.
 
 allow-unwrap-in-tests = true
 allow-expect-in-tests = true
