@@ -226,7 +226,7 @@ own origin ([security.md §3](../../../docs/features/security.md#3-no-outbound-c
   scripts or styles; `'unsafe-inline'` or any external source is a decisions.md change, not a
   quiet edit. COEP `require-corp` costs nothing only because everything is same-origin.
 - **No external URL** in `web/`: no CDN, font, icon set, analytics or `<link>` off the host.
-- **Dist URL allowlist**: `scripts/check-dist-urls.sh` (tested by `meta/tests/disturls.rs`, run by the
+- **Dist URL allowlist**: `scripts/check-dist-urls.sh` (run by the
   `dist-urls` step of `web.yaml` after the build) fails on any `http(s)://` or `ws(s)://` URL in
   any file of `web/dist`, binaries included, that is not in `.dist-url-allowlist`, which mirrors
   [build-packaging.md §4](../../../docs/features/technical-stack/build-packaging.md#4-ci-workflows).

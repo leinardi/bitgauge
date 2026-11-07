@@ -22,7 +22,6 @@
 //! parameters, beside the checks that are BitGauge's own; this library holds what they share.
 
 pub mod cargo;
-pub mod script;
 
 use std::path::Path;
 
