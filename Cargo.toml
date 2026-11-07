@@ -34,9 +34,9 @@ authors = ["Roberto Leinardi"]
 repository = "https://github.com/leinardi/bitgauge"
 
 # The crates shared with the other Rust projects, from leinardi/rust-common: a git dependency
-# pinned by commit (`rev`) with `version = "0.4"`, the `<major>.<minor>` of the crates at that
-# commit, which keeps cargo-deny's `wildcards = "deny"` satisfied and makes cargo refuse a checkout
-# of another version. To move the pin, change the `rev` (or, once a release carries it, a `tag`) and `version` on every
+# pinned by the release tag (`tag = "v1.0.0"`) with `version = "1.0"`, the tag's `<major>.<minor>`,
+# which keeps cargo-deny's `wildcards = "deny"` satisfied and makes cargo refuse a checkout
+# of another version. To move the pin, change the `tag` and `version` on every
 # rust-common line and run `cargo fetch` (not `cargo update -p`); `git diff Cargo.lock` must touch
 # only the rust-common packages' lines. Each member opts in with `<name>.workspace = true` and its
 # own features. Local work on both repositories: an uncommitted
@@ -44,10 +44,10 @@ repository = "https://github.com/leinardi/bitgauge"
 # `path = "../rust-common/crates/<name>"`, never in a release or image build (its paths are not
 # remapped, and the image's build context does not hold them).
 [workspace.dependencies]
-repo-meta = { git = "https://github.com/leinardi/rust-common", rev = "56ed48cc70eed602524cc2014fb5f8dfecc8fd21", version = "0.4" }
-service-kit = { git = "https://github.com/leinardi/rust-common", rev = "56ed48cc70eed602524cc2014fb5f8dfecc8fd21", version = "0.4" }
-testenv-core = { git = "https://github.com/leinardi/rust-common", rev = "56ed48cc70eed602524cc2014fb5f8dfecc8fd21", version = "0.4" }
-tracing-setup = { git = "https://github.com/leinardi/rust-common", rev = "56ed48cc70eed602524cc2014fb5f8dfecc8fd21", version = "0.4" }
+repo-meta = { git = "https://github.com/leinardi/rust-common", tag = "v1.0.0", version = "1.0" }
+service-kit = { git = "https://github.com/leinardi/rust-common", tag = "v1.0.0", version = "1.0" }
+testenv-core = { git = "https://github.com/leinardi/rust-common", tag = "v1.0.0", version = "1.0" }
+tracing-setup = { git = "https://github.com/leinardi/rust-common", tag = "v1.0.0", version = "1.0" }
 
 # The lint set lives here once. Every member opts in with `[lints] workspace = true` (a member does
 # not inherit it otherwise, and meta/tests/lint_inheritance.rs asserts that each one does).
