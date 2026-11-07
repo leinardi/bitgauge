@@ -111,6 +111,11 @@ updates:
     ignore:
       - dependency-name: "typescript"
         versions: [">= 6"]
+      # The Node types follow the Node line the web stage runs, which meta/tests/toolchain.rs holds
+      # every file to (the docker entry above caps "node" the same way). Raise both caps together,
+      # by hand, when the line moves.
+      - dependency-name: "@types/node"
+        versions: [">= 25"]
     groups:
       web:
         patterns:
