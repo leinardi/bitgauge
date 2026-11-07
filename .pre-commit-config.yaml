@@ -272,7 +272,7 @@ repos:
         files: '((^|/)Cargo\.(toml|lock)$|^deny\.toml$)'
       # The bans of the shipped binary's graph (deny-shipped.toml): the test crates, the shared
       # crates it does not ship and the client, filesystem and process features. Bans only, so it
-      # needs no network and runs in pre-commit-all too.
+      # needs no network (the rust job runs it).
       - id: cargo-deny-shipped
         name: cargo deny (shipped graph)
         entry: cargo deny --config deny-shipped.toml check bans

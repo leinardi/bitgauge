@@ -11,8 +11,10 @@ The Rust tests live in three places of the Cargo workspace:
 - **The `bitgauge` package:** unit tests beside each module (`src/**/tests.rs` and
   `src/**/tests/`) and integration tests under `tests/`, run with `cargo test --workspace --locked`
   (`make rust-test`), which also runs the meta-tests. They need no Docker.
-- **The `meta` crate** (`meta/tests/`): the repository meta-tests, among them the docs link and
-  facts check, the lint exemptions, the production dependency graph and the license headers.
+- **The `meta` crate** (`meta/tests/`): the repository meta-tests, among them the toolchain
+  pins, the Dockerfile rules, the lint boundary and the compat and engine boundaries. The docs
+  links are the `lychee` hook's, the shipped dependency graph is `deny-shipped.toml`'s, and the
+  license headers are `scripts/check-license-headers.sh`'s.
 - **The `testenv` crate:** the Docker suites, compiled only with a feature. `image` builds the
   image suite and the netguard tests, run by `make rust-test-image`; `harness` builds the accuracy
   harness runners, run by `make harness-ci` and the other harness targets (§5). Every Docker suite

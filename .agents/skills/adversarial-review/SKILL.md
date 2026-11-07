@@ -179,8 +179,8 @@ Three contracts in this repository are written down more than once and can disag
   commit and `make api-types` run; `web/src/api/types.gen.ts` is never hand-edited. Read the spec
   prose against the handler, not just the shapes.
 - **Numbers.** Values, probe-path names and the upload JSON shape must agree across
-  `measurement.md`, `wire-protocol.md`, `configuration.md`, `ui/` and `glossary.md`. The docs
-  meta-test (`meta/tests/docs.rs`) checks the facts it knows; it does not catch a new one.
+  `measurement.md`, `wire-protocol.md`, `configuration.md`, `ui/` and `glossary.md`. No test checks
+  them: grep the other pages for every value you change.
 
 ## 6. Verify before you trust (don't hand-wave the gates)
 
