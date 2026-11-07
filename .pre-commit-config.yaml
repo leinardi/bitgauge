@@ -131,10 +131,12 @@ repos:
       #
       # No baseline: any finding fails the commit, so a fallow bump that reports a real finding
       # fails its Dependabot PR and a bump that does not merges untouched. Fix the finding, or
-      # suppress it in place with a reasoned fallow-ignore comment.
+      # suppress it in place with a reasoned fallow-ignore comment. --fail-on-issues makes that
+      # hold for the rules fallow defaults to warn (unused dev dependencies, Vue props and emits),
+      # which otherwise report and exit 0.
       - id: web-fallow
         name: web fallow
-        entry: npm --prefix web exec --no -- fallow --quiet --skip dupes --skip health
+        entry: npm --prefix web exec --no -- fallow --quiet --skip dupes --skip health --fail-on-issues
         language: system
         pass_filenames: false
         require_serial: true
