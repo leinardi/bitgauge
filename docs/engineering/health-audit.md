@@ -142,9 +142,6 @@ find web/src \( -name '*.vue' -o -name '*.ts' \) \
 # Suppressions added since the previous milestone.
 git diff "$PREVIOUS"..HEAD | grep -E '^\+.*(#\[(allow|expect)\(|eslint-disable|fallow-ignore|shellcheck disable|droast (global )?ignore)'
 
-# The fallow baselines: how many entries are left, and whether any grew.
-git diff "$PREVIOUS"..HEAD -- .fallow-baseline.json .fallow-regression-baseline.json
-
 # Fix-per-file hotspots: which files keep needing repair.
 git log "$PREVIOUS"..HEAD --format='%H' --grep='^fix' --name-only \
   | grep -vE '^([0-9a-f]{40})?$' | sort | uniq -c | sort -rn | head -20

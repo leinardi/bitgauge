@@ -93,34 +93,25 @@ repos:
         stages: [pre-commit]
       # Dead code in the web workspace. The binary is the exact version pinned in web/package.json,
       # resolved by npm from web/node_modules rather than taken off PATH: findings differ between
-      # fallow releases, so a machine-local binary would gate against baselines it never wrote.
+      # fallow releases, so a machine-local binary would gate against findings it never reported.
       # --no keeps npm from fetching one when the workspace has not been installed; the workspace
       # has to be installed (npm --prefix web ci) for this hook to mean what it says.
       #
       # Dead code only: duplication and complexity are not gated here. Expressed as --skip rather
-      # than as the dead-code subcommand because --fail-on-regression fires on the default command.
+      # than as the dead-code subcommand so the gate stays the default command's.
       #
-      # Two baselines, because they answer different questions. --baseline holds the findings
-      # themselves, so an accepted one stays accepted and any other one fails whatever its
-      # severity; --fail-on-regression compares the issue total left after that against the counts
-      # baseline, which is why the counts file is saved with the findings baseline applied. Both
-      # only ever forgive: a finding neither file covers fails the commit. Both start empty, and
-      # are regenerated -- after a fallow bump, or to accept a reviewed finding -- with:
-      #   npm --prefix web exec --no -- fallow --quiet --skip dupes --skip health
-      #     --save-baseline .fallow-baseline.json
-      #   npm --prefix web exec --no -- fallow --quiet --skip dupes --skip health
-      #     --baseline .fallow-baseline.json
-      #     --save-regression-baseline .fallow-regression-baseline.json
+      # No baseline: any finding fails the commit, so a fallow bump that reports a real finding
+      # fails its Dependabot PR and a bump that does not merges untouched. Fix the finding, or
+      # suppress it in place with a reasoned fallow-ignore comment.
       - id: web-fallow
         name: web fallow
         entry: npm --prefix web exec --no -- fallow --quiet --skip dupes --skip health
-          --baseline .fallow-baseline.json
-          --fail-on-regression --regression-baseline .fallow-regression-baseline.json
         language: system
         pass_filenames: false
         require_serial: true
         # Always runs: pre-commit drops deleted paths from the file list, so a commit that only
-        # removes a baseline would otherwise never reach this hook.
+        # deletes files would otherwise never reach this hook, though deleting the last importer of
+        # a file leaves that file dead.
         always_run: true
         # always_run makes a hook eligible at every installed stage, and commit-msg is one.
         stages: [pre-commit]
