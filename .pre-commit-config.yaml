@@ -102,6 +102,14 @@ repos:
         additional_dependencies: ["prettier@3.9.9"]
         files: \.(yml|yaml)$
         args: ["--write"]
+      # The compose examples parse and resolve (docker compose config -q): the docker CLI only, no
+      # daemon and no network. One file at a time, since -f twice would merge them.
+      - id: compose-examples
+        name: compose examples
+        entry: bash -c 'for file in "$@"; do docker compose -f "$file" config -q || exit 1; done' --
+        language: system
+        files: ^deployments/examples/[^/]+/compose\.yaml$
+        stages: [pre-commit]
       # Every source file carries the GPL-3.0-or-later header (decisions.md section 32). Reads the
       # whole tree, so it always runs; pinned to one stage because always_run makes a hook eligible
       # at every installed stage, and commit-msg is one of them.
