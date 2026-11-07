@@ -65,7 +65,7 @@ structural risk on the changed set: evidence, not the review.
 
 **Meta-tests are code under review too.** A test in the `meta` or `testenv` crate guards a claim the
 product cannot check for itself: the lint boundary (`meta/tests/test_support_boundary.rs`,
-`lint_inheritance.rs`, `production_graph.rs`, `compat_boundary.rs`), image and action pins, the
+`lint_inheritance.rs`, `compat_boundary.rs`, `deny-shipped.toml`), image and action pins, the
 no-egress layers (`testenv/src/netguard.rs`, `testenv/src/syscalltrace`), the Docker test
 environments (`testenv/src/env.rs`, `envid.rs`, `sweep.rs`), a `scripts/check-*.sh` and its driver.
 Many of them run rust-common's `repo-meta` or `testenv-core` with BitGauge's parameters: review the

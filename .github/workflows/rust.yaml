@@ -54,6 +54,11 @@ jobs:
       - name: Check dependencies with cargo-deny
         run: make rust-deny
 
+      # The shipped binary's graph alone: no test crate, no shared crate it does not ship, no
+      # client, filesystem or process feature (deny-shipped.toml). Bans only, so no network.
+      - name: Check the shipped graph with cargo-deny
+        run: cargo deny --config deny-shipped.toml check bans
+
   # The release binaries, built the way release.yaml builds them: the web app, then a static musl
   # binary for each release platform with the pinned zig and cargo-zigbuild (.mk/rust-release.mk).
   # Each must carry no program interpreter and no shared library, so it runs on any Linux.

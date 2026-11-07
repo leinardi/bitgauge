@@ -32,14 +32,12 @@ publish = false
 workspace = true
 
 # The repository checks the meta-tests run (rust-common's repo-meta, which also gives the
-# repository and its Dockerfile reader), the configuration loader of the deployments test, and
-# the parsers of the YAML, JSON and TOML files the tests read.
+# repository and its Dockerfile reader), and the parsers of the JSON and TOML files the tests
+# read.
 [dependencies]
-bitgauge = { path = ".." }
 regex = "1.13.1"
 repo-meta.workspace = true
 serde = { version = "1.0.228", default-features = false, features = ["derive", "std"] }
-serde-saphyr = { version = "2.0.0", default-features = false, features = ["deserialize"] }
 serde_json = { version = "1.0.154", default-features = false, features = ["std"] }
 toml = "1.1.8"
 

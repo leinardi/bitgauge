@@ -1,0 +1,65 @@
+#
+# This file is part of BitGauge.
+#
+# Copyright (c) 2026 Roberto Leinardi
+#
+# BitGauge is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# BitGauge is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+# cargo-deny bans for the graph the binary ships (docs/rust-port.md, Lint Boundary):
+#
+#   cargo deny --config deny-shipped.toml check bans
+#
+# (the cargo-deny-shipped pre-commit hook). Without --workspace the graph is the bitgauge
+# package alone, and exclude-dev leaves its dev-dependencies out, so what remains is what cargo
+# builds for the binary. deny.toml holds the bans of the whole workspace; this file holds the ones
+# the test crates (testenv, meta) would trip, which is why it is a second file.
+
+[graph]
+all-features = true
+# Dev-dependencies (the tests' hyper client, tokio features, testenv) are not shipped.
+exclude-dev = true
+
+[bans]
+multiple-versions = "allow"
+wildcards = "deny"
+allow-wildcard-paths = true
+deny = [
+    # Test infrastructure never enters the shipped graph.
+    { name = "testenv", reason = "test infrastructure" },
+    { name = "meta", reason = "test infrastructure" },
+    # The shared crates the binary does not ship (service-kit and tracing-setup are the ones it
+    # does): a clock, a Docker client, test helpers or the meta-test checks would be dead weight.
+    { name = "clock", reason = "the binary ships service-kit and tracing-setup only" },
+    { name = "docker-client", reason = "the binary ships service-kit and tracing-setup only" },
+    { name = "repo-meta", reason = "the binary ships service-kit and tracing-setup only" },
+    { name = "testenv-core", reason = "the binary ships service-kit and tracing-setup only" },
+]
+
+# The features that would give the binary a client, a filesystem access or a process spawn.
+[[bans.features]]
+crate = "hyper"
+deny = ["client", "http2"]
+
+[[bans.features]]
+crate = "hyper-util"
+deny = ["client", "client-legacy", "http2"]
+
+[[bans.features]]
+crate = "tokio"
+deny = ["fs", "process"]
+
+[[bans.features]]
+crate = "axum"
+deny = ["ws", "http2"]

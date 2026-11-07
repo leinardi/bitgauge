@@ -23,9 +23,9 @@
 #
 # cargo-deny 0.20 leaves workspace members' dev-dependencies out of its graph (the rust-port-go
 # skill, section 5), so the licenses and advisories of the dev-only crates are not checked here;
-# the bans below still hold for every normal dependency of every member, and
-# meta/tests/production_graph.rs reads the same ban list to hold the shipped package's resolved
-# graph to it.
+# the bans below still hold for every normal dependency of every member. deny-shipped.toml holds
+# the bans only the shipped package's graph can meet (the test crates and the features its
+# binary must not enable).
 
 [graph]
 all-features = true
@@ -68,8 +68,8 @@ wildcards = "deny"
 allow-wildcard-paths = true
 # The server never stores a result and never calls out (AGENTS.md): no HTTP client, database,
 # key-value store or RPC framework may enter the graph. hyper's and hyper-util's client features
-# cannot be banned by name here; meta/tests/production_graph.rs refuses them in the shipped
-# package's resolved features.
+# cannot be banned by name here (testenv uses them); deny-shipped.toml refuses them in the shipped
+# package's graph.
 deny = [
     # HTTP clients.
     { name = "reqwest", reason = "the server never calls out" },

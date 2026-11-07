@@ -94,24 +94,19 @@ and binary, without `#[cfg(test)]`. Test infrastructure has its own rules.
   `src/test_support.rs`. Clippy fails an `expect` of `disallowed_methods`, `disallowed_macros` or
   `disallowed_types` that matches nothing; that every exemption sits in exactly the files and items
   above is review's to check.
-- **Dependency graph and features** (`meta/tests/production_graph.rs`):
-  - it reads the resolved production features, with feature edges, through
-    `cargo tree -p bitgauge -e features,normal,build --prefix none --format "{p} {f}"`.
-    Dev-dependencies are excluded, so features they unify are not counted;
-  - neither `testenv` nor `meta` appears, and no crate `deny.toml` bans appears (reqwest, ureq,
-    isahc, surf, sqlx, rusqlite, diesel, sled, redb, redis, tonic and similar);
+- **Dependency graph and features** (`deny-shipped.toml`, run by the `cargo-deny-shipped` hook and
+  the rust job as `cargo deny --config deny-shipped.toml check bans`): the graph is the `bitgauge`
+  package alone, dev-dependencies excluded, all targets and features, so the musl release view is
+  covered;
+  - neither `testenv` nor `meta` appears, and neither do the rust-common crates the binary does not
+    ship (clock, docker-client, repo-meta, testenv-core); `deny.toml` bans the HTTP clients,
+    databases and RPC frameworks for the whole workspace;
   - these features are not enabled: hyper's `client` and `http2`; hyper-util's `client`,
-    `client-legacy` and `http2`; tokio's `fs` and `process`; axum's `ws` and `http2`;
-  - of the rust-common crates it holds exactly `SHIPPED_SHARED`: `service-kit` and
-    `tracing-setup`. The others (clock, docker-client, repo-meta, testenv-core)
-    would bring a client, a clock or test helpers the binary does not use;
-  - the `bitgauge` dev-dependencies do not include `testenv`;
-  - the same check runs on the `--target x86_64-unknown-linux-musl` view the release builds.
-- **Negative controls:** a scratch crate carrying the root `clippy.toml` with `std::fs::write` in
-  a plain module fails clippy; and in scratch copies of the workspace manifest the
-  production-graph check rejects `testenv` added as a normal dependency, hyper's `client` feature
-  enabled on the `bitgauge` package, a banned crate added, a shared crate it does not ship (clock)
-  added, and each shipped shared crate dropped.
+    `client-legacy` and `http2`; tokio's `fs` and `process`; axum's `ws` and `http2`.
+  - cargo-deny cannot require that `service-kit` and `tracing-setup` are present, or that testenv
+    is not a dev-dependency, so those are review's to check.
+- **Negative control:** a scratch crate carrying the root `clippy.toml` with `std::fs::write` in
+  a plain module fails clippy.
 
 ## Server Design
 
@@ -481,9 +476,8 @@ not expect.
   stdout rather than printing it, since the print macros are banned in the package. A missing
   file or meta element is a `RenderError`; phase 13's startup turns it into exit status 1.
 - **Phase 12, the test client.** The server tests send each request with hyper's HTTP/1 client,
-  a dev-dependency only. The production-graph check reads the normal and build graph, so its
-  scratch copies drop the dev-dependencies, which would otherwise name hyper a second time when a
-  control stubs it.
+  a dev-dependency only. The shipped-graph bans leave the dev-dependencies out, so this one does not
+  count against them.
 - **Phase 12, the Go server tests not ported as they were.** `TestChainOrder` and
   `TestPanicInsideEveryStageIsRecovered` probe Go's stage list; here the four stages are one
   service in a fixed order, and only the router runs inside the panic catch, since the stages are

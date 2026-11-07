@@ -67,11 +67,12 @@ The bans apply to the shipped `bitgauge` package only, outside `#[cfg(test)]`
   clock's source.
 - **[`deny.toml`](../../../deny.toml) bans**: HTTP clients (reqwest, ureq, isahc, surf, attohttpc,
   curl, awc), SQL, embedded and key-value stores and ORMs, Redis, and RPC frameworks.
-- **The production graph** ([`meta/tests/production_graph.rs`](../../../meta/tests/production_graph.rs)):
-  `cargo tree` of the shipped package, features unified, holds neither test crate nor a banned
-  crate, and no hyper or hyper-util `client` or `http2` feature, no tokio `fs` or `process`, no
-  axum `ws` or `http2`; of the rust-common crates exactly `SHIPPED_SHARED` (`service-kit`,
-  `tracing-setup`); the musl release view too.
+- **The shipped graph** ([`deny-shipped.toml`](../../../deny-shipped.toml), the
+  `cargo-deny-shipped` hook and the rust job): `cargo deny --config deny-shipped.toml check bans`
+  over the `bitgauge` package alone, dev-dependencies left out, bans both test crates, the
+  rust-common crates other than `service-kit` and `tracing-setup`, hyper and hyper-util `client`
+  and `http2`, tokio `fs` and `process`, and axum `ws` and `http2`. It does not check that the
+  two shipped crates are present.
 
 They are pinned because a rule that stops matching fails nothing on its own:
 clippy fails an `expect` of `disallowed_methods`, `disallowed_macros` or `disallowed_types` that

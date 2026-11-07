@@ -20,7 +20,7 @@ permissions:
 jobs:
   # The authoritative lint gate: every pre-commit hook over every file. The meta-tests hook is
   # skipped because repo-gates runs the meta-tests with every tool installed; cargo-test and
-  # cargo-deny (which needs the network) because the rust job runs them.
+  # cargo-deny (which needs the network and is not installed here) because the rust job runs them.
   pre-commit-all:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -74,7 +74,7 @@ jobs:
 
       - name: Run every pre-commit hook on every file
         env:
-          SKIP: meta-tests,cargo-test,cargo-deny
+          SKIP: meta-tests,cargo-test,cargo-deny,cargo-deny-shipped
         run: pre-commit run --all-files --show-diff-on-failure
 
       # pre-commit fails a hook that modifies a tracked file, which covers the auto-fixing hooks

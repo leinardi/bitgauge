@@ -270,6 +270,16 @@ repos:
         pass_filenames: false
         require_serial: true
         files: '((^|/)Cargo\.(toml|lock)$|^deny\.toml$)'
+      # The bans of the shipped binary's graph (deny-shipped.toml): the test crates, the shared
+      # crates it does not ship and the client, filesystem and process features. Bans only, so it
+      # needs no network and runs in pre-commit-all too.
+      - id: cargo-deny-shipped
+        name: cargo deny (shipped graph)
+        entry: cargo deny --config deny-shipped.toml check bans
+        language: system
+        pass_filenames: false
+        require_serial: true
+        files: '((^|/)Cargo\.(toml|lock)$|^deny(-shipped)?\.toml$)'
   # Unused dependencies in every workspace member's Cargo.toml. Upstream triggers it on manifest
   # changes only; deleting the last use of a crate in a .rs file is what usually makes a
   # dependency unused, so Rust sources trigger it too.
