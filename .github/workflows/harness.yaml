@@ -62,7 +62,7 @@ jobs:
 
       # The image under test builds on dhi.io/rust, dhi.io/node and dhi.io/static.
       - name: Log in to Docker Hardened Images (dhi.io)
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: dhi.io
           username: ${{ vars.DHI_USERNAME || secrets.DHI_USERNAME }}
