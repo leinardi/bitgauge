@@ -24,7 +24,7 @@
 //! failure wherever `BITGAUGE_REQUIRE_TOOLS=1` is set, which CI does. The tools are a closed list,
 //! [`Tool`]: Docker is deliberately not on it, because every Docker-dependent test sits behind
 //! the `image` or `harness` feature and never runs without one. Every gated test looks its tool
-//! up here (`meta/tests/untagged_tests.rs` holds the list closed and the lookups in this file).
+//! up here.
 
 use std::path::PathBuf;
 
