@@ -22,6 +22,38 @@ repos:
       - id: check-json
       - id: check-toml
       - id: check-added-large-files
+  # The offline link check: every relative link and #fragment in the Markdown resolves (lychee.toml
+  # holds the trees it skips). The whole tree on every commit, because deleting a linked page
+  # passes no file to the hook at all, so it takes its inputs from args: directories, walked with
+  # .gitignore, unlike a glob, which lychee expands itself and which would read ignored files.
+  # --hidden reaches .github, .agents, .claude and .serena, which the walk skips otherwise. The
+  # walk does not follow the symlinks of docs/features into the design export (three pages and ui/),
+  # so they are listed.
+  - repo: https://github.com/lycheeverse/lychee
+    rev: lychee-v0.24.2
+    hooks:
+      - id: lychee
+        args:
+          [
+            "--config",
+            "lychee.toml",
+            "--offline",
+            "--include-fragments",
+            "--no-progress",
+            "--hidden",
+            "--extensions",
+            "md",
+            "--",
+            ".",
+            "docs/features/measurement.md",
+            "docs/features/principles.md",
+            "docs/features/product.md",
+            "docs/features/ui",
+          ]
+        types: [markdown]
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
   - repo: https://github.com/checkmake/checkmake.git
     rev: v0.3.2
     hooks:
@@ -70,12 +102,11 @@ repos:
         additional_dependencies: ["prettier@3.9.9"]
         files: \.(yml|yaml)$
         args: ["--write"]
-      # The offline documentation check: relative links and their
-      # fragments resolve, and the wire facts several pages state agree.
-      # The meta crate's docs test: libtest caches nothing, so the git ls-files list is read
-      # fresh; always_run because deleting a linked page passes no file to the hook at all.
-      - id: docs-links
-        name: docs links and facts
+      # The wire facts several pages of docs/features state agree (the meta crate's docs test).
+      # libtest caches nothing, so the git ls-files list is read fresh; always_run because
+      # deleting a page passes no file to the hook at all.
+      - id: docs-facts
+        name: docs facts
         entry: cargo test --offline --locked -p meta --test docs
         language: system
         pass_filenames: false

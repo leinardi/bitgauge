@@ -588,7 +588,7 @@ not expect.
   has a negative control that mutates one file in memory. The compat boundary, which Go read from
   `go list -deps`, is a source scan (`meta/tests/compat_boundary.rs`): no file of `src/handlers`,
   `src/ratelimit` or `src/clientip` spells a path to `crate::compat`, with comments stripped, so
-  the configuration's `compat` field stays allowed. The `docs-links` hook runs
+  the configuration's `compat` field stays allowed. The `docs-facts` hook runs
   `cargo test --offline --locked -p meta --test docs`. Found while porting: `make audit-deps` runs
   no `cargo deny` (only `make rust-deny`, its hook and the CI rust job do), and no file pins the
   cargo-deny version; `audit_deps.rs` pins today's set, and the cutover adds `rust-deny` to it.

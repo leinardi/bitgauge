@@ -51,10 +51,10 @@ make audit-deps        # npm audit and cargo-deny (network)
 ## Validation
 
 The commit hooks are the gate: every commit runs the meta-tests (`cargo test -p meta`), the docs
-link check, license headers and fallow; a `.rs` or Cargo change adds rustfmt, clippy, the workspace
-tests and cargo-machete, and a manifest, lockfile or `deny.toml` change cargo-deny; a `web/` change
-adds ESLint, vue-tsc and vitest. `make check` runs them all on every file. Beyond that, run what
-the hooks cannot:
+facts, the Markdown link check (lychee), license headers and fallow; a `.rs` or Cargo change adds
+rustfmt, clippy, the workspace tests and cargo-machete, and a manifest, lockfile or `deny.toml`
+change cargo-deny; a `web/` change adds ESLint, vue-tsc and vitest. `make check` runs them all on
+every file. Beyond that, run what the hooks cannot:
 
 - `make verify-rust` or `make verify-web` before calling a change done (rustdoc too).
 - Dockerfile, `testenv/tests/image/**`, netguard or syscalltrace:

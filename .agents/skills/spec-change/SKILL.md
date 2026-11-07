@@ -50,14 +50,13 @@ leaves that list, and the page that relies on it states the answer plainly.
 cargo test --offline --locked -p meta --test docs
 ```
 
-The `docs-links` hook runs it on every commit. It checks every relative link and `#fragment` in
-tracked Markdown (GitHub slug rules: a renamed heading breaks its links), that `docs/features/`
-names no `/api/v1/<name>` beyond `download`, `upload`, `ping`, `small`, `ws` and `info`, that every
-upload telemetry object has exactly the seven keys, and the few facts in `FACTS`
-(`meta/tests/docs/facts.rs`). A
-reworded sentence a fact's pattern no longer recognizes fails: reword the pattern, never delete
-the fact. It does **not** catch any other number, a probe-path name or a decision stated twice;
-that is section 1–2 work.
+The `docs-facts` hook runs it on every commit, and the `lychee` hook checks every relative link and
+`#fragment` in the Markdown (GitHub slug rules: a renamed heading breaks its links). The test checks
+that `docs/features/` names no `/api/v1/<name>` beyond `download`, `upload`, `ping`, `small`, `ws`
+and `info`, that every upload telemetry object has exactly the seven keys, and the few facts in
+`FACTS` (`meta/tests/docs/facts.rs`). A reworded sentence a fact's pattern no longer recognizes
+fails: reword the pattern, never delete the fact. It does **not** catch any other number, a
+probe-path name or a decision stated twice; that is section 1–2 work.
 
 ## 5. The symlink contract
 

@@ -1,0 +1,15 @@
+# Options of the lychee hook (.pre-commit-config.yaml): the trees it skips, the same ones the
+# top-level exclude of .pre-commit-config.yaml leaves unlinted. The paths are regular expressions
+# matched against the path.
+#
+# The skills vendored byte for byte (pinned upstream in skills-lock.json) and the design export
+# (never hand-edited). The export's features/ pages, which the pre-commit exclude does lint, link
+# to their neighbours as they sit under docs/features, so they are checked there, through the
+# symlinks, and not under docs/design_system. Installed dependencies and build output are skipped
+# by name.
+exclude_path = [
+  "(^|/)node_modules/",
+  "^(\\./)?target/",
+  "^(\\./)?\\.agents/skills/(fallow|vue-best-practices|vue-router-best-practices|vue-testing-best-practices)/",
+  "^(\\./)?docs/design_system/",
+]
