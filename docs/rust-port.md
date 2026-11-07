@@ -108,11 +108,10 @@ and binary, without `#[cfg(test)]`. Test infrastructure has its own rules.
   - the `bitgauge` dev-dependencies do not include `testenv`;
   - the same check runs on the `--target x86_64-unknown-linux-musl` view the release builds.
 - **Negative controls:** a scratch crate carrying the root `clippy.toml` with `std::fs::write` in
-  a plain module fails clippy; the same call under an `expect` in a file not on the allowlist
-  fails the meta-test; and in scratch copies of the workspace manifest the production-graph check
-  rejects `testenv` added as a normal dependency, hyper's `client` feature enabled on the
-  `bitgauge` package, a banned crate added, a shared crate it does not ship (clock) added, and
-  each shipped shared crate dropped.
+  a plain module fails clippy; and in scratch copies of the workspace manifest the
+  production-graph check rejects `testenv` added as a normal dependency, hyper's `client` feature
+  enabled on the `bitgauge` package, a banned crate added, a shared crate it does not ship (clock)
+  added, and each shipped shared crate dropped.
 
 ## Server Design
 
@@ -225,7 +224,7 @@ rust-common's `tracing-setup`, by prometheus-client and by service-kit's `http`.
 | swarm-scheduler-exporter | `722b8a3` | `meta/tests/workspace_lints.rs` | Became `meta/tests/lint_inheritance.rs`, with the clippy configuration checks and the scratch-crate control |
 | swarm-scheduler-exporter | `b670952` | `src/server/framing.rs`, `src/server/framing/tests.rs` | Request framing for the pipelined-head deadline; since removed with that deadline, when the server moved to service-kit's `http` ([Shared Crates](#shared-crates)) |
 | swarm-scheduler-exporter | `b670952` | `src/server/timeouts.rs` | The connection deadlines and the write stall; since extracted into service-kit's `http` (its `StallIo`) and removed here ([Connection Driver](#connection-driver)) |
-| swarm-device-access | `4cd31c4` | `meta/tests/unsafe_allowlist.rs` | The pattern only, for `meta/tests/lint_exemptions.rs`; no file copied |
+| swarm-device-access | `4cd31c4` | `meta/tests/unsafe_allowlist.rs` | The pattern only, for the former `meta/tests/lint_exemptions.rs` (since removed); no file copied |
 | swarm-scheduler-exporter | `e57d989` | `deployments/docker/Dockerfile` (MIT, 2025) | Became `deployments/docker/Dockerfile.rust`: the shipped Dockerfile's `web` and runtime stages; the same zig, cargo-zigbuild and `rust-std` pins; the `BITGAUGE_*` stamps; the cargo home and `rust-src` remapped as `.mk/rust-release.mk` remaps them |
 | swarm-device-access | `4cd31c4` | `.mk/rust-release.mk` (Apache-2.0) | The same pins and static build; binaries into `dist/rust/`, after `web-build`; `rust-image` for the candidate |
 
@@ -235,14 +234,14 @@ Rows are added by the phase that copies a file.
 
 Code the sibling ports also carry is a dependency on
 [leinardi/rust-common](https://github.com/leinardi/rust-common) instead, a git dependency pinned
-by its release tag (`tag = "v0.4.0"`, `version = "0.4"`) in `[workspace.dependencies]`; its files
+by commit (`rev`, with `version = "0.4"`) in `[workspace.dependencies]`; its files
 carry rust-common's headers, not this ledger's.
 
 | Crate | Replaces | What BitGauge parameterises |
 | --- | --- | --- |
 | `service-kit` (feature `http`) | The `option_env!` reads in `src/buildinfo.rs`; the accept loop, connection driver, deadlines and shutdown sequence of `src/server/` (the former `conn.rs` and `timeouts.rs`, with `http-framing`) | `buildinfo!("BITGAUGE", …)` with `dev`, `unknown`, `unknown` and an empty stamp unstamped; for the server, 10 s head, 30 s write stall, 16 KiB and 100 headers, upgrades, and the `Abort` wrapper in `src/server/http.rs`; the runtime, signals and exit codes stay BitGauge's |
 | `tracing-setup` | The subscriber build in `src/logger.rs`; the unit tests' capture writer | Target and JSON span fields off; the log settings, `LogError`, the stdout or stderr choice and the fallback stay in `src/logger.rs`; the unit tests log into `tracing_setup::testing::Capture` (dev feature `testing`) |
-| `repo-meta` (meta only) | `meta/src/repo.rs`, the Markdown link checker and the Dockerfile reader | This repository's parameters for each check: the link checker's file list, the lint members, the boundary allowlist (`SystemClock` reserved), the vacuous flags, the header harness, the toolchain and release pins, the image rules. The clippy configuration checks, the test-support `cfg` rule, the release workflow rules, the test images, the docs facts, the web pins and the untagged-test scan stay local |
+| `repo-meta` (meta only) | `meta/src/repo.rs` and the Dockerfile reader | This repository's parameters for each check: the lint members, the vacuous flags, the toolchain and release pins (`one_value` over the files that write each), the stage and syntax rules of the image. The clippy configuration checks, the test-support `cfg` rule, the test images, the docs facts, the web pins and the untagged-test scan stay local |
 | `testenv-core` (feature `sync`; testenv only) | `testenv/src/runner.rs`, `run_filter.rs`, `gitenv.rs`; the generic halves of `toolgate.rs`, `envid.rs` and `identity.rs` | The `bitgauge-test-` temp-dir prefix; the tool `Gate` (`BITGAUGE_REQUIRE_TOOLS`, eslint and fallow under `web/node_modules/.bin`, the closed `Tool` enum); `EnvIds` (4 bytes, the envid label, `bitgauge-test`); the identity `Answer`s for each build (`RUST_ANSWER`, `GO_ANSWER`), quoted with `Quoting::Debug`; the labels, owner helpers and sweep stay BitGauge's |
 
 The release graph ships `service-kit` and `tracing-setup` only ([Lint Boundary](#lint-boundary)).
@@ -580,8 +579,8 @@ not expect.
   fails if any workflow names it.
 - **Phase 16, the meta-tests in the meta crate.** The Go meta-tests under `test/` are ported to
   `meta/tests/` and stay, unchanged, until the cutover deletes them; the scripts the dist tests
-  drive run through `meta::script`. The transitional assertions (`toolchain.rs`, `dockerfiles.rs`
-  with `dockerfiles/release.rs`, `audit_deps.rs`) read `meta::transition::TRANSITION`, today
+  drive run through `meta::script`. The transitional assertions (`toolchain.rs`, `dockerfiles.rs`,
+  `audit_deps.rs`) read `meta::transition::TRANSITION`, today
   `Transition::Candidate`: the shipped Dockerfile is held to the Go build's checks and
   `Dockerfile.rust` to the Rust build's, and at the cutover the one constant becomes `Done`. Each
   has a negative control that mutates one file in memory. The compat boundary, which Go read from

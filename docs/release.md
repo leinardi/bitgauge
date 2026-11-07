@@ -202,7 +202,9 @@ them:
    `trivy image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --platform <platform>`. A
    finding fails the run with no tag anywhere. `--ignore-unfixed` is not used: a vulnerability with
    no fix yet still blocks, unless it is accepted in `.trivyignore` with a reason and an expiry
-   date.
+   date. The same step's smoke test then starts each platform image by that digest (arm64 under
+   QEMU) and reads the startup line, which must carry the release's version and commit: the binary
+   has no `--version`, and a build argument that did not reach it fails here, before any tag.
 5. **Gate the tag.** The highest released version is read again, from the remote, because a tag can
    arrive from outside the workflow while it builds; a fresh release that is no longer the highest
    fails with nothing pushed. Then the image `:X.Y.Z` is checked absent with the same fail-closed
