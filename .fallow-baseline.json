@@ -58,5 +58,7 @@
   "misplaced_directives": [],
   "route_collisions": [],
   "dynamic_segment_name_conflicts": [],
-  "prop_drilling_chains": []
+  "prop_drilling_chains": [],
+  "thin_wrappers": [],
+  "duplicate_prop_shapes": []
 }
