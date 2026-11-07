@@ -49,8 +49,7 @@ Docs, spec and router list exactly these six, with these methods: `GET /api/v1/d
 `/api/v1/ws`, `GET /api/v1/info`.
 
 - **Docs:** [wire-protocol.md §2](../../../docs/features/wire-protocol.md#2-endpoint-table) and
-  compatibility.md §5. The docs meta-test (`NATIVE_ENDPOINTS` in `meta/tests/docs/facts.rs`) fails
-  when `docs/features` names another `/api/v1/<name>`; a seventh endpoint updates that list too.
+  compatibility.md §5. Grep `docs/features` for every other `/api/v1/<name>` when an endpoint is added.
 - **Spec:** the paths of [wire-protocol.md
   §11](../../../docs/features/wire-protocol.md#11-openapi-outline), plus root `/metrics` (tag
   `operations`, OpenMetrics text, answered by `src/metrics/endpoint.rs`). `/api/v1/ws` is a `GET`

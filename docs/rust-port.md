@@ -578,18 +578,16 @@ not expect.
   hold exactly the shipped file and the candidate, and `TestRustCandidateIsTestOnly` finds it and
   fails if any workflow names it.
 - **Phase 16, the meta-tests in the meta crate.** The Go meta-tests under `test/` are ported to
-  `meta/tests/` and stay, unchanged, until the cutover deletes them; the scripts the dist tests
-  drive run through `meta::script`. The transitional assertions (`toolchain.rs`, `dockerfiles.rs`,
-  `audit_deps.rs`) read `meta::transition::TRANSITION`, today
+  `meta/tests/` and stay, unchanged, until the cutover deletes them. The transitional assertions
+  (`toolchain.rs`, `dockerfiles.rs`) read `meta::transition::TRANSITION`, today
   `Transition::Candidate`: the shipped Dockerfile is held to the Go build's checks and
   `Dockerfile.rust` to the Rust build's, and at the cutover the one constant becomes `Done`. Each
   has a negative control that mutates one file in memory. The compat boundary, which Go read from
   `go list -deps`, is a source scan (`meta/tests/compat_boundary.rs`): no file of `src/handlers`,
   `src/ratelimit` or `src/clientip` spells a path to `crate::compat`, with comments stripped, so
-  the configuration's `compat` field stays allowed. The `docs-facts` hook runs
-  `cargo test --offline --locked -p meta --test docs`. Found while porting: `make audit-deps` runs
+  the configuration's `compat` field stays allowed. Found while porting: `make audit-deps` runs
   no `cargo deny` (only `make rust-deny`, its hook and the CI rust job do), and no file pins the
-  cargo-deny version; `audit_deps.rs` pins today's set, and the cutover adds `rust-deny` to it.
+  cargo-deny version; the cutover adds `rust-deny` to it.
 - **Phase 17, the testenv crate.** `testenv/` holds the Docker suites in Rust: the docker CLI
   runner, environments and the sweep, gitenv, toolgate, the `harness = false` runner with a Go-style
   `--run`, netguard, the syscall analyser and the identity check (`testenv/src/identity.rs`, adapted

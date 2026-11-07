@@ -143,9 +143,8 @@ round so one finding keeps one name across files; decisions continue the D-n seq
 Then:
 
 ```bash
-git add docs/engineering/qa/<file>.md   # the link test reads only files git tracks
-cargo test --offline --locked -p meta --test docs
 pre-commit run --files docs/engineering/qa/<file>.md
+pre-commit run lychee --all-files
 ```
 
 Commit only after the user approves: `docs(qa): record the <name> QA round`.

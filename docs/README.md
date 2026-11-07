@@ -68,7 +68,7 @@ Editing via either path edits the same file. Windows checkouts need
    must be byte-identical to the committed ones. Any difference is resolved in favor of the
    committed spec (`git checkout -- docs/design_system/features/`), and the committed files are
    pasted into the Claude Design project so the next export matches.
-3. Check that every relative link in `docs/` still resolves (`cargo test -p meta --test docs`), then
+3. Check that every relative link in `docs/` still resolves (`pre-commit run lychee --all-files`), then
    commit the export.
 
 ## Reading Order

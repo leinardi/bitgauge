@@ -3,8 +3,8 @@ name: spec-change
 description: >
   How to change BitGauge's specification without letting it disagree with itself: update every page
   that states a number, probe-path name or the upload JSON shape together; keep each locked decision
-  in decisions.md exactly once; keep the open items in docs/features/README.md current; run the docs
-  meta-test (cargo test -p meta --test docs) and know what it does not catch; respect the
+  in decisions.md exactly once; keep the open items in docs/features/README.md current; run the link
+  check (pre-commit run lychee --all-files) and know what it does not catch; respect the
   design-export symlink contract; wrap prose at about 100 columns. Use when editing
   docs/features/**, when a behavior change is about to start (it starts here, and code follows), or
   when a decision or open item is settled.
@@ -44,19 +44,17 @@ The few questions still open, and the unscheduled "Later" work, are listed in
 [docs/features/README.md](../../../docs/features/README.md#later-and-open-items). A settled item
 leaves that list, and the page that relies on it states the answer plainly.
 
-## 4. Run the docs test, and know what it does not catch
+## 4. Run the link check, and know what it does not catch
 
 ```bash
-cargo test --offline --locked -p meta --test docs
+pre-commit run lychee --all-files
 ```
 
-The `docs-facts` hook runs it on every commit, and the `lychee` hook checks every relative link and
-`#fragment` in the Markdown (GitHub slug rules: a renamed heading breaks its links). The test checks
-that `docs/features/` names no `/api/v1/<name>` beyond `download`, `upload`, `ping`, `small`, `ws`
-and `info`, that every upload telemetry object has exactly the seven keys, and the few facts in
-`FACTS` (`meta/tests/docs/facts.rs`). A reworded sentence a fact's pattern no longer recognizes
-fails: reword the pattern, never delete the fact. It does **not** catch any other number, a
-probe-path name or a decision stated twice; that is section 1–2 work.
+The `lychee` hook runs on every commit and checks every relative link and `#fragment` in the
+Markdown (GitHub slug rules: a renamed heading breaks its links). It does **not** catch a number,
+a probe-path name, an endpoint beyond `download`, `upload`, `ping`, `small`, `ws` and `info`, the
+upload telemetry key set or a decision stated twice: nothing but this section's review checks
+those, so grep the other pages for every value you change.
 
 ## 5. The symlink contract
 
@@ -85,5 +83,5 @@ probe-path name or a decision stated twice; that is section 1–2 work.
 - [ ] Every page stating the fact updated together; code that states it moved with it
 - [ ] Each locked decision appears once in decisions.md
 - [ ] Open items in docs/features/README.md still current
-- [ ] `cargo test --offline --locked -p meta --test docs` green
+- [ ] `pre-commit run lychee --all-files` green
 - [ ] No hand-edit of the design export; symlinked pages listed for the user
