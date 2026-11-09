@@ -10,13 +10,6 @@ actions of [gh-composite-actions](https://github.com/leinardi/gh-composite-actio
 [build-packaging.md §4](features/technical-stack/build-packaging.md#4-ci-workflows), is why it is
 shaped that way.
 
-> [!IMPORTANT]
-> **Provisional: the release process must be revised before the repository goes public.** It
-> follows the lean release model of swarm-scheduler-exporter (gate on CI, build once, smoke-test
-> and scan before the tag), and was chosen while the repository is private; the
-> [going-public checklist](engineering/going-public.md#1-revise-the-release-model) revisits it
-> before the first public release.
-
 **There has been no release yet.** Before the first dispatch, dry runs included, do the
 [one-time setup](#one-time-setup).
 
@@ -567,8 +560,8 @@ second account.
 
 ## One-Time Setup
 
-Do these before the first dispatch, dry runs included. **The first release waits until the
-repository is public**, because several pieces are limited on a private repository:
+Do these before the first dispatch, dry runs included. They need a **public repository**, because
+several pieces are limited on a private one:
 
 - Environments, environment secrets, deployment branch rules and rulesets need GitHub Pro, Team or
   Enterprise on a private repository. Without them the `release` environment and the tag and branch
@@ -576,8 +569,6 @@ repository is public**, because several pieces are limited on a private reposito
 - Artifact attestations on a private repository need GitHub Enterprise Cloud. Without them the
   image attestation of fresh step 10, the binary attestations and the `gh attestation verify`
   checks behind every recovery all fail.
-
-This is one reason the process is [provisional](#release) and is revisited before going public.
 
 1. **The `release` environment**, restricted to `main` with a deployment branch rule, as a
    server-side second line of defense behind the `guard` job. Add required reviewers too if a
