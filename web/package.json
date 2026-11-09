@@ -31,7 +31,7 @@
     "eslint": "^10.14.0",
     "eslint-plugin-vue": "^10.12.0",
     "fake-indexeddb": "^6.2.7",
-    "fallow": "3.38.0",
+    "fallow": "3.38.1",
     "jiti": "^2.7.0",
     "jsdom": "^30.1.3",
     "openapi-typescript": "^7.13.0",
