@@ -1,53 +1,47 @@
 # Going Public
 
-The checklist for the day this repository stops being private. Today it is a solo repository: one
-contributor, direct pushes to `main`, no branch ruleset, and settings that a private repository
-on a free plan cannot enforce. None of that survives contact with a pull request from someone
-else.
-
-Nothing here has been done yet. The workflows it refers to exist (`ci.yaml`, `web.yaml`, the
-warm-ups, `scheduled-scan.yaml` and `harness.yaml`); this note records what has to be decided and
-switched on, and why, so the work is not reconstructed from memory under time pressure.
+The checklist for the day this repository stopped being private (2026-11-09). As a private solo
+repository it had one contributor, direct pushes to `main`, no branch ruleset, and settings that a
+private repository on a free plan cannot enforce. None of that survives contact with a pull
+request from someone else. The open items below are what is still to decide or verify.
 
 ---
 
 ## 1. Revise the Release Model
 
-[`docs/release.md`](../release.md#release) carries a boxed note: **the release process is
-provisional and must be revised before the repository goes public.** It follows the release model
-of swarm-scheduler-exporter, which has shipped releases with it, as ported through Runhold
-(dispatch from `main`, build, scan and verify before the tag, immutable tags, recovery by re-run,
-no rebuild of a published version), chosen while the repository is private.
+The release model of [`docs/release.md`](../release.md) was chosen while the repository was
+private: the lean model of swarm-scheduler-exporter (gate on CI, build once, smoke-test and scan
+before the tag, immutable tags, recovery by re-run, no rebuild of a published version). It stays.
 
-- [ ] Re-read [`release.md`](../release.md) and
+- [x] Re-read [`release.md`](../release.md) and
       [build-packaging.md §4](../features/technical-stack/build-packaging.md#4-ci-workflows) as a
       whole and decide whether the model stays. Whatever changes, change the docs first, then the
       workflows.
-- [ ] Re-check what a private repository could not do and a public one can: environments and
+- [x] Re-check what a private repository could not do and a public one can: environments and
       their secrets, deployment branch rules, rulesets, and artifact attestations
       ([release.md, one-time setup](../release.md#one-time-setup)). The first release waits until
-      these work.
-- [ ] Remove the provisional note from `release.md`, and the pointer to it here, once the model is
+      these work. The `0.1.0` dry run passed on 2026-11-09 with them.
+- [x] Remove the provisional note from `release.md`, and the pointer to it here, once the model is
       settled.
 
 ## 2. Required Checks and Rulesets
 
-Today `main` takes direct pushes, deliberately. The moment a fork can open a pull request, direct
-push stops being the normal path.
+While private, `main` took direct pushes, deliberately. Now that a fork can open a pull request,
+every change goes through one.
 
 The rulesets live in `leinardi/gh-leinardi-iac` (`stacks/github-repos/repos.tf`, module
 `repo_bitgauge`), not in this repository and not in `gh api` calls
 ([release.md](../release.md#required-checks-and-fork-pull-requests)).
 
-- [ ] In `gh-leinardi-iac`, the branch ruleset on `main` (pull requests only, no force push, no
+- [x] In `gh-leinardi-iac`, the branch ruleset on `main` (pull requests only, no force push, no
       deletion) with `default_branch_required_checks = ["ci-result"]`. `ci-result` needs every
       other `ci.yaml` job, so it is the only check to require; the reviewdog annotation jobs stay
       outside it, since they duplicate `pre-commit-all` as inline comments.
-- [ ] Open one pull request after the ruleset exists and confirm the required check reports under
+- [x] Open one pull request after the ruleset exists and confirm the required check reports under
       exactly the name `ci-result`. A required check that never reports blocks every merge.
 - [ ] Decide whether the owner keeps a bypass. A bypass that exists is a bypass that gets used; an
       owner without one opens a pull request for every change, which is the cost of the guarantee.
-- [ ] The immutable `v*` tag ruleset (also in `gh-leinardi-iac`) and the `release` environment
+- [x] The immutable `v*` tag ruleset (also in `gh-leinardi-iac`) and the `release` environment
       restricted to `main` ([release.md, one-time setup](../release.md#one-time-setup)).
 
 `pre-commit-all` already runs every hook on every pull request and every push to `main`, so a check
@@ -103,8 +97,8 @@ livable.
 The [one-time setup in release.md](../release.md#one-time-setup) is the full list; the items that
 only make sense on a public repository:
 
-- [ ] Private vulnerability reporting enabled, as [`SECURITY.md`](../../SECURITY.md) promises.
-- [ ] Dependabot enabled with `.github/dependabot.yml`, and its `DHI_TOKEN` secret set.
+- [x] Private vulnerability reporting enabled, as [`SECURITY.md`](../../SECURITY.md) promises.
+- [x] Dependabot enabled with `.github/dependabot.yml`, and its `DHI_TOKEN` secret set.
 - [ ] After the first release, the `ghcr.io/leinardi/bitgauge` package set to public.
 
 ## 6. License Check
