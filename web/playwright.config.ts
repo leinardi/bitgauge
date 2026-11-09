@@ -40,7 +40,9 @@ export default defineConfig({
   fullyParallel: true,
   workers,
   reporter: [['list'], ['html', { open: 'never', outputFolder: './playwright-report' }]],
-  use: { baseURL },
+  // A trace of every failed test (DOM snapshots, network, console), kept with the report CI
+  // uploads, so an intermittent failure can be diagnosed from the run that hit it.
+  use: { baseURL, trace: 'retain-on-failure' },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
