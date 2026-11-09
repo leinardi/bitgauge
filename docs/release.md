@@ -462,8 +462,7 @@ A release is scanned once, when it is built, but vulnerabilities keep being publ
 scans each platform image by its own digest with the release's gate (`trivy-gate`, the latest
 Trivy, the same ignore file). Any finding fails the run. The published image is immutable, so the
 fix is a new release (for a base finding, on the base tag's newer rebuild), or a reviewed entry in
-the ignore file. It is **dispatch-only** while the repository is private; the weekly schedule is
-restored by the going-public checklist.
+the ignore file. It runs every Monday at 06:17 UTC, and by hand.
 
 ## What the Workflows Trust
 

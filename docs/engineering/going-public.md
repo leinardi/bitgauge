@@ -57,9 +57,7 @@ commit-message hook is replaced by the `conventional-commits` job.
 
 ## 3. Restore the Scheduled Scan
 
-`scheduled-scan.yaml` is dispatch-only while the repository is private: its weekly `schedule:` block
-is commented out at the top of the workflow, to save Actions minutes. `harness.yaml` is dispatched
-by hand, and its nightly `schedule:` block is commented out.
+`scheduled-scan.yaml` runs weekly and `harness.yaml` nightly, both also by hand.
 
 - [x] **Run `make audit-deps` and triage every finding** before the repository is made public,
       the same way as
@@ -68,11 +66,11 @@ by hand, and its nightly `schedule:` block is commented out.
       Done 2026-11-07: cargo-deny clean, npm audit clean for the production dependencies; 15
       moderate advisories (`minimatch`, `glob`) only in lint and test tooling, below the `high`
       gate, with no fix short of downgrading eslint. Run it again on the day if that day is later.
-- [ ] Uncomment the `schedule:` block of `scheduled-scan.yaml`, and dispatch the workflow once by
+- [x] Uncomment the `schedule:` block of `scheduled-scan.yaml`, and dispatch the workflow once by
       hand to see it pass.
-- [ ] Uncomment the nightly `schedule:` block of `harness.yaml`, the accuracy harness's CI tier
+- [x] Uncomment the nightly `schedule:` block of `harness.yaml`, the accuracy harness's CI tier
       ([testing.md §6](../features/technical-stack/testing.md#6-ci-placement)), or decide to keep
-      it a manual, pre-release run.
+      it a manual, pre-release run. Nightly.
 - [ ] Decide where a failing scheduled run goes. A run that fails into an inbox nobody reads is not
       a control; an issue opened automatically is.
 - [ ] Decide on CodeQL for Rust and TypeScript, on a schedule and on pull requests. It is free for

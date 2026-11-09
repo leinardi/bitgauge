@@ -83,9 +83,9 @@ appears before.
 | --- | --- | --- |
 | `ci.yaml` | pull request, push to `main`, manual dispatch | `pre-commit-all` (every pre-commit hook on all files, fails if a hook modifies a file); `rust` (rustfmt check, clippy over every target and feature, `cargo test` over the workspace with the `meta` crate's meta-tests, rustdoc, cargo-deny and the shipped graph's bans); `repo-gates` (the meta-tests with every tool they drive); `audit` (`make audit-deps`: cargo-deny and npm audit); `conventional-commits` (pull requests only); reviewdog annotation jobs (pull requests only, not required); `credentials` (decides whether a run may pull `dhi.io`; fails a trusted run without a token); `web` (calls `web.yaml`); `e2e` (Playwright on Chromium, Firefox and WebKit); `image` (the release's packaging path: the SPA and the static binaries built with `make rust-release-binaries`, the `prebuilt` image of both platforms from them, the full image tier on amd64 and the reduced one on arm64 under QEMU, [../../release.md](../../release.md#what-ci-proves)); and the `ci-result` aggregate, which the release gates on. |
 | `web.yaml` | called by `ci.yaml` and `web-cache-warmup.yaml` | `npm ci`, then the web steps whose inputs exist: API type drift, ESLint and `vue-tsc`, vitest, the build with its demo-free check, the dist URL allowlist and the engine chunk size. |
-| `harness.yaml` | manual dispatch, and before a release; a nightly schedule once the repository is public ([going-public.md §3](../../engineering/going-public.md#3-restore-the-scheduled-scan)) | The accuracy harness's CI tier on the three browsers; a dispatch can name a subset of the profiles and browsers. The 1 Gbit profile moves to the nightly run if runners cannot sustain it. |
+| `harness.yaml` | nightly, manual dispatch, and before a release | The accuracy harness's CI tier on the three browsers; a dispatch can name a subset of the profiles and browsers. The 1 Gbit profile moves to the nightly run if runners cannot sustain it. |
 | `release.yaml` | manual dispatch on `main` (`version`, `dry_run`) | Requires `ci-result` green on the commit's push run and audits alongside the build; builds once: the web app, the two static binaries that embed it and `checksums.txt`, and the multi-arch `prebuilt` image from exactly those binaries, pushed by digest to a job-local registry. Smoke-tests and scans both platform images with Trivy, records the base digests they were built on, and only then pushes the git tag, copies the image to GHCR, attests and signs it, attests the binaries and creates the GitHub release ([../../release.md](../../release.md#why-the-build-happens-before-the-tag)). |
-| `scheduled-scan.yaml` | manual dispatch (weekly schedule once public) | `make audit-deps` over `main`, and Trivy over each platform image of `:latest` once releases exist. |
+| `scheduled-scan.yaml` | weekly, and manual dispatch | `make audit-deps` over `main`, and Trivy over each platform image of `:latest` once releases exist. |
 | `web-cache-warmup.yaml`, `pre-commit-warmup.yaml` | push to `main` on their inputs | Refresh the `main` caches the other workflows restore, keeping the newest two entries; the only writers of those caches. |
 | `dependabot.yml` | monthly | Update PRs for `cargo`, `npm` (`web/`), `docker` (base image tags), `github-actions` and `pre-commit`. |
 
@@ -108,7 +108,6 @@ Worker chunk in `web/dist/assets/` and fails when it is larger than the budget i
 `release.yaml` takes the `release` concurrency group without cancellation, so two releases never
 publish at the same time, and smoke-tests and runs Trivy on every platform image before anything is
 pushed.
-`scheduled-scan.yaml` is dispatch-only while the repository is private.
 
 There is no scheduled rebuild of a published image: a version tag never moves, and a base-image
 fix, whether `dhi.io` republishes it under the same tag or Dependabot moves a tag, ships as a new
