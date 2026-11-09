@@ -5,7 +5,7 @@ contributor, direct pushes to `main`, no branch ruleset, and settings that a pri
 on a free plan cannot enforce. None of that survives contact with a pull request from someone
 else.
 
-Nothing here has been done yet. The workflows it refers to exist (`ci.yaml`, `rust.yaml`, the
+Nothing here has been done yet. The workflows it refers to exist (`ci.yaml`, `web.yaml`, the
 warm-ups, `scheduled-scan.yaml` and `harness.yaml`); this note records what has to be decided and
 switched on, and why, so the work is not reconstructed from memory under time pressure.
 
@@ -106,8 +106,7 @@ The [one-time setup in release.md](../release.md#one-time-setup) is the full lis
 only make sense on a public repository:
 
 - [ ] Private vulnerability reporting enabled, as [`SECURITY.md`](../../SECURITY.md) promises.
-- [ ] Dependabot enabled with `.github/dependabot.yml`, and its `DHI_USERNAME` and `DHI_TOKEN`
-      secrets set.
+- [ ] Dependabot enabled with `.github/dependabot.yml`, and its `DHI_TOKEN` secret set.
 - [ ] After the first release, the `ghcr.io/leinardi/bitgauge` package set to public.
 
 ## 6. License Check

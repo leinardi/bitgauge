@@ -32,7 +32,7 @@ MK_LOCAL_AUDIT_DEPS_INCLUDED := 1
 # Both need the network. The pre-commit hooks run them only when the dependency files change; this
 # target is the deliberate run, which the CI audit job, the scheduled scan and the release workflow
 # make, and which the health audit and the going-public checklist require. The cargo-deny release
-# is the one .github/actions/setup-cargo-deny installs, by version and sha256.
+# is the one gh-composite-actions' setup-cargo-deny installs by default, by version and sha256.
 
 # The level at which npm audit fails. high and above is what gets acted on; a moderate advisory in
 # a build-time devDependency is not worth failing a commit over.

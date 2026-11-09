@@ -23,26 +23,26 @@ permissions:
   contents: read
 
 env:
-  IMAGE: ghcr.io/leinardi/bitgauge
+  IMAGE_REPO: ghcr.io/leinardi/bitgauge
   PLATFORMS: linux/amd64,linux/arm64
-  # Same Trivy pin as release.yaml, bumped by hand together with it.
-  TRIVY_VERSION: v0.75.0
 
 jobs:
-  # The published image, each platform by its own digest, with the release's Trivy command and
-  # .trivyignore (docs/release.md, Scheduled Scan).
+  # The published image, each platform by its own digest, with the release's gate (trivy-gate, the
+  # latest Trivy, .trivyignore.yaml) (docs/release.md, Scheduled Scan).
   image:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     # The package is private until the repository is public, so reading it needs the token.
     permissions:
       contents: read
       packages: read
 
     steps:
-      # For .trivyignore, the same exceptions the release scan accepts.
+      # For .trivyignore.yaml, the same exceptions the release scan accepts.
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Log in to GHCR
         uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
@@ -51,54 +51,67 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Trivy
-        uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567 # v0.3.1
-        with:
-          version: ${{ env.TRIVY_VERSION }}
-
       # :latest is resolved once, to its index digest, and both platform images are scanned by
       # their own digests: a :latest that moves during the run cannot mix two releases into one
       # result.
-      - name: Scan both platform images of the latest release
+      - name: Resolve the latest release
+        id: latest
         run: |
           set -euo pipefail
-          INDEX=$(docker buildx imagetools inspect "$IMAGE:latest" --format '{{json .Manifest}}')
-          echo "$IMAGE:latest is $(jq -r '.digest' <<<"$INDEX")"
+          INDEX=$(docker buildx imagetools inspect "$IMAGE_REPO:latest" --format '{{json .Manifest}}')
+          echo "$IMAGE_REPO:latest is $(jq -r '.digest' <<<"$INDEX")"
           for platform in ${PLATFORMS//,/ }; do
             PLATFORM_DIGEST=$(jq -r --arg os "${platform%%/*}" --arg arch "${platform#*/}" \
               '[.manifests[] | select(.platform.os == $os and .platform.architecture == $arch) | .digest] | if length == 1 then .[0] else empty end' \
               <<<"$INDEX")
             if [ -z "$PLATFORM_DIGEST" ]; then
-              echo "$IMAGE:latest has no single $platform image." >&2
+              echo "$IMAGE_REPO:latest has no single $platform image." >&2
               exit 1
             fi
             echo "Scanning $platform: $PLATFORM_DIGEST"
-            trivy image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --platform "$platform" "$IMAGE@$PLATFORM_DIGEST"
+            echo "${platform#*/}=$PLATFORM_DIGEST" >> "$GITHUB_OUTPUT"
           done
+
+      # The release's gate: every fixable HIGH or CRITICAL finding fails, the base's included,
+      # since the fix for an inherited one is a release on the base's newer rebuild. Trivy is its
+      # latest release, never pinned, so every scan runs the newest checks.
+      - name: Scan the linux/amd64 image of the latest release
+        uses: leinardi/gh-composite-actions/trivy-gate@2115c9766c690e2e98afdeb64425c761aa86b072 # v1.4.0
+        with:
+          image: ${{ env.IMAGE_REPO }}@${{ steps.latest.outputs.amd64 }}
+          platform: linux/amd64
+
+      - name: Scan the linux/arm64 image of the latest release
+        # One platform's findings must not hide the other's.
+        if: ${{ !cancelled() && steps.latest.outcome == 'success' }}
+        uses: leinardi/gh-composite-actions/trivy-gate@2115c9766c690e2e98afdeb64425c761aa86b072 # v1.4.0
+        with:
+          image: ${{ env.IMAGE_REPO }}@${{ steps.latest.outputs.arm64 }}
+          platform: linux/arm64
 
   dependencies:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      # What dtolnay/rust-toolchain exported to every later step of the job.
-      CARGO_INCREMENTAL: "0"
-      CARGO_TERM_COLOR: always
 
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
+      # cargo-deny reads the graph through cargo metadata, with the pinned toolchain.
       - name: Set up Rust
         run: rustup toolchain install --no-self-update
 
       - name: Set up cargo-deny
-        uses: ./.github/actions/setup-cargo-deny
+        uses: leinardi/gh-composite-actions/setup-cargo-deny@2115c9766c690e2e98afdeb64425c761aa86b072 # v1.4.0
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "24"
 
-      # cargo deny over main's Rust graph and npm audit over web/, as CI's audit job runs them.
+      # cargo deny over main's Rust graph and npm audit over web/, as the release's audit job runs
+      # them: a new advisory against a dependency nobody touched shows up here.
       - name: Audit Rust and web dependencies
         run: make audit-deps
