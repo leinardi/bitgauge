@@ -4,14 +4,10 @@ name: Scheduled scan
 # dependencies on main, and the image people pull once releases exist, should be scanned again
 # regularly with the release's own tools and settings (docs/release.md). A failure fails the run,
 # which is what makes it visible: fix it on main, and with a new release if it ships.
-#
-# Dispatch only for now: this repository is private and its Actions minutes are limited. Once it is
-# public, add the weekly schedule back (a going-public item):
-#
-#   schedule:
-#     # Mondays, 06:17 UTC: off the hour, when scheduled runs pile up.
-#     - cron: "17 6 * * 1"
 on:
+  schedule:
+    # Mondays, 06:17 UTC: off the hour, when scheduled runs pile up.
+    - cron: "17 6 * * 1"
   workflow_dispatch:
 
 concurrency:

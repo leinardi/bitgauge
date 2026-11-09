@@ -440,7 +440,7 @@ and anything about networks the project does not target.
 | Rust tests and meta-tests, rustfmt, clippy, cargo-deny | `ci.yaml` | every PR and push |
 | Engine and component tests (vitest), ESLint, `vue-tsc` | `ci.yaml` | every PR and push |
 | Playwright E2E (three browsers) | `ci.yaml` | every PR and push |
-| Accuracy harness, CI tier | `harness.yaml`, dispatched by hand, or `make harness-ci`; a nightly schedule may be added once the repository is public ([going-public.md §3](../../engineering/going-public.md#3-restore-the-scheduled-scan)) | by hand, and before each release |
+| Accuracy harness, CI tier | `harness.yaml`, or `make harness-ci` | nightly, by hand, and before each release |
 | Accuracy harness, floor and ceiling tiers, Continuous memory check | manual (`make harness-floor`, `make harness-ceiling`, `make harness-continuous`) | before each release; results in `docs/engineering/harness-runs/<version>.md` |
 | Real Safari and iOS checks | manual | before each release |
 
