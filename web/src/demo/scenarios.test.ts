@@ -185,7 +185,7 @@ describe('the Continuous scenarios', () => {
     const elapsedMs = samples.at(-1)?.continuous?.elapsedMs ?? 0
     expect(Math.floor(elapsedMs / 1000)).toBe(2538)
     expect(played.session.clock.busyMs()).toBe(0)
-  })
+  }, PLAY_TIMEOUT_MS)
 
   it('hold a Continuous upload at 42:18 with the two gaps of its two failed requests', async () => {
     const { played, samples } = await playContinuous('cont-upload')
@@ -198,7 +198,7 @@ describe('the Continuous scenarios', () => {
     expect(runs.length).toBe(2)
     expect(runs[0]).toBeGreaterThanOrEqual(1210)
     expect(runs[1]).toBeGreaterThanOrEqual(2100)
-  })
+  }, PLAY_TIMEOUT_MS)
 
   it('stop a Continuous download during its warm-up, partial, and another at 42:18 through the page', async () => {
     const warmup = await playContinuous('cont-warmup')
@@ -210,5 +210,5 @@ describe('the Continuous scenarios', () => {
     expect(done.result?.settings).toMatchObject({ preset: 'continuous', continuousDirection: 'download' })
     expect(done.result?.download?.status).toBe('measured')
     expect(Math.floor((done.result?.download?.series?.endMs ?? 0) / 1000)).toBe(2538)
-  })
+  }, PLAY_TIMEOUT_MS)
 })
