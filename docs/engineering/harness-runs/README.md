@@ -7,8 +7,9 @@ checks and the environmental notes, in the order
 it ([release.md](../../release.md#how-to-release),
 [testing.md §6](../../features/technical-stack/testing.md#6-ci-placement)).
 
-No run has been recorded yet. The first file is `0.1.0.md`, for v0.1.0. The CI tier is not
-recorded here: it runs in CI through `harness.yaml`, and its report is that run's artifact.
+The CI tier is not recorded here as a rule: it runs in CI through `harness.yaml`, and its report
+is that run's artifact. [`0.1.0.md`](0.1.0.md) is the exception: v0.1.0 shipped on the CI tier
+alone, so its file records that tier and says which tiers were not run.
 
 A failed or inconclusive profile is recorded as such, with its re-run beside it, never replaced by a
 later pass, so that the next release can be compared with this one.

@@ -46,7 +46,9 @@ shaped that way.
    passed for this commit and are recorded in
    [`engineering/harness-runs/<version>.md`](engineering/harness-runs/README.md), the first being
    `0.1.0.md`. A release is blocked until they have ([features/technical-stack/testing.md
-   §6](features/technical-stack/testing.md#6-ci-placement)).
+   §6](features/technical-stack/testing.md#6-ci-placement)). v0.1.0 was the one exception: it
+   shipped on the CI tier alone, by the maintainer's decision, and
+   [its file](engineering/harness-runs/0.1.0.md) says what was not run.
 2. Run the **Release** workflow (`release.yaml`) from the Actions tab, or
    `gh workflow run release.yaml`, on `main`, once CI has run on the commit's push to `main`: the
    `ci-green` job waits for that run for up to 30 minutes, and fails if it did not pass. The

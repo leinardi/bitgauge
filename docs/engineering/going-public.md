@@ -99,7 +99,8 @@ only make sense on a public repository:
 
 - [x] Private vulnerability reporting enabled, as [`SECURITY.md`](../../SECURITY.md) promises.
 - [x] Dependabot enabled with `.github/dependabot.yml`, and its `DHI_TOKEN` secret set.
-- [ ] After the first release, the `ghcr.io/leinardi/bitgauge` package set to public.
+- [x] After the first release, the `ghcr.io/leinardi/bitgauge` package set to public (an anonymous
+      pull of `0.1.0` works).
 
 ## 6. License Check
 
