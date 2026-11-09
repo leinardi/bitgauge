@@ -24,15 +24,20 @@ ifndef MK_LOCAL_RUST_RELEASE_INCLUDED
 MK_LOCAL_RUST_RELEASE_INCLUDED := 1
 
 # Local snippet (NOT part of make-common): the static musl builds of the server, the release
-# binaries release.yaml publishes (decisions.md section 27), and the pinned toolchain they need.
+# binaries release.yaml publishes (decisions.md section 27), and the pinned toolchain they need. CI
+# and the release build them with this one target, rust-release-binaries, so CI tests the packaging
+# path the release ships, named as the release assets (dist/bitgauge-linux-<arch>). The image's
+# prebuilt target COPYs exactly these files (make image-build-prebuilt, .mk/image.mk).
 
 # The release toolchain beyond rust-toolchain.toml, each archive by its sha256: zig from
 # https://ziglang.org/download/index.json, cargo-zigbuild from the release asset's .sha256, rust-std
 # from the .sha256 static.rust-lang.org publishes beside each archive. This is the one record of
-# those pins; the image's build stage (deployments/docker/Dockerfile) downloads the same archives,
-# and meta/tests/toolchain.rs holds the two equal. cargo-zigbuild publishes no aarch64 musl asset, so an arm64 build host takes the
-# gnu one. Only the image's build stage downloads the rust-std archives: on a host, rustup installs
-# the musl targets rust-toolchain.toml lists.
+# those pins: CI and the release install the x86_64 zig and cargo-zigbuild with
+# gh-composite-actions' setup-zigbuild at these versions (its default digests are the ones below),
+# the image's build stage (deployments/docker/Dockerfile) downloads the same archives, and
+# meta/tests/toolchain.rs holds every copy equal to this one. cargo-zigbuild publishes no aarch64
+# musl asset, so an arm64 build host takes the gnu one. Only the image's build stage downloads the
+# rust-std archives: on a host, rustup installs the musl targets rust-toolchain.toml lists.
 RUST_RELEASE_ZIG_VERSION := 0.17.0
 RUST_RELEASE_ZIG_SHA256_x86_64 := 1cbe9df9f27e6b78d14ccbca43b6703a404ef79ef1c463de901d7f088d4e2026
 RUST_RELEASE_ZIG_SHA256_aarch64 := 9e8d11661d4ae3bd57702a3832781e23ad151dde5798e16a5ccd503f65234ff8
@@ -43,11 +48,23 @@ RUST_RELEASE_RUST_STD_VERSION := 1.98.1
 RUST_RELEASE_RUST_STD_SHA256_x86_64-unknown-linux-musl := bd9f35880de21dab0e387e84009c00001ae7836a4ba565cb16823f13f75f325f
 RUST_RELEASE_RUST_STD_SHA256_aarch64-unknown-linux-musl := 7e0ad2e67817f224b7a6331e48d6397303fc050edaccf81784ed786ffddc884a
 
-# The release platforms (decisions.md section 27), as <docker arch>:<Rust target>, and where their
-# binaries and checksums.txt go: dist/, under the names the release assets carry
-# (bitgauge-linux-<arch>).
-RUST_RELEASE_PLATFORMS := amd64:x86_64-unknown-linux-musl arm64:aarch64-unknown-linux-musl
+# The platforms to build, as os/arch: both release platforms (decisions.md section 27) by
+# default, and only the ones a recovery has to rebuild when the release passes a subset. Their
+# binaries go to dist/, under the names the release assets carry (bitgauge-<os>-<arch>).
+RUST_RELEASE_PLATFORMS ?= linux/amd64 linux/arm64
 RUST_RELEASE_DIR       := $(REPO_ROOT)/$(DIST_DIR)
+
+# The Rust target of a platform; an unknown platform stops make.
+rust_release_triple = $(or $(RUST_RELEASE_TRIPLE_$(subst /,_,$(1))),$(error no Rust target for the platform $(1)))
+RUST_RELEASE_TRIPLE_linux_amd64 := x86_64-unknown-linux-musl
+RUST_RELEASE_TRIPLE_linux_arm64 := aarch64-unknown-linux-musl
+
+# The release asset of a platform.
+rust_release_asset = $(RUST_RELEASE_DIR)/$(BIN_NAME)-$(subst /,-,$(1))
+
+# checksums.txt covers every shipped platform's asset, whichever run built it: the release writes
+# it after adding the assets a recovery took from what is already published.
+RUST_RELEASE_SHIPPED_PLATFORMS := linux/amd64 linux/arm64
 
 # The one static build, for one Rust target: cargo-zigbuild with zig as the C compiler and linker,
 # the version stamps of rust-dist, and the checkout and the cargo home remapped, so the binary
@@ -58,7 +75,7 @@ RUST_RELEASE_DIR       := $(REPO_ROOT)/$(DIST_DIR)
 # bytes. RUSTFLAGS is set, not inherited: a flag from the environment would change the shipped
 # bytes. With --target, cargo applies it to the binary and not to build scripts. Recursive (=), so
 # rustc is asked only by a recipe that builds. The SPA is whatever web/dist holds, so
-# rust-release-binaries runs web-build first.
+# rust-release-binaries runs web-build first, once, and every binary it builds embeds that build.
 RUST_RELEASE_CARGO_HOME = $(or $(CARGO_HOME),$(HOME)/.cargo)
 RUST_RELEASE_RUST_SRC   = $(shell cd "$(REPO_ROOT)" && rustc --print sysroot)/lib/rustlib/src/rust
 RUST_RELEASE_RUSTC_HASH = $(shell cd "$(REPO_ROOT)" && rustc -vV | sed -n 's/^commit-hash: //p')
@@ -75,7 +92,7 @@ rust-zigbuild-check: ## Fail unless the zig and cargo-zigbuild on PATH are the p
 	@set -eu; \
 	for tool in zig cargo-zigbuild; do \
 	  if ! command -v "$$tool" >/dev/null 2>&1; then \
-	    echo "$$tool is not on PATH; install the release .mk/rust-release.mk pins" >&2; \
+	    echo "$$tool is not on PATH; install the release this file pins (make rust-zigbuild-install)" >&2; \
 	    exit 1; \
 	  fi; \
 	done; \
@@ -90,22 +107,34 @@ rust-zigbuild-check: ## Fail unless the zig and cargo-zigbuild on PATH are the p
 	  exit 1; \
 	fi
 
+define _RUST_RELEASE_BINARY
+	$(call rust_static_build,"$(call rust_release_triple,$(1))")
+	cp "$(REPO_ROOT)/target/$(call rust_release_triple,$(1))/release/$(BIN_NAME)" "$(call rust_release_asset,$(1))"
+
+endef
+
 .PHONY: rust-release-binaries
-rust-release-binaries: rust-zigbuild-check web-build ## Build the static musl Rust binaries (amd64, arm64) and checksums.txt into dist/
-	set -eu; \
-	mkdir -p "$(RUST_RELEASE_DIR)"; \
-	for platform in $(RUST_RELEASE_PLATFORMS); do \
-	  arch="$${platform%%:*}"; \
-	  triple="$${platform#*:}"; \
-	  $(call rust_static_build,"$$triple"); \
-	  cp "$(REPO_ROOT)/target/$$triple/release/$(BIN_NAME)" "$(RUST_RELEASE_DIR)/$(BIN_NAME)-linux-$$arch"; \
-	done; \
-	cd "$(RUST_RELEASE_DIR)"; \
-	sha256sum $(foreach platform,$(RUST_RELEASE_PLATFORMS),$(BIN_NAME)-linux-$(firstword $(subst :, ,$(platform)))) > checksums.txt
+rust-release-binaries: rust-zigbuild-check web-build ## Build the SPA once, then the static musl release binaries for RUST_RELEASE_PLATFORMS into dist/
+	mkdir -p "$(RUST_RELEASE_DIR)"
+	$(foreach platform,$(RUST_RELEASE_PLATFORMS),$(call _RUST_RELEASE_BINARY,$(platform)))
+
+.PHONY: rust-release-checksums
+rust-release-checksums: ## Write dist/checksums.txt over every shipped platform's release binary
+	cd "$(RUST_RELEASE_DIR)" && sha256sum $(foreach platform,$(RUST_RELEASE_SHIPPED_PLATFORMS),"$(notdir $(call rust_release_asset,$(platform)))") > checksums.txt
+
+# The two above in order. Goals on one command line are not ordered under make -j, so
+# `make rust-release-binaries rust-release-checksums` could checksum binaries a parallel build has
+# not written yet; each step here is its own make run, the second started only after the first
+# succeeded. rust-release-checksums stays on its own for a recovery, which checksums published
+# binaries without rebuilding them.
+.PHONY: rust-release-dist
+rust-release-dist: ## Build the release binaries, then write dist/checksums.txt (ordered, safe under make -j)
+	$(MAKE) --no-print-directory rust-release-binaries
+	$(MAKE) --no-print-directory rust-release-checksums
 
 # Installs the pinned zig and cargo-zigbuild for the build host into RUST_RELEASE_TOOLS_DIR, each
-# archive checked against its sha256 above before it is unpacked, for CI's rust-static job and the
-# release workflow; put $(RUST_RELEASE_TOOLS_DIR)/bin on PATH afterwards. The directory must not
+# archive checked against its sha256 above before it is unpacked, for a local build (CI and the
+# release use setup-zigbuild); put $(RUST_RELEASE_TOOLS_DIR)/bin on PATH afterwards. The directory must not
 # exist yet, so nothing from an earlier install mixes in. cargo-zigbuild publishes no aarch64 musl
 # asset, so an arm64 host takes the gnu one, as the image's build stage does.
 RUST_RELEASE_TOOLS_DIR ?= $(REPO_ROOT)/target/zigbuild-tools

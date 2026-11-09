@@ -4,8 +4,9 @@ registries:
   dhi:
     type: docker-registry
     url: https://dhi.io
-    # Dependabot sees only Dependabot secrets, not Actions variables (docs/release.md, setup step 2).
-    username: ${{ secrets.DHI_USERNAME }}
+    # The account the token belongs to; Dependabot sees only Dependabot secrets, so DHI_TOKEN is
+    # one (docs/release.md, One-Time Setup).
+    username: leinardi
     password: ${{ secrets.DHI_TOKEN }}
     replaces-base: false
 
@@ -18,9 +19,9 @@ updates:
     # 3 days), so a broken or compromised release has time to be yanked.
     cooldown:
       default-days: 7
+    labels: ["dependencies", "ci"]
     commit-message:
       prefix: "chore(deps)"
-    labels: ["dependencies", "ci"]
     groups:
       github-actions:
         patterns:
@@ -32,19 +33,20 @@ updates:
       interval: "monthly"
     cooldown:
       default-days: 7
+    labels: ["dependencies", "ci"]
     commit-message:
       prefix: "chore(deps)"
-    labels: ["dependencies", "ci"]
     groups:
       pre-commit-hooks:
         patterns:
           - "*"
 
-  # The base images of the shipped image (build-packaging.md section 1). They are pinned by tag, not
-  # by digest: dhi.io republishes its tags with security fixes and every build takes them, so this
-  # ecosystem only moves the tags themselves. Tag bumps are chore(deps) and bump no version: they
-  # ship with the next release, and one that carries a security fix is released with an explicit
-  # version (the Versioning section of docs/release.md).
+  # The Dockerfile's dhi.io bases, each pinned by an explicit tag in one literal FROM, deliberately
+  # not by digest: dhi.io republishes its tags with security fixes and every build takes them, so
+  # this ecosystem only moves the tags themselves, such as a newer dhi.io/static date tag. The base,
+  # dhi.io/static, is what the image ships, so its bumps are fix(deps) and release a patch; the web
+  # stage's dhi.io/node is the default target's only and shares the group. dhi.io needs a login:
+  # the dhi registry above.
   - package-ecosystem: "docker"
     directory: "/deployments/docker"
     registries: ["dhi"]
@@ -52,10 +54,10 @@ updates:
       interval: "monthly"
     cooldown:
       default-days: 7
-    commit-message:
-      prefix: "chore(deps)"
-    open-pull-requests-limit: 5
     labels: ["dependencies", "ci"]
+    commit-message:
+      prefix: "fix(deps)"
+    open-pull-requests-limit: 5
     ignore:
       # The web stage stays on a Node LTS line, the single Node line meta/tests/toolchain.rs
       # holds every file to. Dependabot cannot tell an LTS line from a Current one, so the line is
@@ -65,7 +67,9 @@ updates:
         versions: [">= 25"]
       # The build stage's Rust release is rust-toolchain.toml's, and meta/tests/toolchain.rs holds
       # the image tag, rust-toolchain.toml, the Cargo rust-version and the rust-std pins to one
-      # release, so a bump of the tag alone could only fail. Move them together, by hand.
+      # release, so a bump of the tag alone could only fail. Move them together, by hand
+      # (docs/release.md, Bumping the Rust Toolchain). The release never uses this stage: it
+      # builds the prebuilt target.
       - dependency-name: "rust"
     groups:
       docker-base-images:
@@ -73,42 +77,50 @@ updates:
           - "*"
 
   # The Rust workspace. fix, not chore: the release version is derived from commit types, so a
-  # dependency bump (security fixes included) produces a patch release. The server's
-  # dev-dependencies ship nothing, so they are chore(deps); the meta and testenv crates' own
-  # dependencies count as regular ones here, a patch release more than needed, never one less.
+  # dependency bump (security fixes included) produces a patch release. Dev-dependencies never
+  # reach the binary, so their bumps are chore(deps) and in a group of their own: one grouped pull
+  # request carries a single prefix, so mixing them would release a binary that did not change. The
+  # meta and testenv crates' own dependencies count as regular ones here, a patch release more than
+  # needed, never one less.
   - package-ecosystem: "cargo"
     directory: "/"
     schedule:
       interval: "monthly"
     cooldown:
       default-days: 7
+    labels: ["dependencies", "ci"]
     commit-message:
       prefix: "fix(deps)"
       prefix-development: "chore(deps)"
     open-pull-requests-limit: 5
-    labels: ["dependencies", "ci"]
     groups:
-      cargo:
+      cargo-crates:
+        dependency-type: "production"
+        patterns:
+          - "*"
+      cargo-dev-crates:
+        dependency-type: "development"
         patterns:
           - "*"
 
   # The SPA, embedded in the binary and the image. Its runtime dependencies ship, so they are
-  # fix(deps); devDependencies (lint, test and build tooling) are chore(deps) and bump nothing.
+  # fix(deps); devDependencies (lint, test and build tooling) are chore(deps) and bump nothing, in
+  # a group of their own for the same reason as Cargo's.
   - package-ecosystem: "npm"
     directory: "/web"
     schedule:
       interval: "monthly"
     cooldown:
       default-days: 7
+    labels: ["dependencies", "ci"]
     commit-message:
       prefix: "fix(deps)"
       prefix-development: "chore(deps)"
     open-pull-requests-limit: 5
-    labels: ["dependencies", "ci"]
-    # TypeScript stays on the 5.x line: openapi-typescript peers on typescript ^5.x and
-    # typescript-eslint on <6.1.0, so a newer major makes npm ci fail with ERESOLVE and blocks the
-    # whole web group. Raise this cap once both accept the newer line.
     ignore:
+      # TypeScript stays on the 5.x line: openapi-typescript peers on typescript ^5.x and
+      # typescript-eslint on <6.1.0, so a newer major makes npm ci fail with ERESOLVE and blocks the
+      # whole web group. Raise this cap once both accept the newer line.
       - dependency-name: "typescript"
         versions: [">= 6"]
       # The Node types follow the Node line the web stage runs, which meta/tests/toolchain.rs holds
@@ -118,5 +130,10 @@ updates:
         versions: [">= 25"]
     groups:
       web:
+        dependency-type: "production"
+        patterns:
+          - "*"
+      web-dev:
+        dependency-type: "development"
         patterns:
           - "*"

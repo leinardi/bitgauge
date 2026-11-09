@@ -237,9 +237,12 @@ own origin ([security.md §3](../../../docs/features/security.md#3-no-outbound-c
 
 `deployments/docker/Dockerfile` runs `dhi.io/static`, pinned by tag, as `USER 65532:65532` spelled
 out, with no shell and `HEALTHCHECK ["/bitgauge", "healthcheck"]` ([security.md
-§9](../../../docs/features/security.md#9-container-hardening)). The runtime stage takes no `RUN`,
-`SHELL`, `VOLUME`, `WORKDIR`, `ADD` or `ENV`, and the release smoke-tests the built image's version
-and commit before the tag.
+§9](../../../docs/features/security.md#9-container-hardening)), all set once in its `base` stage.
+Two targets sit on that base: `prebuilt`, which CI tests and the release ships, COPYs the release
+binary from the `dist` build context; `runtime`, the default, COPYs the one the build stage
+compiled. Neither takes a `RUN`, `SHELL`, `VOLUME`, `WORKDIR`, `ADD` or `ENV`.
+`scripts/image-test.sh` checks the prebuilt image in CI (full tier
+on amd64, reduced on arm64) and the release smoke-tests it before the tag.
 `make rust-test-image BITGAUGE_TEST_IMPL=rust` runs the image with `--read-only`, `--cap-drop ALL`
 and `no-new-privileges`, checks it is not root and that `docker diff` stays empty without
 `--read-only`, and proves no egress with two layers ([testing.md

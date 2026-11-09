@@ -21,8 +21,8 @@
 //! fragments, the web scripts, the pre-commit configuration and every YAML file under `.github`)
 //! carry none of the flags that turn a gate with nothing to check, or a failing one, into a pass,
 //! and every clippy run denies warnings. The check is rust-common's
-//! `repo_meta::vacuous::VacuousFlags` with the core and Rust sets; this repository needs no
-//! exception. The two JavaScript flags (a test runner or a linter that passes on no files) are
+//! `repo_meta::vacuous::VacuousFlags` with the core and Rust sets, with two reviewed exceptions in
+//! the workflows. The two JavaScript flags (a test runner or a linter that passes on no files) are
 //! BitGauge's own, read from the same files. Each flag is also run on a sample written as a
 //! gate would carry it.
 
@@ -31,8 +31,24 @@ use std::fs;
 use repo_meta::report;
 use repo_meta::vacuous::{AllowedFragment, Flag, VacuousFlags};
 
-/// The reviewed exceptions: none.
-const ALLOWED: &[AllowedFragment<'static>] = &[];
+/// The reviewed exceptions, each an exact fragment of one file. Each must still match at least one
+/// line, so an entry cannot outlive the code it excuses and quietly cover a new line later.
+const ALLOWED: &[AllowedFragment<'static>] = &[
+    // pre-commit-all and repo-gates restore the rust job's Rust cache and never save it, so one
+    // job writes it.
+    AllowedFragment {
+        file: ".github/workflows/ci.yaml",
+        fragment: "save-if: false",
+        reason: "a restore-only Rust cache",
+    },
+    // A recovery that reuses a published image scans it again, but cannot change it: its findings
+    // are reported as a warning by the step after, not a failure of the publish.
+    AllowedFragment {
+        file: ".github/workflows/release.yaml",
+        fragment: "continue-on-error: true # findings in an image already published are warnings",
+        reason: "the scan of a reused, already published image",
+    },
+];
 
 /// The flags that turn a web gate with nothing to check into a pass.
 fn javascript_flags() -> Vec<Flag> {
@@ -71,11 +87,17 @@ fn flags() -> VacuousFlags {
     VacuousFlags::core().with_rust()
 }
 
-/// The flags found in `sample`, read as a line of the Makefile.
+/// The flags found in `sample`, read as a line of the Makefile, with no exception.
 fn sample_problems(sample: &str) -> usize {
     flags()
-        .problems(&[("Makefile".to_owned(), sample.to_owned())], ALLOWED)
+        .problems(&[("Makefile".to_owned(), sample.to_owned())], &[])
         .len()
+}
+
+/// The flags `line` carries as a line of `file`, after the reviewed exceptions.
+fn hits(file: &str, line: &str) -> usize {
+    let mut used = vec![false; ALLOWED.len()];
+    flags().hits(file, line, ALLOWED, &mut used).len()
 }
 
 /// The regular files directly in `directory` (relative to the root) whose names end with one of
@@ -195,5 +217,40 @@ fn vacuous_flags_are_recognized() {
         sample_problems("\t$(CARGO) clippy --workspace --all-targets --locked -- -D warnings"),
         0,
         "a clippy run that denies warnings is not a vacuous flag"
+    );
+}
+
+/// The negative control of the exceptions: each excuses only its own fragment, in its own file.
+#[test]
+fn allowed_fragments_excuse_only_themselves() {
+    for allowed in ALLOWED {
+        let line = format!("        {}", allowed.fragment);
+        assert_eq!(
+            hits(allowed.file, &line),
+            0,
+            "{} in {}",
+            allowed.fragment,
+            allowed.file
+        );
+        assert_eq!(
+            hits("Makefile", &line),
+            1,
+            "{} outside {}",
+            allowed.fragment,
+            allowed.file
+        );
+    }
+    assert_eq!(
+        hits(
+            ".github/workflows/release.yaml",
+            "        continue-on-error: true"
+        ),
+        1,
+        "a bare continue-on-error in release.yaml"
+    );
+    assert_eq!(
+        hits(".github/workflows/ci.yaml", "        if: false"),
+        1,
+        "an if: false in ci.yaml"
     );
 }

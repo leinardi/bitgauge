@@ -7,10 +7,10 @@ assignees: []
 ---
 ## Step 1: Is this the right place?
 
-- [ ] I have checked the existing issues and discussions to see if this has already been answered.
-- [ ] I have checked [`docs/features/`](https://github.com/leinardi/bitgauge/tree/main/docs/features)
+* [ ] I have checked the existing issues and discussions to see if this has already been answered.
+* [ ] I have checked [`docs/features/`](https://github.com/leinardi/bitgauge/tree/main/docs/features)
   for the answer.
-- [ ] My question is specifically about BitGauge (usage, configuration, measurement, roadmap, etc.).
+* [ ] My question is specifically about BitGauge (usage, configuration, measurement, roadmap, etc.).
 
 ---
 
@@ -18,7 +18,7 @@ assignees: []
 
 <!-- State your question as clearly as possible in one or two sentences. -->
 
--
+*
 
 ---
 
@@ -26,7 +26,7 @@ assignees: []
 
 <!-- Explain what you are trying to achieve, why you are doing it, and any relevant background. -->
 
--
+*
 
 ---
 
@@ -47,18 +47,20 @@ If the docs are unclear or silent on this, name the page under docs/features/ yo
 can be fixed.
 -->
 
--
+*
 
 ---
 
 ## 5. Environment (if relevant)
 
 <!-- Fill in what makes sense for your question, or remove fields that don't apply. -->
+<!-- The same environment block as the bug report's. -->
 
-- BitGauge version (shown on the About screen): `?`
-- Deployment (image tag or digest, or binary): `?`
-- Browser and version: `?`
-- Reverse proxy, if any: `?`
+* BitGauge version and commit (About screen, startup line or `/api/v1/info`): `?`
+* Deployment (release binary, image tag and digest, own build): `?`
+* Browser and version: `?`
+* Operating system and device: `?`
+* Reverse proxy name and version, if any: `?`
 
 ---
 
@@ -66,4 +68,4 @@ can be fixed.
 
 <!-- Add logs, screenshots, links, or anything else that might help answer your question. -->
 
--
+*

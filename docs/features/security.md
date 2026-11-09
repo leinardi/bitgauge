@@ -245,7 +245,7 @@ exactly what each includes before anything is downloaded, copied or shared.
 - **SBOM and provenance:** each image ships an SBOM and a provenance attestation; each release
   binary carries a build provenance attestation.
 - **Image scanning:** Trivy scans both platform images in `release.yaml` before anything is
-  pushed; a `HIGH` or `CRITICAL` finding outside `.trivyignore` stops the run.
+  pushed; a fixable `HIGH` or `CRITICAL` finding outside `.trivyignore.yaml` stops the run.
 - **Dependabot:** monthly updates for `cargo`, `npm`, `docker`, `github-actions` and `pre-commit`.
 - **Immutable releases:** a version tag never moves; base-image fixes ship as a new release, and
   a scheduled scan of `:latest` says when one is needed ([release.md](../release.md)).

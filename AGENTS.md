@@ -43,6 +43,8 @@ make api-types         # regenerate web/src/api/types.gen.ts from api/openapi.ya
 make e2e               # Playwright on Chromium, Firefox, WebKit
 make e2e-browsers      # install those browsers (also what playwright cli drives)
 make rust-test-image   # BITGAUGE_TEST_IMPL=rust: image under netguard and strace (Docker, dhi.io)
+make rust-release-dist  # the SPA once, the static release binaries, then checksums.txt
+make image-build-test   # the shipped prebuilt image from dist/, then the full tier (dhi.io)
 make harness-ci        # BITGAUGE_TEST_IMPL=rust: accuracy harness, CI tier (Docker, dhi.io, netem)
 make demo-parity       # compare the design kit's prototype with the Vue demo (on demand)
 make audit-deps        # npm audit and cargo-deny (network)
@@ -59,6 +61,12 @@ every file. Beyond that, run what the hooks cannot:
 - `make verify-rust` or `make verify-web` before calling a change done (rustdoc too).
 - Dockerfile, `testenv/tests/image/**`, netguard or syscalltrace:
   `make rust-test-image BITGAUGE_TEST_IMPL=rust` (Docker, `dhi.io`).
+- Dockerfile, `scripts/image-test.sh`, `.mk/image.mk` or `.mk/rust-release.mk` (the release's
+  packaging path): `make rust-release-dist`, then `make image-build-test` (amd64, full tier)
+  and, with QEMU, `make image-build-test IMAGE_PLATFORM=linux/arm64 IMAGE_TEST_TIER=reduced`. Pass
+  the same `GIT_VERSION`, `GIT_COMMIT` and `BUILD_DATE` to every call.
+- `.github/workflows/**`: `make check` (actionlint) and the meta-tests; the release itself is first
+  exercised by a dry run ([`docs/release.md`](docs/release.md#dry-runs)).
 - `web/e2e/**` or a flow change: `make e2e`.
 - `testenv/src/harness/**` or `testenv/tests/harness/**` runner changes:
   `make harness-ci BITGAUGE_TEST_IMPL=rust`
@@ -138,7 +146,17 @@ counts as `fix:`), so avoid a word ending in `feat` or `fix` right before a colo
     (`deny-shipped.toml` bans the others): they would bring an HTTP stack, a logger or a client the
     binary does not use; `repo-meta` and `testenv-core` are for tests only.
 - **No gate passes on nothing:** no `--passWithNoTests`, `|| true`, `continue-on-error` or
-  `if: false`. Tests outside testenv's `image` and `harness` features never need Docker.
+  `if: false`; the two reviewed exceptions in the workflows are listed in
+  `meta/tests/vacuous_flags.rs`. Tests outside testenv's `image` and `harness` features never need
+  Docker.
+- **Lean release:** `release.yaml` re-runs no test. It requires `ci-result` green on the commit's
+  push run (`require-ci-green`), audits alongside the build, builds the SPA and the binaries once
+  and the image's `prebuilt` target from exactly those binaries, and only smoke-tests and scans
+  it. So CI's `image` job must keep testing the release's packaging path (the same make target,
+  the same Dockerfile target, both platforms), and a recovery uses "Re-run all jobs"
+  ([`docs/release.md`](docs/release.md#what-ci-proves)). Workflows follow the shared conventions:
+  actions pinned by SHA, `contents: read` at the top, `persist-credentials: false`, a timeout on
+  every job, caches written from `main` only, Trivy never pinned.
 
 Read the matching skill in `.agents/skills/` before editing an area it covers; each skill's
 description says when it applies.

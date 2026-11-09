@@ -222,6 +222,9 @@ rust-common's `tracing-setup`, by prometheus-client and by service-kit's `http`.
 | swarm-device-access | `4cd31c4` | `meta/tests/unsafe_allowlist.rs` | The pattern only, for the former `meta/tests/lint_exemptions.rs` (since removed); no file copied |
 | swarm-scheduler-exporter | `e57d989` | `deployments/docker/Dockerfile` (MIT, 2025) | Became `deployments/docker/Dockerfile.rust`: the shipped Dockerfile's `web` and runtime stages; the same zig, cargo-zigbuild and `rust-std` pins; the `BITGAUGE_*` stamps; the cargo home and `rust-src` remapped as `.mk/rust-release.mk` remaps them |
 | swarm-device-access | `4cd31c4` | `.mk/rust-release.mk` (Apache-2.0) | The same pins and static build; binaries into `dist/rust/`, after `web-build`; `rust-image` for the candidate |
+| swarm-scheduler-exporter | `88394aa` | `deployments/docker/Dockerfile`, `meta/tests/dockerfiles.rs` | The `dist`, `base`, `prebuilt` and `runtime` stages, the `web` stage kept first; the stage rules with BitGauge's `/bitgauge` binary and three dhi.io bases |
+| swarm-scheduler-exporter | `88394aa` | `.mk/image.mk`, `scripts/image-test.sh` (MIT, 2026) | `image-build-prebuilt` from `rust-release-binaries`'s `dist/`; the full tier adds the testenv image suites; the tiers check `/api/v1/info`, the healthcheck subcommand and the embedded SPA |
+| swarm-scheduler-exporter | `88394aa` | `.github/workflows/release.yaml` (MIT, 2026) | Bare `X.Y.Z` image tags, the Rust and Node toolchains, the SPA built once, `make audit-deps`, no integration gate, the token passed to each remote tag read of a private repository |
 
 Rows are added by the phase that copies a file.
 

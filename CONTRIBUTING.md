@@ -36,10 +36,10 @@ one needs a pull request to that file with the reason.
 The build, test and lint commands are listed by `make help`, and with what each change has to run
 in [AGENTS.md](AGENTS.md#common-commands).
 
-`make docker-build`, `make rust-test-image` and the accuracy harness targets pull the `dhi.io` base
-images, which need a `dhi.io` account: run `docker login dhi.io` first, or leave those targets to
-CI. Everything else, `make e2e` and `make run` included (both run a host-built binary), needs no
-account.
+`make docker-build`, `make rust-test-image`, `make image-build-prebuilt` and the accuracy harness
+targets pull the `dhi.io` base images, which need a `dhi.io` account: run `docker login dhi.io`
+first, or leave those targets to CI. Everything else, `make e2e` and `make run` included (both
+run a host-built binary), needs no account.
 
 ## Before You Commit
 

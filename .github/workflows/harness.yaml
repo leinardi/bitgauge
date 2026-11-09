@@ -13,8 +13,6 @@ name: Accuracy harness
 on:
   workflow_call:
     secrets:
-      DHI_USERNAME:
-        required: false
       DHI_TOKEN:
         required: true
   workflow_dispatch:
@@ -44,6 +42,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       # The runners are the Rust ones (testenv, feature harness); the toolchain is the one
       # rust-toolchain.toml pins.
@@ -67,7 +67,7 @@ jobs:
         uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: dhi.io
-          username: ${{ vars.DHI_USERNAME || secrets.DHI_USERNAME }}
+          username: leinardi
           password: ${{ secrets.DHI_TOKEN }}
 
       # The shaper's ifb device, its qdiscs and its ingress mirror live in the runner's kernel.

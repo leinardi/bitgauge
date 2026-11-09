@@ -19,10 +19,14 @@
 # along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Adapted from swarm-scheduler-exporter/deployments/docker/Dockerfile at e57d989, MIT, Copyright (c) 2025 Roberto Leinardi
+# Adapted from swarm-scheduler-exporter/deployments/docker/Dockerfile at 88394aa, MIT, Copyright (c) 2026 Roberto Leinardi
 #
-# The shipped image (build-packaging.md section 1). Every stage is a literal FROM, because
-# Dependabot updates only literal FROM lines. All three bases come from dhi.io, so pulling them
-# needs a dhi.io token.
+# The shipped image (build-packaging.md section 1), with two targets on one base stage: prebuilt,
+# which CI tests and the release ships, COPYs a release binary unchanged from the dist build
+# context (make image-build-prebuilt); runtime, the default, compiles the SPA and the binary here,
+# for a local build. Every external stage is a literal FROM, because Dependabot updates only literal
+# FROM lines. All three external bases come from dhi.io, so pulling them needs a dhi.io token; the
+# prebuilt target pulls only dhi.io/static.
 #
 # The dhi.io bases are pinned by an explicit tag, not by digest: dhi.io republishes its tags to ship
 # security fixes, and a build should pick those up rather than wait for a Dependabot pull request.
@@ -154,24 +158,19 @@ RUN --mount=type=cache,target=/root/.cargo/registry,id=cargo-registry,sharing=lo
 	&& cp "target/${triple}/release/bitgauge" /out/bitgauge
 
 ########################
-# runtime: the shell-less dhi.io static base. The binary is linked statically against musl, so it
-# needs no libc, and it writes nothing: the image declares no volume and runs on a read-only root
-# filesystem.
+# dist: the prebuilt target's binaries. Empty here: the build replaces this stage with the dist
+# directory (--build-context dist=dist), which holds the release assets bitgauge-<os>-<arch> that
+# make rust-release-binaries writes, each with the SPA embedded. Without that context the prebuilt
+# target fails on the missing file instead of pulling anything.
 ########################
-FROM dhi.io/static:20250419 AS runtime
-ARG VERSION="dev"
-ARG COMMIT="none"
-ARG DATE="unknown"
+FROM scratch AS dist
 
-LABEL org.opencontainers.image.title="bitgauge" \
-	org.opencontainers.image.description="Self-hosted, browser-based network speed test for LAN, homelab and VPN links" \
-	org.opencontainers.image.source="https://github.com/leinardi/bitgauge" \
-	org.opencontainers.image.version="${VERSION}" \
-	org.opencontainers.image.revision="${COMMIT}" \
-	org.opencontainers.image.created="${DATE}" \
-	org.opencontainers.image.licenses="GPL-3.0-or-later"
-
-COPY --from=build /out/bitgauge /bitgauge
+########################
+# base: the shell-less dhi.io static base, shared by both targets: the user, the port, the health
+# check and the entrypoint. The binary is linked statically against musl, so it needs no libc, and
+# it writes nothing: the image declares no volume and runs on a read-only root filesystem.
+########################
+FROM dhi.io/static:20250419 AS base
 
 # Spelled out rather than inherited: the base's default user is this same unprivileged identity,
 # but the image's posture must not depend on a base image's default.
@@ -189,3 +188,49 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
 	CMD ["/bitgauge", "healthcheck"]
 
 ENTRYPOINT ["/bitgauge"]
+
+########################
+# prebuilt: the release asset of the target platform, from the dist context, as the binary.
+########################
+FROM base AS prebuilt
+
+# The same build arguments as the build stage: an ARG is scoped to the stage that declares it.
+ARG VERSION="dev"
+ARG COMMIT="none"
+ARG DATE="unknown"
+
+# The seven OCI labels droast.toml requires, the same in both targets (meta/tests/dockerfiles.rs):
+# droast reads the default target's own. Version, revision and created come from the same stamps
+# the binary is built with.
+LABEL org.opencontainers.image.title="bitgauge" \
+	org.opencontainers.image.description="Self-hosted, browser-based network speed test for LAN, homelab and VPN links" \
+	org.opencontainers.image.source="https://github.com/leinardi/bitgauge" \
+	org.opencontainers.image.version="${VERSION}" \
+	org.opencontainers.image.revision="${COMMIT}" \
+	org.opencontainers.image.created="${DATE}" \
+	org.opencontainers.image.licenses="GPL-3.0-or-later"
+
+ARG TARGETOS
+ARG TARGETARCH
+COPY --from=dist --chmod=0755 bitgauge-${TARGETOS}-${TARGETARCH} /bitgauge
+
+########################
+# runtime (default): the binary the build stage compiled, with the SPA the web stage built.
+########################
+FROM base AS runtime
+
+# The same build arguments as the build stage: an ARG is scoped to the stage that declares it.
+ARG VERSION="dev"
+ARG COMMIT="none"
+ARG DATE="unknown"
+
+# The seven OCI labels droast.toml requires, the same in both targets (meta/tests/dockerfiles.rs).
+LABEL org.opencontainers.image.title="bitgauge" \
+	org.opencontainers.image.description="Self-hosted, browser-based network speed test for LAN, homelab and VPN links" \
+	org.opencontainers.image.source="https://github.com/leinardi/bitgauge" \
+	org.opencontainers.image.version="${VERSION}" \
+	org.opencontainers.image.revision="${COMMIT}" \
+	org.opencontainers.image.created="${DATE}" \
+	org.opencontainers.image.licenses="GPL-3.0-or-later"
+
+COPY --from=build /out/bitgauge /bitgauge

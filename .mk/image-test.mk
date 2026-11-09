@@ -67,6 +67,13 @@ RUST_IMAGE_TESTS ?= image netguard
 rust-test-image: ## Build the shipped image and run the image suite on it (BITGAUGE_TEST_IMPL=rust, Docker)
 	$(test_impl_guard)
 	$(MAKE) --no-print-directory test-impl-image
+	$(MAKE) --no-print-directory rust-test-image-suites
+
+# The suites alone, on a TEST_IMAGE already built: CI's full tier runs them on the prebuilt image
+# (make image-test IMAGE_TEST_TIER=full, .mk/image.mk), the one the release ships.
+.PHONY: rust-test-image-suites
+rust-test-image-suites: ## Run the image suites on the already built TEST_IMAGE (BITGAUGE_TEST_IMPL=rust, Docker)
+	$(test_impl_guard)
 	@set -e; for suite in $(RUST_IMAGE_TESTS); do \
 	  echo "== testenv --test $$suite"; \
 	  $(test_impl_env) timeout $(IMAGE_TEST_TIMEOUT) \

@@ -1,7 +1,8 @@
 name: CI
 
 # The authoritative checks run on every pull request and every push to main; the reviewdog jobs only
-# annotate pull requests.
+# annotate pull requests. ci-result is the one check the branch ruleset requires, and the one the
+# release gates on (require-ci-green), on the push of the exact commit it releases.
 on:
   pull_request:
   push:
@@ -10,8 +11,12 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: "${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}"
-  cancel-in-progress: true
+  # A pull request's runs share one group per branch, so a newer push cancels the older run. Every
+  # other run (a push to main, a dispatch) gets a group of its own: GitHub keeps only one pending
+  # run per group, so a shared group would let a newer push replace a queued run, and a release
+  # gate needs CI to have passed on that exact commit.
+  group: "${{ github.workflow }} @ ${{ github.event_name == 'pull_request' && github.event.pull_request.head.label || github.run_id }}"
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 # Every job reads the repository and nothing else, unless it says otherwise below.
 permissions:
@@ -32,28 +37,35 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
+      # No npm cache of its own: setup-node's would save from pull requests too, and only the
+      # main-only web-cache-warmup writes the web cache (web.yaml).
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "24"
-          cache: npm
-          cache-dependency-path: web/package-lock.json
 
       - name: Install web dependencies
         run: npm ci --prefix web
 
-      # For the cargo-fmt, cargo-clippy, cargo-doc and cargo-machete hooks. The Rust cache is saved
-      # only on a pull request.
+      # For the cargo-fmt, cargo-clippy, cargo-doc and cargo-machete hooks. rust-toolchain.toml
+      # names the release, the components and the targets.
       - name: Set up Rust
         run: rustup toolchain install --no-self-update
 
-      - name: Cache the Rust build
+      # The rust job's cache (shared-key ci), restored only: the rust job is its one writer, so two
+      # jobs never race to save the same key.
+      - name: Restore the Rust build cache
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
-          save-if: ${{ github.event_name == 'pull_request' }}
+          shared-key: ci
+          save-if: false
 
+      # The id gives the resolved Python version, which is part of the cache key.
       - name: Set up Python
+        id: python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.x"
@@ -61,16 +73,22 @@ jobs:
       - name: Install pre-commit
         run: pip install --no-cache-dir pre-commit==4.6.2
 
-      # droast's ShellCheck bridge runs the shellcheck on PATH: the pinned one, not the runner's.
+      # droast's ShellCheck bridge and actionlint run the shellcheck on PATH: the pinned one, not
+      # the runner's. The version is the shellcheck-py rev's in .pre-commit-config.yaml
+      # (meta/tests/toolchain.rs); the action's default sha256 is that release's.
       - name: Set up ShellCheck
-        uses: ./.github/actions/setup-shellcheck
+        uses: leinardi/gh-composite-actions/setup-shellcheck@2115c9766c690e2e98afdeb64425c761aa86b072 # v1.4.0
+        with:
+          version: v0.11.0
 
-      # Restore only: pre-commit-warmup.yaml saves the entry on main under the same key.
+      # Restore only: pre-commit-warmup.yaml saves the entry on main under the same key, with the
+      # same python_version and pre-commit version as above. The hook environments are bound to the
+      # interpreter that built them, so the resolved Python version is part of the key.
       - name: Restore the pre-commit cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/pre-commit
-          key: pre-commit|${{ runner.os }}|${{ hashFiles('.pre-commit-config.yaml') }}
+          key: pre-commit|${{ runner.os }}|${{ steps.python.outputs.python-version }}|${{ hashFiles('.pre-commit-config.yaml') }}
 
       - name: Run every pre-commit hook on every file
         env:
@@ -87,10 +105,11 @@ jobs:
 
   # Reports inline PR review comments over a diff range; a push or a manual dispatch has neither a
   # pull request to comment on nor a base ref to diff against. Annotation only: pre-commit-all is
-  # the gate, so none of these jobs is required.
+  # the gate, so none of these jobs is needed by ci-result.
   actionlint:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     # reviewdog posts its findings as a pull request review, which needs pull-requests: write.
     permissions:
       contents: read
@@ -101,9 +120,10 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Run actionlint via pre-commit + reviewdog
-        uses: leinardi/gha-pre-commit-reviewdog-actions/actionlint@007919a45a04b0c52dfbb46732019dc4831fc03c # v1.0.3
+        uses: leinardi/gha-pre-commit-reviewdog-actions/actionlint@77e6e852b85ad28aa05bba731fa11be3305a5dac # v2.0.0
         with:
           from-ref: ${{ github.event.pull_request.base.sha }}
           to-ref: ${{ github.event.pull_request.head.sha }}
@@ -112,6 +132,8 @@ jobs:
   pre-commit-hooks:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # reviewdog posts its findings as a pull request review, which needs pull-requests: write.
     permissions:
       contents: read
       pull-requests: write
@@ -121,13 +143,16 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       # droast's ShellCheck bridge runs the shellcheck on PATH: the pinned one, not the runner's.
       - name: Set up ShellCheck
-        uses: ./.github/actions/setup-shellcheck
+        uses: leinardi/gh-composite-actions/setup-shellcheck@2115c9766c690e2e98afdeb64425c761aa86b072 # v1.4.0
+        with:
+          version: v0.11.0
 
       - name: Run pre-commit hooks + reviewdog diff
-        uses: leinardi/gha-pre-commit-reviewdog-actions/pre-commit-hooks@007919a45a04b0c52dfbb46732019dc4831fc03c # v1.0.3
+        uses: leinardi/gha-pre-commit-reviewdog-actions/pre-commit-hooks@77e6e852b85ad28aa05bba731fa11be3305a5dac # v2.0.0
         with:
           from-ref: ${{ github.event.pull_request.base.sha }}
           to-ref: ${{ github.event.pull_request.head.sha }}
@@ -145,6 +170,8 @@ jobs:
   markdownlint:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # reviewdog posts its findings as a pull request review, which needs pull-requests: write.
     permissions:
       contents: read
       pull-requests: write
@@ -154,9 +181,10 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Run markdownlint-cli2 via pre-commit + reviewdog
-        uses: leinardi/gha-pre-commit-reviewdog-actions/markdownlint-cli2@007919a45a04b0c52dfbb46732019dc4831fc03c # v1.0.3
+        uses: leinardi/gha-pre-commit-reviewdog-actions/markdownlint-cli2@77e6e852b85ad28aa05bba731fa11be3305a5dac # v2.0.0
         with:
           from-ref: ${{ github.event.pull_request.base.sha }}
           to-ref: ${{ github.event.pull_request.head.sha }}
@@ -165,6 +193,8 @@ jobs:
   shellcheck:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # reviewdog posts its findings as a pull request review, which needs pull-requests: write.
     permissions:
       contents: read
       pull-requests: write
@@ -174,9 +204,10 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Run shellcheck via pre-commit + reviewdog
-        uses: leinardi/gha-pre-commit-reviewdog-actions/shellcheck@007919a45a04b0c52dfbb46732019dc4831fc03c # v1.0.3
+        uses: leinardi/gha-pre-commit-reviewdog-actions/shellcheck@77e6e852b85ad28aa05bba731fa11be3305a5dac # v2.0.0
         with:
           from-ref: ${{ github.event.pull_request.base.sha }}
           to-ref: ${{ github.event.pull_request.head.sha }}
@@ -185,6 +216,8 @@ jobs:
   yamllint:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # reviewdog posts its findings as a pull request review, which needs pull-requests: write.
     permissions:
       contents: read
       pull-requests: write
@@ -194,9 +227,10 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Run yamllint via pre-commit + reviewdog
-        uses: leinardi/gha-pre-commit-reviewdog-actions/yamllint@007919a45a04b0c52dfbb46732019dc4831fc03c # v1.0.3
+        uses: leinardi/gha-pre-commit-reviewdog-actions/yamllint@77e6e852b85ad28aa05bba731fa11be3305a5dac # v2.0.0
         with:
           from-ref: ${{ github.event.pull_request.base.sha }}
           to-ref: ${{ github.event.pull_request.head.sha }}
@@ -210,15 +244,17 @@ jobs:
   conventional-commits:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Validate the commit messages
-        uses: leinardi/gha-pre-commit-reviewdog-actions/conventional-commits@007919a45a04b0c52dfbb46732019dc4831fc03c # v1.0.3
+        uses: leinardi/gha-pre-commit-reviewdog-actions/conventional-commits@77e6e852b85ad28aa05bba731fa11be3305a5dac # v2.0.0
         with:
           from-ref: ${{ github.event.pull_request.base.sha }}
           to-ref: ${{ github.event.pull_request.head.sha }}
@@ -236,21 +272,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up Rust
         run: rustup toolchain install --no-self-update
 
-      - name: Cache the Rust build
+      # The rust job's cache, restored only (see pre-commit-all).
+      - name: Restore the Rust build cache
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
-          save-if: ${{ github.event_name == 'pull_request' }}
+          shared-key: ci
+          save-if: false
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "24"
-          cache: npm
-          cache-dependency-path: web/package-lock.json
 
       - name: Install web dependencies
         run: npm ci --prefix web
@@ -262,40 +300,14 @@ jobs:
           BITGAUGE_REQUIRE_TOOLS: "1"
         run: cargo test --locked -p meta
 
-  # The release workflow's helper scripts, tested with a stub gh: no network, no token. They are
-  # live before release.yaml exists, so a change to them is tested when it is made.
-  release-scripts:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Test binary-attestation-status.sh
-        run: bash .github/scripts/binary-attestation-status.test.sh
-
-      - name: Test recover-toolchains.sh
-        run: bash .github/scripts/recover-toolchains.test.sh
-
-  # The workspace checks and the static release builds, defined in rust.yaml so the release workflow
-  # runs the identical jobs at the commit it releases.
+  # The workspace: format, clippy over every target and feature, the tests (the meta-tests
+  # included), the documentation, cargo-deny over the workspace (advisories, licences, bans and
+  # sources; the advisory database needs the network) and the bans of the shipped graph alone. The
+  # cache is saved only on main, the one ref whose caches every pull request can restore, under
+  # shared-key ci, which pre-commit-all and repo-gates restore too.
   rust:
-    uses: ./.github/workflows/rust.yaml
-    permissions:
-      contents: read
-
-  # Defined in web.yaml so web-cache-warmup runs the identical job on main and saves the cache that
-  # pull requests restore.
-  web:
-    uses: ./.github/workflows/web.yaml
-    permissions:
-      contents: read
-
-  # cargo deny over the workspace's graph and npm audit of web/ (build-packaging.md section 4).
-  audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       # What dtolnay/rust-toolchain exported to every later step of the job.
       CARGO_INCREMENTAL: "0"
@@ -304,12 +316,69 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up Rust
         run: rustup toolchain install --no-self-update
 
+      - name: Cache the Rust build
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          shared-key: ci
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Check formatting
+        run: make rust-fmt-check
+
+      # --all-features: the code behind testenv's Docker features is linted too.
+      - name: Lint with clippy
+        run: make rust-clippy
+
+      - name: Run the tests
+        run: make rust-test
+
+      - name: Check the Rust documentation
+        run: make rust-doc
+
       - name: Set up cargo-deny
-        uses: ./.github/actions/setup-cargo-deny
+        uses: leinardi/gh-composite-actions/setup-cargo-deny@2115c9766c690e2e98afdeb64425c761aa86b072 # v1.4.0
+
+      # --workspace (in the make target): the root is a package as well as the workspace, so
+      # without it cargo-deny would check the server's graph only, not the meta and testenv crates.
+      - name: Check dependencies with cargo-deny
+        run: make rust-deny
+
+      # The shipped binary's graph alone: no test crate, no shared crate it does not ship, no
+      # client, filesystem or process feature (deny-shipped.toml). Bans only, so no network.
+      - name: Check the shipped graph with cargo-deny
+        run: cargo deny --config deny-shipped.toml check bans
+
+  # Defined in web.yaml so web-cache-warmup runs the identical job on main and saves the cache that
+  # pull requests restore.
+  web:
+    uses: ./.github/workflows/web.yaml
+    permissions:
+      contents: read
+
+  # cargo deny over the workspace's graph and npm audit of web/ (build-packaging.md section 4), at
+  # the release the release's audit job runs.
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # cargo-deny reads the graph through cargo metadata, with the pinned toolchain.
+      - name: Set up Rust
+        run: rustup toolchain install --no-self-update
+
+      - name: Set up cargo-deny
+        uses: leinardi/gh-composite-actions/setup-cargo-deny@2115c9766c690e2e98afdeb64425c761aa86b072 # v1.4.0
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -319,10 +388,11 @@ jobs:
       - name: Audit the dependencies
         run: make audit-deps
 
-  # Decides whether this run may pull the dhi.io bases, which every image job needs
-  # (docs/release.md, Required Checks and Fork Pull Requests). A pull request from a fork gets no
-  # secrets: it succeeds with a notice and pull=false, so the image jobs skip and ci-result reports
-  # why. Any other run is trusted, and one without the credentials is a setup error, so it fails.
+  # Decides whether this run may pull the dhi.io base, which the image job needs (docs/release.md,
+  # Required Checks and Fork Pull Requests). A pull request from a fork gets no secrets: it succeeds
+  # with a notice and pull=false, so the image job skips and ci-result fails with the reason, rather
+  # than a gate passing on nothing. Any other run is trusted, and one without the token is a setup
+  # error, so it fails.
   credentials:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -336,28 +406,38 @@ jobs:
           EVENT: ${{ github.event_name }}
           HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
           REPOSITORY: ${{ github.repository }}
-          # Dependabot runs see Dependabot secrets only, so its username is a secret there.
-          HAS_USERNAME: ${{ vars.DHI_USERNAME != '' || secrets.DHI_USERNAME != '' }}
           HAS_TOKEN: ${{ secrets.DHI_TOKEN != '' }}
         run: |
           set -euo pipefail
           if [[ "${EVENT}" == "pull_request" && "${HEAD_REPOSITORY}" != "${REPOSITORY}" ]]; then
-            message="A pull request from a fork gets no dhi.io credentials, so the image jobs are skipped and ci-result fails; a maintainer merges it through a replacement pull request (docs/release.md, Required Checks and Fork Pull Requests)."
-            echo "::notice title=Image jobs skipped::${message}"
-            echo "### Image jobs skipped" >>"${GITHUB_STEP_SUMMARY}"
+            message="A pull request from a fork gets no dhi.io credentials, so the image job is skipped and ci-result fails; a maintainer merges it through a replacement pull request (docs/release.md, Required Checks and Fork Pull Requests)."
+            echo "::notice title=Image job skipped::${message}"
+            echo "### Image job skipped" >>"${GITHUB_STEP_SUMMARY}"
             echo "${message}" >>"${GITHUB_STEP_SUMMARY}"
             echo "pull=false" >>"${GITHUB_OUTPUT}"
             exit 0
           fi
-          if [[ "${HAS_USERNAME}" != "true" || "${HAS_TOKEN}" != "true" ]]; then
-            echo "::error title=No dhi.io credentials::A trusted run needs the DHI_USERNAME variable and the DHI_TOKEN secret (docs/release.md, One-Time Setup)."
+          if [[ "${HAS_TOKEN}" != "true" ]]; then
+            echo "::error title=No dhi.io credentials::A trusted run needs the DHI_TOKEN secret, an Actions secret and a Dependabot secret (docs/release.md, One-Time Setup)."
             exit 1
           fi
           echo "pull=true" >>"${GITHUB_OUTPUT}"
 
-  # The shipped image: a no-push build of both platforms, then the host-platform image into the
-  # daemon and the image tests on it (testing.md section 5): user 65532, healthy, the API and the
-  # SPA answering, no packet out, no write, and under strace no connection or write attempt.
+  # The release's packaging path, on every pull request and every push to main: the SPA and the
+  # static release binaries built once with the release's own make target (rust-release-binaries),
+  # then the image's prebuilt target, which COPYs those binaries, for both shipped platforms.
+  # linux/amd64 runs the full tier natively (scripts/image-test.sh, then the image and netguard
+  # suites of testing.md section 5 on the same image: user 65532, healthy, the API and the SPA
+  # answering, no packet out, no write, and under strace no connection or write attempt);
+  # linux/arm64 runs the reduced tier under QEMU (the binary's ELF machine and static linking, its
+  # mode and owner, the image config, the container starting, its stamps, its healthcheck and the
+  # SPA it embeds). Both check that the image binary is byte for byte the dist/ binary built here.
+  # The release builds the same target from the same make target on the same base tag, and runs
+  # only the short smoke tier of the same script (docs/release.md, What CI Proves).
+  #
+  # Never skipped on a trusted run: release.yaml gates on ci-result of the exact commit it
+  # releases, and only this job on that commit proves its packaging. The prebuilt target never
+  # touches dhi.io/rust or dhi.io/node, but its base, dhi.io/static, needs a dhi.io login.
   image:
     needs: credentials
     if: needs.credentials.outputs.pull == 'true'
@@ -371,39 +451,101 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Set up Rust
-        run: rustup toolchain install --no-self-update
-
-      - name: Cache the Rust build
-        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
-          save-if: ${{ github.event_name == 'pull_request' }}
+          persist-credentials: false
 
-      - name: Set up Buildx
-        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      # Every external image pinned and every download verified, before minutes of building: the
+      # dhi.io bases by an explicit tag (dhi.io rebuilds them too often to follow by digest),
+      # anything else, the BuildKit frontend included, by digest. The release runs the same check.
+      - name: Check the Dockerfile pins
+        uses: leinardi/gh-composite-actions/check-pinned-bases@2115c9766c690e2e98afdeb64425c761aa86b072 # v1.4.0
+        with:
+          dockerfiles: deployments/docker/Dockerfile
+          tag-only-images: dhi.io
 
-      # The build stages pull dhi.io/rust and dhi.io/node, the runtime stage dhi.io/static.
       - name: Log in to Docker Hardened Images (dhi.io)
         uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: dhi.io
-          username: ${{ vars.DHI_USERNAME || secrets.DHI_USERNAME }}
+          username: leinardi
           password: ${{ secrets.DHI_TOKEN }}
 
-      # Both platforms build without emulation: the build stages run on the build platform and
-      # cross-compile. Nothing is pushed or loaded; a failure on either platform fails here.
-      - name: Build both platforms
-        run: |
-          docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            -f deployments/docker/Dockerfile \
-            .
+      - name: Set up Rust
+        run: rustup toolchain install --no-self-update
 
-      # Builds the host-platform image as bitgauge:test, checks its identity (the Rust build at this
-      # commit, holding the binary it copies out) and runs the image suite and the netguard tests.
-      - name: Test the image
-        run: make rust-test-image BITGAUGE_TEST_IMPL=rust
+      # Its own key: the musl targets and the remapped paths build other units than the rust job,
+      # and the full tier compiles testenv's image suites.
+      - name: Cache the Rust build
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          shared-key: ci
+          key: static
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      # The SPA the binaries embed, built once by rust-release-binaries (web-build).
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+
+      # The versions .mk/rust-release.mk pins (meta/tests/toolchain.rs), as the release.
+      - name: Set up cargo-zigbuild
+        uses: leinardi/gh-composite-actions/setup-zigbuild@2115c9766c690e2e98afdeb64425c761aa86b072 # v1.4.0
+        with:
+          zig-version: 0.17.0
+          cargo-zigbuild-version: 0.24.0
+
+      # The release's stamps, in the release's format: a version, the commit's first seven
+      # characters and its commit date.
+      - name: Read the stamps
+        id: stamp
+        run: |
+          set -euo pipefail
+          {
+            echo "version=0.0.0-ci"
+            echo "commit=$(git rev-parse HEAD | cut -c1-7)"
+            echo "date=$(TZ=UTC git log -1 --format=%cd --date=format-local:%Y-%m-%dT%H:%M:%SZ)"
+          } >>"${GITHUB_OUTPUT}"
+
+      - name: Build the SPA and the static release binaries
+        env:
+          GIT_VERSION: ${{ steps.stamp.outputs.version }}
+          GIT_COMMIT: ${{ steps.stamp.outputs.commit }}
+          BUILD_DATE: ${{ steps.stamp.outputs.date }}
+        run: |
+          set -euo pipefail
+          make rust-release-dist \
+            GIT_VERSION="${GIT_VERSION}" GIT_COMMIT="${GIT_COMMIT}" BUILD_DATE="${BUILD_DATE}"
+          cat dist/checksums.txt
+
+      # The arm64 image runs on the amd64 runner through binfmt emulation. The registered emulator
+      # image is pinned by index digest, because the action's default is the moving `latest` tag.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+        with:
+          image: tonistiigi/binfmt:latest@sha256:400a4873b838d1b89194d982c45e5fb3cda4593fbfd7e08a02e76b03b21166f0
+          platforms: arm64
+
+      # No layer cache: the prebuilt target is the base plus one COPY.
+      - name: Build and test the linux/amd64 image (full tier)
+        env:
+          GIT_VERSION: ${{ steps.stamp.outputs.version }}
+          GIT_COMMIT: ${{ steps.stamp.outputs.commit }}
+          BUILD_DATE: ${{ steps.stamp.outputs.date }}
+        run: |
+          set -euo pipefail
+          stamps=(GIT_VERSION="${GIT_VERSION}" GIT_COMMIT="${GIT_COMMIT}" BUILD_DATE="${BUILD_DATE}")
+          make image-build-test "${stamps[@]}" IMAGE_PLATFORM=linux/amd64 IMAGE_TEST_TIER=full
+
+      - name: Build and test the linux/arm64 image (reduced tier, QEMU)
+        env:
+          GIT_VERSION: ${{ steps.stamp.outputs.version }}
+          GIT_COMMIT: ${{ steps.stamp.outputs.commit }}
+          BUILD_DATE: ${{ steps.stamp.outputs.date }}
+        run: |
+          set -euo pipefail
+          stamps=(GIT_VERSION="${GIT_VERSION}" GIT_COMMIT="${GIT_COMMIT}" BUILD_DATE="${BUILD_DATE}")
+          make image-build-test "${stamps[@]}" IMAGE_PLATFORM=linux/arm64 IMAGE_TEST_TIER=reduced
 
   # The accuracy harness is not part of CI: it takes up to two hours, so it runs by hand
   # (harness.yaml, workflow_dispatch, or make harness-ci) and before a release.
@@ -422,21 +564,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up Rust
         run: rustup toolchain install --no-self-update
 
+      # Its own key: the release-profile binary the tests start builds other units than the rust
+      # job.
       - name: Cache the Rust build
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
-          save-if: ${{ github.event_name == 'pull_request' }}
+          shared-key: ci
+          key: e2e
+          save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "24"
-          cache: npm
-          cache-dependency-path: web/package-lock.json
 
       - name: Install the web dependencies
         run: make web-install
@@ -473,16 +619,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-  # The one required check that stands for the rest: GitHub counts a skipped required job as passing,
-  # so this job runs always and decides. On a pull request every needed job must succeed; on a push
-  # or a dispatch the pull-request-only jobs are skipped and the others must succeed.
+  # The one check that stands for the rest, for the branch ruleset to require and for release.yaml
+  # to gate on: GitHub counts a skipped required job as passing, so this job runs always and
+  # decides. On a pull request every needed job must succeed; on a push or a dispatch the
+  # pull-request-only conventional-commits job is skipped and the others must succeed. The
+  # reviewdog jobs only annotate pull requests and are not needed: pre-commit-all is the gate they
+  # annotate for.
   ci-result:
     if: always()
     needs:
       - pre-commit-all
       - conventional-commits
       - repo-gates
-      - release-scripts
       - rust
       - audit
       - web
@@ -502,7 +650,7 @@ jobs:
           # A fork pull request cannot pull dhi.io: its skipped image job fails with the documented
           # reason and the merge path, not as a generic skip.
           if [[ "$(jq -r '.credentials.outputs.pull // ""' <<<"${NEEDS}")" == "false" ]]; then
-            echo "::error title=Fork pull request::The image jobs were skipped because a pull request from a fork gets no dhi.io credentials. Merge it through a replacement pull request (docs/release.md, Required Checks and Fork Pull Requests)."
+            echo "::error title=Fork pull request::The image job was skipped because a pull request from a fork gets no dhi.io credentials. Merge it through a replacement pull request (docs/release.md, Required Checks and Fork Pull Requests)."
             exit 1
           fi
           failed="$(jq -r --arg event "${EVENT}" '

@@ -25,8 +25,10 @@
 //! node-version input of CI), the Rust release (`rust-toolchain.toml`, the Cargo `rust-version`,
 //! the shipped Dockerfile's build image and `RUST_VERSION`, and `.mk/rust-release.mk`'s
 //! `rust-std`), the zig, cargo-zigbuild and `rust-std` releases and archive digests the shipped
-//! Dockerfile repeats from `.mk/rust-release.mk`, the one record of them, `ShellCheck` and Trivy.
-//! The exact web pins and the node-version input rules (ported from the Go repository's
+//! Dockerfile and the setup-zigbuild steps of CI and the release repeat from
+//! `.mk/rust-release.mk`, the one record of them, and `ShellCheck`. Trivy is the one tool never
+//! pinned: every scan is gh-composite-actions' trivy-gate at its latest release. The exact web pins
+//! and the node-version input rules (ported from the Go repository's
 //! `test/toolchain/pins_test.go`) are BitGauge's own.
 //!
 //! Each pin is rust-common's `repo_meta::toolchain::one_value` over the files that write it. The
@@ -157,9 +159,20 @@ fn node_line_sources(read: Reader<'_>) -> Vec<PinSource> {
 const RUST_TOOLCHAIN: &str = "rust-toolchain.toml";
 const RELEASE_MK: &str = ".mk/rust-release.mk";
 const PRE_COMMIT_CONFIG: &str = ".pre-commit-config.yaml";
-const SETUP_SHELLCHECK: &str = ".github/actions/setup-shellcheck/action.yaml";
+const CI_WORKFLOW: &str = ".github/workflows/ci.yaml";
 const RELEASE_WORKFLOW: &str = ".github/workflows/release.yaml";
 const SCHEDULED_SCAN: &str = ".github/workflows/scheduled-scan.yaml";
+/// The `version` input of every gh-composite-actions setup-shellcheck step in CI.
+const SHELLCHECK_ACTION: &str =
+    r"setup-shellcheck@[0-9a-f]{40}[^\n]*\n\s*with:\s*\n\s*version:\s*v(\d+\.\d+\.\d+)\s";
+/// The `zig-version` and `cargo-zigbuild-version` inputs of gh-composite-actions'
+/// setup-zigbuild, in CI and the release; its default digests are the `x86_64` ones of
+/// `.mk/rust-release.mk`.
+const ZIG_ACTION: &str = r#"(?m)^\s*zig-version:\s*"?([\d.]+)"#;
+const ZIGBUILD_ACTION: &str = r#"(?m)^\s*cargo-zigbuild-version:\s*"?([\d.]+)"#;
+/// A Trivy version written down anywhere under .github: trivy-gate's `trivy-version` input, a
+/// `TRIVY_VERSION`, or a setup-trivy step of its own.
+const TRIVY_PIN: &str = r"(?m)trivy-version:|TRIVY_VERSION|aquasecurity/setup-trivy";
 
 /// A `sha256` pin of an archive: the Dockerfile's case arm and `.mk/rust-release.mk`'s variable.
 /// `arm` is the Dockerfile text that introduces the digest and `variable` the make variable.
@@ -207,19 +220,22 @@ fn rust_line_problems(read: Reader<'_>) -> Vec<Problem> {
     )
 }
 
-/// The release toolchain the shipped Dockerfile repeats from `.mk/rust-release.mk`: the zig and
-/// cargo-zigbuild releases, and each archive's digest.
+/// The release toolchain the shipped Dockerfile and the setup-zigbuild steps of CI and the release
+/// repeat from `.mk/rust-release.mk`: the zig and cargo-zigbuild releases, and each archive's
+/// digest.
 fn release_pin_problems(read: Reader<'_>) -> Vec<Problem> {
     let mut problems = Vec::new();
-    for (what, dockerfile, variable) in [
+    for (what, dockerfile, action, variable) in [
         (
             "zig release",
             r"(?m)^ARG ZIG_VERSION=(\S+)\s*$",
+            ZIG_ACTION,
             "RUST_RELEASE_ZIG_VERSION",
         ),
         (
             "cargo-zigbuild release",
             r"(?m)^ARG CARGO_ZIGBUILD_VERSION=(\S+)\s*$",
+            ZIGBUILD_ACTION,
             "RUST_RELEASE_CARGO_ZIGBUILD_VERSION",
         ),
     ] {
@@ -227,6 +243,8 @@ fn release_pin_problems(read: Reader<'_>) -> Vec<Problem> {
             what,
             &[
                 required(read, SHIPPED_DOCKERFILE, dockerfile),
+                required(read, CI_WORKFLOW, action),
+                required(read, RELEASE_WORKFLOW, action),
                 required(
                     read,
                     RELEASE_MK,
@@ -264,8 +282,9 @@ fn release_pin_problems(read: Reader<'_>) -> Vec<Problem> {
 }
 
 /// `ShellCheck` is one release: droast's bridge runs the shellcheck on PATH, which CI installs with
-/// setup-shellcheck, and it must be the release the shellcheck-py hook wraps (its rev adds a
-/// fourth component for the wrapper), which Dependabot moves.
+/// gh-composite-actions' setup-shellcheck at its `version` input, and it must be the release the
+/// shellcheck-py hook wraps (its rev adds a fourth component for the wrapper), which Dependabot
+/// moves.
 fn shellcheck_problems(read: Reader<'_>) -> Vec<Problem> {
     toolchain::one_value(
         "ShellCheck release",
@@ -275,30 +294,26 @@ fn shellcheck_problems(read: Reader<'_>) -> Vec<Problem> {
                 PRE_COMMIT_CONFIG,
                 r"shellcheck-py/shellcheck-py\s+rev:\s*v(\d+\.\d+\.\d+)(?:\.\d+)?\s",
             ),
-            required(
-                read,
-                SETUP_SHELLCHECK,
-                r"SHELLCHECK_VERSION:\s*v(\d+\.\d+\.\d+)\s",
-            ),
+            required(read, CI_WORKFLOW, SHELLCHECK_ACTION),
         ],
         &[],
     )
 }
 
-/// Trivy is one release: the release workflow scans with the version the scheduled scan uses.
-fn trivy_problems(read: Reader<'_>) -> Vec<Problem> {
-    toolchain::one_value(
-        "Trivy release",
-        &[
-            required(
-                read,
-                RELEASE_WORKFLOW,
-                r"(?m)^\s*TRIVY_VERSION:\s*(v\S+)\s*$",
-            ),
-            required(read, SCHEDULED_SCAN, r"(?m)^\s*TRIVY_VERSION:\s*(v\S+)\s*$"),
-        ],
-        &[],
-    )
+/// The Trivy pins in `files` (path and text), one problem per file that writes one.
+fn trivy_pin_problems(files: &[(String, String)]) -> Vec<Problem> {
+    let pin = pattern(TRIVY_PIN);
+    files
+        .iter()
+        .filter(|(_, content)| pin.is_match(content))
+        .map(|(file, _)| {
+            Problem::at(
+                file,
+                "pins Trivy: trivy-gate installs its latest release, so every scan runs the newest \
+                 checks",
+            )
+        })
+        .collect()
 }
 
 /// The tools other files must match, pinned exactly in `web/package.json`.
@@ -497,9 +512,28 @@ fn rust_line_control_fails_on_another_release() {
             format!("RUST_RELEASE_RUST_STD_VERSION := {line}"),
         ),
     ];
-    for (file, text) in cases {
-        let read = mutated(file, &text, &text.replace(&line, "1.0.0"));
-        assert_some(&rust_line_problems(&read), &text);
+    for (file, text) in &cases {
+        let read = mutated(file, text, &text.replace(&line, "1.0.0"));
+        assert_some(&rust_line_problems(&read), text);
+    }
+    // Another patch of the same line in any one source fails too: rust-std, the image and the
+    // toolchain must be one exact release, not one line.
+    let (major_minor, patch) = line
+        .rsplit_once('.')
+        .unwrap_or_else(|| panic!("{line} is not an exact release"));
+    let other_patch = format!(
+        "{major_minor}.{}",
+        patch.parse::<u32>().map_or(99, |n| n + 1)
+    );
+    for (file, text) in &cases {
+        let read = mutated(file, text, &text.replace(&line, &other_patch));
+        let problems = rust_line_problems(&read);
+        assert_eq!(
+            problems.len(),
+            1,
+            "a patch-only drift to {other_patch} in {text}: {}",
+            report(&problems)
+        );
     }
     let channel = mutated(
         RUST_TOOLCHAIN,
@@ -539,6 +573,12 @@ fn rust_release_pin_control_fails_on_a_change() {
             "RUST_RELEASE_CARGO_ZIGBUILD_VERSION := ",
             "RUST_RELEASE_CARGO_ZIGBUILD_VERSION := 9",
         ),
+        mutated(CI_WORKFLOW, "zig-version: ", "zig-version: 9"),
+        mutated(
+            RELEASE_WORKFLOW,
+            "cargo-zigbuild-version:",
+            "cargo-zigbuild-version-gone:",
+        ),
         mutated(dockerfile, &hash, &changed),
         mutated(RELEASE_MK, &hash, &changed),
     ];
@@ -553,14 +593,10 @@ fn shell_check_is_one_version() {
     assert_none(&shellcheck_problems(&repo_file));
 }
 
-/// The `ShellCheck` control: another release in setup-shellcheck, or in the hook, fails.
+/// The `ShellCheck` control: another release in a CI setup-shellcheck step, or in the hook, fails.
 #[test]
 fn shell_check_control_fails_on_another_version() {
-    let action = mutated(
-        SETUP_SHELLCHECK,
-        "SHELLCHECK_VERSION: v",
-        "SHELLCHECK_VERSION: v9",
-    );
+    let action = mutated(CI_WORKFLOW, "version: v0.", "version: v9.");
     assert_some(&shellcheck_problems(&action), "of setup-shellcheck");
     let hook = mutated(
         PRE_COMMIT_CONFIG,
@@ -570,17 +606,32 @@ fn shell_check_control_fails_on_another_version() {
     assert_some(&shellcheck_problems(&hook), "of the shellcheck-py hook");
 }
 
-/// The release workflow and the scheduled scan install the same Trivy.
+/// Trivy is never pinned: every scan is trivy-gate's, at its default `latest`, and no workflow
+/// installs a Trivy of its own.
 #[test]
-fn trivy_is_one_version() {
-    assert_none(&trivy_problems(&repo_file));
+fn trivy_is_never_pinned() {
+    let repo = meta::repo();
+    let files = repo.files_under(".github", &[".yaml", ".yml"]);
+    assert!(
+        !files.is_empty(),
+        "no YAML files under .github; the scan would check nothing"
+    );
+    assert!(
+        files.iter().any(|file| file == SCHEDULED_SCAN),
+        "the scan does not read {SCHEDULED_SCAN}"
+    );
+    assert_none(&trivy_pin_problems(&repo.read_all(&files)));
 }
 
-/// The Trivy control: another release in either workflow fails.
+/// The negative control: each way of pinning Trivy is found, in the file that writes it.
 #[test]
-fn trivy_control_fails_on_another_version() {
-    for file in [RELEASE_WORKFLOW, SCHEDULED_SCAN] {
-        let changed = mutated(file, "TRIVY_VERSION: v", "TRIVY_VERSION: v9");
-        assert_some(&trivy_problems(&changed), file);
+fn trivy_pins_are_recognized() {
+    for sample in [
+        "        with:\n          trivy-version: 0.76.2\n",
+        "env:\n  TRIVY_VERSION: v0.76.2\n",
+        "      - uses: aquasecurity/setup-trivy@0000000000000000000000000000000000000000 # v0.3.1\n",
+    ] {
+        let problems = trivy_pin_problems(&[(SCHEDULED_SCAN.to_owned(), sample.to_owned())]);
+        assert_eq!(problems.len(), 1, "{sample:?}: {}", report(&problems));
     }
 }
