@@ -22,7 +22,9 @@
 // right after warm-up, before 3 fully known 1 s cells, and is partial with insufficient data and
 // Keep in history offered. axe scans the live view and both endings. The spec runs a BitGauge of
 // its own, so a 60 s run neither shares the shared server's per-client limits nor competes with
-// the other specs.
+// the other specs. The stopped run goes through a 100 Mbit/s link: over loopback, WebKit on a
+// two-CPU runner spends its main thread on a multi-Gbit download, so the page shows the 3 s before
+// the first rate only between updates seconds apart, and the Stop click lands after it.
 
 import { readFile } from 'node:fs/promises'
 
@@ -31,14 +33,18 @@ import { validateResult } from '@/engine/messages'
 import { expectAccessible } from './fixtures/axe'
 import { type Server, startServer } from './fixtures/server'
 import { expect, test } from './fixtures/test'
+import { type Throttle, throttle } from './fixtures/throttle'
 
 let server: Server
+let link: Throttle | null = null
 
 test.beforeEach(async () => {
   server = await startServer()
 })
 
 test.afterEach(async () => {
+  await link?.close()
+  link = null
   await server.kill()
 })
 
@@ -75,7 +81,8 @@ test('stops a Continuous download right after warm-up: partial, insufficient dat
   await page.addInitScript(() => {
     localStorage.setItem('bitgauge.settings.v1', JSON.stringify({ phases: ['download', 'upload'] }))
   })
-  await page.goto(`${server.url}/?preset=continuous&test=download`)
+  link = await throttle(server.url, 100_000_000)
+  await page.goto(`${link.url}/?preset=continuous&test=download`)
   await expect(page.getByTestId('phase-indicator').getByRole('listitem')).toHaveCount(1)
   await page.getByRole('button', { name: 'Start test' }).click()
 
