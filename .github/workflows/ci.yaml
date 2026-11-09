@@ -77,7 +77,7 @@ jobs:
       # the runner's. The version is the shellcheck-py rev's in .pre-commit-config.yaml
       # (meta/tests/toolchain.rs); the action's default sha256 is that release's.
       - name: Set up ShellCheck
-        uses: leinardi/gh-composite-actions/setup-shellcheck@2115c9766c690e2e98afdeb64425c761aa86b072 # v1.4.0
+        uses: leinardi/gh-composite-actions/setup-shellcheck@addc113a34e0a96ca2e08218380fdecad2fdd230 # v1.4.2
         with:
           version: v0.11.0
 
@@ -147,7 +147,7 @@ jobs:
 
       # droast's ShellCheck bridge runs the shellcheck on PATH: the pinned one, not the runner's.
       - name: Set up ShellCheck
-        uses: leinardi/gh-composite-actions/setup-shellcheck@2115c9766c690e2e98afdeb64425c761aa86b072 # v1.4.0
+        uses: leinardi/gh-composite-actions/setup-shellcheck@addc113a34e0a96ca2e08218380fdecad2fdd230 # v1.4.2
         with:
           version: v0.11.0
 
@@ -342,7 +342,7 @@ jobs:
         run: make rust-doc
 
       - name: Set up cargo-deny
-        uses: leinardi/gh-composite-actions/setup-cargo-deny@2115c9766c690e2e98afdeb64425c761aa86b072 # v1.4.0
+        uses: leinardi/gh-composite-actions/setup-cargo-deny@addc113a34e0a96ca2e08218380fdecad2fdd230 # v1.4.2
 
       # --workspace (in the make target): the root is a package as well as the workspace, so
       # without it cargo-deny would check the server's graph only, not the meta and testenv crates.
@@ -378,7 +378,7 @@ jobs:
         run: rustup toolchain install --no-self-update
 
       - name: Set up cargo-deny
-        uses: leinardi/gh-composite-actions/setup-cargo-deny@2115c9766c690e2e98afdeb64425c761aa86b072 # v1.4.0
+        uses: leinardi/gh-composite-actions/setup-cargo-deny@addc113a34e0a96ca2e08218380fdecad2fdd230 # v1.4.2
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -458,7 +458,7 @@ jobs:
       # dhi.io bases by an explicit tag (dhi.io rebuilds them too often to follow by digest),
       # anything else, the BuildKit frontend included, by digest. The release runs the same check.
       - name: Check the Dockerfile pins
-        uses: leinardi/gh-composite-actions/check-pinned-bases@2115c9766c690e2e98afdeb64425c761aa86b072 # v1.4.0
+        uses: leinardi/gh-composite-actions/check-pinned-bases@addc113a34e0a96ca2e08218380fdecad2fdd230 # v1.4.2
         with:
           dockerfiles: deployments/docker/Dockerfile
           tag-only-images: dhi.io
@@ -490,7 +490,7 @@ jobs:
 
       # The versions .mk/rust-release.mk pins (meta/tests/toolchain.rs), as the release.
       - name: Set up cargo-zigbuild
-        uses: leinardi/gh-composite-actions/setup-zigbuild@2115c9766c690e2e98afdeb64425c761aa86b072 # v1.4.0
+        uses: leinardi/gh-composite-actions/setup-zigbuild@addc113a34e0a96ca2e08218380fdecad2fdd230 # v1.4.2
         with:
           zig-version: 0.17.0
           cargo-zigbuild-version: 0.24.0

@@ -49,7 +49,7 @@ jobs:
 
     steps:
       - name: Delete older web caches
-        uses: leinardi/gh-composite-actions/prune-caches@2115c9766c690e2e98afdeb64425c761aa86b072 # v1.4.0
+        uses: leinardi/gh-composite-actions/prune-caches@addc113a34e0a96ca2e08218380fdecad2fdd230 # v1.4.2
         with:
           ref: refs/heads/main
           key-prefix: web-
