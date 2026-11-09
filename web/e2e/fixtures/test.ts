@@ -22,15 +22,44 @@
 // own scripts, and one in each Worker it starts, where the engine's fetch, XHR and WebSocket run,
 // report each violation on the console, which outlives a navigation; a test that saw one fails
 // when it ends, whatever it asserted. csp-guard.spec.ts proves that both listeners report.
+// On WebKit, page.goto also retries once a navigation WebKit never finishes (below).
 
-import { type ConsoleMessage, expect, test as base } from '@playwright/test'
+import { type ConsoleMessage, errors, expect, test as base } from '@playwright/test'
 
 const MARK = '[bitgauge-e2e csp] '
 
 /** Set on a Worker's global scope once its listener is in place. */
 export const WORKER_GUARD = '__bitgaugeCspGuard'
 
+// WebKit sometimes never finishes a navigation to a document served with
+// `Cross-Origin-Opener-Policy: same-origin`, as every BitGauge page is: about one fresh navigation
+// in 500 waits for a load that never comes, without Playwright too
+// (https://github.com/microsoft/playwright/issues/42957, https://bugs.webkit.org/show_bug.cgi?id=325840).
+// On WebKit only, page.goto therefore gets a first try this long, far more than a page here takes
+// to load, and on a timeout navigates once more with the caller's own timeout. Any other failure,
+// and a second timeout, still fail the test. Remove this once the WebKit bug is fixed.
+const WEBKIT_GOTO_FIRST_TRY_MS = 10_000
+
 export const test = base.extend<{ cspViolations: Set<string> }>({
+  page: async ({ page, browserName }, use) => {
+    if (browserName === 'webkit') {
+      const goto = page.goto.bind(page)
+      page.goto = async (url, options) => {
+        if (options?.timeout !== undefined && options.timeout <= WEBKIT_GOTO_FIRST_TRY_MS) {
+          return goto(url, options)
+        }
+        try {
+          return await goto(url, { ...options, timeout: WEBKIT_GOTO_FIRST_TRY_MS })
+        } catch (error) {
+          if (!(error instanceof errors.TimeoutError)) {
+            throw error
+          }
+          return goto(url, options)
+        }
+      }
+    }
+    await use(page)
+  },
   cspViolations: [
     async ({ page }, use) => {
       const violations = new Set<string>()
