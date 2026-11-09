@@ -18,30 +18,59 @@
  */
 
 //! The image invariants of build-packaging.md sections 1 and 2, ported from `test/dockerfiles`:
-//! the shipped Dockerfile's stages and pinned bases, the `BuildKit` frontend pin, and which
-//! Dockerfiles may be built and by what.
+//! the shipped Dockerfile's stages and pinned bases, its two targets on one base stage, the
+//! `BuildKit` frontend pin, and which Dockerfiles may be built and by what.
 //!
 //! The shipped Dockerfile is the Rust build; the Go build and the Rust candidate it replaced are
 //! gone (`docs/rust-port.md`). The Dockerfile reader and the generic image rules are
 //! rust-common's `repo_meta::dockerfile` and `repo_meta::image`; the test images and the
-//! Makefile's image target are BitGauge's own. Every check is a function of the text, and each is
-//! also run on input built to break it. The version stamps, the runtime posture and the release
-//! workflow are not asserted here: the build and the release smoke test (release.yaml) show them.
+//! Makefile's image target are BitGauge's own, and so are the stage rules: `repo_meta::image`'s
+//! `BasePolicy` knows no internal stages, while two targets here share one base stage (adapted
+//! from swarm-scheduler-exporter's `meta/tests/dockerfiles.rs` at 88394aa). Every check is a
+//! function of the text, and each is also run on input built to break it. The version stamps and
+//! the running image are not asserted here: `scripts/image-test.sh` and the image suite show them.
 
 use std::collections::BTreeMap;
 use std::sync::LazyLock;
 
 use meta::SHIPPED_DOCKERFILE;
 use regex::Regex;
-use repo_meta::dockerfile;
-use repo_meta::image::{self, BasePolicy};
+use repo_meta::dockerfile::{self, Stage};
+use repo_meta::image;
 
 /// The Makefile, which builds the product image.
 const MAKEFILE: &str = "Makefile";
 /// The workflow that releases the product image.
 const RELEASE_WORKFLOW: &str = ".github/workflows/release.yaml";
-/// The named stages of the image Dockerfile, in order.
-const STAGES: [&str; 3] = ["web", "build", "runtime"];
+/// The named stages of the image Dockerfile, in order. The last one is the default target, so
+/// `runtime` must stay last.
+const STAGES: [&str; 6] = ["web", "build", "dist", "base", "prebuilt", "runtime"];
+/// The external bases: each stage's dhi.io repository, pinned by an explicit tag alone.
+const EXTERNAL: [(&str, &str); 3] = [
+    ("web", "dhi.io/node"),
+    ("build", "dhi.io/rust"),
+    ("base", "dhi.io/static"),
+];
+/// The internal ones: the `dist` context's placeholder, and the two targets on the one base.
+const INTERNAL: [(&str, &str); 3] = [
+    ("dist", "scratch"),
+    ("prebuilt", "base"),
+    ("runtime", "base"),
+];
+/// What each target puts on the base: the release asset of the target platform, from the `dist`
+/// context, or the build stage's binary, both where the entrypoint, the image tests and the
+/// release read it.
+const BINARIES: [(&str, &str); 2] = [
+    (
+        "prebuilt",
+        "COPY --from=dist --chmod=0755 bitgauge-${TARGETOS}-${TARGETARCH} /bitgauge",
+    ),
+    ("runtime", "COPY --from=build /out/bitgauge /bitgauge"),
+];
+/// The base's posture, which both targets inherit.
+const ENTRYPOINT: &str = r#"ENTRYPOINT ["/bitgauge"]"#;
+const USER: &str = "USER 65532:65532";
+const HEALTHCHECK_CMD: &str = r#"CMD ["/bitgauge", "healthcheck"]"#;
 
 fn pattern(text: &str) -> Regex {
     Regex::new(text).unwrap_or_else(|error| panic!("pattern {text}: {error}"))
@@ -64,21 +93,87 @@ fn all_dockerfiles() -> Vec<String> {
     found
 }
 
-/// The named stages, in order, of an image Dockerfile: web, build and runtime, each from a
-/// literal dhi.io base pinned by an explicit tag and no digest. Dependabot updates only literal
-/// FROM lines, a missing or latest tag says nothing about what is built, and dhi.io republishes
-/// its tags to ship security fixes, which a digest would hold back.
+/// Whether `stage` has the instruction `line`, as [`Stage::joined`] writes it.
+fn runs(stage: &Stage, line: &str) -> bool {
+    stage.joined().lines().any(|joined| joined == line)
+}
+
+/// The stages of an image Dockerfile: exactly [`STAGES`], in order; each external base a literal
+/// reference to its dhi.io repository by an explicit tag and no digest (Dependabot updates only
+/// literal FROM lines, a missing or latest tag says nothing about what is built, and dhi.io
+/// republishes its tags to ship security fixes, which a digest would hold back); each internal
+/// stage from its stage; each target's binary copied where the entrypoint reads it; both targets
+/// labelled alike (droast checks the default target's labels only); and the user, the health
+/// check and the entrypoint set in the base, so both targets run them.
 fn layout_problems(path: &str, content: &str) -> Vec<String> {
-    image::stage_problems(path, content, &STAGES, BasePolicy::DhiOnly)
-        .into_iter()
-        .map(|problem| {
-            if problem.location.is_empty() {
-                format!("{path}: {}", problem.message)
-            } else {
-                problem.to_string()
+    let stages = match dockerfile::parse(content) {
+        Ok(stages) => stages,
+        Err(error) => return vec![format!("{path}: {error}")],
+    };
+    let named = |name: &str| dockerfile::stage_named(path, &stages, name);
+    let mut problems = Vec::new();
+    let found: Vec<&str> = stages.iter().map(|stage| stage.name.as_str()).collect();
+    if found != STAGES {
+        problems.push(format!("{path}: has the stages {found:?}, want {STAGES:?}"));
+    }
+    for (name, repository) in EXTERNAL {
+        match named(name) {
+            Ok(stage)
+                if dockerfile::tag_pinned(&stage.image)
+                    && dockerfile::repository(&stage.image) == repository => {}
+            Ok(stage) => problems.push(format!(
+                "{path}: stage {name:?} is FROM {:?}, want a literal {repository}:<tag>, with no \
+                 digest",
+                stage.image
+            )),
+            Err(problem) => problems.push(problem.to_string()),
+        }
+    }
+    for (name, from) in INTERNAL {
+        match named(name) {
+            Ok(stage) if stage.image == from => {}
+            Ok(stage) => problems.push(format!(
+                "{path}: stage {name:?} is FROM {:?}, want FROM {from}",
+                stage.image
+            )),
+            Err(problem) => problems.push(problem.to_string()),
+        }
+    }
+    for (name, copy) in BINARIES {
+        match named(name) {
+            Ok(stage) if runs(stage, copy) => {}
+            Ok(_) => problems.push(format!("{path}: stage {name:?} does not run {copy:?}")),
+            Err(problem) => problems.push(problem.to_string()),
+        }
+    }
+    if let (Ok(prebuilt), Ok(runtime)) = (named("prebuilt"), named("runtime")) {
+        let (labels, wanted) = (dockerfile::labels(prebuilt), dockerfile::labels(runtime));
+        if wanted.is_empty() || labels != wanted {
+            problems.push(format!(
+                "{path}: the prebuilt target's labels {labels:?} are not the runtime target's \
+                 {wanted:?}"
+            ));
+        }
+    }
+    match named("base") {
+        Ok(stage) => {
+            for line in [ENTRYPOINT, USER] {
+                if !runs(stage, line) {
+                    problems.push(format!("{path}: stage \"base\" does not set {line}"));
+                }
             }
-        })
-        .collect()
+            let probes = stage.joined().lines().any(|joined| {
+                joined.starts_with("HEALTHCHECK ") && joined.ends_with(HEALTHCHECK_CMD)
+            });
+            if !probes {
+                problems.push(format!(
+                    "{path}: stage \"base\" has no HEALTHCHECK that runs {HEALTHCHECK_CMD}"
+                ));
+            }
+        }
+        Err(problem) => problems.push(problem.to_string()),
+    }
+    problems
 }
 
 /// The syntax directive of `content`: a docker/dockerfile frontend pinned by digest. A bare
@@ -228,8 +323,9 @@ fn syntax_directive_is_pinned() {
     assert_no_problems(&problems);
 }
 
-/// Go: `TestShippedStages`. The three named stages, in order, each from a literal dhi.io base
-/// pinned by an explicit tag and no digest.
+/// Go: `TestShippedStages`. The six named stages, in order, each external one from a literal
+/// dhi.io base pinned by an explicit tag and no digest, and the two targets on the one base stage,
+/// the prebuilt one with the release asset as its binary.
 #[test]
 fn shipped_stages() {
     assert_no_problems(&layout_problems(
@@ -401,29 +497,87 @@ fn parse_rejects_what_the_assertions_must_not_miss() {
     }
 }
 
-/// The negative control of `shipped_stages`: the shipped Dockerfile with a stage unpinned, from
-/// another registry, unnamed or renamed.
+/// The negative control of `shipped_stages`: each edit of the shipped Dockerfile breaks one rule,
+/// and exactly one problem comes back.
 #[test]
 fn layout_checks_refuse_mutations() {
     let path = SHIPPED_DOCKERFILE;
     let content = meta::repo().read(path);
-    let runtime = "dhi.io/static:20250419";
-    assert_refuses(
-        path,
-        &content,
-        |text| layout_problems(path, text),
-        &[
-            literal("a stage by digest", runtime, format!("{runtime}{DIGEST}")),
-            literal("a stage by latest", runtime, "dhi.io/static:latest"),
-            literal(
-                "a stage from Docker Hub",
-                runtime,
-                format!("docker.io/library/busybox:1.37{DIGEST}"),
+    let base = "dhi.io/static:20250419";
+    let build = "dhi.io/rust:1.98.1-debian13-dev";
+    let edit = |from: &str, to: &str| {
+        assert!(content.contains(from), "{path} does not contain {from:?}");
+        content.replacen(from, to, 1)
+    };
+    assert!(layout_problems(path, &content).is_empty());
+    for (name, broken) in [
+        ("a base by digest", edit(base, &format!("{base}{DIGEST}"))),
+        ("a base by latest", edit(base, "dhi.io/static:latest")),
+        ("a base without a tag", edit(base, "dhi.io/static")),
+        (
+            "a base from another dhi.io repository",
+            edit(base, "dhi.io/alpine:3.23"),
+        ),
+        (
+            "a base from Docker Hub",
+            edit(base, &format!("docker.io/library/busybox:1.37{DIGEST}")),
+        ),
+        (
+            "a build base by digest",
+            edit(build, &format!("{build}{DIGEST}")),
+        ),
+        (
+            "a variable base",
+            edit(&format!("FROM {base}"), "FROM $BASE"),
+        ),
+        (
+            "a stage after the default target",
+            format!("{content}\nFROM base AS extra\n"),
+        ),
+        (
+            "the prebuilt target on another stage",
+            edit("FROM base AS prebuilt", "FROM build AS prebuilt"),
+        ),
+        (
+            "a dist stage that is an image",
+            edit("FROM scratch AS dist", &format!("FROM {base} AS dist")),
+        ),
+        (
+            "the prebuilt binary from the build stage",
+            edit(
+                "COPY --from=dist --chmod=0755 bitgauge-${TARGETOS}-${TARGETARCH}",
+                "COPY --from=build --chmod=0755 /out/bitgauge",
             ),
-            literal("an unnamed stage", " AS runtime", ""),
-            literal("a renamed stage", " AS web", " AS assets"),
-        ],
-    );
+        ),
+        (
+            "the runtime binary elsewhere",
+            edit(
+                "COPY --from=build /out/bitgauge /bitgauge",
+                "COPY --from=build /out/bitgauge /usr/local/bin/bitgauge",
+            ),
+        ),
+        (
+            "a prebuilt label of its own",
+            edit(
+                "org.opencontainers.image.title=\"bitgauge\"",
+                "org.opencontainers.image.title=\"prebuilt\"",
+            ),
+        ),
+        ("root", edit(USER, "USER 0:0")),
+        (
+            "another health check",
+            edit(HEALTHCHECK_CMD, r#"CMD ["/bitgauge", "serve"]"#),
+        ),
+        ("no entrypoint", edit(ENTRYPOINT, r#"CMD ["/bitgauge"]"#)),
+    ] {
+        let problems = layout_problems(path, &broken);
+        assert_eq!(problems.len(), 1, "{name}: {problems:?}");
+    }
+
+    // A renamed default target is three problems: the stage list, and the runtime stage's base and
+    // binary, which no stage holds any more.
+    let problems = layout_problems(path, &edit(" AS runtime", " AS final"));
+    assert_eq!(problems.len(), 3, "a renamed stage: {problems:?}");
 }
 
 /// The negative control of `syntax_directive_is_pinned` on the image Dockerfiles: no
