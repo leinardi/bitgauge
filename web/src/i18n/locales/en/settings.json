@@ -45,7 +45,7 @@
       "runLength": "Run length",
       "runLengthCaption": "Optional. None by default. A whole number of minutes, hours or days, 1 minute to 7 days.",
       "switch": "Stop after a set time",
-      "unit": "Run length unit",
+      "unit": "Run length unit: {unit}",
       "units": {
         "minutes": "minutes",
         "hours": "hours",

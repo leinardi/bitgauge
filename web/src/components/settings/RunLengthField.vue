@@ -134,7 +134,7 @@ function unit(next: unknown): void {
         <!-- The kit's Select in the Input shell, as a menu: a native select styles itself inline. -->
         <DropdownMenu>
           <DropdownMenuTrigger
-            :aria-label="t('settings.continuous.unit')"
+            :aria-label="t('settings.continuous.unit', { unit: unitLabel })"
             class="flex h-(--input-h) w-28 cursor-pointer items-center gap-2 rounded-(--radius-md) border border-(--border-default) bg-(--surface-1) px-3 text-left text-(length:--text-sm) text-foreground outline-none focus-visible:border-primary focus-visible:outline-(length:--focus-width) focus-visible:outline-offset-(--focus-offset) focus-visible:outline-(--focus-ring)"
             data-testid="run-length-unit"
             :data-unit="shown.unit"
