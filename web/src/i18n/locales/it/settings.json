@@ -21,7 +21,7 @@
     "continuous": {
       "direction": "Direzione", "directionCaption": "Il profilo Continuo misura una sola direzione finché non lo fermi.", "directionLabel": "Direzione del test continuo",
       "runLength": "Durata del test", "runLengthCaption": "Facoltativa, non impostata per default. Un numero intero di minuti, ore o giorni, da 1 minuto a 7 giorni.",
-      "switch": "Ferma dopo un tempo prestabilito", "unit": "Unità della durata", "units": { "minutes": "minuti", "hours": "ore", "days": "giorni" },
+      "switch": "Ferma dopo un tempo prestabilito", "unit": "Unità della durata: {unit}", "units": { "minutes": "minuti", "hours": "ore", "days": "giorni" },
       "none": "nessuna", "noLimit": "Nessun limite", "noRunLength": "nessuna durata impostata"
     },
     "connections": { "title": "Connessioni e limiti" },

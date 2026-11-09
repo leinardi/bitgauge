@@ -36,6 +36,11 @@ vi.mock('@/api/info', async (importOriginal) => ({
   getInfo: vi.fn(),
 }))
 
+// Every test re-imports the whole app after vi.resetModules, and the first pays its cold
+// transform: under 1 s alone, past vitest's 5 s default when other suites share the machine. The
+// bound is generous on purpose; the tests assert behavior, not speed.
+vi.setConfig({ testTimeout: 20_000 })
+
 const LINK = 'preset=quick&streams=2&cap=200MB&units=bytes&theme=dark&lang=en'
 
 class StubWorker extends EventTarget {

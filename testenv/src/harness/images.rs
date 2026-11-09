@@ -24,8 +24,8 @@
 
 /// The browsers of exactly the `@playwright/test` version `web/package.json` pins; the client
 /// runs the harness driver from the mounted workspace inside it.
-pub const PLAYWRIGHT_IMAGE: &str = "mcr.microsoft.com/playwright:v1.64.0-noble\
-    @sha256:06a9939e57531807f8d5fd76ce44b53165ffb7d7501d87ab10e285c20b1e971f";
+pub const PLAYWRIGHT_IMAGE: &str = "mcr.microsoft.com/playwright:v1.64.1-noble\
+    @sha256:2f05f8a734509a7b3f26a912639488ee08f58a7b292d14d62271bcff9038768f";
 /// The HTTP/1.1 proxy, also the one whose second entry point refuses WebSocket upgrades.
 pub const TRAEFIK_IMAGE: &str = "docker.io/library/traefik:v3.7.14\
     @sha256:575fa15b135078fe5e50aa847987d96dbddd7b093c172429618404df73f3fa7c";
