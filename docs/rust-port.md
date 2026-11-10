@@ -232,7 +232,7 @@ Rows are added by the phase that copies a file.
 
 Code the sibling ports also carry is a dependency on
 [leinardi/rust-common](https://github.com/leinardi/rust-common) instead, a git dependency pinned
-by release tag (`tag = "v1.0.0"`, with `version = "1.0"`) in `[workspace.dependencies]`; its files
+by release tag (`tag = "v1.1.0"`, with `version = "1.1"`) in `[workspace.dependencies]`; its files
 carry rust-common's headers, not this ledger's.
 
 | Crate | Replaces | What BitGauge parameterises |
