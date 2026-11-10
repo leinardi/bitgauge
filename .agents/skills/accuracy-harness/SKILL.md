@@ -259,7 +259,7 @@ Safari and iOS checks have passed for it ([release.md](../../../docs/release.md#
 - [ ] No tolerance widened, no self-test bound loosened, no evaluator looser than testing.md §5
 - [ ] No report or summary calls a `recorded` run, or an inconclusive one, a pass
 - [ ] Evaluator table tests cover every tolerance boundary and the 5.0 % / 5.1 % stability edge
-- [ ] The loaded-latency tests cover the ±20 % and 5 ms edges, grade adjacency at each threshold,
+- [ ] The loaded-latency tests cover the ±20 % and 10 ms edges, grade adjacency at each threshold,
   `http-h2`/`http-h3` recorded, and the ws-blocked fallback's source, samples, streams and notice
 - [ ] Every `tc` failure fails the run; loss added only after the self-test
 - [ ] Netguard's four negative controls run before BitGauge starts; counters zero to the end

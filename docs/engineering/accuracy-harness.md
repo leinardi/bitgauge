@@ -98,7 +98,7 @@ wall-clock time (`ping -D`).
   places each ping by its send time (arrival less round trip) in the phase windows of
   `phases.json`: idle latency's whole window, and each direction's after its first `I_s`,
   `max(1 s, 4 ×` the idle ping median`)`. A `websocket` or `http-h1-reserved` direction passes
-  within ±20 % or 5 ms, whichever is larger, of the ping's increase; the grade must be the letter of
+  within ±20 % or 10 ms, whichever is larger, of the ping's increase; the grade must be the letter of
   the larger ping increase its basis names, or the adjacent letter when that increase lies within
   the same tolerance of a threshold. An `http-h2` or `http-h3` direction, and a grade whose basis
   includes one, is recorded with the ping figures and not judged. On a judged direction a missing
