@@ -918,9 +918,12 @@ Path A is specified here; path B in §12.
 ### 11.1 Path A — WebSocket Echo (Bufferbloat Source)
 
 JSON ping frames with a client sequence number and `performance.now()` every **300 ms** over
-`/api/v1/ws`; RTT = echo arrival − send. Up to 4 pings may be outstanding, matched by sequence
-number and send time; a tick that would exceed 4 is skipped. A ping not answered within 30 s, or
-within the direction's grace after the direction ended (§11.4), is counted as lost.
+`/api/v1/ws`; RTT = echo arrival − send. The WebSocket lives in a Worker of its own, nested in the
+engine's, which takes both instants on its own clock: a pong is timed when it arrives, not when the
+engine's Worker, busy with the load, gets to it. Idle latency's pings (§10) use the same echo.
+Up to 4 pings may be outstanding, matched by sequence number and send time; a tick that would
+exceed 4 is skipped. A ping not answered within 30 s, or within the direction's grace after the
+direction ended (§11.4), is counted as lost.
 
 Path A reports, per direction:
 

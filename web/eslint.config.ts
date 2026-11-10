@@ -42,7 +42,7 @@ const engineFiles = ['src/engine/**/*.ts']
 
 // clock.ts and transport.ts are the production Clock and Transport; worker.ts is the message loop
 // that receives and posts messages.
-const engineWiringFiles = ['src/engine/clock.ts', 'src/engine/transport.ts', 'src/engine/worker.ts']
+const engineWiringFiles = ['src/engine/clock.ts', 'src/engine/echo.worker.ts', 'src/engine/transport.ts', 'src/engine/worker.ts']
 
 const engineBannedGlobals = [
   'window',

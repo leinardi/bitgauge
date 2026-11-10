@@ -19,6 +19,7 @@ web/
       messages/               from messages/, which holds the unions by topic
       run.ts, run/, phases/, upload/, download/, latency/, stats/, result.ts, result/
       clock.ts, transport.ts, wiring.ts   browser clock and transport, their pure helpers
+      echo.worker.ts          the WebSocket echo's own nested Worker
     demo/                     demo builds only (section 9): the simulated link, its Worker entry
     api/                      generated OpenAPI types and a typed fetch helper for GET /info
     components/               app components (gauge, charts, result cards, notices)
@@ -73,9 +74,11 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
 
   Production wires the browser implementations; tests wire fakes that replay a synthetic timeline
   ([testing.md §2](testing.md#2-engine-tests-with-synthetic-timelines)).
-- **Browser wiring.** `clock.ts`, `transport.ts` and `worker.ts` are the only engine files that
-  use the browser globals the engine bans; what they compute from browser values lives in
-  `wiring.ts`, tested on plain values.
+- **Browser wiring.** `clock.ts`, `transport.ts`, `worker.ts` and `echo.worker.ts` (the
+  WebSocket echo's nested Worker,
+  [../measurement.md §11.1](../measurement.md#111-path-a--websocket-echo-bufferbloat-source)) are
+  the only engine files that use the browser globals the engine bans; what they compute from
+  browser values lives in `wiring.ts`, tested on plain values.
   - The busy time sums the Worker's own tasks, each timed with `performance.now()`: timer
     callbacks, message handling, the XHR, WebSocket and progress callbacks themselves, and for each
     download chunk the time from the read resolving to the next read, which is the engine handling

@@ -266,9 +266,9 @@ that direction's phase after its first `I_s` (`max(1 s, 4 × RTT)`, with the idl
 the RTT; the engine's own `I_s`, from its idle median, may start its window some tens of
 milliseconds apart), minus the median RTT of the pings sent in the idle-latency phase. The engine's
 `increaseMs` passes within ±20 % of that ping increase or 10 ms, whichever is larger. The 10 ms
-floor covers what the browser adds on a shared runner: a pong waits for the engine's Worker,
-which the load keeps busy, and Firefox and WebKit on a 4-vCPU runner read 4–8 ms above the ping
-where Chromium reads under 1 ms; at 500 kbit/s one packet already takes 24 ms to send. The
+floor covers what a shared runner adds: Firefox and WebKit on a 4-vCPU runner read up to 5–8 ms
+above the ping where Chromium reads under 1 ms, and at 500 kbit/s one packet already takes 24 ms
+to send, so the median of about 40 probes scatters by a few milliseconds on its own. The
 bufferbloat grade is judged against the larger ping increase over the directions its `basis`
 names, as the grade itself takes the larger increase: it must be that increase's letter on the
 thresholds of [../measurement.md §11.3](../measurement.md#113-bufferbloat-grade), or the adjacent

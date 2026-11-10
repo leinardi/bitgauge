@@ -174,6 +174,45 @@ export function pong(data: unknown): { seq: number; t: number } | null {
   return type === 'pong' && typeof seq === 'number' && Number.isSafeInteger(seq) && typeof t === 'number' && Number.isFinite(t) ? { seq, t } : null
 }
 
+/** What the engine's Worker tells the echo's Worker (echo.worker.ts). */
+export type EchoCommand = { type: 'open'; url: string } | { type: 'ping'; seq: number; sentAt: number } | { type: 'close' }
+
+/** What the echo's Worker answers: `sentAt` is the engine's, `rttMs` timed on the echo's own clock. */
+export type EchoEvent = { type: 'open' } | { type: 'pong'; seq: number; sentAt: number; rttMs: number } | { type: 'closed'; code: number; opened: boolean }
+
+/** A ping unanswered this long is forgotten; the engine counts it lost after 30 s (measurement.md section 11.6). */
+export const ECHO_FORGET_MS = 60_000
+
+/**
+ * The echo Worker's send instants (measurement.md section 11.1): each ping is stamped when it is
+ * sent and its pong when it arrives, both on the echo Worker's clock, and matched on sequence
+ * number and the engine's send time together, as the listeners match them.
+ */
+export class EchoStamps {
+  private readonly sent = new Map<string, number>()
+
+  /** Records a ping sent at `at`, and forgets those older than ECHO_FORGET_MS. */
+  sending(seq: number, sentAt: number, at: number): void {
+    for (const [key, stamp] of this.sent) {
+      if (at - stamp > ECHO_FORGET_MS) {
+        this.sent.delete(key)
+      }
+    }
+    this.sent.set(`${seq}:${sentAt}`, at)
+  }
+
+  /** The round trip of the pong that arrived at `at`, or null for a ping it does not know. */
+  arrived(seq: number, sentAt: number, at: number): number | null {
+    const key = `${seq}:${sentAt}`
+    const stamp = this.sent.get(key)
+    if (stamp === undefined) {
+      return null
+    }
+    this.sent.delete(key)
+    return at - stamp
+  }
+}
+
 /** Whole seconds only, as the server writes Retry-After (wire-protocol.md section 9). */
 const WHOLE_SECONDS = /^\d{1,9}$/
 

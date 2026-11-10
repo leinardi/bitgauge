@@ -20,7 +20,7 @@
 // @vitest-environment jsdom
 
 // The pure parts of the browser wiring, on the values a browser hands them: the upload body's
-// sizing, the timing-entry lookup, pong frames, the timer resolution, the user-agent table, the
+// sizing, the timing-entry lookup, pong frames, the echo's stamps, the timer resolution, the user-agent table, the
 // GET /info check and the URLs under the base path.
 
 import { describe, expect, it } from 'vitest'
@@ -29,6 +29,8 @@ import {
   apiUrl,
   browserIdentity,
   checkedInfo,
+  ECHO_FORGET_MS,
+  EchoStamps,
   pong,
   RANDOM_CALL_BYTES,
   refusalOf,
@@ -249,6 +251,32 @@ describe('a pong frame', () => {
     ['null', 'null'],
   ])('is null for %s', (_, data) => {
     expect(pong(data)).toBeNull()
+  })
+})
+
+describe("the echo's stamps", () => {
+  it('time a round trip on the echo clock, whatever the engine sent as its instant', () => {
+    const stamps = new EchoStamps()
+    stamps.sending(1, 900, 1000)
+    expect(stamps.arrived(1, 900, 1012.5)).toBe(12.5)
+  })
+
+  it('match on sequence number and send time together, once', () => {
+    const stamps = new EchoStamps()
+    stamps.sending(1, 900, 1000)
+    expect(stamps.arrived(1, 901, 1010)).toBeNull()
+    expect(stamps.arrived(2, 900, 1010)).toBeNull()
+    expect(stamps.arrived(1, 900, 1010)).toBe(10)
+    expect(stamps.arrived(1, 900, 1020)).toBeNull()
+  })
+
+  it('forget a ping unanswered past ECHO_FORGET_MS when the next is sent', () => {
+    const stamps = new EchoStamps()
+    stamps.sending(1, 0, 0)
+    stamps.sending(2, 0, ECHO_FORGET_MS)
+    stamps.sending(3, 0, ECHO_FORGET_MS + 1)
+    expect(stamps.arrived(1, 0, ECHO_FORGET_MS + 2)).toBeNull()
+    expect(stamps.arrived(2, 0, ECHO_FORGET_MS + 2)).toBe(2)
   })
 })
 

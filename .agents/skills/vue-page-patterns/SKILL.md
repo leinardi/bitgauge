@@ -84,8 +84,8 @@ talks to the server; `engine/` measures, and nothing else does.
   Worker by URL, `new Worker(new URL('../engine/worker.ts', import.meta.url), { type: 'module' })`,
   which is not an import.
 - The engine imports only from itself and `@/api/types.gen`: no Vue, Reka UI, `idb` or uPlot, and no
-  `../` out of its folder. Outside `clock.ts`, `transport.ts` and `worker.ts` it may not touch
-  timers, `performance`, `fetch`, `WebSocket`, the DOM or storage.
+  `../` out of its folder. Outside `clock.ts`, `transport.ts`, `worker.ts` and `echo.worker.ts` it
+  may not touch timers, `performance`, `fetch`, `WebSocket`, the DOM or storage.
 - A page never computes a measured number; it renders what the engine's `result` and `sample`
   events carry.
 
