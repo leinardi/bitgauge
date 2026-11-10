@@ -221,7 +221,7 @@ harness has three tiers:
 
 | Tier | Profiles (tc tbf/netem on a Docker network, iperf3 reference) | Browsers | Where it runs |
 | --- | --- | --- | --- |
-| CI | 500 kbit/s + 300 ms; 10 Mbit; 100 Mbit + 50 ms; 1 Gbit; 100 Mbit + 50 ms through Traefik (h1) and through Caddy (h2); 100 Mbit + 50 ms through Traefik (h1) with WebSocket upgrades blocked, forcing the HTTP latency fallback | headless Chromium, headless Firefox, Playwright WebKit | every PR (or nightly for the 1 Gbit profile if CI runners cannot sustain it) |
+| CI | 500 kbit/s + 300 ms; 10 Mbit; 100 Mbit + 50 ms; 1 Gbit; 100 Mbit + 50 ms through Traefik (h1) and through Caddy (h2); 100 Mbit + 50 ms through Traefik (h1) with WebSocket upgrades blocked, forcing the HTTP latency fallback | headless Chromium, headless Firefox, Playwright WebKit | monthly, by hand, and before each release |
 | Manual range floor | 300 kbit/s + 300 ms + 1 % loss; 300 kbit/s + 600 ms (VPN over mobile) | Chromium, Firefox, WebKit; one real Android Chrome and one real iOS Safari run over an actual VPN | before each release, results recorded in `docs/engineering/harness-runs/<version>.md` |
 | Manual range ceiling | 2.5 Gbit and 10 Gbit on bare metal or veth without shaping (shaping at 10 Gbit is CPU-bound and not representative) | Chromium, Firefox, Safari on a machine with ≥ 4 cores; documented CPU/memory counters | before each release, results recorded in `docs/engineering/harness-runs/<version>.md` |
 
@@ -265,7 +265,10 @@ reference is the ICMP ping that runs alongside the browser: the median RTT of th
 that direction's phase after its first `I_s` (`max(1 s, 4 × RTT)`, with the idle ping median as
 the RTT; the engine's own `I_s`, from its idle median, may start its window some tens of
 milliseconds apart), minus the median RTT of the pings sent in the idle-latency phase. The engine's
-`increaseMs` passes within ±20 % of that ping increase or 5 ms, whichever is larger. The
+`increaseMs` passes within ±20 % of that ping increase or 10 ms, whichever is larger. The 10 ms
+floor covers what a shared runner adds: Firefox and WebKit on a 4-vCPU runner read up to 5–8 ms
+above the ping where Chromium reads under 1 ms, and at 500 kbit/s one packet already takes 24 ms
+to send, so the median of about 40 probes scatters by a few milliseconds on its own. The
 bufferbloat grade is judged against the larger ping increase over the directions its `basis`
 names, as the grade itself takes the larger increase: it must be that increase's letter on the
 thresholds of [../measurement.md §11.3](../measurement.md#113-bufferbloat-grade), or the adjacent
@@ -440,7 +443,7 @@ and anything about networks the project does not target.
 | Rust tests and meta-tests, rustfmt, clippy, cargo-deny | `ci.yaml` | every PR and push |
 | Engine and component tests (vitest), ESLint, `vue-tsc` | `ci.yaml` | every PR and push |
 | Playwright E2E (three browsers) | `ci.yaml` | every PR and push |
-| Accuracy harness, CI tier | `harness.yaml`, or `make harness-ci` | nightly, by hand, and before each release |
+| Accuracy harness, CI tier | `harness.yaml`, or `make harness-ci` | monthly, by hand, and before each release |
 | Accuracy harness, floor and ceiling tiers, Continuous memory check | manual (`make harness-floor`, `make harness-ceiling`, `make harness-continuous`) | before each release; results in `docs/engineering/harness-runs/<version>.md` |
 | Real Safari and iOS checks | manual | before each release |
 

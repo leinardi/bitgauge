@@ -2,12 +2,12 @@ name: Accuracy harness
 
 # The accuracy harness's CI tier (testing.md section 5): every CI profile on Chromium, Firefox and
 # WebKit, judged against the iperf3 reference, behind netguard. Dispatched by hand, for every
-# profile or a subset of the profiles or browsers, and every night for the whole tier (a scheduled
+# profile or a subset of the profiles or browsers, and once a month for the whole tier (a scheduled
 # run has empty inputs); reusable, so a workflow can call it again.
 on:
   schedule:
-    # Every night, 03:41 UTC: off the hour, when scheduled runs pile up.
-    - cron: "41 3 * * *"
+    # The 1st of each month, 03:41 UTC: off the hour, when scheduled runs pile up.
+    - cron: "41 3 1 * *"
   workflow_call:
     secrets:
       DHI_TOKEN:

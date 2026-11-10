@@ -3,7 +3,7 @@ name: measurement-engine
 description: >
   Measurement engine rules for BitGauge: the framework-free TypeScript engine in a Web Worker.
   Engine purity (no DOM, Vue or app imports; the ESLint banned-globals list; the real clock,
-  transport and Worker wired only in clock.ts, transport.ts and worker.ts), the discriminated
+  transport and Workers wired only in clock.ts, transport.ts, worker.ts and echo.worker.ts), the discriminated
   unions of engine/messages.ts, engine tests as synthetic timelines with worked examples A and B
   reproduced exactly, unknown cells never treated as zero, and honest numbers (no smoothing or
   fudge factors, every number with its status, confidence and notices, raw numbers and enum codes
@@ -77,10 +77,12 @@ through typed messages
   'WebSocket', 'EventSource', 'localStorage', 'sessionStorage', 'indexedDB',
   ```
 
-- **The three wiring files.** The globals rule ignores `src/engine/clock.ts`,
-  `src/engine/transport.ts` and `src/engine/worker.ts` (`engineWiringFiles`): `clock.ts` and
-  `transport.ts` are the production `Clock` and `Transport`, and `worker.ts` wires the message loop
-  of `loop.ts` to the Worker's messages it receives and posts. The import restrictions still apply
+- **The four wiring files.** The globals rule ignores `src/engine/clock.ts`,
+  `src/engine/transport.ts`, `src/engine/worker.ts` and `src/engine/echo.worker.ts`
+  (`engineWiringFiles`): `clock.ts` and `transport.ts` are the production `Clock` and `Transport`,
+  `worker.ts` wires the message loop of `loop.ts` to the Worker's messages it receives and posts,
+  and `echo.worker.ts` is the WebSocket echo's nested Worker, which times each round trip
+  (measurement.md §11.1). The import restrictions still apply
   to them. `loop.ts` holds only the message loop; every rule lives in plain modules.
 - **`Date` stays allowed**: the result's `startedAt` is wall-clock time
   ([measurement.md §17](../../../docs/features/measurement.md#17-result-object)), which is not what
@@ -268,8 +270,8 @@ No fudge factors, no hidden smoothing, no number without the qualifiers the meth
 - [ ] The rule changed in measurement.md first; cross-page numbers and testing.md §2
       updated with it
 - [ ] Engine imports only `@/engine/...` and `@/api/types.gen`; no `../`
-- [ ] No banned global outside `clock.ts`, `transport.ts` and `worker.ts`; time and I/O through
-      `Clock` and `Transport`
+- [ ] No banned global outside `clock.ts`, `transport.ts`, `worker.ts` and `echo.worker.ts`; time
+      and I/O through `Clock` and `Transport`
 - [ ] Messages are `type`-discriminated unions in `messages.ts`; the app imports only that module
 - [ ] Each scenario asserts emitted events and the final result exactly; examples A and B match
       their numbers

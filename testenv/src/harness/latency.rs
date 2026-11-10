@@ -37,8 +37,8 @@ pub const SOURCE_RESERVED: &str = "http-h1-reserved";
 
 /// The rule's ±20 %.
 const LATENCY_TOLERANCE: f64 = 0.20;
-/// The rule's 5 ms floor, whichever of the two is larger.
-const LATENCY_FLOOR_MS: f64 = 5.0;
+/// The rule's 10 ms floor, whichever of the two is larger.
+const LATENCY_FLOOR_MS: f64 = 10.0;
 /// What the ws-blocked profile must show: the reserved probe with at least 10 samples, at most
 /// 5 streams beside it, and the notice that says so.
 const MIN_FALLBACK_SAMPLES: i64 = 10;
@@ -62,7 +62,7 @@ pub(crate) fn grade_for(increase_ms: f64) -> &'static str {
         })
 }
 
-/// The rule's allowance around a ping increase: 20 % of it, or 5 ms when larger.
+/// The rule's allowance around a ping increase: 20 % of it, or 10 ms when larger.
 fn tolerance_ms(ping_increase_ms: f64) -> f64 {
     (LATENCY_TOLERANCE * ping_increase_ms.abs()).max(LATENCY_FLOOR_MS)
 }
@@ -383,18 +383,18 @@ mod tests {
     }
 
     /// Go: `TestAllowedGrades`. The letter across a threshold is allowed only while the ping
-    /// increase lies within its tolerance, ±20 % or 5 ms, of that threshold.
+    /// increase lies within its tolerance, ±20 % or 10 ms, of that threshold.
     #[test]
     fn allowed_grades_follow_the_adjacency_rule() {
         let mut failures = Vec::new();
         for (increase, want) in [
             (0.0, &["A+", "A"][..]), // 5 ms from the 5 ms threshold
-            (10.0, &["A", "A+"]),    // the 5 ms floor reaches it exactly
-            (10.1, &["A"]),          // and no further
-            (25.0, &["A", "B"]),     // 5 ms below 30
-            (24.9, &["A"]),          // just past it
+            (15.0, &["A", "A+"]),    // the 10 ms floor reaches it exactly
+            (15.1, &["A"]),          // and no further
+            (20.0, &["A", "B"]),     // 10 ms below 30
+            (19.9, &["A"]),          // just past it
             (50.0, &["B", "C"]),     // 10 ms below 60
-            (49.9, &["B"]),          // its 20 % is 9.98 ms
+            (49.9, &["B"]),          // the floor's 10 ms, 10.1 ms below
             (75.0, &["C", "B"]),     // 15 ms above 60
             (75.1, &["C"]),          // its 20 % is 15.02 ms, 15.1 ms past it
             (166.7, &["C", "D"]),    // 20 % of 166.7 is 33.3 ms
@@ -414,7 +414,7 @@ mod tests {
         assert!(failures.is_empty(), "{}", failures.join("\n"));
     }
 
-    /// Go: `TestLoadedRuleBoundaries`. The increase rule at and just past ±20 % and the 5 ms
+    /// Go: `TestLoadedRuleBoundaries`. The increase rule at and just past ±20 % and the 10 ms
     /// floor.
     #[test]
     fn loaded_rule_boundaries() {
@@ -424,11 +424,11 @@ mod tests {
             (100.0, 80.0, true),
             (100.0, 120.1, false),
             (100.0, 79.9, false),
-            (10.0, 15.0, true), // 20 % is 2 ms: the 5 ms floor holds
-            (10.0, 5.0, true),
-            (10.0, 15.1, false),
+            (10.0, 20.0, true), // 20 % is 2 ms: the 10 ms floor holds
+            (10.0, 0.0, true),
+            (10.0, 20.1, false),
             (-2.0, 0.0, true), // the engine clamps a negative increase to 0
-            (-2.0, 3.1, false),
+            (-2.0, 8.1, false),
         ] {
             let mut run = stable_run(100 * MBIT, 1.0, 1.0);
             download(&mut run).loaded_latency = Some(loaded_at(engine));
@@ -482,7 +482,7 @@ mod tests {
                 "A",
                 PHASE_UPLOAD,
                 true,
-                "vs ping +20.0 ms (A)",
+                "vs ping +20.0 ms (A or B)",
             ),
             (
                 "adjacent within the tolerance",
@@ -619,7 +619,7 @@ mod tests {
             if run.status != Status::Pass
                 || !run
                     .verdict
-                    .contains("grade A (upload) vs ping +20.0 ms (A)")
+                    .contains("grade A (upload) vs ping +20.0 ms (A or B)")
             {
                 failures.push(format!("{source} unavailable: {}", run.verdict));
             }

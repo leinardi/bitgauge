@@ -51,7 +51,7 @@ commit-message hook is replaced by the `conventional-commits` job.
 
 ## 3. Restore the Scheduled Scan
 
-`scheduled-scan.yaml` runs weekly and `harness.yaml` nightly, both also by hand.
+`scheduled-scan.yaml` runs weekly and `harness.yaml` monthly, both also by hand.
 
 - [x] **Run `make audit-deps` and triage every finding** before the repository is made public,
       the same way as
@@ -64,7 +64,7 @@ commit-message hook is replaced by the `conventional-commits` job.
       hand to see it pass.
 - [x] Uncomment the nightly `schedule:` block of `harness.yaml`, the accuracy harness's CI tier
       ([testing.md §6](../features/technical-stack/testing.md#6-ci-placement)), or decide to keep
-      it a manual, pre-release run. Nightly.
+      it a manual, pre-release run. Nightly at first, monthly since 2026-11-10.
 - [ ] Decide where a failing scheduled run goes. A run that fails into an inbox nobody reads is not
       a control; an issue opened automatically is.
 - [ ] Decide on CodeQL for Rust and TypeScript, on a schedule and on pull requests. It is free for

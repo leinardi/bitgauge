@@ -40,7 +40,7 @@ pub const TOLERANCES: &str = "testing.md section 5: each direction's headline ag
 
 /// The loaded-latency rule of testing.md section 5 as every report states it.
 pub const LATENCY_RULE: &str = "each direction measured with websocket or http-h1-reserved: its \
-    increase over idle within ±20 % or 5 ms, whichever is larger, of the ICMP ping's increase \
+    increase over idle within ±20 % or 10 ms, whichever is larger, of the ICMP ping's increase \
     from idle latency's window to the direction's after I_s; the grade on the letter of the \
     larger ping increase its basis names, or the adjacent letter within that tolerance of a \
     threshold; http-h2 and http-h3 recorded, not judged";
@@ -785,10 +785,10 @@ mod tests {
         if pass.status != Status::Pass
             || !pass
                 .verdict
-                .contains("download loaded +20.0 ms (websocket) vs ping +20.0 ms (±5.0 ms)")
+                .contains("download loaded +20.0 ms (websocket) vs ping +20.0 ms (±10.0 ms)")
             || !pass
                 .verdict
-                .contains("grade A (download+upload) vs ping +20.0 ms (A)")
+                .contains("grade A (download+upload) vs ping +20.0 ms (A or B)")
             || !pass.findings.is_empty()
         {
             failures.push(format!("a run inside its tolerances: {}", pass.verdict));

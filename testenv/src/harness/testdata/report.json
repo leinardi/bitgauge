@@ -4,7 +4,7 @@
   "started": "2026-10-09T12:30:00Z",
   "finished": "2026-10-09T13:30:00Z",
   "tolerances": "testing.md section 5: each direction's headline against mean(iperf3 before, after), and its loaded latency against the concurrent ICMP ping, judged per run as pass, fail or inconclusive",
-  "latencyRule": "each direction measured with websocket or http-h1-reserved: its increase over idle within ±20 % or 5 ms, whichever is larger, of the ICMP ping's increase from idle latency's window to the direction's after I_s; the grade on the letter of the larger ping increase its basis names, or the adjacent letter within that tolerance of a threshold; http-h2 and http-h3 recorded, not judged",
+  "latencyRule": "each direction measured with websocket or http-h1-reserved: its increase over idle within ±20 % or 10 ms, whichever is larger, of the ICMP ping's increase from idle latency's window to the direction's after I_s; the grade on the letter of the larger ping increase its basis names, or the adjacent letter within that tolerance of a threshold; http-h2 and http-h3 recorded, not judged",
   "noEgressLayer": "no packet egress (netguard counters, from BitGauge's start to the end of the run)",
   "runs": [
     {

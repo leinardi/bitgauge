@@ -23,7 +23,8 @@ import {
   apiUrl,
   browserIdentity,
   checkedInfo,
-  pong,
+  type EchoCommand,
+  type EchoEvent,
   refusalOf,
   TIMING_PROBE_WAIT_MS,
   TIMING_WAIT_MS,
@@ -186,45 +187,55 @@ export class BrowserTransport implements Transport {
 
   ws(): Promise<WsEcho> {
     const { clock } = this
+    // The socket lives in its own Worker (echo.worker.ts), which times each round trip; a pong's
+    // arrival is its send time plus that round trip, on this Worker's clock.
     return new Promise((resolve, reject) => {
-      const socket = new WebSocket(webSocketUrl(this.url('api/v1/ws')))
+      const worker = new Worker(new URL('./echo.worker.ts', import.meta.url), { type: 'module' })
+      const send = (command: EchoCommand) => worker.postMessage(command)
       let open = false
+      let ended = false
       let closedHere = false
       let onPong: ((seq: number, sentAt: number, receivedAt: number) => void) | null = null
       let onClose: ((code: number) => void) | null = null
-      socket.onmessage = (event: MessageEvent) =>
+      const end = (code: number) => {
+        if (ended) {
+          return
+        }
+        ended = true
+        worker.terminate()
+        if (!open) {
+          reject(new Error('the WebSocket did not open'))
+        } else if (!closedHere) {
+          onClose?.(code)
+        }
+      }
+      // A Worker that fails to load or throws ends the echo like an abnormal close.
+      worker.onerror = () => clock.task(() => end(1006))
+      worker.onmessage = (message: MessageEvent<EchoEvent>) =>
         clock.task(() => {
-          const receivedAt = clock.now()
-          const frame = pong(event.data)
-          if (frame !== null) {
-            onPong?.(frame.seq, frame.t, receivedAt)
+          const event = message.data
+          if (event.type === 'pong') {
+            onPong?.(event.seq, event.sentAt, event.sentAt + event.rttMs)
+          } else if (event.type === 'closed') {
+            end(event.code)
+          } else {
+            open = true
+            resolve({
+              ping: (seq, sentAt) => send({ type: 'ping', seq, sentAt }),
+              onPong: (listener) => {
+                onPong = listener
+              },
+              onClose: (listener) => {
+                onClose = listener
+              },
+              close: () => {
+                closedHere = true
+                send({ type: 'close' })
+              },
+            })
           }
         })
-      socket.onclose = (event) =>
-        clock.task(() => {
-          if (!open) {
-            reject(new Error('the WebSocket did not open'))
-          } else if (!closedHere) {
-            onClose?.(event.code)
-          }
-        })
-      socket.onopen = () =>
-        clock.task(() => {
-          open = true
-          resolve({
-            ping: (seq, sentAt) => socket.send(JSON.stringify({ type: 'ping', seq, t: sentAt })),
-            onPong: (listener) => {
-              onPong = listener
-            },
-            onClose: (listener) => {
-              onClose = listener
-            },
-            close: () => {
-              closedHere = true
-              socket.close(1000)
-            },
-          })
-        })
+      send({ type: 'open', url: webSocketUrl(this.url('api/v1/ws')) })
     })
   }
 
