@@ -31,12 +31,11 @@ use std::str::FromStr;
 
 use jiff::SignedDuration;
 
-use super::text::float as format_g;
 use super::text::quote;
+use config_layer::{BoolSpelling, Map, Node, QuotedScalars, Raw, Typing};
 
-use super::raw::{Map, Node, Raw};
 use super::types::{PLACEHOLDER_CIDR, ValueError, parse_duration};
-use super::{Cidr, Config, LabelRule, Listen, Origin, Problem, Size, Warmup};
+use super::{Cidr, Config, LabelRule, Listen, Origin, Problem, Size, Warmup, location};
 
 /// Where a key's value lives in a [`Config`], by type.
 pub(super) enum Slot<'cfg> {
@@ -269,7 +268,7 @@ fn problem(key: impl Into<String>, node: &Node, rule: impl Into<String>) -> Prob
         key: key.into(),
         value: node.value.to_string(),
         rule: rule.into(),
-        location: node.location,
+        location: location(node),
     }
 }
 
@@ -290,22 +289,43 @@ fn decode_into(slot: Slot<'_>, key: &str, node: &Node, problems: &mut Vec<Proble
         }
     };
     match slot {
-        Slot::Text(target) => report(text(value).map(|decoded| *target = decoded)),
-        Slot::Int(target) => report(integer(value).map(|decoded| *target = decoded)),
-        Slot::Float(target) => report(number(value).map(|decoded| *target = decoded)),
-        Slot::Bool(target) => report(boolean(value).map(|decoded| *target = decoded)),
+        Slot::Text(target) => report(text(node).map(|decoded| *target = decoded)),
+        Slot::Int(target) => report(
+            typing()
+                .integer(node)
+                .map(|decoded| *target = decoded)
+                .map_err(|error| error.to_string()),
+        ),
+        Slot::Float(target) => report(
+            typing()
+                .number(node)
+                .map(|decoded| *target = decoded)
+                .map_err(|error| error.to_string()),
+        ),
+        Slot::Bool(target) => report(
+            typing()
+                .boolean(node)
+                .map(|decoded| *target = decoded)
+                .map_err(|error| error.to_string()),
+        ),
         Slot::Size(target) => report(size(value).map(|decoded| *target = decoded)),
         Slot::Listen(target) => report(textual(value, "Listen").map(|decoded| *target = decoded)),
         Slot::Origin(target) => report(textual(value, "Origin").map(|decoded| *target = decoded)),
         Slot::Duration(target) => report(optional_duration(value).map(|decoded| *target = decoded)),
         Slot::Warmup(target) => report(textual(value, "Warmup").map(|decoded| *target = decoded)),
         Slot::Cidrs(target) => {
-            if let Some(items) = list(key, node, problems, cidr, PLACEHOLDER_CIDR) {
+            if let Some(items) = list(
+                key,
+                node,
+                problems,
+                |item| cidr(&item.value),
+                PLACEHOLDER_CIDR,
+            ) {
                 *target = items;
             }
         }
         Slot::Origins(target) => {
-            let origin = |item: &Raw| textual(item, "Origin");
+            let origin = |item: &Node| textual(&item.value, "Origin");
             if let Some(items) = list(key, node, problems, origin, Origin::default()) {
                 *target = items;
             }
@@ -330,7 +350,7 @@ fn list<T: Clone>(
     key: &str,
     node: &Node,
     problems: &mut Vec<Problem>,
-    decode: impl Fn(&Raw) -> Result<T, String>,
+    decode: impl Fn(&Node) -> Result<T, String>,
     placeholder: T,
 ) -> Option<Vec<T>> {
     let Raw::List(items) = &node.value else {
@@ -344,7 +364,7 @@ fn list<T: Clone>(
             if is_null(&item.value) {
                 return placeholder.clone();
             }
-            decode(&item.value).unwrap_or_else(|rule| {
+            decode(item).unwrap_or_else(|rule| {
                 problems.push(problem(format!("{key}[{index}]"), item, rule));
                 placeholder.clone()
             })
@@ -389,7 +409,7 @@ fn labels(key: &str, node: &Node, problems: &mut Vec<Problem>) -> Option<Vec<Lab
                     .get(LABEL_LABEL)
                     .filter(|field| !is_null(&field.value))
                 {
-                    match text(&field.value) {
+                    match text(field) {
                         Ok(decoded) => entry.label = decoded,
                         Err(rule) => {
                             problems.push(problem(
@@ -426,19 +446,12 @@ const fn is_null(value: &Raw) -> bool {
 
 /// A NaN or an infinity is refused for every key, before its type is looked at.
 fn finite(value: &Raw) -> Result<(), String> {
-    match value {
-        Raw::Float(number) if !number.is_finite() => Err(format!(
-            "invalid number: {} is not a finite number",
-            format_g(*number)
-        )),
-        Raw::Null
-        | Raw::Bool(_)
-        | Raw::Int(_)
-        | Raw::Wide(_)
-        | Raw::Float(_)
-        | Raw::Text(_)
-        | Raw::List(_)
-        | Raw::Map(_) => Ok(()),
+    if let Raw::Float(number) = value
+        && !number.is_finite()
+    {
+        Err(config_layer::TypeError::NotFinite(*number).to_string())
+    } else {
+        Ok(())
     }
 }
 
@@ -446,86 +459,15 @@ fn expected(value: &Raw, kind: &str) -> String {
     format!("expected {kind}, got {}", value.kind())
 }
 
-fn text(value: &Raw) -> Result<String, String> {
-    finite(value)?;
-    match value {
-        Raw::Text(text) => Ok(text.clone()),
-        Raw::Null
-        | Raw::Bool(_)
-        | Raw::Int(_)
-        | Raw::Wide(_)
-        | Raw::Float(_)
-        | Raw::List(_)
-        | Raw::Map(_) => Err(expected(value, "text")),
-    }
+fn text(node: &Node) -> Result<String, String> {
+    typing().text(node).map_err(|error| error.to_string())
 }
 
-/// An integer: a whole number, or decimal text (as the environment gives every value).
-fn integer(value: &Raw) -> Result<i64, String> {
-    // 2^63, one past the largest integer.
-    const LIMIT: f64 = 9_223_372_036_854_775_808.0;
-    finite(value)?;
-    match value {
-        Raw::Int(number) => Ok(*number),
-        Raw::Text(text) => text
-            .parse()
-            .map_err(|_| format!("invalid number: {}", quote(text))),
-        Raw::Wide(number) => Err(format!("invalid number: {number} is too large")),
-        Raw::Float(number) if number.fract() == 0.0 && number.abs() < LIMIT =>
-        {
-            #[expect(
-                clippy::cast_possible_truncation,
-                reason = "checked above: whole and within the i64 range"
-            )]
-            Ok(*number as i64)
-        }
-        Raw::Float(number) => Err(format!(
-            "invalid number: {} is not a whole number",
-            format_g(*number)
-        )),
-        Raw::Null | Raw::Bool(_) | Raw::List(_) | Raw::Map(_) => Err(expected(value, "an integer")),
-    }
-}
-
-/// A finite number, or decimal text.
-fn number(value: &Raw) -> Result<f64, String> {
-    finite(value)?;
-    match value {
-        Raw::Float(number) => Ok(*number),
-        #[expect(
-            clippy::cast_precision_loss,
-            reason = "a YAML integer for a float key, converted as Go converts it"
-        )]
-        Raw::Int(number) => Ok(*number as f64),
-        #[expect(
-            clippy::cast_precision_loss,
-            reason = "a YAML integer for a float key, converted as Go converts it"
-        )]
-        Raw::Wide(number) => Ok(*number as f64),
-        Raw::Text(text) => text
-            .parse::<f64>()
-            .ok()
-            .filter(|number| number.is_finite())
-            .ok_or_else(|| format!("invalid number: {}", quote(text))),
-        Raw::Null | Raw::Bool(_) | Raw::List(_) | Raw::Map(_) => Err(expected(value, "a number")),
-    }
-}
-
-/// A boolean, or exactly the text `true` or `false`: never `1`, `t`, `yes` or `TRUE`.
-fn boolean(value: &Raw) -> Result<bool, String> {
-    finite(value)?;
-    match value {
-        Raw::Bool(flag) => Ok(*flag),
-        Raw::Text(text) if text == "true" => Ok(true),
-        Raw::Text(text) if text == "false" => Ok(false),
-        Raw::Text(text) => Err(format!(
-            "invalid boolean: {} (want true or false)",
-            quote(text)
-        )),
-        Raw::Null | Raw::Int(_) | Raw::Wide(_) | Raw::Float(_) | Raw::List(_) | Raw::Map(_) => {
-            Err(expected(value, "true or false"))
-        }
-    }
+/// Quoted scalar values parse as numbers/booleans, but boolean text is exactly true or false.
+const fn typing() -> Typing {
+    Typing::strict()
+        .quoted_scalars(QuotedScalars::Parsed)
+        .booleans(BoolSpelling::Exact)
 }
 
 /// A size: text in the size syntax, or a whole non-negative YAML number.

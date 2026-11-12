@@ -25,7 +25,6 @@ use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use std::str::FromStr;
 
 use jiff::SignedDuration;
-use jiff::fmt::friendly::SpanParser;
 
 use super::text::{duration as go_duration, float, quote};
 use super::url;
@@ -481,8 +480,7 @@ impl fmt::Display for Warmup {
 /// A duration in jiff's friendly syntax (`500ms`, `10s`, `2m`, `1m30s`); a number without a unit
 /// is refused.
 pub(super) fn parse_duration(text: &str) -> Result<SignedDuration, ValueError> {
-    static PARSER: SpanParser = SpanParser::new();
-    PARSER.parse_duration(text).map_err(|_| {
+    config_layer::parse_duration(text, config_layer::DurationSyntax::friendly()).map_err(|_| {
         ValueError::Duration(format!(
             "{} is not a duration such as 500ms, 10s or 2m",
             quote(text)

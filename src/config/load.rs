@@ -23,9 +23,11 @@
 use std::io;
 use std::path::{Path, PathBuf};
 
+use config_layer::yaml::{self, Booleans, YamlError};
+use config_layer::{EmptyValue, EnvOverlay, ItemTrim, ListSplit, Map, Node, Raw, Unseparated};
+
 use super::decode::{LABEL_KEYS, decode, field, is_section};
-use super::raw::{self, Map, Node, Raw};
-use super::{Config, Problem};
+use super::{Config, Problem, location};
 
 /// The configuration file read when `--config` is not given. A missing file at this path is not
 /// an error (configuration.md section 1).
@@ -87,18 +89,8 @@ pub enum FileError {
     #[error(transparent)]
     Io(#[from] io::Error),
     /// It is not valid YAML, holds a duplicate key, or is not a mapping.
-    #[error("{}", yaml_diagnostic(.0))]
-    Yaml(#[source] Box<serde_saphyr::Error>),
-}
-
-/// Operator-facing YAML diagnostics keep locations, not source excerpts or library API hints.
-fn yaml_diagnostic(error: &serde_saphyr::Error) -> String {
-    let mut options = serde_saphyr::RenderOptions::new(&serde_saphyr::UserMessageFormatter);
-    options.snippets = serde_saphyr::SnippetMode::Off;
-    error
-        .render_with_options(options)
-        .escape_debug()
-        .to_string()
+    #[error("{0}")]
+    Yaml(#[source] Box<YamlError>),
 }
 
 /// Reads the configuration from the defaults, the YAML file at `path` and the process
@@ -112,15 +104,8 @@ fn yaml_diagnostic(error: &serde_saphyr::Error) -> String {
 /// [`LoadError::FileNotFound`] for a missing explicit file, [`LoadError::File`] for a file that
 /// cannot be read or parsed.
 pub fn load(path: &Path, explicit: bool) -> Result<Loaded, LoadError> {
-    let environment: Vec<(String, String)> = std::env::vars_os()
-        .map(|(name, value)| (lossy(name), lossy(value)))
-        .collect();
+    let environment = config_layer::process_environment();
     load_from(path, explicit, &environment)
-}
-
-fn lossy(text: std::ffi::OsString) -> String {
-    text.into_string()
-        .unwrap_or_else(|text| text.to_string_lossy().into_owned())
 }
 
 /// [`load`] with the environment given as name and value pairs instead of read from the
@@ -154,27 +139,38 @@ pub fn load_from(
 }
 
 /// Loads a configuration from the file's text and the environment.
-pub(super) fn from_text(
-    text: &str,
-    environment: &[(String, String)],
-) -> Result<Loaded, serde_saphyr::Error> {
-    let mut tree = raw::from_yaml(text)?;
-    let mut ignored_env = Vec::new();
-    let mut problems = Vec::new();
-    raw::merge(
-        &mut tree,
-        environment_tree(environment, &mut ignored_env, &mut problems),
-    );
-    ignored_env.sort();
+pub(super) fn from_text(text: &str, environment: &[(String, String)]) -> Result<Loaded, YamlError> {
+    let mut tree = yaml::parse(text, Booleans::AnyCase)?;
+    let overlay = environment_tree(environment);
+    let ignored_env = overlay.ignored;
+    let mut problems: Vec<Problem> = overlay
+        .unknown
+        .into_iter()
+        .map(|variable| {
+            let key = variable.dotted();
+            Problem {
+                rule: if is_section(&key) {
+                    "expected a mapping, not text"
+                } else {
+                    RULE_UNKNOWN
+                }
+                .to_owned(),
+                key,
+                value: variable.value,
+                location: None,
+            }
+        })
+        .collect();
+    config_layer::merge(&mut tree, overlay.tree);
 
     problems.extend(
-        raw::null_keys(&tree)
+        config_layer::null_keys(&tree)
             .into_iter()
-            .map(|(key, location)| Problem {
+            .map(|(key, node)| Problem {
                 key,
                 value: "null".to_owned(),
                 rule: RULE_NULL.to_owned(),
-                location,
+                location: location(node),
             }),
     );
     let (config, decode_problems) = decode(&tree);
@@ -185,7 +181,7 @@ pub(super) fn from_text(
         key,
         value: node.value.to_string(),
         rule: RULE_UNKNOWN.to_owned(),
-        location: node.location,
+        location: location(node),
     }));
     // Stable, so a key's null comes before its decode problem and that before its unknown one.
     problems.sort_by(|left, right| left.key.cmp(&right.key));
@@ -201,68 +197,57 @@ pub(super) fn from_text(
 /// `server.trusted_proxies`, a list key's value is split on commas and trimmed, and a variable
 /// without `__` is recorded as ignored. A `server.labels` item is split at its first `=` into a
 /// `{cidr, label}` entry; an item without `=` stays text, which the walker refuses.
-fn environment_tree(
-    environment: &[(String, String)],
-    ignored: &mut Vec<String>,
-    problems: &mut Vec<Problem>,
-) -> Map {
-    let mut tree = Map::new();
+fn environment_tree(environment: &[(String, String)]) -> config_layer::Overlay {
+    // The former loader split the dotted path after replacing __, so literal dots in a
+    // separated variable are nesting too. Unseparated service-link variables stay ignored.
+    let rules = EnvOverlay::new(ENV_PREFIX, ".", Unseparated::Ignored, |path| {
+        field(&path.join(".")).is_some()
+    })
+    .lists(
+        |path| field(&path.join(".")).is_some_and(super::decode::Field::is_list),
+        ListSplit::new(LIST_SEPARATOR, ItemTrim::Trimmed, EmptyValue::NoItems),
+    );
+    let mut overlay = config_layer::Overlay::default();
     for (name, value) in environment {
         let Some(rest) = name.strip_prefix(ENV_PREFIX) else {
             continue;
         };
         if !rest.contains(ENV_NESTING) {
-            ignored.push(name.clone());
+            overlay.ignored.push(name.clone());
             continue;
         }
-        let key = rest.replace(ENV_NESTING, ".").to_lowercase();
-        // Admit only schema leaves before insert_path can replace a scalar with a subtree,
-        // or erase an unknown descendant with a later parent. Keep each offending supplied path.
-        // Known leaves still decode after merging, preserving file/environment precedence.
-        if field(&key).is_none() {
-            problems.push(Problem {
-                rule: if is_section(&key) {
-                    "expected a mapping, not text"
-                } else {
-                    RULE_UNKNOWN
-                }
-                .to_owned(),
-                key,
-                value: value.clone(),
-                location: None,
-            });
-            continue;
+        let dotted = format!(
+            "{ENV_PREFIX}{}",
+            rest.replace(ENV_NESTING, ".").to_lowercase()
+        );
+        // One variable per overlay retains occurrence order for repeated unknown paths;
+        // converting __ to dots first cannot regroup underscores beside a literal dot.
+        // Lowercase the whole suffix first: Unicode final sigma depends on adjacent segments.
+        let variable = rules.overlay([(dotted, value)]);
+        config_layer::merge(&mut overlay.tree, variable.tree);
+        overlay.unknown.extend(variable.unknown);
+    }
+    overlay.ignored.sort();
+    if let Some(server) = overlay.tree.get_mut("server")
+        && let Raw::Map(fields) = &mut server.value
+        && let Some(labels) = fields.get_mut("labels")
+        && let Raw::List(items) = &mut labels.value
+    {
+        for item in items {
+            if let Raw::Text(value) = &item.value
+                && let Some((cidr, label)) = value.split_once(LABEL_SEPARATOR)
+            {
+                let text = |value: &str| {
+                    Node::new(Raw::Text(value.trim().to_owned()), item.origin.clone())
+                };
+                item.value = Raw::Map(Map::from([
+                    ("cidr".to_owned(), text(cidr)),
+                    ("label".to_owned(), text(label)),
+                ]));
+            }
         }
-        let value = environment_value(&key, value);
-        let path: Vec<&str> = key.split('.').collect();
-        raw::insert_path(&mut tree, &path, value);
     }
-    tree
-}
-
-fn environment_value(key: &str, value: &str) -> Raw {
-    let text = |text: &str| Node::unplaced(Raw::Text(text.to_owned()));
-    let Some(field) = field(key).filter(|field| field.is_list()) else {
-        return Raw::Text(value.to_owned());
-    };
-    if value.is_empty() {
-        return Raw::List(Vec::new());
-    }
-    let items = value.split(LIST_SEPARATOR).map(str::trim);
-    if !field.is_labels() {
-        return Raw::List(items.map(text).collect());
-    }
-    Raw::List(
-        items
-            .map(|item| match item.split_once(LABEL_SEPARATOR) {
-                Some((cidr, label)) => Node::unplaced(Raw::Map(Map::from([
-                    ("cidr".to_owned(), text(cidr.trim())),
-                    ("label".to_owned(), text(label.trim())),
-                ]))),
-                None => text(item),
-            })
-            .collect(),
-    )
+    overlay
 }
 
 /// Collects the keys of `map` that match no key or section, with their values, recursing into

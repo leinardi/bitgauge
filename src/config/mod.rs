@@ -30,13 +30,14 @@
 
 use jiff::SignedDuration;
 
+pub use config_layer::Location;
+use config_layer::text;
+
 mod decode;
 mod effective;
 mod load;
 mod preset;
-mod raw;
 mod report;
-mod text;
 mod types;
 pub(crate) mod url;
 mod validate;
@@ -75,13 +76,13 @@ pub struct Problem {
     pub location: Option<Location>,
 }
 
-/// A position in the configuration file, as serde-saphyr reports it.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Location {
-    /// The line, from 1.
-    pub line: u64,
-    /// The column, from 1.
-    pub column: u64,
+/// BitGauge reports file locations, but not environment variable names, on each problem.
+fn location(node: &config_layer::Node) -> Option<Location> {
+    if let config_layer::Origin::Yaml(location) = &node.origin {
+        Some(*location)
+    } else {
+        None
+    }
 }
 
 impl Problem {

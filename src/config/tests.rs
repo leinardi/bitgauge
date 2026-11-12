@@ -29,6 +29,7 @@ use super::{Loaded, Problem, check};
 mod effective;
 mod load;
 mod report;
+mod shared_layer;
 mod types;
 mod validate;
 

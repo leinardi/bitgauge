@@ -39,12 +39,12 @@ deny = [
     # Test infrastructure never enters the shipped graph.
     { name = "testenv", reason = "test infrastructure" },
     { name = "meta", reason = "test infrastructure" },
-    # The shared crates the binary does not ship (service-kit and tracing-setup are the ones it
-    # does): a clock, a Docker client, test helpers or the meta-test checks would be dead weight.
-    { name = "clock", reason = "the binary ships service-kit and tracing-setup only" },
-    { name = "docker-client", reason = "the binary ships service-kit and tracing-setup only" },
-    { name = "repo-meta", reason = "the binary ships service-kit and tracing-setup only" },
-    { name = "testenv-core", reason = "the binary ships service-kit and tracing-setup only" },
+    # The binary ships config-layer, service-kit and tracing-setup. A clock, Docker client,
+    # test helpers or the meta-test checks would be dead weight.
+    { name = "clock", reason = "not part of the shipped configuration/server/logging graph" },
+    { name = "docker-client", reason = "not part of the shipped configuration/server/logging graph" },
+    { name = "repo-meta", reason = "not part of the shipped configuration/server/logging graph" },
+    { name = "testenv-core", reason = "not part of the shipped configuration/server/logging graph" },
 ]
 
 # The features that would give the binary a client, a filesystem access or a process spawn.

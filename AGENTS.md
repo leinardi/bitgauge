@@ -142,9 +142,9 @@ counts as `fix:`), so avoid a word ending in `feat` or `fix` right before a colo
     write stall, 16 KiB heads, not go-http's four Go timeouts), its own signals (a `sigwait` thread,
     since tokio's signal socketpair would trip the strace policy) and its own healthcheck (the one
     exempted connect, blocking std code);
-  - the release graph holds only `service-kit` and `tracing-setup` of the shared crates
-    (`deny-shipped.toml` bans the others): they would bring an HTTP stack, a logger or a client the
-    binary does not use; `repo-meta` and `testenv-core` are for tests only.
+  - the release graph holds only `config-layer`, `service-kit` and `tracing-setup` of the shared
+    crates (`deny-shipped.toml` bans the others): they would bring an HTTP stack, a logger or a
+    client the binary does not use; `repo-meta` and `testenv-core` are for tests only.
 - **No gate passes on nothing:** no `--passWithNoTests`, `|| true`, `continue-on-error` or
   `if: false`; the two reviewed exceptions in the workflows are listed in
   `meta/tests/vacuous_flags.rs`. Tests outside testenv's `image` and `harness` features never need
