@@ -26,10 +26,10 @@ MK_COMMON_VERSION ?= v1
 MK_COMMON_DIR := $(REPO_ROOT)/.mk
 
 # Shared snippets coming from make-common
-MK_COMMON_FILES := docker.mk help.mk pre-commit.mk web.mk parity.mk rust.mk
+MK_COMMON_FILES := docker.mk help.mk pre-commit.mk web.mk parity.mk rust.mk rust-release.mk image.mk
 
 # Repo-local snippets that are NOT in make-common
-MK_LOCAL_FILES := run.mk e2e.mk verify.mk rust-release.mk image.mk audit-deps.mk docker-run.mk image-test.mk harness.mk idle-measure.mk
+MK_LOCAL_FILES := run.mk e2e.mk verify.mk audit-deps.mk docker-run.mk image-test.mk harness.mk idle-measure.mk image-policy.mk
 
 MK_COMMON_BOOTSTRAP_SCRIPT := $(REPO_ROOT)/scripts/bootstrap-mk-common.sh
 
@@ -63,6 +63,22 @@ RUST_STAMP_PREFIX := BITGAUGE
 # each recompiling it after the other. rust-dist, rust-run and the release builds stay stamped.
 RUST_BUILD_ENV :=
 
+# Keep repository-authoritative release settings immune to inherited environment overrides.
+RUST_RELEASE_ZIG_VERSION := 0.17.0
+RUST_RELEASE_ZIG_SHA256_x86_64 := 1cbe9df9f27e6b78d14ccbca43b6703a404ef79ef1c463de901d7f088d4e2026
+RUST_RELEASE_ZIG_SHA256_aarch64 := 9e8d11661d4ae3bd57702a3832781e23ad151dde5798e16a5ccd503f65234ff8
+RUST_RELEASE_CARGO_ZIGBUILD_VERSION := 0.24.0
+RUST_RELEASE_CARGO_ZIGBUILD_SHA256_x86_64-unknown-linux-musl := 52be2cb85ad3875682564a29bac1832b2ab3db68b1c504765c92d5249cc9b96f
+RUST_RELEASE_CARGO_ZIGBUILD_SHA256_aarch64-unknown-linux-gnu := de42626985f428033078dfc12ac8a59ee713f8e5627235ec883b1c899bee895c
+RUST_RELEASE_RUST_STD_VERSION := 1.98.1
+RUST_RELEASE_RUST_STD_SHA256_x86_64-unknown-linux-musl := bd9f35880de21dab0e387e84009c00001ae7836a4ba565cb16823f13f75f325f
+RUST_RELEASE_RUST_STD_SHA256_aarch64-unknown-linux-musl := 7e0ad2e67817f224b7a6331e48d6397303fc050edaccf81784ed786ffddc884a
+RUST_RELEASE_TRIPLE_linux_amd64 := x86_64-unknown-linux-musl
+RUST_RELEASE_TRIPLE_linux_arm64 := aarch64-unknown-linux-musl
+RUST_RELEASE_SHIPPED_PLATFORMS := linux/amd64 linux/arm64
+RUST_RELEASE_DIR := $(REPO_ROOT)/$(DIST_DIR)
+RUST_RELEASE_PREREQS := web-build
+
 # web-build syncs only the changed files into web/dist, which build.rs watches
 # (rerun-if-changed): a rebuild of an unchanged SPA does not rebuild the binary that embeds it.
 WEB_DIST_SYNC_DIR := $(REPO_ROOT)/web/dist
@@ -80,6 +96,12 @@ DOCKER_CONTEXT ?= .
 DOCKER_TARGETS      := bitgauge
 IMAGE_NAME_bitgauge := $(IMAGE_REPO)
 DOCKERFILE_bitgauge := deployments/docker/Dockerfile
+
+# Retain the single-image override and the full tier's application/security suites.
+IMAGE_HOST_PLATFORM := linux/$(patsubst x86_64,amd64,$(patsubst aarch64,arm64,$(shell uname -m)))
+PREBUILT_IMAGE ?= $(IMAGE_REPO):prebuilt-$(subst /,-,$(IMAGE_PLATFORM))
+PREBUILT_IMAGE_bitgauge ?= $(PREBUILT_IMAGE)
+IMAGE_TEST_FULL_EXTRA = rust-test-image-suites BITGAUGE_TEST_IMPL=rust TEST_IMAGE="$(IMAGE_TEST_IMAGE)" GIT_COMMIT="$(GIT_COMMIT)"
 
 # --load puts the host-platform image into the local daemon, so docker-run and the image tests can
 # run what docker-build produced.

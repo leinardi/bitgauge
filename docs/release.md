@@ -184,7 +184,7 @@ A **fresh** release then runs:
 
 1. **Build once**: `make rust-release-binaries`, the make target CI builds with, builds the SPA
    once, then the two static binaries that embed it, with zig and cargo-zigbuild from
-   gh-composite-actions' `setup-zigbuild` at the versions `.mk/rust-release.mk` pins; then
+   gh-composite-actions' `setup-zigbuild` at the versions the Makefile pins; then
    `make rust-release-checksums` writes `checksums.txt`. The Rust build cache is the release's own
    (`prefix-key: release`), written only by this workflow.
 2. Start a registry inside the job (`registry:3.1.2`, pinned by digest).
@@ -481,7 +481,7 @@ default target's web and build stages and `dhi.io/static` for the shipped base, 
 base digest it shipped ([What CI Proves](#what-ci-proves)).
 
 **The binaries are built outside Docker, once.** The release's `rust-release-binaries` gets zig and
-cargo-zigbuild from gh-composite-actions' `setup-zigbuild`, at the versions `.mk/rust-release.mk`
+cargo-zigbuild from gh-composite-actions' `setup-zigbuild`, at the versions the Makefile
 pins, Rust from `rust-toolchain.toml` and Node from its major, or, on a recovery, the releases the
 tag records. The image's `prebuilt` target never runs the web or build stages: it COPYs the
 binaries, so `dhi.io/node` and `dhi.io/rust` are not part of a release at all.
@@ -612,14 +612,14 @@ several pieces are limited on a private one:
 One exact Rust release builds everything: `rust-toolchain.toml` (which the workflows install with
 `rustup toolchain install`, so they name no release of their own), the Cargo `rust-version`, the
 `dhi.io/rust:<version>-debian13-dev` tag and `ARG RUST_VERSION` of the Dockerfile's build stage, and
-`.mk/rust-release.mk`'s `rust-std` release; `meta/tests/toolchain.rs` fails when they differ, patch
+the Makefile's `rust-std` release; `meta/tests/toolchain.rs` fails when they differ, patch
 included. Dependabot ignores the `rust` image on purpose: the build stage adds each musl target by
 unpacking `rust-std-<version>-<triple>.tar.xz` and checking it against a sha256 written in the
-Dockerfile and `.mk/rust-release.mk`, and those archives must be the image's exact release. A bump
+Dockerfile and the Makefile, and those archives must be the image's exact release. A bump
 is therefore one hand-made pull request that moves them all together, with the two `rust-std`
 sha256s.
 
-zig and cargo-zigbuild follow the same rule between `.mk/rust-release.mk`, the Dockerfile and the
+zig and cargo-zigbuild follow the same rule between the Makefile, the Dockerfile and the
 `setup-zigbuild` steps of `ci.yaml` and `release.yaml` (their `zig-version` and
 `cargo-zigbuild-version` inputs), checked by the same meta-test. `setup-zigbuild` checks the
 archives it downloads against its `zig-sha256` and `cargo-zigbuild-sha256` inputs, whose defaults
