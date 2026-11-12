@@ -499,7 +499,9 @@ setup-node's, both restored and saved only by this workflow, which runs on `main
 caches (`shared-key: ci`) are saved only on `main`, by one job per key, so no pull request can seed
 a cache the release reads; the web cache (ESLint, vue-tsc and npm's download cache) is saved only by
 the main-only web warm-up, the pre-commit cache only by its warm-up, and the Playwright browsers only
-from `main`. A cache only speeds the build: the binaries come from the lockfiles and the remapped,
+from `main`, keyed by distribution version, architecture and web lockfile so a runner OS upgrade
+cannot reuse a browser linked against the previous distribution's libraries.
+A cache only speeds the build: the binaries come from the lockfiles and the remapped,
 pinned toolchains either way, and a recovery checks them by SHA-256 against what was published. No
 image build uses a layer cache.
 
