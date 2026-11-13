@@ -44,6 +44,78 @@ use repo_meta::toolchain::{self, PinSource, PinValue};
 use repo_meta::yaml::{self, ActionStep, Value};
 use repo_meta::{Problem, pattern, report};
 
+/// Runs repository make without parent make flags leaking into the probe.
+fn make() -> std::process::Command {
+    let mut command = std::process::Command::new("make");
+    command
+        .current_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/.."))
+        .arg("--no-print-directory")
+        .env_remove("MAKEFLAGS")
+        .env_remove("MFLAGS")
+        .env_remove("MAKEOVERRIDES");
+    command
+}
+
+#[test]
+fn release_settings_ignore_environment_but_keep_command_line_overrides() {
+    let settings = meta::repo().read("Makefile");
+    for line in settings
+        .lines()
+        .filter(|line| line.starts_with("RUST_RELEASE_"))
+    {
+        let Some((name, _)) = line.split_once(" := ") else {
+            continue;
+        };
+        let print = format!("--eval=print-release-setting: ; @printf '%s' '$({name})'");
+        let baseline = make()
+            .arg(&print)
+            .arg("print-release-setting")
+            .output()
+            .unwrap_or_else(|error| panic!("cannot run make: {error}"));
+        assert!(baseline.status.success(), "{name}: {baseline:?}");
+        for (arguments, expected) in [
+            (Vec::new(), baseline.stdout.as_slice()),
+            (vec![format!("{name}=override")], b"override".as_slice()),
+        ] {
+            let output = make()
+                .arg(&print)
+                .arg("print-release-setting")
+                .args(arguments)
+                .env(name, "environment-override")
+                .output()
+                .unwrap_or_else(|error| panic!("cannot run make: {error}"));
+            assert!(output.status.success(), "{name}: {output:?}");
+            assert_eq!(output.stdout, expected, "{name}");
+        }
+    }
+}
+
+#[test]
+fn image_gates_refuse_empty_targets() {
+    for target in ["image-build-prebuilt", "image-test", "image-build-test"] {
+        let output = make()
+            .args([target, "DOCKER_TARGETS="])
+            .output()
+            .unwrap_or_else(|error| panic!("cannot run make: {error}"));
+        assert!(!output.status.success(), "{target} passed on no images");
+        assert!(
+            String::from_utf8_lossy(&output.stderr).contains("DOCKER_TARGETS is empty"),
+            "{output:?}"
+        );
+    }
+    // The shared guard prints its check for a nonempty image set and lets the dry run pass.
+    let output = make()
+        .args(["-n", "image-build-prebuilt", "DOCKER_TARGETS=bitgauge"])
+        .args(["IMAGE_HOST_PLATFORM=linux/amd64"])
+        .output()
+        .unwrap_or_else(|error| panic!("cannot run make: {error}"));
+    assert!(output.status.success(), "a nonempty image set: {output:?}");
+    assert!(
+        String::from_utf8_lossy(&output.stdout).contains(r#"test -n "bitgauge" ||"#),
+        "the guard is missing: {output:?}"
+    );
+}
+
 /// Reads a repository file by its slash-separated path, `None` when it cannot be read.
 type Reader<'reader> = &'reader dyn Fn(&str) -> Option<String>;
 
@@ -157,7 +229,7 @@ fn node_line_sources(read: Reader<'_>) -> Vec<PinSource> {
 }
 
 const RUST_TOOLCHAIN: &str = "rust-toolchain.toml";
-const RELEASE_MK: &str = ".mk/rust-release.mk";
+const RELEASE_MK: &str = "Makefile";
 const PRE_COMMIT_CONFIG: &str = ".pre-commit-config.yaml";
 const CI_WORKFLOW: &str = ".github/workflows/ci.yaml";
 const RELEASE_WORKFLOW: &str = ".github/workflows/release.yaml";
@@ -167,14 +239,14 @@ const SHELLCHECK_ACTION: &str =
     r"setup-shellcheck@[0-9a-f]{40}[^\n]*\n\s*with:\s*\n\s*version:\s*v(\d+\.\d+\.\d+)\s";
 /// The `zig-version` and `cargo-zigbuild-version` inputs of gh-composite-actions'
 /// setup-zigbuild, in CI and the release; its default digests are the `x86_64` ones of
-/// `.mk/rust-release.mk`.
+/// the Makefile.
 const ZIG_ACTION: &str = r#"(?m)^\s*zig-version:\s*"?([\d.]+)"#;
 const ZIGBUILD_ACTION: &str = r#"(?m)^\s*cargo-zigbuild-version:\s*"?([\d.]+)"#;
 /// A Trivy version written down anywhere under .github: trivy-gate's `trivy-version` input, a
 /// `TRIVY_VERSION`, or a setup-trivy step of its own.
 const TRIVY_PIN: &str = r"(?m)trivy-version:|TRIVY_VERSION|aquasecurity/setup-trivy";
 
-/// A `sha256` pin of an archive: the Dockerfile's case arm and `.mk/rust-release.mk`'s variable.
+/// A `sha256` pin of an archive: the Dockerfile's case arm and the Makefile's variable.
 /// `arm` is the Dockerfile text that introduces the digest and `variable` the make variable.
 fn archive_pin(read: Reader<'_>, what: &str, arm: &str, variable: &str) -> Vec<Problem> {
     toolchain::one_value(
@@ -199,7 +271,7 @@ fn archive_pin(read: Reader<'_>, what: &str, arm: &str, variable: &str) -> Vec<P
 }
 
 /// The Rust release is one value: `rust-toolchain.toml`'s channel, the Cargo `rust-version`, the
-/// shipped Dockerfile's `dhi.io/rust` build image and `RUST_VERSION`, and `.mk/rust-release.mk`'s
+/// shipped Dockerfile's `dhi.io/rust` build image and `RUST_VERSION`, and the Makefile's
 /// `rust-std`. A channel that is not an exact release (`stable`, `1.98`) differs from the rest.
 fn rust_line_problems(read: Reader<'_>) -> Vec<Problem> {
     let content = |file: &str| read(file).unwrap_or_default();
@@ -221,7 +293,7 @@ fn rust_line_problems(read: Reader<'_>) -> Vec<Problem> {
 }
 
 /// The release toolchain the shipped Dockerfile and the setup-zigbuild steps of CI and the release
-/// repeat from `.mk/rust-release.mk`: the zig and cargo-zigbuild releases, and each archive's
+/// repeat from the Makefile: the zig and cargo-zigbuild releases, and each archive's
 /// digest.
 fn release_pin_problems(read: Reader<'_>) -> Vec<Problem> {
     let mut problems = Vec::new();
@@ -544,7 +616,7 @@ fn rust_line_control_fails_on_another_release() {
 }
 
 /// The zig, cargo-zigbuild and `rust-std` releases and every archive digest the shipped Dockerfile
-/// checks are `.mk/rust-release.mk`'s, which calls itself the one record of those pins.
+/// checks are the Makefile's repository-authoritative pins.
 #[test]
 fn rust_release_pins_match_the_makefile() {
     assert_none(&release_pin_problems(&repo_file));

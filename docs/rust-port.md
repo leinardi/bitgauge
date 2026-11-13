@@ -53,9 +53,9 @@ Working rules for the port:
 | coder/websocket | tokio-tungstenite on `hyper::upgrade::on` | Handshake checked by hand, as in Go |
 | log/slog | tracing + tracing-subscriber (`fmt`, `json`), built by rust-common's `tracing-setup` | tracing's default text and JSON, UTC timestamps; target and JSON span fields off |
 | client_golang | prometheus-client | OpenMetrics text only; no `go_*` or `process_*` |
-| koanf + yaml.v3 + mapstructure | serde-saphyr into a spanned raw tree, our own env merge, a typed walker that collects every problem | serde derive stops at the first error, which the spec forbids |
+| koanf + yaml.v3 + mapstructure | rust-common's config-layer (serde-saphyr, spanned raw tree, environment overlay and scalar typing), with BitGauge's schema walker collecting every problem | serde derive stops at the first error, which the spec forbids |
 | `time.ParseDuration` | `jiff::fmt::friendly::SpanParser` to `SignedDuration` |  |
-| `net/url.Parse`, `unicode.IsPrint`, `time.Duration.String`, `%v` floats, `strconv.Quote` | `src/config/url.rs` ports `url.Parse` (it decides which values are decode problems); the rest is plain Rust text in `src/config/text.rs`: `{:?}` quoting, `f64` `Display`, jiff's friendly duration, `char::is_control` | Problem lines read differently from the Go binary's (see [Shared Crates](#shared-crates)) |
+| `net/url.Parse`, `unicode.IsPrint`, `time.Duration.String`, `%v` floats, `strconv.Quote` | `src/config/url.rs` ports `url.Parse` (it decides which values are decode problems); config-layer's `text` helpers keep the plain Rust formatting: `{:?}` quoting, `f64` `Display`, jiff's friendly duration, `char::is_control` | Problem lines read differently from the Go binary's (see [Shared Crates](#shared-crates)) |
 | `flag` | clap 4 derive behind an argument pre-scan |  |
 | `embed.FS` | include_dir | `web/dist/.gitkeep` keeps a clean checkout compiling |
 | crypto/rand | getrandom |  |
@@ -228,24 +228,42 @@ rust-common's `tracing-setup`, by prometheus-client and by service-kit's `http`.
 
 Rows are added by the phase that copies a file.
 
+### Shared release and image snippets
+
+The release and image recipes in the reuse ledger now come from make-common v1.14.1's
+`rust-release.mk` and `image.mk`, fetched through `MK_COMMON_FILES`. Repository-authoritative
+toolchain pins, target mappings, checksum coverage and output directory remain in the Makefile
+with `:=` assignments, preserving their immunity to inherited environment variables.
+`RUST_RELEASE_PREREQS := web-build` builds the embedded SPA once. `PREBUILT_IMAGE` keeps its
+single-image override through the shared per-image setting, and `IMAGE_TEST_FULL_EXTRA` runs
+the existing image/netguard suites against that same image in the full tier.
+
+Application image tests, the Docker runner, accuracy harness and other repository-specific
+targets remain local. The shared `image.mk` (make-common v1.14.1) rejects image gates with an
+empty `DOCKER_TARGETS` rather than passing without testing anything. The toolchain meta-tests
+inspect the Makefile's pins and retain their negative controls. Shared snippets are never edited
+locally; toolchain bumps update the Makefile's settings, not the fetched defaults.
+
 ### Shared Crates
 
 Code the sibling ports also carry is a dependency on
 [leinardi/rust-common](https://github.com/leinardi/rust-common) instead, a git dependency pinned
-by release tag (`tag = "v1.1.0"`, with `version = "1.1"`) in `[workspace.dependencies]`; its files
+by release tag (`tag = "v1.2.0"`, with `version = "1.2"`) in `[workspace.dependencies]`; its files
 carry rust-common's headers, not this ledger's.
 
 | Crate | Replaces | What BitGauge parameterises |
 | --- | --- | --- |
+| `config-layer` | `src/config/raw.rs`, `text.rs`, and generic YAML/environment/scalar/duration handling in `load.rs`, `decode.rs` and `types.rs` | `yaml::Booleans::AnyCase`; quoted scalar parsing with exact boolean text; the `BITGAUGE_` / `__` environment profile, comma lists with trimmed items and empty lists; friendly durations. Schema, label entries, error wrappers, validation, warnings, effective config and `report.rs` stay local. Environment adapters retain literal-dot nesting and input order for repeated unknown paths. Existing config test expectations are unchanged. |
 | `service-kit` (feature `http`) | The `option_env!` reads in `src/buildinfo.rs`; the accept loop, connection driver, deadlines and shutdown sequence of `src/server/` (the former `conn.rs` and `timeouts.rs`, with `http-framing`) | `buildinfo!("BITGAUGE", …)` with `dev`, `unknown`, `unknown` and an empty stamp unstamped; for the server, 10 s head, 30 s write stall, 16 KiB and 100 headers, upgrades, and the `Abort` wrapper in `src/server/http.rs`; the runtime, signals and exit codes stay BitGauge's |
 | `tracing-setup` | The subscriber build in `src/logger.rs`; the unit tests' capture writer | Target and JSON span fields off; the log settings, `LogError`, the stdout or stderr choice and the fallback stay in `src/logger.rs`; the unit tests log into `tracing_setup::testing::Capture` (dev feature `testing`) |
 | `repo-meta` (meta only) | `meta/src/repo.rs` and the Dockerfile reader | This repository's parameters for each check: the lint members, the vacuous flags, the toolchain and release pins (`one_value` over the files that write each), the stage and syntax rules of the image. The clippy configuration checks, the test-support `cfg` rule, the test images and the web pins stay local |
 | `testenv-core` (feature `sync`; testenv only) | `testenv/src/runner.rs`, `run_filter.rs`, `gitenv.rs`; the generic halves of `toolgate.rs`, `envid.rs` and `identity.rs` | The `bitgauge-test-` temp-dir prefix; the tool `Gate` (`BITGAUGE_REQUIRE_TOOLS`, eslint and fallow under `web/node_modules/.bin`, the closed `Tool` enum); `EnvIds` (4 bytes, the envid label, `bitgauge-test`); the identity `Answer`s for each build (`RUST_ANSWER`, `GO_ANSWER`), quoted with `Quoting::Debug`; the labels, owner helpers and sweep stay BitGauge's |
 
-The release graph ships `service-kit` and `tracing-setup` only ([Lint Boundary](#lint-boundary)).
+The release graph ships `config-layer`, `service-kit` and `tracing-setup` only
+([Lint Boundary](#lint-boundary)).
 Neither the binary nor the test environment uses rust-common's `go-compat` any more. The
 configuration's problem lines and effective list are written in plain Rust formatting, in
-`src/config/text.rs`; the harness's quoting, integer parsing, JSON floats, timestamps, line
+config-layer's `text` module; the harness's quoting, integer parsing, JSON floats, timestamps, line
 scanning, errno text and path cleaning are std's, serde_json's and jiff's
 (`testenv/src/harness/gofmt.rs`). The harness's report JSON writes a whole float as `299000.0`,
 where the Go harness wrote `299000`; its quoted values use Rust's `Debug` escapes; a path error
@@ -647,7 +665,7 @@ Go package to Rust module, by the phase that ported it.
 
 | Go | Rust | Phase |
 | --- | --- | --- |
-| `internal/config` | `src/config/`: `mod.rs` (`Config`, `Problem`, `EXIT_INVALID_CONFIG`), `load.rs` (`load`, `load_from`, `Loaded`, the environment), `raw.rs` (the raw tree, with each value's location), `decode.rs` (the key table and the walker), `types.rs` (`Size`, `Listen`, `Cidr`, `Origin`, `Warmup`), `validate.rs` (`validate`, `check`), `warn.rs`, `effective.rs`, `preset.rs`, `url.rs` (Go's `url.Parse`), `text.rs` (a quoted text, a float and a duration in plain Rust formatting). `ReportProblems`, `ReportWarnings` and `StderrLogger` move to phase 6 with the logger | 5 |
+| `internal/config` | `src/config/`: `mod.rs` (`Config`, `Problem`, `EXIT_INVALID_CONFIG`), `load.rs` (`load`, `load_from`, `Loaded`, the environment profile), `decode.rs` (the key table and schema walker), `types.rs` (`Size`, `Listen`, `Cidr`, `Origin`, `Warmup`), `validate.rs` (`validate`, `check`), `warn.rs`, `effective.rs`, `preset.rs`, `url.rs` (Go's `url.Parse`), `report.rs` (BitGauge's logging). The raw tree, YAML reader, environment overlay, scalar typing and text helpers now come from config-layer. | 5 |
 | `internal/buildinfo` | `src/buildinfo.rs` (`info`, `Build`, the stamps through `service-kit`'s `buildinfo!`) | 6 |
 | `internal/logger` | `src/logger.rs` (`stdout`, `to_writer`, `stderr_text`, `text_to`, `parse_level`, `Format`, `LogError`; the subscriber is `tracing-setup`'s); `ReportProblems`, `ReportWarnings` and the startup line in `src/config/report.rs` | 6 |
 | `internal/clientip` | `src/clientip.rs` (`address_class`, `suggested_label`, `version`, `Labeler`, `Rule`, `Deriver`, `Client`); the middleware and context helpers move to phase 12 | 6 |

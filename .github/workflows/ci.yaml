@@ -552,7 +552,9 @@ jobs:
 
   # Playwright end to end (testing.md section 4): the flows on Chromium, Firefox and WebKit
   # against the binary built on the runner, so no image and no dhi.io. The browsers are cached per
-  # lockfile and saved from main, where pull requests can restore them.
+  # distribution version, architecture and lockfile and saved from main, where pull requests can
+  # restore them. WebKit binaries for different Ubuntu releases share a revision directory but
+  # link against different system libraries, so runner.os alone cannot identify their cache.
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -587,12 +589,18 @@ jobs:
       - name: Install the web dependencies
         run: make web-install
 
+      - name: Read the browser cache platform
+        id: browser-platform
+        run: |
+          . /etc/os-release
+          echo "id=${ID}-${VERSION_ID}" >>"${GITHUB_OUTPUT}"
+
       - name: Restore the Playwright browsers
         id: browsers-restore
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('web/package-lock.json') }}
+          key: playwright-${{ steps.browser-platform.outputs.id }}-${{ runner.arch }}-${{ hashFiles('web/package-lock.json') }}
 
       # With the browsers restored, this installs only the system libraries they need.
       - name: Install the Playwright browsers

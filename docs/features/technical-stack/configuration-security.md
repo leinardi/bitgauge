@@ -11,10 +11,12 @@ implement [../configuration.md](../configuration.md) and [../security.md](../sec
 
 1. **Defaults**: the configuration struct's default values, which every key the other layers do
    not set keeps.
-2. **File**: `/etc/bitgauge/config.yaml`, or the `--config` path, parsed with serde-saphyr into a
+2. **File**: `/etc/bitgauge/config.yaml`, or the `--config` path, parsed through config-layer's
+   serde-saphyr reader into a
    raw tree, each value keeping its line and column. A missing default path is skipped; a missing
    explicit path is an error.
-3. **Environment**: BitGauge's own merge of the variables with prefix `BITGAUGE_` into that tree. It
+3. **Environment**: BitGauge's config-layer profile overlays variables with prefix `BITGAUGE_` into
+   that tree. It
    keeps only variables containing `__`, strips the prefix, lowercases the rest and replaces `__`
    with `.`. Single underscores stay inside key names. Comma-separated values become lists for list
    keys, and for `server.labels` each item is split at its first `=` into a `{cidr, label}` entry;
