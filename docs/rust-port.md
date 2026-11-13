@@ -230,7 +230,7 @@ Rows are added by the phase that copies a file.
 
 ### Shared release and image snippets
 
-The release and image recipes in the reuse ledger now come from make-common v1.14.0's
+The release and image recipes in the reuse ledger now come from make-common v1.14.1's
 `rust-release.mk` and `image.mk`, fetched through `MK_COMMON_FILES`. Repository-authoritative
 toolchain pins, target mappings, checksum coverage and output directory remain in the Makefile
 with `:=` assignments, preserving their immunity to inherited environment variables.
@@ -239,10 +239,10 @@ single-image override through the shared per-image setting, and `IMAGE_TEST_FULL
 the existing image/netguard suites against that same image in the full tier.
 
 Application image tests, the Docker runner, accuracy harness and other repository-specific
-targets remain local. `image-policy.mk` rejects image gates with an empty `DOCKER_TARGETS`
-rather than passing without testing anything. The toolchain meta-tests inspect the Makefile's
-pins and retain their negative controls. Shared snippets are never edited locally; toolchain
-bumps update the Makefile's settings, not the fetched defaults.
+targets remain local. The shared `image.mk` (make-common v1.14.1) rejects image gates with an
+empty `DOCKER_TARGETS` rather than passing without testing anything. The toolchain meta-tests
+inspect the Makefile's pins and retain their negative controls. Shared snippets are never edited
+locally; toolchain bumps update the Makefile's settings, not the fetched defaults.
 
 ### Shared Crates
 
