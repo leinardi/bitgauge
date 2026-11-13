@@ -24,7 +24,8 @@
 // its own, so a 60 s run neither shares the shared server's per-client limits nor competes with
 // the other specs. The stopped run goes through a 100 Mbit/s link: over loopback, WebKit on a
 // two-CPU runner spends its main thread on a multi-Gbit download, so the page shows the 3 s before
-// the first rate only between updates seconds apart, and the Stop click lands after it.
+// the first rate only between updates seconds apart; the page itself presses Stop as that wait
+// appears, since a Playwright click can land after it.
 
 import { readFile } from 'node:fs/promises'
 
@@ -84,12 +85,26 @@ test('stops a Continuous download right after warm-up: partial, insufficient dat
   link = await throttle(server.url, 100_000_000)
   await page.goto(`${link.url}/?preset=continuous&test=download`)
   await expect(page.getByTestId('phase-indicator').getByRole('listitem')).toHaveCount(1)
+  // Warm-up has ended once the rates wait for 3 fully known 1 s cells, which take 3 s more. The
+  // page presses Stop itself in the turn that renders that wait: a Playwright check and click,
+  // each a round trip to a WebKit main thread busy with the download, can take longer than 3 s.
+  const stopped = page.evaluate(
+    () =>
+      new Promise<string>((resolve) => {
+        const observer = new MutationObserver(() => {
+          const average = [...document.querySelectorAll('[data-testid="continuous-view"] [data-testid="metric-tile"]')].find((tile) => tile.textContent?.includes('Average'))
+          const stop = document.querySelector<HTMLButtonElement>('[data-testid="start-button"]')
+          if (average?.textContent?.includes('after 3 s of fully known data') && stop?.textContent?.includes('Stop test')) {
+            observer.disconnect()
+            stop.click()
+            resolve(average.textContent)
+          }
+        })
+        observer.observe(document.body, { subtree: true, childList: true, characterData: true })
+      }),
+  )
   await page.getByRole('button', { name: 'Start test' }).click()
-
-  // Warm-up has ended once the rates wait for 3 fully known 1 s cells, which take 3 s more.
-  const average = page.getByTestId('continuous-view').getByTestId('metric-tile').filter({ hasText: 'Average' })
-  await expect(average).toContainText('after 3 s of fully known data', { timeout: 60_000 })
-  await page.getByRole('button', { name: 'Stop test' }).click()
+  expect(await stopped).toContain('after 3 s of fully known data')
 
   await expect(page.getByTestId('result-bar')).toContainText('Partial results are not saved', { timeout: 30_000 })
   await expect(page.getByTestId('keep-in-history')).toBeVisible()
