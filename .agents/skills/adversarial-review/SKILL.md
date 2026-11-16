@@ -16,52 +16,29 @@ You are a hostile reviewer. Assume the change is **wrong until proven right**: i
 bug, breaks an invariant, or drifts from the spec. Your job is to find the specific input,
 state, or path where it fails — not to praise it, not to restyle it. A review that finds
 nothing is only credible after you have actively tried to break the change and failed. This
-skill owns the mindset and the report; the spec and the domain skills own the rules.
+nothing is only credible after you have actively tried to break the change and failed. This
+skill is the mindset; the spec and the domain skills own the rules. Read `AGENTS.md` first (its
+"Project rules" are the invariants below), then the spec pages and skills for the changed paths.
 
-Copy this checklist and tick items as you go:
+## Scope
 
-```text
-Review progress:
-- [ ] 1. Diff and stated intent read; every changed file read in full
-- [ ] 2. Skills and spec pages loaded for the changed paths
-- [ ] 3. Repo invariants checked
-- [ ] 4. Adversarial passes run
-- [ ] 5. Always-on passes (a)–(e) run
-- [ ] 6. Gates run, or marked unverified
-- [ ] 7. Report written: ranked findings, verdict, gates run
-```
+When invoked directly: review the scope the user gives (`gh pr view <n>` for intent, then `gh pr
+diff <n>`); with none, the uncommitted work (`git diff HEAD` plus untracked files, which no diff
+shows); on a clean tree, `git diff main...HEAD`. Never review from a description of the change.
 
-## 1. Establish the diff (what am I reviewing?)
+Read the stated **intent** (`git log --oneline` for the range, any linked issue or PR body): a
+change that does something other than it claims is a finding. Read every changed file in full,
+not just the hunks: a hunk looks right in isolation and wrong against the 40 lines git didn't
+show. For non-trivial changes, find the callers, implementations, tests and docs with a
+reference search; a signature or behavior change is safe only if every call site agrees.
 
-Never review from memory or from the user's description of the change — read the actual
-diff. Pick the scope from what the user said. With no scope given, review the uncommitted work;
-if the tree is clean, review the branch against `main`.
-
-| User intent | Command |
-| --- | --- |
-| "my work" / "before I commit" / uncommitted | `git status --short`, then `git diff HEAD`; read untracked files too, which no diff shows |
-| staged changes only | `git diff --staged` |
-| a branch / "this PR" / "ready to merge" | `git diff main...HEAD` (merge-base diff; `main` is this repo's default branch) |
-| a specific commit range | `git diff <base>..<head>` |
-| a GitHub PR number | `gh pr view <n>` for intent, then `gh pr diff <n>` |
-
-Read `git log --oneline` for the range and any linked issue or PR body: the stated **intent** is
-what you check against. A change that does something other than it claims is a finding, and so is
-a commit type that ships the wrong version (`svu`: user-facing work typed `chore` never ships, a
-stray `!` cuts a major; `AGENTS.md` "Commit messages").
-
-Read every changed file in full, not just the hunks: a hunk looks right in isolation and wrong
-against the 40 lines git didn't show. For non-trivial changes, find the callers, implementations,
-tests and docs with a reference search; a signature or behavior change is safe only if every call
-site agrees.
-
-## 2. Load the authority for each changed path
+## Authority (each changed path)
 
 Before judging a file, load every skill whose description names its path or topic, and the
 `docs/features/` pages those skills point to: they are the source of truth, and a violation there
 is a finding even when lint is green. A path no skill covers (Makefile, plain YAML, other
-Markdown) gets §3 and §4 with the **same rigor**. For JS/TS at scale, the `fallow` skill surfaces
-structural risk on the changed set: evidence, not the review.
+Markdown) gets the invariants and passes below with the **same rigor**. For JS/TS at scale, the
+`fallow` skill surfaces structural risk on the changed set: evidence, not the review.
 
 **Meta-tests are code under review too.** A test in the `meta` or `testenv` crate guards a claim the
 product cannot check for itself: the lint boundary (`meta/tests/test_support_boundary.rs`,
@@ -74,7 +51,7 @@ Try to make the guarded thing go wrong and see whether the test still notices. A
 because its input is empty, its rule never ran, its pattern no longer matches any file or its tool
 was skipped is a false pass, and a high-severity finding.
 
-## 3. Repo invariants — check these on every review, whatever changed
+## Repository invariants — check these on every review, whatever changed
 
 The invariants are stated once, in [AGENTS.md "Project rules"](../../../AGENTS.md#project-rules);
 read them there. Lint and the meta-tests catch the obvious breaks. These are the ones a diff slips
@@ -100,30 +77,26 @@ past them:
   commit SHA, an image not by digest (`dhi.io` stages by tag), a permission widened at workflow
   level, `pull_request_target`, a secret reachable from a fork, or a job reordered so a tag can
   exist before the scan and the build.
+- **Commit type matches whether it ships.** `svu` derives the release from the commits: user-facing
+  work typed `chore` never ships, and a stray `!` cuts a major (`AGENTS.md` "Commit messages").
 
-## 4. Adversarial passes — language-agnostic
+## Adversarial passes
 
-Do not skim for style. Run these passes, each with a "how would I make this fail" framing:
+Beyond the generic passes (logic, nil and empty input, aliasing, errors, concurrency, resources,
+security), run these with a "how would I make this fail" framing, and name one concrete failing
+input per candidate. Angles that bite here: an upload body with no size cap or not drained
+before the response; a per-request allocation on the download path; a rate-limit table without
+its bound; an engine timer or fetch that bypasses the injected clock or transport; `%v` where
+`%w` was needed.
 
-- **Generic**: correctness, nil/empty and boundaries, aliasing, errors, concurrency, resources,
-  security. Trace one concrete failing input end to end. Angles that bite here: an upload body
-  with no size cap or not drained before the response; a per-request allocation on the download
-  path; a rate-limit table without its bound; an engine timer or fetch that bypasses the injected
-  clock or transport; `%v` where `%w` was needed.
-- **Contract drift**: a JSON field, endpoint, probe path, config key, environment variable,
-  message type or number changed without every consumer and spec page that states it (§5 (e)).
-- **Tests**: a test that passes against the *old* code, asserts on a fake's recorded calls instead
+- **Contract drift:** a JSON field, endpoint, probe path, config key, environment variable,
+  message type or number changed without every consumer and spec page that states it (*Docs and
+  spec drift* below).
+- **Tests:** a test that passes against the *old* code, asserts on a fake's recorded calls instead
   of the behavior, or was weakened or deleted to make the change pass is a finding; a bug fix
   without a regression test is a gap.
 
-For every suspected defect, run this loop:
-
-1. Reproduce it, or trace the concrete input through the code to the wrong result.
-2. Confirmed (you can name the input and the wrong behavior)? Report it.
-3. Not confirmed? Dig once more — read the caller, the test, or run the code. Still nothing? Drop
-   it; do not report a vague "consider".
-
-## 5. Always-on passes
+## Always-on passes
 
 The passes above are shaped by the diff. These five run on **every** review, whatever changed,
 because each names a way a repository like this one loses something without anyone noticing.
@@ -182,26 +155,32 @@ Three contracts in this repository are written down more than once and can disag
   `measurement.md`, `wire-protocol.md`, `configuration.md`, `ui/` and `glossary.md`. No test checks
   them: grep the other pages for every value you change.
 
-## 6. Verify before you trust (don't hand-wave the gates)
+## Gates
 
-Static reading misses things. Run what [AGENTS.md "Validation"](../../../AGENTS.md#validation)
-lists for the changed paths, and treat a failure as a confirmed finding with the output attached:
-`make check` for anything, `make verify-rust` / `make verify-web`, `make api-types` leaving no
-diff after `api/openapi.yaml`, and where they apply `make rust-test-image BITGAUGE_TEST_IMPL=rust`,
-`make harness-ci BITGAUGE_TEST_IMPL=rust` (Docker) and `make audit-deps` (network). For
-`.github/workflows/*`, say which jobs you could not exercise.
+Do not re-run the repository's gates (`make check`, `make verify-rust`, `make verify-web`, `make
+api-types`, `make rust-test-image BITGAUGE_TEST_IMPL=rust`, `make harness-ci
+BITGAUGE_TEST_IMPL=rust`, `make audit-deps`; see [AGENTS.md
+"Validation"](../../../AGENTS.md#validation)). The implementer is expected to run them and CI runs
+them again, but do not assume either happened: report the verification evidence you actually have
+(under adversarial-review-loop, `verification.txt` when supplied, which is the implementer's claim
+and not proof; when invoked directly, the CI status or gate output in the PR or session) and what is
+missing, such as an `api/openapi.yaml` change with no `make api-types` run that left no diff, or a
+`.github/workflows/*` change with the jobs it could not exercise unnamed. Judge what is missing
+against `AGENTS.md`'s *Validation*: every changed path owes the checks its row names. A failure in
+that evidence caused by the change is a confirmed finding. Never say that a check you did not see
+passed. A skipped test is not a pass: the meta-tests skip a missing ESLint or fallow unless
+`BITGAUGE_REQUIRE_TOOLS=1`, so check the output for `SKIP`. Judge whether the change's tests prove
+it: a behavior change needs a test that fails on the old code. When invoked directly, one focused
+test (`cargo test -p <crate> <name>`) may be run to confirm a single suspected finding, never a full
+suite or gate. A candidate that is neither reproduced nor traced end to end is dropped: a vague
+"consider" is not a finding.
 
-Hooks rewrite files (prettier, markdownlint, `cargo fmt`): check `git status` afterwards and report
-a rewrite as a finding. A skipped test is not a pass: check the `-v` output for `SKIP`; the
-meta-tests skip a missing ESLint or fallow unless `BITGAUGE_REQUIRE_TOOLS=1`. A gate you cannot run
-here (no Docker, no network) is named and its risk marked unverified, never implied passed.
-
-## 7. Report
+## Report
 
 Rank by severity, worst first. Nothing is more important than a genuine correctness break or a
-broken invariant from §3 (state, an outbound call, a dishonest number, an unspecified behavior):
-those are normally **critical**. Skip pure formatting the linters already catch unless it changes
-meaning or breaks a required gate. For each finding:
+broken invariant from *Repository invariants* (state, an outbound call, a dishonest number, an
+unspecified behavior): those are normally **critical**. Skip pure formatting the linters already
+catch unless it changes meaning or breaks a required gate. For each finding:
 
 ```text
 <path>:<line> — <severity: critical | high | medium | low>: <one-line defect>
@@ -210,6 +189,6 @@ meaning or breaks a required gate. For each finding:
 ```
 
 Findings first, then open questions or assumptions, then a one-line verdict (**block**,
-**approve with nits** or **approve**) and the gates you ran and could not run. With no findings,
-state what you tried to break. Be blunt; do not soften a real defect, and do not invent findings
-to look thorough.
+**approve with nits** or **approve**) and one line: `Verification evidence: seen … / missing …`.
+With no findings, state what you tried to break. Be blunt; do not soften a real defect, and do
+not invent findings to look thorough.
