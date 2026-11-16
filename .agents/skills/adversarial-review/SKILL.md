@@ -165,9 +165,10 @@ them again, but do not assume either happened: report the verification evidence 
 (under adversarial-review-loop, `verification.txt` when supplied, which is the implementer's claim
 and not proof; when invoked directly, the CI status or gate output in the PR or session) and what is
 missing, such as an `api/openapi.yaml` change with no `make api-types` run that left no diff, or a
-`.github/workflows/*` change with the jobs it could not exercise unnamed. A failure in that evidence
-caused by the change is a confirmed finding. Never say that a check you did not see passed. A
-skipped test is not a pass: the meta-tests skip a missing ESLint or fallow unless
+`.github/workflows/*` change with the jobs it could not exercise unnamed. Judge what is missing
+against `AGENTS.md`'s *Validation*: every changed path owes the checks its row names. A failure in
+that evidence caused by the change is a confirmed finding. Never say that a check you did not see
+passed. A skipped test is not a pass: the meta-tests skip a missing ESLint or fallow unless
 `BITGAUGE_REQUIRE_TOOLS=1`, so check the output for `SKIP`. Judge whether the change's tests prove
 it: a behavior change needs a test that fails on the old code. When invoked directly, one focused
 test (`cargo test -p <crate> <name>`) may be run to confirm a single suspected finding, never a full
