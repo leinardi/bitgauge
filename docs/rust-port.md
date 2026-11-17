@@ -248,7 +248,7 @@ locally; toolchain bumps update the Makefile's settings, not the fetched default
 
 Code the sibling ports also carry is a dependency on
 [leinardi/rust-common](https://github.com/leinardi/rust-common) instead, a git dependency pinned
-by release tag (`tag = "v1.2.0"`, with `version = "1.2"`) in `[workspace.dependencies]`; its files
+by release tag (`tag = "v2.0.0"`, with `version = "2.0"`) in `[workspace.dependencies]`; its files
 carry rust-common's headers, not this ledger's.
 
 | Crate | Replaces | What BitGauge parameterises |
