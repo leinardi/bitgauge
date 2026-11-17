@@ -59,6 +59,10 @@ GIT_COMMIT  ?= $(or $(shell git rev-parse HEAD 2>/dev/null | cut -c1-7),none)
 BUILD_DATE  ?= $(or $(GIT_COMMIT_DATE),$(shell date -u +"%Y-%m-%dT%H:%M:%SZ"))
 RUST_STAMP_PREFIX := BITGAUGE
 
+# The shipped binary's graph, held to deny-shipped.toml's bans by rust-deny-shipped (the hook and
+# the rust job): the bitgauge package alone, so the root manifest.
+RUST_DENY_SHIPPED := Cargo.toml:deny-shipped.toml
+
 # rust-build unstamped, as rust-test builds: the two share the bitgauge crate's units instead of
 # each recompiling it after the other. rust-dist, rust-run and the release builds stay stamped.
 RUST_BUILD_ENV :=

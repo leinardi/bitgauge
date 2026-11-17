@@ -95,7 +95,8 @@ and binary, without `#[cfg(test)]`. Test infrastructure has its own rules.
   `disallowed_types` that matches nothing; that every exemption sits in exactly the files and items
   above is review's to check.
 - **Dependency graph and features** (`deny-shipped.toml`, run by the `cargo-deny-shipped` hook and
-  the rust job as `cargo deny --config deny-shipped.toml check bans`): the graph is the `bitgauge`
+  the rust job as make-common's `make rust-deny-shipped`, over the Makefile's
+  `RUST_DENY_SHIPPED := Cargo.toml:deny-shipped.toml`): the graph is the `bitgauge`
   package alone, dev-dependencies excluded, all targets and features, so the musl release view is
   covered;
   - neither `testenv` nor `meta` appears, and neither do the rust-common crates the binary does not

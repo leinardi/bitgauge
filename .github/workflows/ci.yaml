@@ -350,9 +350,10 @@ jobs:
         run: make rust-deny
 
       # The shipped binary's graph alone: no test crate, no shared crate it does not ship, no
-      # client, filesystem or process feature (deny-shipped.toml). Bans only, so no network.
+      # client, filesystem or process feature (deny-shipped.toml, through the Makefile's
+      # RUST_DENY_SHIPPED). Bans only, so no network.
       - name: Check the shipped graph with cargo-deny
-        run: cargo deny --config deny-shipped.toml check bans
+        run: make rust-deny-shipped
 
   # Defined in web.yaml so web-cache-warmup runs the identical job on main and saves the cache that
   # pull requests restore.
