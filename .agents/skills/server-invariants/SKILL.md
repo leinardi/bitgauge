@@ -62,9 +62,9 @@ The bans apply to the shipped `bitgauge` package only, outside `#[cfg(test)]`
   (`write`, `File::create`, `File::create_new`, `OpenOptions::open`, `create_dir*`, `remove*`,
   `rename`); `std::net::TcpStream::connect*`, `tokio::net::TcpStream::connect` and both
   `UdpSocket::bind`; `ToSocketAddrs::to_socket_addrs` and `tokio::net::lookup_host`; the wall
-  clocks (`SystemTime::now`, `std::time::Instant::now`, jiff's `now`). `disallowed-macros`:
-  `print*`, `eprint*`, `dbg`. `tokio::time::Instant::now` stays allowed: it is the injected
-  clock's source.
+  clocks (`SystemTime::now`, `std::time::Instant::now`, jiff's `now`); `Command::new`, std's and
+  tokio's. `disallowed-macros`: `print*`, `eprint*`, `dbg`. `tokio::time::Instant::now` stays
+  allowed: it is the injected clock's source.
 - **[`deny.toml`](../../../deny.toml) bans**: HTTP clients (reqwest, ureq, isahc, surf, attohttpc,
   curl, awc), SQL, embedded and key-value stores and ORMs, Redis, and RPC frameworks.
 - **The shipped graph** ([`deny-shipped.toml`](../../../deny-shipped.toml), the

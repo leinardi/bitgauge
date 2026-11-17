@@ -74,7 +74,8 @@ and binary, without `#[cfg(test)]`. Test infrastructure has its own rules.
     `create_dir*`, `remove*`, `rename`); `std::net::TcpStream::connect*` and
     `tokio::net::TcpStream::connect`; `UdpSocket::bind`; `ToSocketAddrs::to_socket_addrs` and
     `tokio::net::lookup_host`; `SystemTime::now`, `std::time::Instant::now`,
-    `jiff::Timestamp::now`;
+    `jiff::Timestamp::now`, `jiff::Zoned::now`; `std::process::Command::new` and
+    `tokio::process::Command::new`;
   - `disallowed-macros`: `print*`, `eprint*`, `dbg`;
   - `allow-unwrap-in-tests`, `allow-expect-in-tests`;
   - `tokio::time::Instant::now` stays allowed: it is the injected clock's source and follows the
@@ -87,6 +88,9 @@ and binary, without `#[cfg(test)]`. Test infrastructure has its own rules.
   - `src/healthcheck.rs`: the single connect;
   - `src/test_support.rs`, which is `#[cfg(test)]`: `dial_loopback`, so unit tests can connect;
   - `tests/support/mod.rs`: `dial_loopback` for the integration tests;
+  - the integration tests that run a child process: `bitgauge` and
+    `unknown_environment_descendant_exits_two_in_either_order` in `tests/cli.rs`,
+    `Server::start` in `tests/process_mode.rs` and `parent` in `tests/second_signal.rs`;
   - the `SystemClock` in `src/clock.rs`, only if a wall-clock read is ever needed. None is
     expected: the grid, the limiter and the deadlines use `tokio::time::Instant`, and tracing's
     timestamps are its own.
