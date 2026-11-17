@@ -62,17 +62,17 @@ The bans apply to the shipped `bitgauge` package only, outside `#[cfg(test)]`
   (`write`, `File::create`, `File::create_new`, `OpenOptions::open`, `create_dir*`, `remove*`,
   `rename`); `std::net::TcpStream::connect*`, `tokio::net::TcpStream::connect` and both
   `UdpSocket::bind`; `ToSocketAddrs::to_socket_addrs` and `tokio::net::lookup_host`; the wall
-  clocks (`SystemTime::now`, `std::time::Instant::now`, jiff's `now`). `disallowed-macros`:
-  `print*`, `eprint*`, `dbg`. `tokio::time::Instant::now` stays allowed: it is the injected
-  clock's source.
+  clocks (`SystemTime::now`, `std::time::Instant::now`, jiff's `now`); `Command::new`, std's and
+  tokio's. `disallowed-macros`: `print*`, `eprint*`, `dbg`. `tokio::time::Instant::now` stays
+  allowed: it is the injected clock's source.
 - **[`deny.toml`](../../../deny.toml) bans**: HTTP clients (reqwest, ureq, isahc, surf, attohttpc,
   curl, awc), SQL, embedded and key-value stores and ORMs, Redis, and RPC frameworks.
 - **The shipped graph** ([`deny-shipped.toml`](../../../deny-shipped.toml), the
-  `cargo-deny-shipped` hook and the rust job): `cargo deny --config deny-shipped.toml check bans`
-  over the `bitgauge` package alone, dev-dependencies left out, bans both test crates, the
-  rust-common crates other than `service-kit` and `tracing-setup`, hyper and hyper-util `client`
-  and `http2`, tokio `fs` and `process`, and axum `ws` and `http2`. It does not check that the
-  two shipped crates are present.
+  `cargo-deny-shipped` hook and the rust job): `make rust-deny-shipped`, make-common's
+  `cargo deny check bans` over the `bitgauge` package alone, dev-dependencies left out, bans both
+  test crates, the rust-common crates other than `service-kit` and `tracing-setup`, hyper and
+  hyper-util `client` and `http2`, tokio `fs` and `process`, and axum `ws` and `http2`. It does not
+  check that the two shipped crates are present.
 
 They are pinned because a rule that stops matching fails nothing on its own:
 clippy fails an `expect` of `disallowed_methods`, `disallowed_macros` or `disallowed_types` that

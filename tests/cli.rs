@@ -23,6 +23,10 @@
 
 use std::process::{Command, Output};
 
+#[expect(
+    clippy::disallowed_methods,
+    reason = "the CLI tests run the built binary as a child process"
+)]
 fn bitgauge(args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_bitgauge"))
         .args(args)
@@ -87,6 +91,10 @@ fn exit_statuses_of_what_cannot_run() {
 
 /// QA-138: `env -i` installs arguments in order; Command's own environment is sorted and would
 /// mask the typo-first failure. Pure config tests cover both orders on every platform.
+#[expect(
+    clippy::disallowed_methods,
+    reason = "the test runs the built binary under env -i, which orders the environment"
+)]
 #[cfg(unix)]
 #[test]
 fn unknown_environment_descendant_exits_two_in_either_order() {

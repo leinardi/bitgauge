@@ -74,7 +74,8 @@ and binary, without `#[cfg(test)]`. Test infrastructure has its own rules.
     `create_dir*`, `remove*`, `rename`); `std::net::TcpStream::connect*` and
     `tokio::net::TcpStream::connect`; `UdpSocket::bind`; `ToSocketAddrs::to_socket_addrs` and
     `tokio::net::lookup_host`; `SystemTime::now`, `std::time::Instant::now`,
-    `jiff::Timestamp::now`;
+    `jiff::Timestamp::now`, `jiff::Zoned::now`; `std::process::Command::new` and
+    `tokio::process::Command::new`;
   - `disallowed-macros`: `print*`, `eprint*`, `dbg`;
   - `allow-unwrap-in-tests`, `allow-expect-in-tests`;
   - `tokio::time::Instant::now` stays allowed: it is the injected clock's source and follows the
@@ -87,6 +88,9 @@ and binary, without `#[cfg(test)]`. Test infrastructure has its own rules.
   - `src/healthcheck.rs`: the single connect;
   - `src/test_support.rs`, which is `#[cfg(test)]`: `dial_loopback`, so unit tests can connect;
   - `tests/support/mod.rs`: `dial_loopback` for the integration tests;
+  - the integration tests that run a child process: `bitgauge` and
+    `unknown_environment_descendant_exits_two_in_either_order` in `tests/cli.rs`,
+    `Server::start` in `tests/process_mode.rs` and `parent` in `tests/second_signal.rs`;
   - the `SystemClock` in `src/clock.rs`, only if a wall-clock read is ever needed. None is
     expected: the grid, the limiter and the deadlines use `tokio::time::Instant`, and tracing's
     timestamps are its own.
@@ -95,7 +99,8 @@ and binary, without `#[cfg(test)]`. Test infrastructure has its own rules.
   `disallowed_types` that matches nothing; that every exemption sits in exactly the files and items
   above is review's to check.
 - **Dependency graph and features** (`deny-shipped.toml`, run by the `cargo-deny-shipped` hook and
-  the rust job as `cargo deny --config deny-shipped.toml check bans`): the graph is the `bitgauge`
+  the rust job as make-common's `make rust-deny-shipped`, over the Makefile's
+  `RUST_DENY_SHIPPED := Cargo.toml:deny-shipped.toml`): the graph is the `bitgauge`
   package alone, dev-dependencies excluded, all targets and features, so the musl release view is
   covered;
   - neither `testenv` nor `meta` appears, and neither do the rust-common crates the binary does not
@@ -248,7 +253,7 @@ locally; toolchain bumps update the Makefile's settings, not the fetched default
 
 Code the sibling ports also carry is a dependency on
 [leinardi/rust-common](https://github.com/leinardi/rust-common) instead, a git dependency pinned
-by release tag (`tag = "v1.2.0"`, with `version = "1.2"`) in `[workspace.dependencies]`; its files
+by release tag (`tag = "v2.0.0"`, with `version = "2.0"`) in `[workspace.dependencies]`; its files
 carry rust-common's headers, not this ledger's.
 
 | Crate | Replaces | What BitGauge parameterises |
@@ -694,7 +699,7 @@ it did not port, with the reason.
 | `internal/metrics` | `src/metrics/tests.rs`; the server's `/metrics` tests stay for phase 12 | 8 |
 | `internal/handlers` | `src/handlers/tests/` (`random.rs`, `epoch.rs`, `envelope.rs`, `json.rs`, `origin.rs`, `drain.rs`, `download.rs`, `probes.rs`, `upload.rs`, `info.rs`, `contract.rs`, `metrics.rs`, `loopback.rs`, `ws.rs`); the route tests move to phase 12 | 9, 10 |
 | `internal/compat/...` | `src/compat/tests/` (`openspeedtest.rs`, `librespeed.rs`, `nq.rs`) | 11 |
-| `internal/server` | `src/server/tests/` (`router.rs`, `native.rs`, `headers.rs`, `middleware.rs`, `metrics.rs`, `layers.rs`, `shutdown.rs`, with the whole stack in `stack.rs`); the handlers' route tests in `native.rs` and the client IP middleware tests in `middleware.rs`; the shutdown cases on the echo service in `src/server/tests.rs` (phase 4) | 4, 12 |
+| `internal/server` | `src/server/tests/` (`router.rs`, `native.rs`, `headers.rs`, `middleware.rs`, `metrics.rs`, `layers.rs`, `shutdown.rs`, with the whole stack in `stack.rs`; `openapi.rs`, Go's `TestOpenAPIRouteParity`); the handlers' route tests in `native.rs` and the client IP middleware tests in `middleware.rs`; the shutdown cases on the echo service in `src/server/tests.rs` (phase 4) | 4, 12 |
 | `web` | `src/web/tests.rs` | 12 |
 | `cmd/bitgauge` | `TestParseArgs` in the `src/cli.rs` tests; `TestHealthcheckAddress` and `TestHealthcheckExitCodes` in `src/healthcheck/tests.rs`; `TestServeExitsTwoOnInvalidConfig` in `src/command/tests.rs` and `tests/cli.rs`; `TestServeAndHealthcheck`, `TestServeExitsOneWithoutTheSPA` and `TestCompatibilityLayersOnTheStartupLine` in `src/command/tests.rs`; the process-mode startup and its signals in `tests/process_mode.rs`; `TestMain` is Cargo's binary build | 13 |
 | (the Go binary) | `tests/wire.rs` replays the Go binary's recorded answers (`tests/testdata/wire/`) | 14 |

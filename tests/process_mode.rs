@@ -110,6 +110,10 @@ struct Server {
 
 impl Server {
     /// Starts a child on a free loopback port and waits for its startup line.
+    #[expect(
+        clippy::disallowed_methods,
+        reason = "the test runs itself as the server child"
+    )]
     fn start() -> Self {
         let exe = std::env::current_exe().unwrap_or_else(|error| panic!("own path: {error}"));
         // Validation refuses port 0, so a free port is taken and released for the child.

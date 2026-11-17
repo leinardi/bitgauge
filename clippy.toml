@@ -64,6 +64,9 @@ disallowed-methods = [
     { path = "std::time::Instant::now", reason = "use tokio::time::Instant through the injected Clock" },
     { path = "jiff::Timestamp::now", reason = "use tokio::time::Instant through the injected Clock", allow-invalid = true },
     { path = "jiff::Zoned::now", reason = "use tokio::time::Instant through the injected Clock", allow-invalid = true },
+    # No child process: the server spawns nothing.
+    { path = "std::process::Command::new", reason = "the server spawns no process" },
+    { path = "tokio::process::Command::new", reason = "the server spawns no process", allow-invalid = true },
 ]
 
 # Output goes through tracing, or an explicit writeln! to a handle (the CLI's help and refusals).

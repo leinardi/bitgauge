@@ -72,6 +72,10 @@ fn expect_line(lines: &mpsc::Receiver<String>, line: &str) {
     assert_eq!(got, line);
 }
 
+#[expect(
+    clippy::disallowed_methods,
+    reason = "the test runs itself as the signalled child"
+)]
 fn parent() -> ExitCode {
     let exe = std::env::current_exe().unwrap_or_else(|error| panic!("own path: {error}"));
     let mut child = Command::new(exe)
