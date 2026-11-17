@@ -27,6 +27,7 @@ mod layers;
 mod metrics;
 mod middleware;
 mod native;
+mod openapi;
 mod router;
 mod shutdown;
 mod stack;
