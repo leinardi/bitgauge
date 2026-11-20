@@ -64,10 +64,11 @@ from the design export; this page fixes content and behavior only. Terms follow 
   download" with the download's own bytes); the duration counts up from the run's start,
   qualified "elapsed", until the result gives it. After an error, data used is qualified "not
   saved".
-- **Browser**: the browser's family, major version and operating system ("Firefox 131 · Linux"),
-  as the result records them ([../measurement.md §17](../measurement.md#17-result-object)), shown
-  in every state from page load: idle, during a run, Continuous included, and after it; "—" when
-  the browser family is not recognized.
+- **Browser** and **OS**, two rows: the browser's family and major version ("Firefox 131") and its
+  operating system ("Linux"), as the result records them
+  ([../measurement.md §17](../measurement.md#17-result-object)), shown in every state from page
+  load: idle, during a run, Continuous included, and after it; "—" in the Browser row when the
+  browser family is not recognized, and in the OS row when the operating system is not.
 - **Notices** area (§7).
 - **Save bar** after a `complete` run: "Saved to history", an inline label
   field with suggested labels (the context label and the 5 most recent distinct labels from
@@ -161,8 +162,8 @@ portrait on a phone without horizontal scrolling.
   reads the instant its error or the data cap ended it, or its maximum when it ran to it without a
   steady window), data cap with the data used,
   units, warm-up mode with where each direction's warm-up ended (or that the user stopped it in
-  warm-up), ping count, overhead compensation, protocol, server name and version, browser, client
-  IP, timer resolution and whether the page was cross-origin isolated.
+  warm-up), ping count, overhead compensation, protocol, server name and version, browser,
+  operating system, client IP, timer resolution and whether the page was cross-origin isolated.
 - **Label and note:** editable, saved with the result in history as they change; Download JSON
   waits for valid edits. Notes allow at most 16,384 Unicode code points; an over-limit edit stays
   visible with an accessible error and is not saved. Existing longer notes remain readable and
@@ -241,10 +242,10 @@ parameters collapse into a disclosure.
   selected (with an undo toast), Clear selection.
 - **Compare two results**, in a focus-trapped dialog: side-by-side metrics with the change per
   metric, worded as better or worse with an icon, and both parameter sets: preset, phases,
-  each direction's duration bounds, warm-up, ping count, protocol, streams, the browser and the
-  overhead compensation; a warning when they differ in preset, protocol, label, overhead
-  compensation, or a latency path, loaded-latency source or grade basis, naming the difference;
-  Copy comparison, with the same text and qualifiers. Each speed cell carries its
+  each direction's duration bounds, warm-up, ping count, protocol, streams, the browser, the
+  operating system and the overhead compensation; a warning when they differ in preset, protocol,
+  label, overhead compensation, or a latency path, loaded-latency source or grade basis, naming the
+  difference; Copy comparison, with the same text and qualifiers. Each speed cell carries its
   qualifiers as in History, so insufficient data, partial, an error and low or CPU-bound
   confidence read as such, never as a bare "—". The other cells carry the qualifiers of §6: idle
   latency its path, loaded latency its source and "vs idle over …", the grade its basis or, without
@@ -408,7 +409,8 @@ and the page itself never scrolls sideways.
 | Quality scores | band per experience: streaming, gaming, video calls (bad, poor, average, good, great), each band with an icon and its name | missing input named; basis when only one direction has a loaded-latency increase ("download only"); note "upper bound: packet loss is not measured" ([../measurement.md §18](../measurement.md#18-packet-loss)) |
 | Data used | decimal kB, MB, GB, 3 significant digits | — |
 | Duration | s, one decimal | — |
-| Browser | "<name> <major> · <os>"; "—" when the family is not recognized | — |
+| Browser | "<name> <major>"; "—" when the family is not recognized | — |
+| OS | the operating system's name; "—" when it is not recognized | — |
 | Protocol, streams | `HTTP/1.1`, `HTTP/2`, `HTTP/3`; stream count and plateau reason | — |
 
 Definitions: [../measurement.md §9–§17](../measurement.md#9-final-value).

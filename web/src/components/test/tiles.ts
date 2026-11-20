@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Activity, ArrowDown, ArrowUp, Database, Globe, Timer } from '@lucide/vue'
+import { Activity, ArrowDown, ArrowUp, Database, Globe, Monitor, Timer } from '@lucide/vue'
 import type { Component } from 'vue'
 
 import type { MetaRow } from '@/components/layout/MetaList.vue'
@@ -274,8 +274,11 @@ export function durationTile(ms: number | null, context: Wording): TileView {
   return ms === null ? tile : { ...tile, number: secondsNumber(ms, context.locale), unit: 's' }
 }
 
-/** The browser row of the Test and Session cards: family, major version and operating system, a dash when unrecognized. */
-export function browserRow(browser: BrowserIdentity, context: Wording): MetaRow {
-  const value = browser.name === 'unknown' ? null : context.t('test.tiles.browserValue', { name: browser.name, major: browser.major, os: browser.os })
-  return { key: 'browser', icon: Globe, label: context.t('test.tiles.browser'), value }
+/** The Browser and OS rows of the Test and Session cards: family and major version, then the operating system, each a dash when unrecognized. */
+export function browserRows(browser: BrowserIdentity, context: Wording): MetaRow[] {
+  const value = browser.name === 'unknown' ? null : context.t('test.tiles.browserValue', { name: browser.name, major: browser.major })
+  return [
+    { key: 'browser', icon: Globe, label: context.t('test.tiles.browser'), value },
+    { key: 'os', icon: Monitor, label: context.t('test.tiles.os'), value: browser.os === 'unknown' ? null : browser.os },
+  ]
 }

@@ -22,11 +22,12 @@ import { type Component, computed, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/actions/AppButton.vue'
+import { cn } from '@/lib/utils'
 
 // The Test screen's one control (ui/screens.md section 1, kit StartButton): Start, Stop, Run again,
 // Retry or Start now, with the key that also triggers it, the kit's xl button, centered, full width
-// in the compact layout. The key hint is drawn at the button's full text color, without the
-// export's reduced opacity (ui/i18n-a11y.md section 2.6). A native button, so Enter and Space
+// in the compact layout. The key hint is the kit's Kbd keycap, its outline the kit's, its text at
+// the button's full text color rather than the keycap's faded text (ui/i18n-a11y.md section 2.6). A native button, so Enter and Space
 // press it. When it cannot be used it stays focusable, ignores presses, and says why in a tooltip
 // on hover and focus that also describes it (kit Button's disabledReason).
 
@@ -84,7 +85,10 @@ function press(): void {
       {{ label }}
       <kbd
         aria-hidden="true"
-        class="hidden font-mono text-(length:--text-micro) font-normal desktop:inline"
+        :class="cn(
+          'hidden items-center rounded-(--radius-xs) border px-[0.5em] py-px font-mono text-(length:--text-micro) leading-[1.4] font-normal desktop:inline-flex',
+          look.primary ? 'border-primary-foreground/40' : 'border-(--border-default)',
+        )"
       >{{ look.escape ? t('test.start.keyEscape') : t('test.start.keyEnter') }}</kbd>
     </AppButton>
     <span

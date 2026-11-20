@@ -216,44 +216,46 @@ useResultEdit(() => {
         {{ notSaved }}
       </p>
     </div>
-    <div class="flex flex-wrap items-center gap-2">
-      <slot name="actions" />
-      <DownloadJson
-        :result="result"
-        variant="secondary"
-        size="md"
-        :described-by="warningId"
-        confirm
-      />
-      <AppButton
-        variant="primary"
-        data-testid="run-again"
-        @click="emit('runAgain')"
-      >
-        <RotateCcw
-          :size="15"
-          aria-hidden="true"
+    <div class="flex max-w-full flex-col items-start gap-2">
+      <div class="flex flex-wrap items-center gap-2">
+        <slot name="actions" />
+        <DownloadJson
+          :result="result"
+          variant="secondary"
+          size="md"
+          :described-by="warningId"
+          confirm
         />
-        {{ t('result.actions.runAgain') }}
-      </AppButton>
-      <AppButton
-        variant="danger"
-        class="w-(--control-h-md) justify-center px-0"
-        :aria-label="t('result.actions.delete')"
-        :title="t('result.actions.delete')"
-        :aria-disabled="notSaved === null ? undefined : 'true'"
-        :aria-describedby="notSaved === null ? undefined : props.reasonId"
-        data-testid="delete-result"
-        @click="notSaved === null && emit('remove')"
-      >
-        <Trash2
-          :size="15"
-          aria-hidden="true"
-        />
-      </AppButton>
+        <AppButton
+          variant="primary"
+          data-testid="run-again"
+          @click="emit('runAgain')"
+        >
+          <RotateCcw
+            :size="15"
+            aria-hidden="true"
+          />
+          {{ t('result.actions.runAgain') }}
+        </AppButton>
+        <AppButton
+          variant="danger"
+          class="w-(--control-h-md) justify-center px-0"
+          :aria-label="t('result.actions.delete')"
+          :title="t('result.actions.delete')"
+          :aria-disabled="notSaved === null ? undefined : 'true'"
+          :aria-describedby="notSaved === null ? undefined : props.reasonId"
+          data-testid="delete-result"
+          @click="notSaved === null && emit('remove')"
+        >
+          <Trash2
+            :size="15"
+            aria-hidden="true"
+          />
+        </AppButton>
+      </div>
       <span
         :id="warningId"
-        class="flex basis-full items-center gap-1.25 text-(length:--text-micro) text-subtle-foreground"
+        class="flex items-center gap-1.25 text-(length:--text-micro) text-subtle-foreground"
       >
         <TriangleAlert
           :size="12"

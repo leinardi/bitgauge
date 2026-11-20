@@ -30,7 +30,7 @@ import MetricTile from '@/components/test/MetricTile.vue'
 import ResultBar from '@/components/test/ResultBar.vue'
 import SaveBar from '@/components/test/SaveBar.vue'
 import type { LoadView } from '@/components/test/loadView'
-import { browserRow, type TileView } from '@/components/test/tiles'
+import { browserRows, type TileView } from '@/components/test/tiles'
 import type { SaveState } from '@/composables/useResultSave'
 import type { BrowserIdentity, Result } from '@/engine/messages'
 
@@ -63,10 +63,10 @@ const kept = defineModel<boolean>('kept', { required: true })
 
 const { t, locale } = useI18n()
 
-// Data used, duration and the browser (ui/screens.md sections 1 and 6).
+// Data used, duration, the browser and the operating system (ui/screens.md sections 1 and 6).
 const facts = computed<MetaRow[]>(() => [
   ...props.tiles.more.map((tile) => ({ key: tile.label, icon: tile.icon, label: tile.label, sub: tile.lines[0]?.text, value: tile.number === null ? null : `${tile.number} ${tile.unit}` })),
-  browserRow(props.browser, { t, locale: locale.value }),
+  ...browserRows(props.browser, { t, locale: locale.value }),
 ])
 </script>
 

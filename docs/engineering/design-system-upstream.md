@@ -14,6 +14,16 @@ the export shows, and what it should show, with the reason; behavior comes from
 
 ## Notes
 
+### Kit Literals With No Token
+
+From the `design-system-guard` skill. The Vue app copies these as the kit draws them, as arbitrary
+values, until the export gives them a token.
+
+| Kit file and element | Literal | Vue |
+| --- | --- | --- |
+| `components/actions/actions.css`, `.kbd` padding | `1px 0.5em` (the inline 0.5em) | `StartButton.vue` `px-[0.5em]` |
+| `components/actions/actions.css`, `.kbd` line height | `1.4` | `StartButton.vue` `leading-[1.4]` |
+
 ### MetaList facts: a long value covers its label
 
 From the `design-system-guard` skill. Kit file `components/layout/layout.css`, the `.mrow` rules

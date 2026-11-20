@@ -218,6 +218,7 @@
       "cap": "Data cap",
       "noCap": "None",
       "browser": "Browser",
+      "os": "OS",
       "download": "Download",
       "upload": "Upload",
       "peakDownload": "Peak · download",

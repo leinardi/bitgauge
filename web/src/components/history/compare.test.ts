@@ -106,12 +106,14 @@ describe('the pair', () => {
     expect(comparison.parameters.find((row) => row.key === 'streams')).toMatchObject({ a: 'Fixed 3', b: 'Fixed 3' })
   })
 
-  it('reads an unrecognized browser as a dash', () => {
+  it('reads an unrecognized browser or operating system as a dash', () => {
     const at = (id: string, startedAt: string): Result => {
       const base = resultFixture({ id, startedAt })
-      return { ...base, client: { ...base.client, browser: { name: 'unknown', major: 0, os: 'Linux' } } }
+      return { ...base, client: { ...base.client, browser: { name: 'unknown', major: 0, os: id === 'a' ? 'Linux' : 'unknown' } } }
     }
-    expect(compare(at('a', '2026-10-01T07:05:00.000Z'), at('b', '2026-10-02T07:05:00.000Z'), 'bits', 'en', t).parameters.find((row) => row.key === 'browser')).toMatchObject({ a: '—', b: '—' })
+    const parameters = compare(at('a', '2026-10-01T07:05:00.000Z'), at('b', '2026-10-02T07:05:00.000Z'), 'bits', 'en', t).parameters
+    expect(parameters.find((row) => row.key === 'browser')).toMatchObject({ a: '—', b: '—' })
+    expect(parameters.find((row) => row.key === 'os')).toMatchObject({ a: 'Linux', b: '—', differs: 'differs' })
   })
 
   it('labels the protocol tokens, and counts two unreported ones as no difference', () => {

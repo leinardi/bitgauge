@@ -21,7 +21,7 @@ import type { useI18n } from 'vue-i18n'
 
 import { gradeCell, idleCell, type LatencyCell, loadedCell, measuredApart } from '@/components/history/compareCells'
 import { compareSettings } from '@/components/history/compareSettings'
-import { browserText, directions, overheadText } from '@/components/result/parameters'
+import { browserText, directions, osText, overheadText } from '@/components/result/parameters'
 import { directionQualifiers, qualifiedRate } from '@/components/result/qualifiers'
 import { bandName, EXPERIENCES, experienceName } from '@/components/result/qualityList'
 import { presetName } from '@/components/settings/changes'
@@ -228,6 +228,7 @@ export function compare(x: Result, y: Result, units: 'bits' | 'bytes', locale: s
     parameter('cap', t('history.compare.cap'), cap),
     parameter('overhead', t('result.parameters.overhead'), (result) => overheadText(result.settings.overheadCompensationPercent, wording), true),
     parameter('browser', t('history.compare.browser'), browser),
+    parameter('os', t('history.compare.os'), (result) => osText(result.client.browser)),
   ]
 
   const compensated = kinds.includes('overhead')

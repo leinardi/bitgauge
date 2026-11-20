@@ -64,8 +64,8 @@ blindly:
 4. **Accessibility**: the export must meet the contrast and focus requirements of
    [`ui/i18n-a11y.md`](../../../docs/features/ui/i18n-a11y.md). A token that fails them is fixed in
    Claude Design, never overridden in code: write an upstream note. The only in-code exception is
-   the one §2.6 names: the start button's key hint is drawn at full text color, without the
-   export's reduced opacity.
+   the one §2.6 names: the start button's key hint keeps the export's keycap outline but draws
+   its text at the button's full text color, not the keycap's faded text.
 5. **`web/`** is the implementation, never the spec. It loses every conflict.
 
 When the export and `docs/features/ui/` disagree:

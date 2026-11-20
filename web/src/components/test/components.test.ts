@@ -33,7 +33,7 @@ import NoticeList from '@/components/test/NoticeList.vue'
 import { noticeView, noticeViews } from '@/components/test/notices'
 import PhaseIndicator from '@/components/test/PhaseIndicator.vue'
 import StartButton from '@/components/test/StartButton.vue'
-import { browserRow, directionTile } from '@/components/test/tiles'
+import { browserRows, directionTile } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 import type { DirectionResult, Notice, NoticeCode } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
@@ -321,7 +321,8 @@ describe('a metric tile', () => {
 
 describe('the Test list', () => {
   it('shows each row as a term with its sub line and its value, a dash without one', () => {
-    const browser = browserRow({ name: 'Firefox', major: 131, os: 'Linux' }, context)
+    const [browser, os] = browserRows({ name: 'Firefox', major: 131, os: 'Linux' }, context)
+    if (browser === undefined || os === undefined) throw new Error('two rows expected')
     const wrapper = mount(MetaList, {
       props: {
         title: 'Test',
@@ -329,13 +330,14 @@ describe('the Test list', () => {
           { key: 'data', icon: browser.icon, label: 'Data used', value: '1.3 GB' },
           { key: 'duration', icon: browser.icon, label: 'Duration', sub: 'elapsed', value: null },
           browser,
+          os,
         ],
       },
       global: { plugins: [i18n()] },
     })
-    expect(wrapper.findAll('dt').map((term) => term.text())).toEqual(['Data used', 'Durationelapsed', 'Browser'])
+    expect(wrapper.findAll('dt').map((term) => term.text())).toEqual(['Data used', 'Durationelapsed', 'Browser', 'OS'])
     const values = wrapper.findAll('dd')
-    expect(values.map((value) => value.text())).toEqual(['1.3 GB', '—', 'Firefox 131 · Linux'])
+    expect(values.map((value) => value.text())).toEqual(['1.3 GB', '—', 'Firefox 131', 'Linux'])
     expect(values[1]?.classes()).toContain('text-subtle-foreground')
   })
 })

@@ -72,7 +72,8 @@ describe('continuousView', () => {
       ['Elapsed', 'no run length set', '42:18'],
       ['Min / max', 'download, run-wide, fully known 1 s cells', '702 / 941 Mbit/s'],
       ['Idle latency', 'measured at start', '3.1\u00a0ms'],
-      ['Browser', undefined, 'Firefox 131 · Linux'],
+      ['Browser', undefined, 'Firefox 131'],
+      ['OS', undefined, 'Linux'],
     ])
   })
 
