@@ -5,8 +5,8 @@
 **BitGauge**: self-hosted, browser-based network speed test for LAN, homelab and VPN links, from
 well under 1 Mbit/s to multi-Gbit. One stateless Rust binary with an embedded Vue SPA; the
 measurement engine runs in the browser, in a Web Worker. Optional compatibility layers for
-OpenSpeedTest, LibreSpeed and Apple `networkQuality` clients. Implemented, not yet released; the
-release waits for the manual steps of [`docs/release.md`](docs/release.md#how-to-release).
+OpenSpeedTest, LibreSpeed and Apple `networkQuality` clients. Released; how to cut a
+release is in [`docs/release.md`](docs/release.md#how-to-release).
 
 - `src/` (the `bitgauge` package: `serve`, `healthcheck`; module map:
   [backend.md §1](docs/features/technical-stack/backend.md#1-package-map)), `api/openapi.yaml`

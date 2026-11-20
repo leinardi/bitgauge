@@ -159,20 +159,6 @@ changing an interactive surface? Read
 
 ## 6. Workflow
 
-Copy this checklist and tick items as you go:
-
-```text
-Design-system change:
-- [ ] 1. Classified: spec in docs/features/ui? matching app kit screen or state? component contract?
-- [ ] 2. Relevant sources from §1 read
-- [ ] 3. Existing implementations searched
-- [ ] 4. Mismatches resolved per §2; the spec fixed first, an export fault noted upstream
-- [ ] 5. Implemented with existing tokens and components; anything new justified
-- [ ] 6. Validation clean; both themes, desktop and narrow checked
-- [ ] 7. Parity rerun for the touched states
-- [ ] 8. Reconciliation summarized
-```
-
 1. **Classify the change.** Is the surface specified in `docs/features/ui/`? Does the app kit show
    it? Is there a `docs/design_system/components/` contract?
 2. **Read the relevant sources** from §1.

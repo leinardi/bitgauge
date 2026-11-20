@@ -43,8 +43,9 @@ means:
    moves. A technical choice that conflicts with
    [decisions.md](../../../docs/features/technical-stack/decisions.md) changes there too, because
    decisions.md wins on technical choices.
-2. Run the docs validation from AGENTS.md: numbers, probe-path names and the upload JSON shape
-   still agree across measurement.md, wire-protocol.md, configuration.md, `ui/` and glossary.md.
+2. Check, as the `spec-change` skill's §1 says, that numbers, probe-path names and the upload
+   JSON shape still agree across measurement.md, wire-protocol.md, configuration.md, `ui/` and
+   glossary.md.
 3. Info not being skippable (§1) is locked as decisions.md §34. The upload grace (§5), the failure
    gaps and the HTTP/1.1 rule (§7.5) were confirmed with harness evidence on 2026-10-16; changing
    one needs new evidence.
