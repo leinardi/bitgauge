@@ -7,9 +7,8 @@ default_stages: [pre-commit]
 # as upstream ships it, so no hook may rewrite them (whitespace, end of file, markdown fixes). The
 # skills this repository writes itself, beside them under .agents/skills, are linted as usual.
 # The Claude Design export under docs/design_system is copied in as exported and is never
-# hand-edited (docs/README.md, Provenance Rule), so it is excluded too, except features/: those are
-# the spec pages the symlinks in docs/features point at, linted like any spec page.
-exclude: '^(\.agents/skills/(fallow|vue-best-practices|vue-router-best-practices|vue-testing-best-practices)/|docs/design_system/(?!features/))'
+# hand-edited (docs/README.md, Provenance Rule), so it is excluded too.
+exclude: '^(\.agents/skills/(fallow|vue-best-practices|vue-router-best-practices|vue-testing-best-practices)/|docs/design_system/)'
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -26,30 +25,12 @@ repos:
   # holds the trees it skips). The whole tree on every commit, because deleting a linked page
   # passes no file to the hook at all, so it takes its inputs from args: directories, walked with
   # .gitignore, unlike a glob, which lychee expands itself and which would read ignored files.
-  # --hidden reaches .github, .agents, .claude and .serena, which the walk skips otherwise. The
-  # walk does not follow the symlinks of docs/features into the design export (three pages and ui/),
-  # so they are listed.
+  # --hidden reaches .github, .agents, .claude and .serena, which the walk skips otherwise.
   - repo: https://github.com/lycheeverse/lychee
     rev: lychee-v0.24.2
     hooks:
       - id: lychee
-        args:
-          [
-            "--config",
-            "lychee.toml",
-            "--offline",
-            "--include-fragments",
-            "--no-progress",
-            "--hidden",
-            "--extensions",
-            "md",
-            "--",
-            ".",
-            "docs/features/measurement.md",
-            "docs/features/principles.md",
-            "docs/features/product.md",
-            "docs/features/ui",
-          ]
+        args: ["--config", "lychee.toml", "--offline", "--include-fragments", "--no-progress", "--hidden", "--extensions", "md", "--", "."]
         types: [markdown]
         pass_filenames: false
         always_run: true

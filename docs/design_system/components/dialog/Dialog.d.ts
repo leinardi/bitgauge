@@ -1,3 +1,22 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Modal dialog: --modal-w 452 px (wide 540), 14 px radius, icon tile, title, description, optional body,
  * scope note and sticky footer. Visual definition: dialog.css. Accessibility: role="dialog" (danger:
@@ -11,7 +30,7 @@ export interface DialogProps {
   /** Render in-flow without scrim (docs/previews). */
   inline?: boolean;
   /** Icon tile tone. Danger also sets role="alertdialog". @default "primary" */
-  tone?: 'primary' | 'danger';
+  tone?: "primary" | "danger";
   icon?: string;
   title: React.ReactNode;
   /** Description; <b> renders mono. */
@@ -26,7 +45,7 @@ export interface DialogProps {
   footerStack?: boolean;
   wide?: boolean;
   /** md 452 · wide 540 · xl 760 px (compare). Overrides `wide`. */
-  size?: 'md' | 'wide' | 'xl';
+  size?: "md" | "wide" | "xl";
   /** Body without side padding (full-bleed tables), separated by a hairline. */
   flush?: boolean;
   /** Close handler; also renders the header's icon-only close button. */
@@ -34,6 +53,7 @@ export interface DialogProps {
   /** @default "Close" */
   closeLabel?: string;
   /** Vertical placement. @default "center" */
-  align?: 'center' | 'top';
+  align?: "center" | "top";
 }
+
 export declare function Dialog(props: DialogProps): JSX.Element | null;

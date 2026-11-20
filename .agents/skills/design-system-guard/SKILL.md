@@ -24,13 +24,10 @@ skill in the same pull request so the two never drift.
 Names used throughout:
 
 - **the export**: `docs/design_system/`, the Claude Design export. It is copied in unchanged and
-  **never hand-edited**, except the spec files under `docs/design_system/features/`
-  ([docs/README.md](../../../docs/README.md#design-export)).
+  **never hand-edited** ([docs/README.md](../../../docs/README.md#design-export)).
 - **the app kit**: `docs/design_system/ui_kits/app/`, the export's high-fidelity React prototype,
   the visual and interaction reference. Its JSX is read for reference and translated into Vue and
   shadcn-vue, never copied.
-- **`docs/features/ui/`**: a symlink into `docs/design_system/features/ui/`; either path edits the
-  same file.
 
 ---
 

@@ -3,10 +3,7 @@
 # matched against the path.
 #
 # The skills vendored byte for byte (pinned upstream in skills-lock.json) and the design export
-# (never hand-edited). The export's features/ pages, which the pre-commit exclude does lint, link
-# to their neighbours as they sit under docs/features, so they are checked there, through the
-# symlinks, and not under docs/design_system. Installed dependencies and build output are skipped
-# by name.
+# (never hand-edited). Installed dependencies and build output are skipped by name.
 exclude_path = [
   "(^|/)node_modules/",
   "^(\\./)?target/",

@@ -5,10 +5,13 @@ Component `MetricTile` (`components/measurement/`, `.tile` on `.card`: `--surfac
 
 ## Anatomy
 
-Leading glyph (direction icon in its series colour, else `--fg-subtle`) · eyebrow label (condensed caps
-11 px, `--fg-subtle`) · state pill (StatusPill sm) on the right for every non-done state · value (Plex Mono
-500, `--type-metric-value` 30 px / compact 24 px, tabular) with a separate mono unit span · qualifier line
-(mono 11 px) · optional secondary lines (peak, min / median / p90, overhead compensation, data used).
+Leading glyph (direction icon in its series colour, else `--fg-subtle`) · eyebrow label (condensed
+caps
+11 px, `--fg-subtle`) · state pill (StatusPill sm) on the right for every non-done state · value
+(Plex Mono
+500, `--type-metric-value` 30 px / compact 24 px, tabular) with a separate mono unit span ·
+qualifier line (mono 11 px) · optional secondary lines (peak, min / median / p90, overhead
+compensation, data used).
 
 ## States
 
@@ -27,7 +30,8 @@ States follow the result object's direction status (`features/measurement.md` §
 | skipped | **no number**, qualifier "skipped" | — |
 | error | **no number**, "—" + the error in `--danger-fg`, always prefixed: "error · connection lost", "error · 3 requests in a row failed" | Error |
 
-The error, insufficient-data, skipped and warming-up states never show a number, even when a value is
+The error, insufficient-data, skipped and warming-up states never show a number, even when a value
+is
 passed. There is no "incomplete" state; the spec's term is insufficient data.
 
 Fill-in: when a value arrives, "—" fades to the number over 180 ms (`--dur-base`). Nothing slides.
@@ -36,12 +40,15 @@ Reduced motion: the number appears without fading.
 ## Special tiles
 
 - **LoadCard** (component): bufferbloat grade letter (A+ Minimal, A Low, B Mild, C Moderate, D High,
-  F Severe) with an A+–F scale strip in `--grade-*` and its basis (`basis`), loaded latency per direction
+  F Severe) with an A+–F scale strip in `--grade-*` and its basis (`basis`), loaded latency per
+  direction
   with change vs idle or the reason there is none, and (optional `responsiveness`) RPM labelled
   "HTTP loaded responsiveness — connection sharing not verifiable".
-- **QualityList** (component): Streaming, Gaming, Video calls → Great / Good / Average / Poor / Bad as
+- **QualityList** (component): Streaming, Gaming, Video calls → Great / Good / Average / Poor / Bad
+  as
   StatusBadges (icon + band name); note "Upper bound: packet loss is not measured".
-- **MetaList** with `title` ("Test", "Session"): data used, duration, browser ("Firefox 131 · Linux", from the result's `client.browser`).
+- **MetaList** with `title` ("Test", "Session"): data used, duration, browser ("Firefox 131 ·
+  Linux", from the result's `client.browser`).
 
 Peak is labelled "peak" (p90 of the steady window, never a maximum). Overhead compensation, when
 non-zero, is shown next to every number it changed.

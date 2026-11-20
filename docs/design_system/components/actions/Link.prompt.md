@@ -1,4 +1,5 @@
-Standalone text link for small actions and docs — one weight and colour everywhere; never set them inline.
+Standalone text link for small actions and docs — one weight and colour everywhere; never set them
+inline.
 
 ```jsx
 <Link icon="sliders" href="#/settings">Edit</Link>

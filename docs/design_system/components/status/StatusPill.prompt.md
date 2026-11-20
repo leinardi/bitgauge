@@ -5,4 +5,5 @@ Dot + UPPERCASE condensed status pill for connection and run state ("Connected",
 <StatusPill tone="offline">Unreachable</StatusPill>
 ```
 
-- Tones: ok, warn, danger, info, neutral, offline. The label always carries the meaning, not the colour.
+- Tones: ok, warn, danger, info, neutral, offline. The label always carries the meaning, not the
+  colour.

@@ -1,3 +1,22 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Button — verb-first actions. One primary per view. Visual definition: components/actions/actions.css
  * (`.btn` + variant + size classes, heights from the --control-h-* tokens). Nothing else defines button looks.
@@ -11,9 +30,9 @@
  */
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /** @default "secondary" */
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'danger-solid';
+  variant?: "primary" | "secondary" | "ghost" | "danger" | "danger-solid";
   /** sm 28 · md 34 · lg 38 · xl 46 (Start/Stop) px — tokens --control-h-*. @default "md" */
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: "sm" | "md" | "lg" | "xl";
   /** Leading Lucide glyph name. */
   icon?: string;
   /** Trailing glyph, e.g. "chevron-right", "external-link". */
@@ -32,7 +51,8 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   /** When disabled, keep it focusable (aria-disabled) and show this reason in a tooltip (aria-describedby). */
   disabledReason?: string;
   /** Tooltip anchor. @default "center" */
-  tipAlign?: 'center' | 'end';
+  tipAlign?: "center" | "end";
   children?: React.ReactNode;
 }
+
 export declare function Button(props: ButtonProps): JSX.Element;

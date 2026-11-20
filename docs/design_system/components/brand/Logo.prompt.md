@@ -1,4 +1,5 @@
-The BitGauge mark (and optional wordmark) — use in headers, splash and share images; never redraw it.
+The BitGauge mark (and optional wordmark) — use in headers, splash and share images; never redraw
+it.
 
 ```jsx
 <Logo size={26} wordmark />

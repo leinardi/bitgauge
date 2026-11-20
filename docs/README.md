@@ -6,7 +6,7 @@ prior art behind the design:
 | Tree | Owns | Authority |
 | --- | --- | --- |
 | [`features/`](features/README.md) | Product spec, measurement methodology, wire protocol, compatibility, architecture, technical stack, security model, UI behavior, roadmap | Product and technical contract. Technical decisions are **locked** in [`features/technical-stack/decisions.md`](features/technical-stack/decisions.md); that file wins over any summary elsewhere. |
-| [`design_system/`](design_system/README.md) | Brand, tokens, component contracts, UI kits, previews | Visual contract from the Claude Design export, including the `ui_kits/app/` prototype. Where it disagrees with `features/ui/` on behavior, the spec wins. The export is never hand-edited, except the spec files under `design_system/features/` ([Design Export](#design-export)). |
+| [`design_system/`](design_system/README.md) | Brand, tokens, component contracts, UI kits, previews | Visual contract from the Claude Design export, including the `ui_kits/app/` prototype. Where it disagrees with `features/ui/` on behavior, the spec wins. The export is never hand-edited ([Design Export](#design-export)). |
 | [`engineering/`](engineering/README.md) | How the project is run rather than what it does: harness runbooks, checklists, audits | Working notes, not a contract. Nothing here constrains the product. |
 | [`research/`](research/README.md) | How other speed tests work and which ideas BitGauge takes | Background, ideas only. Where it disagrees with `features/`, `features/` wins. |
 
@@ -24,11 +24,8 @@ export.
 
 **Never hand-edit files under `design_system/`.** The tree is regenerated from the Claude Design
 project on every export, so a local edit is silently lost on the next sync. A change goes into the
-Claude Design project first and arrives here with the next export. The one exception is
-`design_system/features/`, which is the same file as the spec pages through the symlinks below and
-is edited like any spec page. Every such edit is then pasted by hand into the same file in the
-Claude Design project, so the next export carries it unchanged; Claude Design prompts never ask it
-to write anything under `features/`.
+Claude Design project first and arrives here with the next export. The export carries no spec
+pages: the product spec lives only in [`features/`](features/README.md).
 
 ### Precedence
 
@@ -44,31 +41,10 @@ to write anything under `features/`.
   [`features/ui/i18n-a11y.md`](features/ui/i18n-a11y.md); a token that fails them is fixed in
   Claude Design, not overridden in code.
 
-### Symlink Contract
-
-The export carries the product-spec files the design is drawn from. They live physically under
-`design_system/features/` and are **symlinked** into `features/`:
-
-- `features/product.md` → `design_system/features/product.md`
-- `features/principles.md` → `design_system/features/principles.md`
-- `features/measurement.md` → `design_system/features/measurement.md`
-- `features/ui/` → `design_system/features/ui/`
-
-Links inside and to these files are written as if they lived in `features/`: the `lychee` hook
-resolves them there (it is given the symlinked feature pages explicitly), and an IDE "move"
-refactoring that rewrites them to the physical path is reverted.
-
-Editing via either path edits the same file. Windows checkouts need
-`git config core.symlinks true`.
-
 ### Syncing a New Export
 
-1. Copy the export over `design_system/`.
-2. Run `git diff -- docs/design_system/features/`. It must print nothing: the export's spec files
-   must be byte-identical to the committed ones. Any difference is resolved in favor of the
-   committed spec (`git checkout -- docs/design_system/features/`), and the committed files are
-   pasted into the Claude Design project so the next export matches.
-3. Check that every relative link in `docs/` still resolves (`pre-commit run lychee --all-files`), then
+1. Replace `design_system/` with the export.
+2. Check that every relative link in `docs/` still resolves (`pre-commit run lychee --all-files`), then
    commit the export.
 
 ## Reading Order

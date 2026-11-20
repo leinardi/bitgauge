@@ -8,7 +8,8 @@ step; it shows as label "Connecting…" (state `active`, detail "server info") o
 
 ## Anatomy
 
-State icon (15 px) · phase name (`--text-sm` 600) · mono meta right-aligned (stacked under the name in the
+State icon (15 px) · phase name (`--text-sm` 600) · mono meta right-aligned (stacked under the name
+in the
 compact layout) · 4 px bar on `--surface-3`. Names: **Idle latency**, **Download**, **Upload** (the
 spec's terms); Continuous uses the label "Download · continuous".
 
@@ -29,8 +30,10 @@ The meta line is always `<state>[ · <detail>]`; screens pass only the detail.
 Bar colours: latency `--series-latency`, download `--series-download`, upload
 `--series-upload`.
 
-A direction that reached its maximum without a steady window is **not** capped: it is `done` with the
-detail "insufficient data": insufficient data is the direction's result status, shown as the detail of a done step.
+A direction that reached its maximum without a steady window is **not** capped: it is `done` with
+the
+detail "insufficient data": insufficient data is the direction's result status, shown as the detail
+of a done step.
 
 ## Rules
 

@@ -130,8 +130,7 @@ One cluster per commit.
    change ships (AGENTS.md § Commit messages):
    - `fix(web)` for the Vue app;
    - `test(demo)` for the demo's link, scenarios or fixtures;
-   - `docs(<area>)` for the spec, listing the symlinked pages changed for the user to paste into
-     Claude Design (`spec-change` §6);
+   - `docs(<area>)` for the spec (`spec-change`);
    - `docs(design-system)` for an upstream note;
    - `test(parity)` for the harness or the ledger.
 

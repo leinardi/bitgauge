@@ -14,17 +14,18 @@ from the design export; this page fixes content and behavior only. Terms follow 
 
 - **Server name** (`server.display_name`), in the persistent header with the page's host and a
   reachability indicator (dot plus text for screen readers: connected or unreachable).
-- **Connection info:** client IP with IP version; suggested context label (`LAN`, `VPN`, an operator label or none),
-  editable; negotiated HTTP protocol (`HTTP/1.1`, `HTTP/2`, `HTTP/3`, or "not reported", as it is
-  before a run has made a request); stream count, live during a run ("—" before one when the
-  count is automatic), with the plateau reason afterwards.
+- **Connection info:** client IP with IP version; suggested context label (`LAN`, `VPN`, an operator
+  label or none), editable; negotiated HTTP protocol (`HTTP/1.1`, `HTTP/2`, `HTTP/3`, or "not
+  reported", as it is before a run has made a request); stream count, live during a run ("—" before
+  one when the count is automatic), with the plateau reason afterwards.
 - **Settings summary:** the settings that differ from the server defaults, one chip each (for
   example "Extended", "4 streams", "Cap 500 MB"), or the preset name when nothing differs, with
   an Edit link to Settings. The run's settings are compared with the server defaults under the
   run's preset, so a preset's own durations, streams and ping count are not changes; the chips
   follow the order of Settings' changed list: preset, Continuous direction, run length, phases,
   streams, download duration, upload duration, data cap, units, warm-up, ping count and overhead
-  compensation. Theme, language, the label and Auto-start do not change a run and have no chip. It summarizes against the server's settings, so it shows only while
+  compensation. Theme, language, the label and Auto-start do not change a run and have no chip.
+  It summarizes against the server's settings, so it shows only while
   they are known and the server is reachable: before `GET /info` has answered, offline, and after
   an error whose re-check of `/info` fails, the row, Edit included, is absent.
 - **Start / Stop** button (one control that changes role, each with its label: Start "Start
@@ -216,7 +217,8 @@ parameters collapse into a disclosure.
   focused row, Space toggles its selection and Enter opens it. The list shows the first 100
   results of the filtered, sorted set, then "Showing 100 of 2,140" with a **Show 100 more**
   button (fewer when fewer are left), which adds the next ones below and moves the focus to the
-  first added row. A change of filter or sort starts again from 100. The header's count, the filter chips' counts, the trend chart and export of the
+  first added row. A change of filter or sort starts again from 100. The header's count, the
+  filter chips' counts, the trend chart and export of the
   current filter cover every filtered result, not only those shown.
 - **Filters:** chips by label and by context label, each with its count; a date range (last 7,
   30 or 90 days, each that many calendar days ending today in the browser's time zone, so the last
@@ -348,7 +350,8 @@ effective settings are the URL parameters over the stored settings over the serv
   settings a link cannot carry ([url-params.md §3](url-params.md#3-shareable-settings-url)).
 
 **States:** defaults; changed (markers and the changed list); invalid input (inline error on the
-field, value not saved; focus is not moved, and Tab leaves the field as usual); saved (the change applies to the next test).
+field, value not saved; focus is not moved, and Tab leaves the field as usual); saved (the change
+applies to the next test).
 
 **Responsive notes.** One column on narrow screens; Advanced collapsed by default.
 

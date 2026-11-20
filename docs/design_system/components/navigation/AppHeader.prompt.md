@@ -1,4 +1,5 @@
-Persistent app header and narrow-layout tab bar — pass server, host, status and the scoped nav items.
+Persistent app header and narrow-layout tab bar — pass server, host, status and the scoped nav
+items.
 
 ```jsx
 const items = [{ key: 'test', label: 'Test', icon: 'gauge' }, { key: 'about', label: 'About', icon: 'info' }];

@@ -1,6 +1,7 @@
 # Tokens
 
-Source: `colors_and_type.css` (tokens) and `base.css` (element defaults: body font, size **and line height**, links, focus). Theme with `data-theme="dark" | "light"` on `<html>` (dark is
+Source: `colors_and_type.css` (tokens) and `base.css` (element defaults: body font, size **and line
+height**, links, focus). Theme with `data-theme="dark" | "light"` on `<html>` (dark is
 `:root`'s default). Density with `data-density="compact"`.
 
 ## Colour — semantic
@@ -206,35 +207,51 @@ need 3:1. Measured against `--bg-base` and `--surface-2`; tinted rows composite 
 Scale tokens: `--text-nano` 10 … `--text-6xl` 48. Weights 400/500/600/700.
 Role tokens: `--type-gauge-readout` 58 / `-compact` 46, `--type-metric-value` 30 / 24,
 `--type-page-title` 30 / 24, `--type-state-title` 26 / 22; tracking `--tracking-readout` −0.03em,
-`--tracking-metric` −0.02em. Line heights: `--lh-tight` 1.15 · `--lh-snug` 1.3 · `--lh-compact` 1.45 ·
-`--lh-normal` 1.5 (body default, set in `base.css`) · `--lh-prose` 1.55 · `--lh-relaxed` 1.65 · `--lh-none` 1 (pills,
-badges) · `--lh-display` 1.05 (gauge readout) · `--lh-stat` 22 px (Stat value row). `--text-pico` 9 px (grade strip,
-share-image meta); share image (480 × 252 box, × 2.5 in the PNG) `--type-share-value` 42, `--type-share-label` 12, `--type-share-unit` 15,
+`--tracking-metric` −0.02em. Line heights: `--lh-tight` 1.15 · `--lh-snug` 1.3 · `--lh-compact`
+1.45 ·
+`--lh-normal` 1.5 (body default, set in `base.css`) · `--lh-prose` 1.55 · `--lh-relaxed` 1.65 ·
+`--lh-none` 1 (pills,
+badges) · `--lh-display` 1.05 (gauge readout) · `--lh-stat` 22 px (Stat value row). `--text-pico` 9
+px (grade strip,
+share-image meta); share image (480 × 252 box, × 2.5 in the PNG) `--type-share-value` 42,
+`--type-share-label` 12, `--type-share-unit` 15,
 `--type-share-qual` 10, `--type-share-meta` 10, `--type-share-head` 11, `--type-share-grade` 24.
 
 ## Breakpoints
 
-- `--breakpoint-desktop` 1140 px: desktop layout from here; below it the `-compact` tokens apply (compact header,
-  TabBar, compact gutters). `--breakpoint-tablet` 768 px: Table `.flip` turns into a card list below it.
-- Media queries can't read custom properties, so an `@media` rule repeats the literal with a comment naming the token
-  (`max-width: 1139px` = below `--breakpoint-desktop`); scripts read the token with `getComputedStyle`.
+- `--breakpoint-desktop` 1140 px: desktop layout from here; below it the `-compact` tokens apply
+  (compact header,
+  TabBar, compact gutters). `--breakpoint-tablet` 768 px: Table `.flip` turns into a card list below
+  it.
+- Media queries can't read custom properties, so an `@media` rule repeats the literal with a comment
+  naming the token (`max-width: 1139px` = below `--breakpoint-desktop`); scripts read the token with
+  `getComputedStyle`.
 
 ## Lines, focus, opacity
 
-- `--border-width` 1 px (every hairline) · `--border-width-strong` 1.5 px (hollow dots, Checkbox and radio boxes).
-- Focus: `--focus-width` 2 px solid `--focus-ring`, `--focus-offset` 2 px (inset rings use `calc(-1 * var(--focus-offset))`).
+- `--border-width` 1 px (every hairline) · `--border-width-strong` 1.5 px (hollow dots, Checkbox and
+  radio boxes).
+- Focus: `--focus-width` 2 px solid `--focus-ring`, `--focus-offset` 2 px (inset rings use
+  `calc(-1 * var(--focus-offset))`).
 - `--underline-offset` 2 px (link hover) · `--radius-2xs` 2 px (progress bar, TabBar indicator).
-- `--opacity-disabled` 0.45 · `--opacity-hint` 0.8 (keyboard hint, chip count) · `--scrim-blur` 2 px.
-- Shadows: `--shadow-card` = `inset 0 1px 0 var(--card-highlight)` (Card top edge; transparent in light) ·
+- `--opacity-disabled` 0.45 · `--opacity-hint` 0.8 (keyboard hint, chip count) · `--scrim-blur` 2
+  px.
+- Shadows: `--shadow-card` = `inset 0 1px 0 var(--card-highlight)` (Card top edge; transparent in
+  light) ·
   `--shadow-ring-danger` = `0 0 0 3px var(--danger-bg)` (invalid field, focused).
 
 ## Charts (non-colour)
 
-Strokes `--chart-stroke` 1 (grid, edges, separators, now line) · `--chart-stroke-latency` 1.25 · `--chart-stroke-mark` 1.5;
+Strokes `--chart-stroke` 1 (grid, edges, separators, now line) · `--chart-stroke-latency` 1.25 ·
+`--chart-stroke-mark` 1.5;
 dashes `--chart-dash-sep` 2 3 · `--chart-dash-latency` 4 3 · `--chart-dash-mark` 3 3; steady window
-`--chart-window-fill` 0.08 / `--chart-window-stroke` 0.4; `--chart-latency-opacity` 0.9, `--chart-now-opacity` 0.5;
-warm-up hatch `--chart-hatch-angle` 135deg, `--chart-hatch-pitch` 6 px; phase / mark labels `--chart-label-gap` 6 px from their line, rows `--chart-label-row` 12 px apart; label anchors `--chart-label-anchor` −75 %,
-`--gauge-tick-anchor` −80 %; legend `--legend-swatch-w` 14 × `--legend-swatch-h` 10 px, `--legend-band-w` 12 px,
+`--chart-window-fill` 0.08 / `--chart-window-stroke` 0.4; `--chart-latency-opacity` 0.9,
+`--chart-now-opacity` 0.5;
+warm-up hatch `--chart-hatch-angle` 135deg, `--chart-hatch-pitch` 6 px; phase / mark labels
+`--chart-label-gap` 6 px from their line, rows `--chart-label-row` 12 px apart; label anchors
+`--chart-label-anchor` −75 %,
+`--gauge-tick-anchor` −80 %; legend `--legend-swatch-w` 14 × `--legend-swatch-h` 10 px,
+`--legend-band-w` 12 px,
 `--legend-stroke` 2 px.
 
 ## Number formatting
@@ -246,16 +263,23 @@ always a separate, smaller span. Tabular numbers everywhere.
 
 ## Spacing, radius, motion, z
 
-- Spacing: 4 px grid, `--space-0-5` (2) … `--space-20` (80); half-steps below 20 px. Optical steps off the grid,
-  for 1 px alignment nudges and tight icon-to-text gaps only: `--space-0-25` 1 · `--space-0-75` 3 · `--space-1-25` 5 ·
+- Spacing: 4 px grid, `--space-0-5` (2) … `--space-20` (80); half-steps below 20 px. Optical steps
+  off the grid,
+  for 1 px alignment nudges and tight icon-to-text gaps only: `--space-0-25` 1 · `--space-0-75` 3 ·
+  `--space-1-25` 5 ·
   `--space-1-75` 7. `--tooltip-gap` (= `--space-1-75`) between a Tooltip and its control.
   Desktop: content max 1200 px, 40 px gutters, 20 px between sections, 16 px between tiles.
-  Mobile (below `--breakpoint-desktop`): 16 px gutters, 10–14 px gaps. Touch targets ≥ 44 px; Start/Stop 52 px on mobile.
-- Motion: `--dur-fast` 120 · `--dur-base` 180 (gauge sample, tile fill-in) · `--dur-slow` 280
-  (phase change, window shift) · `--dur-shimmer` 1.4 s (Skeleton loop); `--ease-out`, `--ease-standard`. Entrances:
-  `--enter-shift-sm` 4 px (page content), `--enter-shift-md` 6 px + `--enter-scale` 0.99 (Dialog), `--enter-shift-lg`
+  Mobile (below `--breakpoint-desktop`): 16 px gutters, 10–14 px gaps. Touch targets ≥ 44 px;
+  Start/Stop 52 px on mobile.
+- Motion: `--dur-fast` 120 · `--dur-base` 180 (gauge sample, tile fill-in) · `--dur-slow` 280 (phase
+  change, window shift) · `--dur-shimmer` 1.4 s (Skeleton loop); `--ease-out`, `--ease-standard`.
+  Entrances:
+  `--enter-shift-sm` 4 px (page content), `--enter-shift-md` 6 px + `--enter-scale` 0.99 (Dialog),
+  `--enter-shift-lg`
   10 px (Toast); `--press-shift` 0.5 px (Button pressed). Reduced motion: no tweening, no pulsing.
-- Radius: 2xs 2 · xs 3 · sm 5 · md 7 (controls) · lg 10 (cards) · xl 14 (dialogs) · full (pills, dots).
-- Kit Demo panel only (prototype scaffolding, not product UI): `--demo-w` 300, `--demo-w-compact` 320,
+- Radius: 2xs 2 · xs 3 · sm 5 · md 7 (controls) · lg 10 (cards) · xl 14 (dialogs) · full (pills,
+  dots).
+- Kit Demo panel only (prototype scaffolding, not product UI): `--demo-w` 300, `--demo-w-compact`
+  320,
   `--demo-row-basis` 160 px, `--demo-max-h` `calc(100vh - 20px)`.
 - Z: sticky 20 · tooltip 30 · popover 40 · overlay 50 · toast 60 · nav 80 · skip-link 100.

@@ -1,3 +1,22 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * AppHeader — persistent header: wordmark (home link), server identity, primary navigation, theme switch.
  * TabBar — the narrow-layout bottom tab bar (64 px, position-neutral; the page pins it with a fixed wrapper plus a 64 px spacer). Contract: components/navigation.md.
@@ -11,7 +30,13 @@
  * a polite live region inside the header announces status CHANGES only (mounting is silent).
  * The compact theme button is named "Theme: <current>" and cycles light → dark → system.
  */
-export interface NavItem { key: string; label: string; icon: string; href?: string; }
+export interface NavItem {
+  key: string;
+  label: string;
+  icon: string;
+  href?: string;
+}
+
 export interface AppHeaderProps {
   /** Compact header for narrow layouts (52 px, theme cycle button, no nav — use TabBar). */
   compact?: boolean;
@@ -20,14 +45,21 @@ export interface AppHeaderProps {
   /** The page's host, e.g. "speed.home.lan". */
   host: string;
   /** @default "connected" */
-  status?: 'connected' | 'unreachable';
+  status?: "connected" | "unreachable";
   items?: NavItem[];
   active?: string;
   /** @default "system" */
-  theme?: 'light' | 'dark' | 'system';
-  onThemeChange?: (theme: 'light' | 'dark' | 'system') => void;
+  theme?: "light" | "dark" | "system";
+  onThemeChange?: (theme: "light" | "dark" | "system") => void;
   onNavigate?: (key: string) => void;
 }
+
 export declare function AppHeader(props: AppHeaderProps): JSX.Element;
-export interface TabBarProps { items: NavItem[]; active?: string; onNavigate?: (key: string) => void; }
+
+export interface TabBarProps {
+  items: NavItem[];
+  active?: string;
+  onNavigate?: (key: string) => void;
+}
+
 export declare function TabBar(props: TabBarProps): JSX.Element;

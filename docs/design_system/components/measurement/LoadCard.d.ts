@@ -1,3 +1,22 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * LoadCard — bufferbloat grade (letter + words + A+–F strip), loaded latency per direction with the change vs
  * idle, and HTTP loaded responsiveness (RPM) under its fixed, untranslatable-as-a-whole label
@@ -6,7 +25,7 @@
  * GradeBadge — the letter tile alone. The letter is the signal; colour follows --grade-*.
  */
 export interface LoadRow {
-  dir: 'download' | 'upload';
+  dir: "download" | "upload";
   /** "During download · WebSocket" */
   label: string;
   /** "p90 24 · +15 ms vs idle", "Pending", "Not run" */
@@ -16,12 +35,19 @@ export interface LoadRow {
   /** Live value (--primary-text). */
   live?: boolean;
 }
-export interface ResponsivenessDir { dir: 'download' | 'upload'; value?: string | null; text?: string; uncertain?: boolean;
+
+export interface ResponsivenessDir {
+  dir: "download" | "upload";
+  value?: string | null;
+  text?: string;
+  uncertain?: boolean;
   /** Result detail only: TM95 and the samples ("TM95 42.3 ms · 13 samples · TM95 equals the plain mean"). */
-  detail?: string; }
+  detail?: string;
+}
+
 export interface LoadCardProps {
   /** null = not graded yet. */
-  grade?: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F' | null;
+  grade?: "A+" | "A" | "B" | "C" | "D" | "F" | null;
   /** Words under the strip. Default: the grade's words ("Mild bufferbloat") or "Graded after upload". */
   gradeText?: string;
   /** The run has ended (complete, stopped or failed). With no grade the letter reads "Bufferbloat not graded"
@@ -36,7 +62,15 @@ export interface LoadCardProps {
   className?: string;
   style?: React.CSSProperties;
 }
+
 export declare function LoadCard(props: LoadCardProps): JSX.Element;
-export interface GradeBadgeProps { grade?: string | null; text?: string; ended?: boolean; }
+
+export interface GradeBadgeProps {
+  grade?: string | null;
+  text?: string;
+  ended?: boolean;
+}
+
 export declare function GradeBadge(props: GradeBadgeProps): JSX.Element;
-export declare const GRADES: Record<string, { tone: 'ok' | 'warn' | 'danger'; text: string }>;
+
+export declare const GRADES: Record<string, { tone: "ok" | "warn" | "danger"; text: string }>;

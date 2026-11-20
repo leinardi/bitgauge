@@ -41,9 +41,10 @@ const rootAssets = ['favicon.svg', 'favicon-16.png', 'favicon-32.png', 'apple-to
 const contentTypes: Record<string, string> = { svg: 'image/svg+xml', png: 'image/png', webmanifest: 'application/manifest+json' }
 
 // Claude Design embeds a C2PA provenance manifest in every SVG and PNG (frontend.md section 8): a
-// <metadata> element with its namespace, and a caBX chunk. The shipped files carry image data only.
+// <metadata> element with its namespace, and a caBX chunk; an SVG can also carry comments. The
+// shipped files carry image data only.
 function stripSvg(svg: string): string {
-  return svg.replace(/<metadata>[\s\S]*?<\/metadata>/g, '').replace(/\s+xmlns:c2pa="[^"]*"/g, '')
+  return svg.replace(/<!--[\s\S]*?-->\s*/g, '').replace(/<metadata>[\s\S]*?<\/metadata>/g, '').replace(/\s+xmlns:c2pa="[^"]*"/g, '')
 }
 
 function stripPng(png: Buffer): Buffer {

@@ -1,9 +1,12 @@
 # Save bar
 
 Component `SaveBar` (`components/feedback/`; Card + Input + Chip). Spec:
-`features/ui/screens.md` §1, `features/ui/flows.md` §4. Statuses: `saved`, `unsaved` (partial / error,
-Keep in history offered), `kept` (after Keep in history), `complete` (a run not stored: "Test complete",
-Download JSON only). The Download JSON action carries the tooltip "Contains your IP address and notes".
+`features/ui/screens.md` §1, `features/ui/flows.md` §4. Statuses: `saved`, `unsaved` (partial /
+error,
+Keep in history offered), `kept` (after Keep in history), `complete` (a run not stored: "Test
+complete",
+Download JSON only). The Download JSON action carries the tooltip "Contains your IP address and
+notes".
 
 ## Complete run
 

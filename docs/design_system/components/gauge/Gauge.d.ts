@@ -1,3 +1,22 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Gauge — place on a --surface-2 card (the track is --surface-3, invisible on --bg-base in light theme).
  * 270° log arc over a 4-decade window (rate) or 1–1000 ms (latency). Contract: components/gauge.md.
@@ -16,14 +35,14 @@ export interface GaugeProps {
   /** Current value: bit/s (rate, bits), B/s (rate, bytes) or ms. Cancelled: the final value (arc, no needle). */
   value?: number;
   /** @default "rate" */
-  mode?: 'rate' | 'ms';
+  mode?: "rate" | "ms";
   /** Rate unit system. Bytes mode expects `value` in B/s. @default "bits" */
-  units?: 'bits' | 'bytes';
+  units?: "bits" | "bytes";
   /**
    * live: value arc, needle, band, peak · countdown: primary ring drains over countdownTotal, readout = whole seconds left ·
    * idle / connecting / cancelled / error / offline: textual readout (icon, title, message, detail, action). @default "live"
    */
-  state?: 'live' | 'countdown' | 'idle' | 'connecting' | 'cancelled' | 'error' | 'offline';
+  state?: "live" | "countdown" | "idle" | "connecting" | "cancelled" | "error" | "offline";
   /** UI-held start decade k. Pass the first direction's final window to start the second there. @default 6 (bits) / 5 (bytes) */
   startDecade?: number;
   onWindowChange?: (k: number) => void;
@@ -64,4 +83,5 @@ export interface GaugeProps {
   /** Seconds left (fractional). */
   countdownLeft?: number;
 }
+
 export declare function Gauge(props: GaugeProps): JSX.Element;

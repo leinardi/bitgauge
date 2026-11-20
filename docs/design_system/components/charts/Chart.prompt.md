@@ -1,4 +1,5 @@
-Live / per-phase throughput chart with warm-up band, phase separators, event marks and a summary label.
+Live / per-phase throughput chart with warm-up band, phase separators, event marks and a summary
+label.
 
 ```jsx
 <Chart title="Throughput" meta="7.5 s / 10 s" summary="Throughput, download 590 Mbit/s so far, 7.5 of 10 seconds; warm-up shaded"

@@ -1,4 +1,5 @@
-A phase row (idle latency → download → upload) with its state and progress; `PhaseIndicator` stacks 1–3 of them.
+A phase row (idle latency → download → upload) with its state and progress; `PhaseIndicator` stacks
+1–3 of them.
 
 ```jsx
 <PhaseIndicator steps={[

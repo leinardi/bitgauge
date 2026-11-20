@@ -8,4 +8,5 @@ Metric tile for download, upload, latency, jitter — the number always ships wi
 <MetricTile label="Jitter" icon="activity" accent="var(--series-latency)" state="empty" />
 ```
 
-`error`, `insufficient-data`, `skipped` and `warming-up` never render a number, even if `value` is passed.
+`error`, `insufficient-data`, `skipped` and `warming-up` never render a number, even if `value` is
+passed.

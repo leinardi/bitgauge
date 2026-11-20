@@ -149,6 +149,10 @@
         "message": "<Input> size must be one of 'sm' | 'md'."
       },
       {
+        "selector": "JSXOpeningElement[name.name='Kbd'] > JSXAttribute > JSXIdentifier[name!=/^(?:keys|className|key|ref|className|style|children)$/]",
+        "message": "<Kbd> doesn't accept that prop. Declared props: keys, className."
+      },
+      {
         "selector": "JSXOpeningElement[name.name='Link'] > JSXAttribute > JSXIdentifier[name!=/^(?:href|icon|external|children|key|ref|className|style|children)$/]",
         "message": "<Link> doesn't accept that prop. Declared props: href, icon, external, children."
       },
@@ -395,6 +399,9 @@
         "replaces": []
       },
       "Input": {
+        "replaces": []
+      },
+      "Kbd": {
         "replaces": []
       },
       "Link": {

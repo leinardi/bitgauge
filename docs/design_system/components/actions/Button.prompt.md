@@ -1,4 +1,5 @@
-Verb-first action button ("Start test", "Run again", "Download JSON") — primary for the one main action per view.
+Verb-first action button ("Start test", "Run again", "Download JSON") — primary for the one main
+action per view.
 
 ```jsx
 <Button variant="primary" size="lg" icon="play">Start test</Button>
@@ -10,7 +11,8 @@ Verb-first action button ("Start test", "Run again", "Download JSON") — primar
 ```
 
 - Variants: primary, secondary, ghost, danger (outline), danger-solid (destructive confirm).
-- Sizes: sm 28, md 34, lg 38, xl 46 (Start/Stop; use `StartButton`). `touch` lifts targets to ≥ 44 px on compact layouts.
+- Sizes: sm 28, md 34, lg 38, xl 46 (Start/Stop; use `StartButton`). `touch` lifts targets to ≥ 44
+  px on compact layouts.
 - `kbd` is decorative and never part of the accessible name (`aria-keyshortcuts` carries it).
 - `disabledReason` keeps the button focusable and explains why — BitGauge never disables silently.
 - Do not restyle a Button with `style`; add a variant here instead.

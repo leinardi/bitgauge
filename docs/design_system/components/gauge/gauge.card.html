@@ -1,21 +1,64 @@
+<!--
+  ~ This file is part of BitGauge.
+  ~
+  ~ Copyright (c) 2026 Roberto Leinardi
+  ~
+  ~ BitGauge is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ BitGauge is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <!-- @dsCard group="Components" viewport="700x700" name="Measurement · Gauge" subtitle="Rate and ms modes; countdown and offline states; caption names the auto window" -->
-<!doctype html><html data-theme="dark"><head><meta charset="utf-8">
-<link rel="stylesheet" href="../../styles.css">
-<link rel="stylesheet" href="../../preview/card.css">
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-<script src="../../_ds_bundle.js"></script>
-<style>html,body{height:auto}body{padding:20px 24px}</style>
-</head><body><div id="root"></div>
+<!doctype html>
+<html data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <link href="../../styles.css" rel="stylesheet">
+  <link href="../../preview/card.css" rel="stylesheet">
+  <script crossorigin="anonymous"
+          integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+  <script crossorigin="anonymous"
+          integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+  <script crossorigin="anonymous"
+          integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <style>html, body {
+      height: auto
+  }
+
+  body {
+      padding: 20px 24px
+  }</style>
+</head>
+<body>
+<div id="root"></div>
 <script type="text/babel">
-const NS = window.BitGaugeDesignSystem_1ab699;
-const { Gauge, Button } = NS;
-function Demo(){ return <div className="card row wrap gap-5" style={{alignItems:'center',justifyContent:'center',padding:'var(--space-3)'}}>
-<Gauge value={612e6} bandLo={560e6} bandHi={640e6} peak={640e6} eyebrow="Download" eyebrowIcon="arrow-down" readout="612" unit="Mbit/s" note="avg so far 598 · peak 612" />
-<Gauge compact mode="ms" value={3.1} color="var(--series-latency)" eyebrow="Latency" eyebrowIcon="activity" readout="3.1" unit="ms" note="median 3.1 · ping 12 of 20" />
-<Gauge compact state="countdown" countdownLeft={2.4} eyebrow="Auto-start in" eyebrowIcon="timer" unit={['second','seconds']} note="Esc cancels" />
-<Gauge compact state="offline" icon="server-off" title="Server unreachable" message="speed.home.lan didn't respond." action={<Button size="sm" icon="refresh-cw">Retry</Button>} />
-</div>; }
-ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
-</script></body></html>
+  const NS = window.BitGaugeDesignSystem_1ab699;
+  const { Gauge, Button } = NS;
+
+  function Demo() {
+    return <div className="card row wrap gap-5" style={{ alignItems: "center", justifyContent: "center", padding: "var(--space-3)" }}>
+      <Gauge value={612e6} bandLo={560e6} bandHi={640e6} peak={640e6} eyebrow="Download" eyebrowIcon="arrow-down" readout="612" unit="Mbit/s"
+             note="avg so far 598 · peak 612" />
+      <Gauge compact mode="ms" value={3.1} color="var(--series-latency)" eyebrow="Latency" eyebrowIcon="activity" readout="3.1" unit="ms"
+             note="median 3.1 · ping 12 of 20" />
+      <Gauge compact state="countdown" countdownLeft={2.4} eyebrow="Auto-start in" eyebrowIcon="timer" unit={["second", "seconds"]}
+             note="Esc cancels" />
+      <Gauge compact state="offline" icon="server-off" title="Server unreachable" message="speed.home.lan didn't respond."
+             action={<Button size="sm" icon="refresh-cw">Retry</Button>} />
+    </div>;
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+</body>
+</html>

@@ -4,8 +4,8 @@ description: >
   How to change BitGauge's specification without letting it disagree with itself: update every page
   that states a number, probe-path name or the upload JSON shape together; keep each locked decision
   in decisions.md exactly once; keep the open items in docs/features/README.md current; run the link
-  check (pre-commit run lychee --all-files) and know what it does not catch; respect the
-  design-export symlink contract; wrap prose at about 100 columns. Use when editing
+  check (pre-commit run lychee --all-files) and know what it does not catch; leave the design
+  export alone; wrap prose at about 100 columns. Use when editing
   docs/features/**, when a behavior change is about to start (it starts here, and code follows), or
   when a decision or open item is settled.
 ---
@@ -56,17 +56,12 @@ a probe-path name, an endpoint beyond `download`, `upload`, `ping`, `small`, `ws
 upload telemetry key set or a decision stated twice: nothing but this section's review checks
 those, so grep the other pages for every value you change.
 
-## 5. The symlink contract
+## 5. The design export
 
-`docs/features/product.md`, `principles.md`, `measurement.md` and `ui/` are **symlinks** into
-`docs/design_system/features/` ([docs/README.md](../../../docs/README.md#symlink-contract)).
+The spec lives only in `docs/features/`; the design export carries no spec page.
 
-- Either path edits the same file; write links relative to the `docs/features/` location.
-- Never hand-edit anything else under `docs/design_system/`: it is regenerated on every export
+- Never hand-edit the export: it is replaced on every export
   ([provenance rule](../../../docs/README.md#provenance-rule)).
-- An edit to a symlinked page is a change to the export too: list the files for the user to paste
-  into the Claude Design project by hand. A Claude Design prompt never asks it to write under
-  `features/`.
 - `docs/features/ui/` is canonical for behavior, the export for visuals.
 
 ## 6. Form
@@ -84,4 +79,4 @@ those, so grep the other pages for every value you change.
 - [ ] Each locked decision appears once in decisions.md
 - [ ] Open items in docs/features/README.md still current
 - [ ] `pre-commit run lychee --all-files` green
-- [ ] No hand-edit of the design export; symlinked pages listed for the user
+- [ ] No hand-edit of the design export

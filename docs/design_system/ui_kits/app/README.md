@@ -6,22 +6,29 @@ shadcn-vue + Tailwind 4).
 
 ## Run it
 
-Open `index.html`. It loads React 18 + Babel from CDN (design artifact only; production makes no outbound
+Open `index.html`. It loads React 18 + Babel from CDN (design artifact only; production makes no
+outbound
 calls), the design system's one stylesheet (`../../styles.css`), the component bundle
-(`../../_ds_bundle.js`) and `ds.js`, which exposes the components as `window.DS` (it compiles the same
-component sources in the page if the bundle is older than the sources), then `fixtures.js` and the screens.
+(`../../_ds_bundle.js`) and `ds.js`, which exposes the components as `window.DS` (it compiles the
+same
+component sources in the page if the bundle is older than the sources), then `fixtures.js` and the
+screens.
 
-**The kit is a consumer, not a source.** Screens compose `DS.*` components and pass props and content; they
-add layout (grid tracks, spacing between components, with tokens) and nothing else. Anything that looks like
+**The kit is a consumer, not a source.** Screens compose `DS.*` components and pass props and
+content; they
+add layout (grid tracks, spacing between components, with tokens) and nothing else. Anything that
+looks like
 a component belongs in `components/`. Kit-only CSS is `kit.css` (Demo state panel); kit-only data is
 `fixtures.js` (`window.BG`: sample server, synthetic series, engine stand-ins).
 
 ## Try the flows
 
 - **Test** — press **Start test** or Enter (not while a control has focus, and not while Start is
-  disabled); Enter during the autostart countdown starts the test now. Escape stops; Enter and Escape
-  act only on the Test screen. The run goes Connecting → idle latency → download (10 s) → upload
-  (16 s: sends until the 15 s minimum, last requests confirm at ≈ 16 s) → result, with the live gauge, chart, phase indicator and tiles. Stopping in any phase ends
+  disabled); Enter during the autostart countdown starts the test now. Escape stops; Enter and
+  Escape
+  act only on the Test screen. The run goes Connecting → idle latency → download (10 s) → upload (16
+  s: sends until the 15 s minimum, last requests confirm at ≈ 16 s) → result, with the live gauge,
+  chart, phase indicator and tiles. Stopping in any phase ends
   Cancelled with the partial-result rules (Keep in history, Download JSON); it returns to Idle only
   when nothing was measured (stopped while connecting, or during idle latency with too few pings).
 - **Result detail** — "Details" after a run, or open a row in History.
@@ -31,19 +38,23 @@ a component belongs in `components/`. Kit-only CSS is `kit.css` (Demo state pane
 
 ## Demo state panel
 
-Centred in the top bar (on mobile, a compact "Demo" pill left of the theme button), collapsed by default. It is **kit-only debug scaffolding, not a product control**. It
+Centred in the top bar (on mobile, a compact "Demo" pill left of the theme button), collapsed by
+default. It is **kit-only debug scaffolding, not a product control**. It
 picks the run scenario (normal, error, slow, autostart, continuous) and speed, switches between the
 desktop and 390 px mobile frame, and forces the states the product only reaches through real
 conditions: every Test-screen state (offline, base-path mismatch, WebSocket fallback, insufficient
 data, URL parameter ignored, Continuous…), error kind, latency probe, the upload's
-loaded-latency outcome, HTTP responsiveness state, every History variant, Result-detail states, Settings
+loaded-latency outcome, HTTP responsiveness state, every History variant, Result-detail states,
+Settings
 states and About's compatibility layers. Its values persist in `localStorage`.
 
 ## Scope
 
-The kit draws the whole product as `features/` describes it: every screen and the navigation (Test, History,
-Settings, About) are always present, with loaded latency and the bufferbloat grade, HTTP loaded responsiveness
-(RPM), quality scores, the Continuous preset and its states (`continuous`, `cont-upload`, `cont-warmup`,
+The kit draws the whole product as `features/` describes it: every screen and the navigation (Test,
+History,
+Settings, About) are always present, with loaded latency and the bufferbloat grade, HTTP loaded
+responsiveness (RPM), quality scores, the Continuous preset and its states (`continuous`,
+`cont-upload`, `cont-warmup`,
 `cont-done`), share, and the other-client snippets on About.
 
 ## Files

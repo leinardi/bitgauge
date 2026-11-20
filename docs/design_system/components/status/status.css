@@ -1,46 +1,226 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /* Status vocabulary — StatusPill (.pill), StatusBadge (.sbadge), Chip (.chip). */
 .pill, .sbadge {
-  display: inline-flex; align-items: center; gap: var(--space-1-5); height: var(--pill-h); padding: 0 var(--space-2-5) 0 var(--space-2);
-  border-radius: var(--radius-full); border: var(--border-width) solid; white-space: nowrap; line-height: var(--lh-none);
-  font-family: var(--font-cond); font-weight: var(--weight-semibold); font-size: var(--text-micro); letter-spacing: var(--tracking-caps-tight); text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1-5);
+    height: var(--pill-h);
+    padding: 0 var(--space-2-5) 0 var(--space-2);
+    border-radius: var(--radius-full);
+    border: var(--border-width) solid;
+    white-space: nowrap;
+    line-height: var(--lh-none);
+    font-family: var(--font-cond);
+    font-weight: var(--weight-semibold);
+    font-size: var(--text-micro);
+    letter-spacing: var(--tracking-caps-tight);
+    text-transform: uppercase;
 }
-.pill.sm, .sbadge.sm { height: var(--pill-h-sm); padding: 0 var(--space-2) 0 var(--space-1-5); gap: var(--space-1); font-size: var(--text-nano); }
-.pill.nodot { padding: 0 var(--space-2); }
-.pill.dashed { background: transparent; border-style: dashed; }
-.pill .d { width: var(--dot-size); height: var(--dot-size); border-radius: var(--radius-full); flex: none; }
-.pill.ok, .sbadge.ok { background: var(--ok-bg); border-color: var(--ok-border); color: var(--ok-fg); }
-.pill.ok .d { background: var(--ok); }
-.pill.warn, .sbadge.warn { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-fg); }
-.pill.warn .d { background: var(--warn); }
-.pill.danger, .sbadge.danger { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-fg); }
-.pill.danger .d { background: var(--danger); }
-.pill.info, .sbadge.info { background: var(--info-bg); border-color: var(--info-border); color: var(--info-fg); }
-.pill.info .d { background: var(--info); }
-.pill.neutral, .sbadge.neutral { background: var(--surface-3); border-color: var(--border-default); color: var(--fg-muted); }
-.pill.neutral .d { background: var(--fg-faint); }
-.pill.offline { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-fg); }
-.pill.offline .d { background: transparent; border: var(--border-width-strong) solid var(--warn); width: var(--dot-size-lg); height: var(--dot-size-lg); }
-.pill.dashed.neutral { border-color: var(--border-strong); }
+
+.pill.sm, .sbadge.sm {
+    height: var(--pill-h-sm);
+    padding: 0 var(--space-2) 0 var(--space-1-5);
+    gap: var(--space-1);
+    font-size: var(--text-nano);
+}
+
+.pill.nodot {
+    padding: 0 var(--space-2);
+}
+
+.pill.dashed {
+    background: transparent;
+    border-style: dashed;
+}
+
+.pill .d {
+    width: var(--dot-size);
+    height: var(--dot-size);
+    border-radius: var(--radius-full);
+    flex: none;
+}
+
+.pill.ok, .sbadge.ok {
+    background: var(--ok-bg);
+    border-color: var(--ok-border);
+    color: var(--ok-fg);
+}
+
+.pill.ok .d {
+    background: var(--ok);
+}
+
+.pill.warn, .sbadge.warn {
+    background: var(--warn-bg);
+    border-color: var(--warn-border);
+    color: var(--warn-fg);
+}
+
+.pill.warn .d {
+    background: var(--warn);
+}
+
+.pill.danger, .sbadge.danger {
+    background: var(--danger-bg);
+    border-color: var(--danger-border);
+    color: var(--danger-fg);
+}
+
+.pill.danger .d {
+    background: var(--danger);
+}
+
+.pill.info, .sbadge.info {
+    background: var(--info-bg);
+    border-color: var(--info-border);
+    color: var(--info-fg);
+}
+
+.pill.info .d {
+    background: var(--info);
+}
+
+.pill.neutral, .sbadge.neutral {
+    background: var(--surface-3);
+    border-color: var(--border-default);
+    color: var(--fg-muted);
+}
+
+.pill.neutral .d {
+    background: var(--fg-faint);
+}
+
+.pill.offline {
+    background: var(--warn-bg);
+    border-color: var(--warn-border);
+    color: var(--warn-fg);
+}
+
+.pill.offline .d {
+    background: transparent;
+    border: var(--border-width-strong) solid var(--warn);
+    width: var(--dot-size-lg);
+    height: var(--dot-size-lg);
+}
+
+.pill.dashed.neutral {
+    border-color: var(--border-strong);
+}
+
 /* On a tinted surface (inside a Notice, or a .tinted container such as a selected card on --primary-bg) the pill's translucent tint
    would stack on the surface's and drop --text-nano under 4.5:1 in light. Lay the tint over opaque --surface-2 instead. */
-.signal .pill.ok:not(.dashed), .tinted .pill.ok:not(.dashed) { background: linear-gradient(var(--ok-bg), var(--ok-bg)) var(--surface-2); }
-.signal .pill.warn:not(.dashed), .tinted .pill.warn:not(.dashed), .signal .pill.offline, .tinted .pill.offline { background: linear-gradient(var(--warn-bg), var(--warn-bg)) var(--surface-2); }
-.signal .pill.danger:not(.dashed), .tinted .pill.danger:not(.dashed) { background: linear-gradient(var(--danger-bg), var(--danger-bg)) var(--surface-2); }
-.signal .pill.info:not(.dashed), .tinted .pill.info:not(.dashed) { background: linear-gradient(var(--info-bg), var(--info-bg)) var(--surface-2); }
-.sbadge > svg { flex: none; }
+.signal .pill.ok:not(.dashed), .tinted .pill.ok:not(.dashed) {
+    background: linear-gradient(var(--ok-bg), var(--ok-bg)) var(--surface-2);
+}
+
+.signal .pill.warn:not(.dashed), .tinted .pill.warn:not(.dashed), .signal .pill.offline, .tinted .pill.offline {
+    background: linear-gradient(var(--warn-bg), var(--warn-bg)) var(--surface-2);
+}
+
+.signal .pill.danger:not(.dashed), .tinted .pill.danger:not(.dashed) {
+    background: linear-gradient(var(--danger-bg), var(--danger-bg)) var(--surface-2);
+}
+
+.signal .pill.info:not(.dashed), .tinted .pill.info:not(.dashed) {
+    background: linear-gradient(var(--info-bg), var(--info-bg)) var(--surface-2);
+}
+
+.sbadge > svg {
+    flex: none;
+}
 
 .chip {
-  display: inline-flex; align-items: center; gap: var(--space-1-5); height: var(--chip-h); padding: 0 var(--space-3);
-  border-radius: var(--radius-full); border: var(--border-width) solid var(--border-default); background: var(--surface-2); color: var(--fg-muted);
-  font-family: var(--font-sans); font-size: var(--text-sm); font-weight: var(--weight-semibold); white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1-5);
+    height: var(--chip-h);
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-full);
+    border: var(--border-width) solid var(--border-default);
+    background: var(--surface-2);
+    color: var(--fg-muted);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    white-space: nowrap;
 }
-button.chip:hover { background: var(--surface-3); color: var(--fg); }
-.chip.sm { height: var(--chip-h-sm); padding: 0 var(--space-2-5); gap: var(--space-1); font-size: var(--text-caption); }
-.chip.on, .chip.changed { background: var(--primary-bg); border-color: var(--primary-border); color: var(--primary-text); }
-.chip .n { font-family: var(--font-mono); font-size: var(--text-micro); opacity: var(--opacity-hint); }
-.chip.sort { padding: 0 var(--space-2); font-weight: var(--weight-medium); background: none; border-color: transparent; color: var(--fg-muted); }
-.chip.sort:hover { background: var(--surface-3); border-color: var(--border-default); color: var(--fg); }
-.chip.sort > svg:first-child { color: var(--fg-faint); }
-.chip.sort:hover > svg:first-child { color: var(--fg-muted); }
-.chgd { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--text-micro); font-weight: var(--weight-medium); color: var(--primary-text); }
-.chgd .d { width: var(--dot-size); height: var(--dot-size); border-radius: var(--radius-full); background: var(--primary); }
+
+button.chip:hover {
+    background: var(--surface-3);
+    color: var(--fg);
+}
+
+.chip.sm {
+    height: var(--chip-h-sm);
+    padding: 0 var(--space-2-5);
+    gap: var(--space-1);
+    font-size: var(--text-caption);
+}
+
+.chip.on, .chip.changed {
+    background: var(--primary-bg);
+    border-color: var(--primary-border);
+    color: var(--primary-text);
+}
+
+.chip .n {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    opacity: var(--opacity-hint);
+}
+
+.chip.sort {
+    padding: 0 var(--space-2);
+    font-weight: var(--weight-medium);
+    background: none;
+    border-color: transparent;
+    color: var(--fg-muted);
+}
+
+.chip.sort:hover {
+    background: var(--surface-3);
+    border-color: var(--border-default);
+    color: var(--fg);
+}
+
+.chip.sort > svg:first-child {
+    color: var(--fg-faint);
+}
+
+.chip.sort:hover > svg:first-child {
+    color: var(--fg-muted);
+}
+
+.chgd {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-micro);
+    font-weight: var(--weight-medium);
+    color: var(--primary-text);
+}
+
+.chgd .d {
+    width: var(--dot-size);
+    height: var(--dot-size);
+    border-radius: var(--radius-full);
+    background: var(--primary);
+}

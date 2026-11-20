@@ -24,8 +24,7 @@ release is in [`docs/release.md`](docs/release.md#how-to-release).
 - `.mk/{docker,help,pre-commit,web,parity,rust,rust-release,image}.mk`: from make-common (`make mk-common-update`);
   repo-local snippets are the other `.mk/` files. Never add recipes to `Makefile` itself.
 - The vendored skills in `skills-lock.json` (hashed).
-- `docs/design_system/` except `features/`: `docs/features/{product.md,principles.md,measurement.md,ui/}`
-  are symlinks into it. An edit there is pasted into Claude Design by the user, so list such files
+- `docs/design_system/`: the Claude Design export, replaced whole by the next one
   ([`docs/README.md`](docs/README.md#design-export)).
 - `.parity-baseline`: only through `make demo-parity-update` or `make demo-parity-accept REASON=`.
 

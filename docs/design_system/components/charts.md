@@ -1,6 +1,7 @@
 # Charts
 
-Component `Chart` (`components/charts/`; production uPlot with the same series and hooks), numbers via
+Component `Chart` (`components/charts/`; production uPlot with the same series and hooks), numbers
+via
 `Format`. Spec: `features/ui/screens.md` §1 (Live chart), §2 (Per-phase charts), §3 (Trend chart).
 
 ## Series and marks
@@ -21,16 +22,25 @@ Component `Chart` (`components/charts/`; production uPlot with the same series a
 - Unknown upload cells and failure gaps are null gaps, never interpolated. A gap spans exactly its
   null cells (`[first null cell start, next known cell start)`); the series before it holds its last
   value to the gap start.
-- Gridlines `--chart-grid` (hairline), axis labels `--fg-subtle` mono tabular. Every value-axis label reads in the
-  unit the top label names, with the decimals that give the top value three significant digits ("0.25 … 1.00 Gbit/s").
-  ms axes (main and latency-under-load) do the same: the top label takes the value precision (whole ms from 10 ms, one
-  decimal below) and every tick takes its decimals: "3", "6", "9", "12 ms"; "1.0", "2.0", "3.0", "4.0 ms".
-- Phase labels sit right of their separator, mark labels left of their line, on the top row. A mark label that would
-  cross a phase label goes right of its line when it fits there, otherwise to a second row (`--chart-label-gap`,
-  `--chart-label-row`). One implementation, `placeTopLabels` in Chart.jsx, used by Chart and PhaseChart. Rows below the first are
+- Gridlines `--chart-grid` (hairline), axis labels `--fg-subtle` mono tabular. Every value-axis
+  label reads in the
+  unit the top label names, with the decimals that give the top value three significant digits (
+  "0.25 … 1.00 Gbit/s").
+  ms axes (main and latency-under-load) do the same: the top label takes the value precision (whole
+  ms from 10 ms, one
+  decimal below) and every tick takes its decimals: "3", "6", "9", "12 ms"; "1.0", "2.0", "3.0",
+  "4.0 ms".
+- Phase labels sit right of their separator, mark labels left of their line, on the top row. A mark
+  label that would
+  cross a phase label goes right of its line when it fits there, otherwise to a second row
+  (`--chart-label-gap`,
+  `--chart-label-row`). One implementation, `placeTopLabels` in Chart.jsx, used by Chart and
+  PhaseChart. Rows below the first are
   `--chart-label-row` apart, or the measured label height when that is taller.
-- PhaseChart event chips use the same rules with the right of the line as their preferred side: the left when the right
-  crosses another chip or leaves the plot, else a further row. Rows are `--chart-label-row` apart, or the chip height
+- PhaseChart event chips use the same rules with the right of the line as their preferred side: the
+  left when the right
+  crosses another chip or leaves the plot, else a further row. Rows are `--chart-label-row` apart,
+  or the chip height
   plus half the gap when that is taller.
 
 ## Throughput chart (Test, Result detail)
@@ -52,20 +62,25 @@ Axes come from the filter and the data, never fixed ranges.
   7 days, always ending today (no future dates; the right edge is stable as results arrive).
   Three to five ticks; the step (day, week, month) follows the span. The last tick reads "Today".
   Tick labels use the active locale: month short + day for days ("Sep 26"), month short + year for
-  months ("Oct 2026"). Each point sits at its result's instant, so it always falls on its row's date.
+  months ("Oct 2026"). Each point sits at its result's instant, so it always falls on its row's
+  date.
 - **Y, download and upload (log):** whole decades around the data — bottom = decade at or below
   the lowest value, top = decade at or above the highest — with at least 2 decades. One result at
   241 Mbit/s → 10M – 1G.
-- **Y, idle latency (linear):** 0 to max(80 ms, highest value × 1.25 rounded up to 1/2/2.5/5 × 10ⁿ).
+- **Y, idle latency (linear):** 0 to max (80 ms, highest value × 1.25 rounded up to 1/2/2.5/5 ×
+  10ⁿ).
 - **One result:** the marker only (no line), labelled with its value; frame and gridlines stay so
   the layout doesn't shift on the second result. A caption under the charts reads "Trends appear
   from the second result."
 
 ## Chart or table
 
-Every chart is `role="img"` whose label is a **summary of the data shown** ("Throughput: Download 590 Mbit/s,
-7.5 s / 10 s; warm-up shaded; marked: Extended"), never a static title such as "Throughput chart". `Chart`
-requires `summary`; the live chart's summary follows the readout and does not need to be live itself (the
+Every chart is `role="img"` whose label is a **summary of the data shown** ("Throughput: Download
+590 Mbit/s,
+7.5 s / 10 s; warm-up shaded; marked: Extended"), never a static title such as "Throughput chart".
+`Chart`
+requires `summary`; the live chart's summary follows the readout and does not need to be live itself
+(the
 screen's LiveRegion announces). Result-detail charts add a "View as table" toggle. The table is the
 text alternative: rows of 2 s windows from warm-up end, throughput as bytes over known time ("—"
 for a window with no known time; a shorter edge row shows its real span), and median latency per

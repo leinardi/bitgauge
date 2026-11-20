@@ -39,7 +39,7 @@ function kitStates(): string[] {
   if (list === undefined) {
     throw new Error('App.jsx no longer declares TEST_STATES')
   }
-  return [...list.matchAll(/'([^']+)'/g)].map((match) => match[1] ?? '')
+  return [...list.matchAll(/["']([^"']+)["']/g)].map((match) => match[1] ?? '')
 }
 
 /** The panel's loaded-latency cases: the WebSocket closing after idle latency, and each LL_GAPS reason. */
@@ -48,7 +48,7 @@ function kitLoadedCases(): string[] {
   if (gaps === undefined || !kitApp.includes('value={d.wsClose}')) {
     throw new Error('App.jsx no longer declares LL_GAPS and the wsClose control')
   }
-  const reasons = [...gaps.matchAll(/\['([a-z-]+)', '[^']*'\]/g)].map((match) => match[1] ?? '').filter((reason) => reason !== 'none')
+  const reasons = [...gaps.matchAll(/\[["']([a-z-]+)["'], ["'][^"']*["']\]/g)].map((match) => match[1] ?? '').filter((reason) => reason !== 'none')
   return ['ws-close', ...reasons.map((reason) => `ll-${reason}`)]
 }
 
@@ -115,7 +115,7 @@ async function result(responsiveness: DemoResponsiveness): Promise<Result> {
 describe('the Responsiveness cases', () => {
   it('offer the kit’s five options, in its order and words', () => {
     const options = /const RESP_OPTS = \[(.*)\];/.exec(kitApp)?.[1] ?? ''
-    expect([...options.matchAll(/\['([^']+)', '([^']+)'\]/g)].map((match) => [match[1], match[2]])).toEqual(DEMO_RESPONSIVENESS.map(([value, words]) => [value, words]))
+    expect([...options.matchAll(/\[["']([^"']+)["'], ["']([^"']+)["']\]/g)].map((match) => [match[1], match[2]])).toEqual(DEMO_RESPONSIVENESS.map(([value, words]) => [value, words]))
   })
 
   it.each([

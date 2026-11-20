@@ -1,8 +1,84 @@
+<!--
+  ~ This file is part of BitGauge.
+  ~
+  ~ Copyright (c) 2026 Roberto Leinardi
+  ~
+  ~ BitGauge is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ BitGauge is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <!-- @dsCard group="Colors" name="Surfaces & borders" viewport="700x180" -->
-<!doctype html><html data-theme="dark"><head><meta charset="utf-8">
-<link rel="stylesheet" href="../styles.css">
-<link rel="stylesheet" href="card.css">
-<style>.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:var(--space-3);margin-top:var(--space-3)} .it{display:flex;flex-direction:column;gap:var(--space-1)} .it .sw{height:52px} .nm{font-size:var(--text-caption);color:var(--fg-muted)}</style>
-</head><body>
-<div class="lbl">Surfaces &amp; borders · elevation by lightness</div><div class="g"><div class="it"><div class="sw" style="background:var(--bg-void)"></div><span class="tok">--bg-void</span><span class="nm">app void</span></div><div class="it"><div class="sw" style="background:var(--bg-base)"></div><span class="tok">--bg-base</span><span class="nm">page</span></div><div class="it"><div class="sw" style="background:var(--surface-1)"></div><span class="tok">--surface-1</span><span class="nm">panels</span></div><div class="it"><div class="sw" style="background:var(--surface-2)"></div><span class="tok">--surface-2</span><span class="nm">cards</span></div><div class="it"><div class="sw" style="background:var(--surface-3)"></div><span class="tok">--surface-3</span><span class="nm">inputs · hover</span></div><div class="it"><div class="sw" style="background:var(--surface-4)"></div><span class="tok">--surface-4</span><span class="nm">pressed</span></div><div class="it"><div class="sw" style="background:var(--border-subtle)"></div><span class="tok">--border-subtle</span><span class="nm">hairline</span></div><div class="it"><div class="sw" style="background:var(--border-default)"></div><span class="tok">--border-default</span><span class="nm">controls</span></div><div class="it"><div class="sw" style="background:var(--border-strong)"></div><span class="tok">--border-strong</span><span class="nm">emphasis</span></div><div class="it"><div class="sw" style="background:var(--term-bg)"></div><span class="tok">--term-bg</span><span class="nm">code · snippets</span></div></div>
-</body></html>
+<!doctype html>
+<html data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <link href="../styles.css" rel="stylesheet">
+  <link href="card.css" rel="stylesheet">
+  <style>.g {
+      display: grid;
+      grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));
+      gap: var(--space-3);
+      margin-top: var(--space-3)
+  }
+
+  .it {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1)
+  }
+
+  .it .sw {
+      height: 52px
+  }
+
+  .nm {
+      font-size: var(--text-caption);
+      color: var(--fg-muted)
+  }</style>
+</head>
+<body>
+<div class="lbl">Surfaces &amp; borders · elevation by lightness</div>
+<div class="g">
+  <div class="it">
+    <div class="sw" style="background:var(--bg-void)"></div>
+    <span class="tok">--bg-void</span><span class="nm">app void</span></div>
+  <div class="it">
+    <div class="sw" style="background:var(--bg-base)"></div>
+    <span class="tok">--bg-base</span><span class="nm">page</span></div>
+  <div class="it">
+    <div class="sw" style="background:var(--surface-1)"></div>
+    <span class="tok">--surface-1</span><span class="nm">panels</span></div>
+  <div class="it">
+    <div class="sw" style="background:var(--surface-2)"></div>
+    <span class="tok">--surface-2</span><span class="nm">cards</span></div>
+  <div class="it">
+    <div class="sw" style="background:var(--surface-3)"></div>
+    <span class="tok">--surface-3</span><span class="nm">inputs · hover</span></div>
+  <div class="it">
+    <div class="sw" style="background:var(--surface-4)"></div>
+    <span class="tok">--surface-4</span><span class="nm">pressed</span></div>
+  <div class="it">
+    <div class="sw" style="background:var(--border-subtle)"></div>
+    <span class="tok">--border-subtle</span><span class="nm">hairline</span></div>
+  <div class="it">
+    <div class="sw" style="background:var(--border-default)"></div>
+    <span class="tok">--border-default</span><span class="nm">controls</span></div>
+  <div class="it">
+    <div class="sw" style="background:var(--border-strong)"></div>
+    <span class="tok">--border-strong</span><span class="nm">emphasis</span></div>
+  <div class="it">
+    <div class="sw" style="background:var(--term-bg)"></div>
+    <span class="tok">--term-bg</span><span class="nm">code · snippets</span></div>
+</div>
+</body>
+</html>
