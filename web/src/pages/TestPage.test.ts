@@ -198,8 +198,9 @@ describe('the Test screen', () => {
     // Before a run the Results show their empty tiles, with no sentence of their own.
     expect(page.text()).not.toContain('No test has run yet.')
     expect(tiles(page)).toHaveLength(4)
-    // jsdom's user agent names no browser family this parser knows, so the row reads a dash.
-    expect(facts(page)).toEqual(['Data used—', 'Duration—', 'Browser—'])
+    // jsdom's user agent names no browser family or operating system this parser knows, so both
+    // rows read a dash.
+    expect(facts(page)).toEqual(['Data used—', 'Duration—', 'Browser—', 'OS—'])
     page.unmount()
   })
 

@@ -52,9 +52,14 @@ const row = (key: string, label: string, value: string): ParameterRow => ({ key,
 
 const DASH = '—'
 
-/** The browser's family, major version and operating system, or a dash for an unrecognized family (ui/screens.md section 6). */
+/** The browser's family and major version, or a dash for an unrecognized family (ui/screens.md section 6). */
 export function browserText(browser: Result['client']['browser'], { t }: Pick<Wording, 't'>): string {
-  return browser.name === 'unknown' ? DASH : t('result.parameters.browserValue', { name: browser.name, major: browser.major, os: browser.os })
+  return browser.name === 'unknown' ? DASH : t('result.parameters.browserValue', { name: browser.name, major: browser.major })
+}
+
+/** The browser's operating system, or a dash when it was not recognized (ui/screens.md section 6). */
+export function osText(browser: Result['client']['browser']): string {
+  return browser.os === 'unknown' ? DASH : browser.os
 }
 
 /** The directions the run reached: a Continuous run's one, and none the run ended before. */
@@ -208,6 +213,7 @@ export function parameterGroups(result: Result, units: 'bits' | 'bytes', wording
       rows: [
         row('server', t('result.parameters.server'), t('result.parameters.serverValue', { name: server.name, version: server.version })),
         row('browser', t('result.parameters.browser'), browserText(client.browser, wording)),
+        row('os', t('result.parameters.os'), osText(client.browser)),
         row('ip', t('result.parameters.clientIp'), client.ip),
         row('timer', t('result.parameters.timer'), t('result.parameters.timerValue', { ms: new Intl.NumberFormat(locale, { maximumFractionDigits: 3 }).format(client.timerResolutionMs) })),
         row('isolated', t('result.parameters.isolated'), isolated),

@@ -88,7 +88,7 @@ afterEach(() => {
 })
 
 // The export's tokens, as the app loads them (vitest gives a CSS import no content).
-const tokens = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../../../docs/design_system/colors_and_type.css'), 'utf8')
+const tokens = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../../design/colors_and_type.css'), 'utf8')
 
 describe('renderShareImage', () => {
   it('keeps the specified label ellipsis without changing the full source label (QA-130)', async () => {

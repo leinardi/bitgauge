@@ -20,7 +20,7 @@
 import { Activity, ArrowDown, ArrowUp, ArrowUpDown, Database, Timer, TrendingUp } from '@lucide/vue'
 
 import type { MetaRow } from '@/components/layout/MetaList.vue'
-import { browserRow, confidenceReasons, type TileLine, type TileView } from '@/components/test/tiles'
+import { browserRows, confidenceReasons, type TileLine, type TileView } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 import type { DirectionLive } from '@/composables/runLive'
 import type { BrowserIdentity, ContinuousSoFar, Direction, DirectionResult } from '@/engine/messages'
@@ -172,7 +172,7 @@ export function continuousView(input: ContinuousInput, context: Wording): Contin
     elapsedRow,
     { key: 'min-max', icon: ArrowUpDown, label: t('test.continuous.minMax'), sub: t('test.continuous.minMaxSub', { direction: directionWord }), value: minMax(values.minBitsPerSecond, values.maxBitsPerSecond, units, locale) },
     { key: 'idle', icon: Activity, label: t('test.continuous.idle'), sub: t('test.continuous.idleSub'), value: input.idleMedianMs === null ? null : formatLatency(input.idleMedianMs, locale, input.resolutionMs) },
-    browserRow(input.browser, context),
+    ...browserRows(input.browser, context),
   ]
   return { tiles, session }
 }

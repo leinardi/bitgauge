@@ -24,7 +24,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { browserRow, confidenceReasons, dataTile, directionTile, durationTile, type IdleInput, idleErrorTile, idleTile, jitterTile, type TileView } from '@/components/test/tiles'
+import { browserRows, confidenceReasons, dataTile, directionTile, durationTile, type IdleInput, idleErrorTile, idleTile, jitterTile, type TileView } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 import type { DirectionResult, IdleResult, UploadResult } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
@@ -218,7 +218,11 @@ describe('the other tiles', () => {
   })
 
   it('names the browser by family, major version and operating system', () => {
-    expect(browserRow({ name: 'Safari', major: 18, os: 'macOS' }, context)).toMatchObject({ key: 'browser', label: 'Browser', value: 'Safari 18 · macOS' })
-    expect(browserRow({ name: 'unknown', major: 0, os: 'Linux' }, context).value).toBeNull()
+    expect(browserRows({ name: 'Safari', major: 18, os: 'macOS' }, context)).toMatchObject([
+      { key: 'browser', label: 'Browser', value: 'Safari 18' },
+      { key: 'os', label: 'OS', value: 'macOS' },
+    ])
+    expect(browserRows({ name: 'unknown', major: 0, os: 'Linux' }, context).map((row) => row.value)).toEqual([null, 'Linux'])
+    expect(browserRows({ name: 'Firefox', major: 131, os: 'unknown' }, context).map((row) => row.value)).toEqual(['Firefox 131', null])
   })
 })

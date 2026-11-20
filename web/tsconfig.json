@@ -19,7 +19,7 @@
     "exactOptionalPropertyTypes": false,
     "paths": {
       "@/*": ["./src/*"],
-      "@design/*": ["../docs/design_system/*"]
+      "@design/*": ["./design/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]

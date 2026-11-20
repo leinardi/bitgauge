@@ -1,5 +1,10 @@
 # Demo Parity Harness
 
+**Disabled until the next design export.** The export, and with it the app kit this harness
+drives, is out of the repository ([docs/README.md](../README.md#design-export)); the `demo-parity`
+and `parity-triage` skills wait in `.agents/skills-disabled/`. The harness and its baseline are
+kept as they were, to be checked against the new kit when it arrives.
+
 The design export's app kit (`docs/design_system/ui_kits/app/`) is a clickable prototype of every
 screen and state; the Vue app in demo mode (`VITE_DEMO=1`,
 [frontend.md §9](../features/technical-stack/frontend.md#9-demo-build)) runs the real engine against

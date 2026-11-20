@@ -38,8 +38,6 @@ fix: true
 gitignore: true
 
 ignores:
-  # The design export is never hand-edited (docs/README.md).
-  - docs/design_system/**
   # Third-party skills tracked in skills-lock.json.
   - .agents/skills/fallow/**
   - .agents/skills/vue-best-practices/**

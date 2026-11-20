@@ -1,6 +1,0 @@
-/* BitGauge Design System — single entry point. Link this one file.
-   Layer order = cascade order: tokens → base (element defaults) → components.
-   UI kits are consumers: they link this file and add only kit-only CSS of their own. */
-@import "colors_and_type.css";
-@import "base.css";
-@import "components/components.css";

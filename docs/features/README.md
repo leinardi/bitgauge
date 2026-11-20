@@ -18,7 +18,6 @@ code follows. Implementation details live in the code.
 - [Glossary](glossary.md)
 - [Architecture](architecture.md)
 - [Security model](security.md)
-- [Design system](../design_system/README.md)
 
 ## Feature Areas
 

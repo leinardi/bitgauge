@@ -1,0 +1,750 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* ============================================================================
+   BitGauge Design System — colors_and_type.css
+   The complete token stylesheet: fonts, primitives, semantic tokens (dark +
+   light), measurement tokens, type, spacing, radii, motion, z-scale.
+   Self-contained. styles.css imports it first.
+
+   Contrast (WCAG 2.2 AA, vs --bg-base and --surface-2):
+   text ≥ 4.5:1 · non-text (series, arcs, focus, icons) ≥ 3:1. See tokens.md.
+
+   Fonts: IBM Plex Sans / Sans Condensed / Mono, SIL OFL 1.1, self-hosted in
+   assets/fonts/. No CDN — the SPA only talks to its own origin.
+   ============================================================================ */
+
+/* 0. FONTS ------------------------------------------------------------------ */
+@font-face {
+    font-family: "IBM Plex Sans";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("assets/fonts/ibm-plex-sans-400.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Sans";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("assets/fonts/ibm-plex-sans-500.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Sans";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("assets/fonts/ibm-plex-sans-600.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Sans";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("assets/fonts/ibm-plex-sans-700.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Sans Condensed";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("assets/fonts/ibm-plex-sans-condensed-500.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Sans Condensed";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("assets/fonts/ibm-plex-sans-condensed-600.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("assets/fonts/ibm-plex-mono-400.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("assets/fonts/ibm-plex-mono-500.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("assets/fonts/ibm-plex-mono-600.woff2") format("woff2");
+}
+
+/* 1. PRIMITIVES — raw scales. Never reference directly in UI; use section 2. */
+:root {
+    /* Slate-ink neutrals (cool, slightly blue) */
+    --slate-12: oklch(0.145 0.012 255);
+    --slate-11: oklch(0.185 0.013 255);
+    --slate-10: oklch(0.225 0.014 255);
+    --slate-9: oklch(0.268 0.015 255);
+    --slate-8: oklch(0.318 0.015 255);
+    --slate-7: oklch(0.375 0.015 255);
+    --slate-6: oklch(0.452 0.014 255);
+    --slate-5: oklch(0.545 0.013 255);
+    --slate-4: oklch(0.655 0.012 255);
+    --slate-3: oklch(0.775 0.010 255);
+    --slate-2: oklch(0.895 0.006 255);
+    --slate-1: oklch(0.962 0.004 255);
+    --slate-0: oklch(0.992 0.002 255);
+
+    /* Teal — primary + download series */
+    --teal-7: oklch(0.62 0.115 205);
+    --teal-6: oklch(0.70 0.125 200);
+    --teal-5: oklch(0.78 0.120 197);
+    --teal-4: oklch(0.85 0.095 195);
+    --teal-3: oklch(0.92 0.055 195);
+
+    /* Green — ok */
+    --green-6: oklch(0.66 0.150 152);
+    --green-5: oklch(0.76 0.155 151);
+    --green-4: oklch(0.86 0.110 150);
+
+    /* Amber — warn */
+    --amber-6: oklch(0.72 0.140 72);
+    --amber-5: oklch(0.81 0.140 78);
+    --amber-4: oklch(0.90 0.090 82);
+
+    /* Red — danger */
+    --red-6: oklch(0.60 0.205 24);
+    --red-5: oklch(0.68 0.205 25);
+    --red-4: oklch(0.80 0.120 25);
+
+    /* Blue — info + latency series */
+    --blue-6: oklch(0.64 0.150 250);
+    --blue-5: oklch(0.73 0.135 248);
+    --blue-4: oklch(0.85 0.080 248);
+
+    /* Violet — upload series only */
+    --violet-6: oklch(0.66 0.150 300);
+    --violet-5: oklch(0.74 0.140 300);
+    --violet-4: oklch(0.86 0.080 300);
+}
+
+/* 2. SEMANTIC TOKENS — DARK (default) --------------------------------------- */
+:root,
+[data-theme="dark"] {
+    color-scheme: dark;
+
+    /* Surfaces — elevation by lightness */
+    --bg-void: var(--slate-12);
+    --bg-base: oklch(0.165 0.013 255);
+    --surface-1: oklch(0.205 0.014 255);
+    --surface-2: oklch(0.235 0.014 255);
+    --surface-3: oklch(0.278 0.015 255);
+    --surface-4: oklch(0.320 0.015 255);
+
+    /* Borders */
+    --border-subtle: oklch(0.285 0.013 255);
+    --border-default: oklch(0.345 0.014 255);
+    --border-strong: oklch(0.430 0.015 255);
+
+    /* Text. --fg-subtle is the smallest allowed text; --fg-faint is NON-TEXT only. */
+    --fg: var(--slate-1);
+    --fg-muted: var(--slate-3);
+    --fg-subtle: oklch(0.66 0.013 255);
+    --fg-faint: oklch(0.56 0.013 255);
+    --fg-on-accent: var(--slate-12);
+
+    /* Primary */
+    --primary: var(--teal-5);
+    --primary-hover: var(--teal-4);
+    --primary-active: var(--teal-6);
+    --primary-fg: var(--slate-12);
+    --primary-text: var(--teal-5);
+    --primary-bg: oklch(0.78 0.120 197 / 0.12);
+    --primary-border: oklch(0.78 0.120 197 / 0.35);
+
+    /* Focus — solid 2 px ring, 2 px offset */
+    --focus-ring: var(--teal-5);
+
+    /* Status triads */
+    --ok: var(--green-5);
+    --ok-fg: var(--green-4);
+    --ok-bg: oklch(0.76 0.155 151 / 0.13);
+    --ok-border: oklch(0.76 0.155 151 / 0.32);
+
+    --warn: var(--amber-5);
+    --warn-fg: var(--amber-4);
+    --warn-bg: oklch(0.81 0.140 78 / 0.13);
+    --warn-border: oklch(0.81 0.140 78 / 0.34);
+
+    --danger: var(--red-5);
+    --danger-fg: var(--red-4);
+    --danger-bg: oklch(0.68 0.205 25 / 0.14);
+    --danger-border: oklch(0.68 0.205 25 / 0.38);
+    /* Destructive fill under --fg-on-solid: 5.2:1, hover 6.6:1 */
+    --danger-solid: oklch(0.56 0.205 24);
+    --danger-solid-hover: oklch(0.50 0.190 25);
+
+    --info: var(--blue-5);
+    --info-fg: var(--blue-4);
+    --info-bg: oklch(0.73 0.135 248 / 0.13);
+    --info-border: oklch(0.73 0.135 248 / 0.34);
+
+    /* Code / snippet surface (darkest in both themes) */
+    --term-bg: oklch(0.135 0.012 255);
+    --term-fg: var(--slate-2);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.40);
+    --shadow-md: 0 4px 12px oklch(0 0 0 / 0.45), 0 1px 2px oklch(0 0 0 / 0.40);
+    --shadow-lg: 0 12px 32px oklch(0 0 0 / 0.55), 0 2px 6px oklch(0 0 0 / 0.40);
+    --shadow-pop: 0 16px 48px oklch(0 0 0 / 0.60);
+
+    /* Card top-edge highlight (dark only) */
+    --card-highlight: oklch(1 0 0 / 0.05);
+    --card-highlight-hover: oklch(1 0 0 / 0.07);
+
+    /* --- Measurement layer --------------------------------------------- */
+    /* Series */
+    --series-download: var(--teal-5);
+    --series-upload: var(--violet-5);
+    --series-latency: var(--blue-5); /* drawn dashed */
+    --sending: oklch(0.60 0.08 300); /* faint upload "sending" line, ≥ 3:1 */
+
+    /* Bufferbloat grade (text-capable) */
+    --grade-good: var(--ok-fg);
+    --grade-fair: var(--warn-fg);
+    --grade-poor: var(--danger-fg);
+
+    /* Quality bands (text-capable). Always paired with icon + label. */
+    --quality-great: oklch(0.86 0.11 150);
+    --quality-good: oklch(0.84 0.10 175);
+    --quality-average: oklch(0.88 0.10 88);
+    --quality-poor: oklch(0.82 0.11 55);
+    --quality-bad: oklch(0.80 0.12 25);
+}
+
+/* 2b. SEMANTIC TOKENS — LIGHT ----------------------------------------------- */
+[data-theme="light"] {
+    color-scheme: light;
+
+    --bg-void: var(--slate-2);
+    --bg-base: var(--slate-1);
+    --surface-1: var(--slate-0);
+    --surface-2: oklch(1 0 0);
+    --surface-3: var(--slate-1);
+    --surface-4: var(--slate-2);
+
+    --border-subtle: oklch(0.905 0.006 255);
+    --border-default: oklch(0.855 0.008 255);
+    --border-strong: oklch(0.760 0.010 255);
+
+    --fg: oklch(0.235 0.014 255);
+    --fg-muted: var(--slate-6);
+    --fg-subtle: oklch(0.52 0.013 255);
+    --fg-faint: oklch(0.58 0.012 255);
+    --fg-on-accent: var(--slate-0);
+
+    /* Primary fill darkened so the white label reaches 5.1:1 */
+    --primary: oklch(0.52 0.10 207);
+    --primary-hover: oklch(0.47 0.10 207);
+    --primary-active: oklch(0.43 0.095 208);
+    --primary-fg: var(--slate-0);
+    --primary-text: oklch(0.50 0.10 207);
+    --primary-bg: oklch(0.62 0.115 205 / 0.10);
+    --primary-border: oklch(0.62 0.115 205 / 0.30);
+
+    --focus-ring: oklch(0.52 0.10 207);
+
+    --ok: oklch(0.60 0.150 152); /* icons, dots: ≥ 3:1 on base and surface-2 */
+    --ok-fg: oklch(0.50 0.130 152);
+    --ok-bg: oklch(0.66 0.150 152 / 0.12);
+    --ok-border: oklch(0.66 0.150 152 / 0.30);
+
+    --warn: oklch(0.62 0.130 65);
+    --warn-fg: oklch(0.52 0.120 60);
+    --warn-bg: oklch(0.72 0.140 72 / 0.14);
+    --warn-border: oklch(0.72 0.140 72 / 0.32);
+
+    --danger: var(--red-6);
+    --danger-fg: oklch(0.52 0.190 25);
+    --danger-bg: oklch(0.60 0.205 24 / 0.10);
+    --danger-border: oklch(0.60 0.205 24 / 0.30);
+    --danger-solid: oklch(0.56 0.205 24);
+    --danger-solid-hover: oklch(0.50 0.190 25);
+
+    --info: var(--blue-6);
+    --info-fg: oklch(0.50 0.140 250); /* 4.9:1 on --info-bg */
+    --info-bg: oklch(0.64 0.150 250 / 0.10);
+    --info-border: oklch(0.64 0.150 250 / 0.30);
+
+    --term-bg: oklch(0.165 0.013 255);
+    --term-fg: var(--slate-2);
+
+    --shadow-sm: 0 1px 2px oklch(0.4 0.02 255 / 0.08);
+    --shadow-md: 0 4px 12px oklch(0.4 0.02 255 / 0.10), 0 1px 2px oklch(0.4 0.02 255 / 0.06);
+    --shadow-lg: 0 12px 32px oklch(0.4 0.02 255 / 0.14), 0 2px 6px oklch(0.4 0.02 255 / 0.08);
+    --shadow-pop: 0 16px 48px oklch(0.4 0.02 255 / 0.18);
+
+    --card-highlight: transparent;
+    --card-highlight-hover: transparent;
+
+    --series-download: oklch(0.52 0.10 207);
+    --series-upload: oklch(0.54 0.15 300);
+    --series-latency: oklch(0.53 0.15 250);
+    --sending: oklch(0.64 0.08 300);
+
+    --grade-good: oklch(0.50 0.13 152);
+    --grade-fair: oklch(0.52 0.12 60);
+    --grade-poor: oklch(0.52 0.19 25);
+
+    --quality-great: oklch(0.48 0.13 152);
+    --quality-good: oklch(0.48 0.10 180);
+    --quality-average: oklch(0.50 0.11 75);
+    --quality-poor: oklch(0.52 0.15 45);
+    --quality-bad: oklch(0.50 0.19 25);
+}
+
+/* 2c. ALIASES + UTILITY TOKENS (theme-independent references) --------------- */
+:root,
+[data-theme="dark"],
+[data-theme="light"] {
+    --ring: var(--focus-ring);
+
+    /* Frontend naming convention (surface.*, text.*, status.*, action.*) */
+    --surface-background: var(--bg-base);
+    --surface-elevated: var(--surface-2);
+    --surface-muted: var(--surface-1);
+    --text-primary: var(--fg);
+    --text-secondary: var(--fg-muted);
+    --text-muted: var(--fg-subtle);
+    --text-inverse: var(--fg-on-accent);
+    --status-info: var(--info);
+    --status-success: var(--ok);
+    --status-warning: var(--warn);
+    --status-error: var(--danger);
+    --action-primary: var(--primary);
+    --action-danger: var(--danger);
+    --action-disabled: var(--fg-faint);
+
+    /* Overlays */
+    --scrim: oklch(0 0 0 / 0.55);
+    --surface-glass: color-mix(in oklch, var(--bg-base) 80%, transparent);
+    --fg-on-solid: oklch(1 0 0);
+
+    /* Terminal syntax on --term-bg (dark in both themes, so theme-independent) */
+    --term-comment: var(--slate-5);
+    --term-command: var(--teal-5);
+    --term-muted: var(--slate-3);
+
+    /* Chart gridlines (hairline, non-text) */
+    --chart-grid: var(--border-subtle);
+    /* Warm-up marks (non-text, ≥ 3:1 against --surface-1/2 in both themes) */
+    --chart-hatch: var(--fg-faint);
+    --chart-band: var(--surface-3);
+
+    /* Shadow steps that carry a theme colour */
+    --shadow-card: inset 0 1px 0 var(--card-highlight); /* Card top-edge highlight (transparent in light) */
+    --shadow-ring-danger: 0 0 0 3px var(--danger-bg); /* invalid field, focused */
+
+    /* Density (comfortable default) */
+    --density-row-height: 48px; /* @kind other */
+    --density-cell-padding-y: var(--space-3);
+    --density-section-gap: var(--space-6);
+}
+
+[data-density="compact"] {
+    --density-row-height: 36px; /* @kind other */
+    --density-cell-padding-y: var(--space-2);
+    --density-section-gap: var(--space-4);
+}
+
+/* 3. TYPE · SPACING · RADII · MOTION · Z ------------------------------------ */
+:root {
+    --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-cond: "IBM Plex Sans Condensed", "IBM Plex Sans", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+    --text-pico: 9px; /* grade strip letters, share-image meta */
+    --text-nano: 10px;
+    --text-micro: 11px;
+    --text-caption: 12px;
+    --text-sm: 13px;
+    --text-base: 14px;
+    --text-md: 15px;
+    --text-lg: 16px;
+    --text-xl: 18px;
+    --text-2xl: 20px;
+    --text-3xl: 24px;
+    --text-4xl: 30px;
+    --text-5xl: 38px;
+    --text-6xl: 48px;
+
+    --lh-tight: 1.15; /* @kind other */
+    --lh-snug: 1.3; /* @kind other */
+    --lh-compact: 1.45; /* @kind other */ /* captions, toasts, inline errors, meta lines */
+    --lh-normal: 1.5; /* @kind other */ /* body default (base.css) */
+    --lh-prose: 1.55; /* @kind other */ /* muted explanatory paragraphs, dialog text */
+    --lh-relaxed: 1.65; /* @kind other */ /* code blocks, lead text */
+    --lh-none: 1; /* @kind other */ /* pills, badges, share-image numbers */
+    --lh-display: 1.05; /* @kind other */ /* gauge readout */
+    --lh-stat: 22px; /* @kind other */ /* Stat value row (connection strip) */
+
+    /* Type roles (tokens.md "Type"). The -compact value is the narrow-layout size. */
+    --type-gauge-readout: 58px;
+    --type-gauge-readout-compact: 46px;
+    --type-metric-value: 30px;
+    --type-metric-value-compact: 24px;
+    --type-page-title: var(--text-4xl);
+    --type-page-title-compact: var(--text-3xl);
+    --type-state-title: 26px;
+    --type-state-title-compact: 22px;
+    --type-share-value: 42px; /* Share image, on its 480 × 252 box (× 2.5 in the PNG): rate number */
+    --type-share-label: 12px; /* block label ("↓ DOWNLOAD") */
+    --type-share-unit: 15px; /* rate unit */
+    --type-share-qual: 10px; /* qualifier lines */
+    --type-share-meta: 10px; /* foot, grade words */
+    --type-share-head: 11px; /* header label */
+    --type-share-grade: 24px; /* grade letter */
+    --tracking-readout: -0.03em; /* @kind other */
+    --tracking-metric: -0.02em; /* @kind other */
+
+    --weight-regular: 400; /* @kind other */
+    --weight-medium: 500; /* @kind other */
+    --weight-semibold: 600; /* @kind other */
+    --weight-bold: 700; /* @kind other */
+
+    --tracking-tight: -0.01em; /* @kind other */
+    --tracking-normal: 0; /* @kind other */
+    --tracking-wide: 0.02em; /* @kind other */
+    --tracking-caps-tight: 0.05em; /* @kind other */
+    --tracking-caps: 0.08em; /* @kind other */
+
+    /* 4 px grid with a 2 px dense sub-grid below 20 px */
+    --space-0: 0;
+    --space-0-5: 2px;
+    --space-1: 4px;
+    --space-1-5: 6px;
+    --space-2: 8px;
+    --space-2-5: 10px;
+    --space-3: 12px;
+    --space-3-5: 14px;
+    --space-4: 16px;
+    --space-4-5: 18px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+    --space-20: 80px;
+    /* Optical steps off the 2 px grid: 1 px alignment nudges and tight icon-to-text gaps only. */
+    --space-0-25: 1px;
+    --space-0-75: 3px;
+    --space-1-25: 5px;
+    --space-1-75: 7px;
+    --tooltip-gap: var(--space-1-75); /* Tooltip above its control */
+
+    /* Breakpoints. Media queries can't read custom properties: an @media rule repeats the literal
+       (max-width: 1139px = below --breakpoint-desktop) and scripts read the token. */
+    --breakpoint-desktop: 1140px; /* desktop layout from here; below it the -compact values apply */
+    --breakpoint-tablet: 768px; /* Table .flip turns into a card list below this */
+
+    /* Layout (tokens.md "Spacing"). -compact = narrow layout (< --breakpoint-desktop, or the kit's 390 px frame). */
+    --layout-max: 1200px;
+    --layout-gutter: var(--space-10);
+    --layout-gutter-compact: var(--space-4);
+    --layout-section-gap: var(--space-5);
+    --layout-section-gap-compact: var(--space-3-5);
+    --layout-tile-gap: var(--space-4);
+    --layout-tile-gap-compact: var(--space-2-5);
+    --layout-rail: 340px; /* side rail: About, Result detail share panel */
+    --layout-instrument: 400px; /* Test screen gauge column */
+    --layout-text-basis: 220px; /* flex basis of a wrapping text body: Notice body, SaveBar message */
+    --layout-input-basis: 200px; /* SaveBar label field */
+    --layout-input-max: 340px;
+    --layout-grade-basis: 172px; /* LoadCard grade column */
+    --layout-grade-max: 220px;
+    --layout-load-basis: 260px; /* LoadCard latency rows */
+    --layout-error-max: 600px; /* FullScreenError content column */
+    --layout-error-min-h: 760px;
+    --layout-error-min-h-compact: 720px;
+    --layout-measure-xs: 180px; /* Gauge state message */
+    --layout-measure-sm: 300px; /* Chart empty-state message */
+    --layout-measure-md: 420px; /* EmptyState message */
+
+    /* Control heights — the one definition; components read these. */
+    --control-h-sm: 28px;
+    --control-h-md: 34px;
+    --control-h-lg: 38px;
+    --control-h-xl: 46px; /* Start / Stop */
+    --control-h-touch: 44px; /* minimum touch target */
+    --control-h-touch-xl: 52px; /* Start / Stop, compact layout */
+    --input-h: 36px;
+    --pill-h: 22px;
+    --pill-h-sm: 20px;
+    --chip-h: 30px;
+    --chip-h-sm: 24px;
+    --start-w: 248px; /* StartButton minimum width, desktop */
+    --tab-h: 36px;
+    --header-h: 56px;
+    --header-h-compact: 52px;
+    --tabbar-h: 64px;
+    --control-h-item: 32px; /* menu items, nav links, Segmented options, Checkbox rows */
+    --list-row-h: 36px; /* MetaList / QualityList row minimum */
+    --menu-w: 212px;
+    --toast-w: 380px;
+    --check-size: 16px; /* Checkbox box, ChoiceCard radio */
+    --switch-w: 42px;
+    --switch-h: 24px;
+    --switch-knob: 18px;
+    --dot-size: 6px; /* status dots */
+    --dot-size-lg: 7px; /* header server dot, offline pill dot */
+    --progress-h: 4px; /* PhaseStep bar */
+    --indicator-h: 2px; /* Tabs underline, TabBar active indicator */
+    --tab-indicator-inset: 28%; /* TabBar indicator inset from each side of its tab */
+    --tile-value-h: 34px; /* MetricTile word value ("warming up") line */
+    --tile-qualifier-h: 15px; /* MetricTile qualifier line minimum */
+    --grade-size: 52px; /* GradeBadge letter box */
+    --grade-size-sm: 30px; /* small GradeBadge (SharePreview uses --share-grade-size) */
+    --grade-cell: 17px; /* grade scale strip cell */
+    --empty-glyph: 46px; /* EmptyState glyph box */
+    --modal-icon: 36px; /* Dialog icon box */
+    --modal-max-w: 92vw; /* @kind other */
+    --share-aspect: 1200 / 630; /* @kind other */
+    /* Share image layout (share-panel.md "Share image layout"): drawn on a 480 × 252 reference box, the 1200 × 630
+       image at 2.5×. Every share-image size is a card-scale token; the PNG multiplies it by --share-scale. */
+    --share-scale: 2.5; /* @kind other */
+    --share-w: 480px;
+    --share-h: 252px;
+    --share-pad-y: var(--space-3-5); /* 35 px in the image */
+    --share-pad-x: var(--space-4); /* 40 px */
+    --share-header-h: 20px; /* 50 px: the logo row */
+    --share-gap-min: var(--space-2-5); /* 25 px: least space between the middle group and the header or the foot */
+    --share-label-h: 14px; /* 35 px: block-label row */
+    --share-block-w: 148px; /* 370 px: one number block column ("9.41 Gbit/s" ≈ 146) */
+    --share-grade-size: 42px; /* 105 px: grade tile = number row height; words beside it, on the number row */
+    --share-server-max: 224px; /* 560 px: server name before its ellipsis */
+
+    /* Lines and focus */
+    --border-width: 1px; /* hairlines */
+    --border-width-strong: 1.5px; /* hollow dots, Checkbox and radio boxes */
+    --focus-width: 2px;
+    --focus-offset: 2px;
+    --underline-offset: 2px; /* link hover underline */
+
+    /* Opacity */
+    --opacity-disabled: 0.45; /* @kind other */
+    --opacity-hint: 0.8; /* @kind other */ /* keyboard hint, chip count */
+    --scrim-blur: 2px;
+
+    /* Charts (non-colour) */
+    --chart-stroke: 1; /* @kind other */ /* gridlines, edges, separators, now line */
+    --chart-stroke-latency: 1.25; /* @kind other */
+    --chart-stroke-mark: 1.5; /* @kind other */
+    --chart-dash-sep: 2 3; /* @kind other */ /* phase separators, steady window */
+    --chart-dash-latency: 4 3; /* @kind other */
+    --chart-dash-mark: 3 3; /* @kind other */
+    --chart-window-fill: 0.08; /* @kind other */
+    --chart-window-stroke: 0.4; /* @kind other */
+    --chart-latency-opacity: 0.9; /* @kind other */
+    --chart-now-opacity: 0.5; /* @kind other */
+    --chart-hatch-angle: 135deg; /* @kind other */
+    --chart-hatch-pitch: 6px;
+    --chart-label-anchor: -75%; /* @kind other */ /* axis / mark label vertical anchor */
+    --chart-label-gap: 6px; /* phase / mark label offset from its line */
+    --chart-label-row: 12px; /* top-row label pitch: row 1 at plot top + 12, row 2 + 24 */
+    --gauge-tick-anchor: -80%; /* @kind other */ /* Gauge tick label vertical anchor */
+    --legend-swatch-w: 14px;
+    --legend-swatch-h: 10px;
+    --legend-band-w: 12px;
+    --legend-stroke: 2px;
+
+    /* Kit Demo panel only (prototype scaffolding, never product UI) */
+    --demo-w: 300px;
+    --demo-w-compact: 320px;
+    --demo-row-basis: 160px;
+    --demo-max-h: calc(100vh - 2 * var(--space-2-5)); /* @kind other */
+
+    --modal-w: 452px; /* @kind other */
+    --modal-w-wide: 540px; /* @kind other */
+    --modal-w-xl: 760px; /* @kind other */ /* compare dialog */
+
+    --radius-2xs: 2px; /* progress bar, TabBar indicator */
+    --radius-xs: 3px;
+    --radius-sm: 5px;
+    --radius-md: 7px;
+    --radius-lg: 10px;
+    --radius-xl: 14px;
+    --radius-2xl: 20px;
+    --radius-full: 9999px;
+
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1); /* @kind other */
+    --ease-standard: cubic-bezier(0.4, 0, 0.2, 1); /* @kind other */
+    --dur-fast: 120ms; /* @kind other */
+    --dur-base: 180ms; /* @kind other */ /* gauge sample tween, tile fill-in */
+    --dur-slow: 280ms; /* @kind other */ /* phase change, gauge window shift */
+    --dur-shimmer: 1.4s; /* @kind other */ /* Skeleton loop */
+    --press-shift: 0.5px; /* Button pressed nudge */
+    --enter-shift-sm: 4px; /* page content fade-in */
+    --enter-shift-md: 6px; /* Dialog */
+    --enter-shift-lg: 10px; /* Toast slide-in */
+    --enter-scale: 0.99; /* @kind other */ /* Dialog */
+
+    --z-sticky: 20; /* @kind other */
+    --z-tooltip: 30; /* @kind other */
+    --z-popover: 40; /* @kind other */
+    --z-overlay: 50; /* @kind other */
+    --z-toast: 60; /* @kind other */
+    --z-nav: 80; /* @kind other */
+    --z-skip-link: 100; /* @kind other */
+}
+
+/* 4. SEMANTIC TYPE CLASSES -------------------------------------------------- */
+.ds-display {
+    font-family: var(--font-sans);
+    font-weight: var(--weight-semibold);
+    font-size: var(--text-6xl);
+    line-height: var(--lh-tight);
+    letter-spacing: var(--tracking-tight);
+    color: var(--fg);
+}
+
+.ds-h1 {
+    font-family: var(--font-sans);
+    font-weight: var(--weight-semibold);
+    font-size: var(--text-4xl);
+    line-height: var(--lh-tight);
+    letter-spacing: var(--tracking-tight);
+    color: var(--fg);
+}
+
+.ds-h2 {
+    font-family: var(--font-sans);
+    font-weight: var(--weight-semibold);
+    font-size: var(--text-3xl);
+    line-height: var(--lh-snug);
+    letter-spacing: var(--tracking-tight);
+    color: var(--fg);
+}
+
+.ds-h3 {
+    font-family: var(--font-sans);
+    font-weight: var(--weight-semibold);
+    font-size: var(--text-xl);
+    line-height: var(--lh-snug);
+    color: var(--fg);
+}
+
+.ds-h4 {
+    font-family: var(--font-sans);
+    font-weight: var(--weight-semibold);
+    font-size: var(--text-lg);
+    line-height: var(--lh-snug);
+    color: var(--fg);
+}
+
+.ds-body {
+    font-family: var(--font-sans);
+    font-weight: var(--weight-regular);
+    font-size: var(--text-base);
+    line-height: var(--lh-normal);
+    color: var(--fg);
+}
+
+.ds-body-lg {
+    font-family: var(--font-sans);
+    font-weight: var(--weight-regular);
+    font-size: var(--text-lg);
+    line-height: var(--lh-relaxed);
+    color: var(--fg-muted);
+}
+
+.ds-body-sm {
+    font-family: var(--font-sans);
+    font-weight: var(--weight-regular);
+    font-size: var(--text-sm);
+    line-height: var(--lh-normal);
+    color: var(--fg-muted);
+}
+
+.ds-caption {
+    font-family: var(--font-sans);
+    font-weight: var(--weight-regular);
+    font-size: var(--text-caption);
+    line-height: var(--lh-snug);
+    color: var(--fg-subtle);
+}
+
+.ds-eyebrow {
+    font-family: var(--font-cond);
+    font-weight: var(--weight-semibold);
+    font-size: var(--text-micro);
+    line-height: var(--lh-snug);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-caps);
+    color: var(--fg-subtle);
+}
+
+.ds-unit {
+    font-family: var(--font-mono);
+    font-size: var(--text-caption);
+    color: var(--fg-muted);
+}
+
+.ds-mono {
+    font-family: var(--font-mono);
+    font-weight: var(--weight-regular);
+    font-size: var(--text-sm);
+    line-height: var(--lh-normal);
+    color: var(--fg);
+    font-variant-ligatures: none;
+}
+
+.ds-mono-sm {
+    font-family: var(--font-mono);
+    font-weight: var(--weight-regular);
+    font-size: var(--text-caption);
+    letter-spacing: var(--tracking-tight);
+    color: var(--fg-muted);
+}
+
+.ds-code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    padding: 0.12em 0.4em;
+    border-radius: var(--radius-xs);
+    background: var(--surface-3);
+    border: 1px solid var(--border-subtle);
+    color: var(--fg);
+}
+
+.ds-num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+}

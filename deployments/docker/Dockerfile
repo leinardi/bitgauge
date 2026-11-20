@@ -48,10 +48,6 @@ COPY web/package.json web/package-lock.json web/.npmrc ./
 RUN --mount=type=cache,target=/root/.npm,id=npmcache \
 	npm ci --no-audit --no-fund
 COPY web/ ./
-# The design export's tokens, element defaults, fonts, icons and manifest, read in place by
-# vite.config.ts.
-COPY docs/design_system/colors_and_type.css docs/design_system/base.css /src/docs/design_system/
-COPY docs/design_system/assets/ /src/docs/design_system/assets/
 RUN npm run build
 
 ########################

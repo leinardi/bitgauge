@@ -1,6 +1,6 @@
 # Design System Upstream Notes
 
-The design export in `docs/design_system/` is never edited in this repository
+The design export is never edited in this repository, and is out of it until the next one
 ([docs/README.md](../README.md#design-export)). When the demo parity triage decides that the export
 is the side to change (a triage cluster's `upstream` action in `.parity-triage.json`), or when the
 Vue app needs a value the export draws only as a literal with no token (the `design-system-guard`
@@ -13,6 +13,16 @@ the export shows, and what it should show, with the reason; behavior comes from
 [`docs/features/ui/`](../features/ui/README.md), visuals from the export's own tokens.
 
 ## Notes
+
+### Kit Literals With No Token
+
+From the `design-system-guard` skill. The Vue app copies these as the kit draws them, as arbitrary
+values, until the export gives them a token.
+
+| Kit file and element | Literal | Vue |
+| --- | --- | --- |
+| `components/actions/actions.css`, `.kbd` padding | `1px 0.5em` (the inline 0.5em) | `StartButton.vue` `px-[0.5em]` |
+| `components/actions/actions.css`, `.kbd` line height | `1.4` | `StartButton.vue` `leading-[1.4]` |
 
 ### MetaList facts: a long value covers its label
 
