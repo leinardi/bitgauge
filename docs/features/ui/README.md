@@ -7,19 +7,18 @@
 This section specifies **what the UI shows and does**: the screens, the elements and states of each
 screen, the user flows, the URL parameters, and the i18n and accessibility requirements. It does
 **not** author visual design: layout details, colors, typography, spacing, iconography and
-illustrations come from the Claude Design export in
-[../../design_system/README.md](../../design_system/README.md).
+illustrations come from the Claude Design export
+([../../README.md](../../README.md#design-export)).
 
 ## Source of Truth
 
 - **Behavior:** these pages are canonical for what each screen contains, which states it has, and
   what happens in each flow. The measurement semantics behind every number are in
   [../measurement.md](../measurement.md).
-- **Visuals:** the design export in [../../design_system/](../../design_system/README.md), with its
-  app UI kit, is canonical for how things look. Where it disagrees with these pages on behavior,
-  these pages win, and the correction goes back into the Claude Design project. The
-  implementation takes visuals only from the export and never hand-authors them; shadcn-vue
-  defaults fill any gap the export does not cover yet.
+- **Visuals:** the design export, with its app UI kit, is canonical for how things look. Where it
+  disagrees with these pages on behavior, these pages win, and the correction goes back into the
+  Claude Design project. The implementation takes visuals only from the export and never
+  hand-authors them; shadcn-vue defaults fill any gap the export does not cover yet.
 - A behavioral disagreement between the export and a page here is resolved in these pages first,
   then implemented.
 
@@ -54,5 +53,5 @@ Settings, About) is available on every screen.
 
 - [Measurement methodology](../measurement.md)
 - [Frontend design](../technical-stack/frontend.md)
-- [Design system](../../design_system/README.md)
+- [Design export](../../README.md#design-export)
 - [Edge cases](../edge-cases.md)

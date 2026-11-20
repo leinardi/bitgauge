@@ -271,7 +271,7 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
   non-zero overhead compensation, a loaded-latency source other than the WebSocket and an increase
   over idle latency measured on the other path. The copied summary holds the same lines as text,
   in the page's language. A Continuous result is one direction block, its headline without a peak
-  ([../../design_system/components/share-panel.md](../../design_system/components/share-panel.md)).
+  (the design export's share panel).
   The HTTP loaded responsiveness and the quality scores are never on the share image or in the
   copied summary. Content rules are in
   [../security.md §7](../security.md#7-browser-only-history-and-privacy).
@@ -290,9 +290,11 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
 
 ## 8. Theming Hook
 
-- Visual design comes from the Claude Design export in
-  [../../design_system/README.md](../../design_system/README.md); shadcn-vue defaults cover what
-  the export does not, and nothing visual is hand-authored.
+- Visual design comes from the Claude Design export; shadcn-vue defaults cover what the export does
+  not, and nothing visual is hand-authored. The export itself is not in the repository until the
+  next one is imported ([../../README.md](../../README.md#design-export)); the files the app ships
+  from it are vendored unchanged in `web/design/`: `colors_and_type.css`, `base.css` and `assets/`
+  (fonts, icons, web manifest).
 - `styles/` imports the export's `colors_and_type.css` and maps its tokens into Tailwind 4 `@theme`
   variables; components use only those tokens. It imports the export's `base.css`, the element
   defaults (body type and line height, links, focus, selection), into Tailwind's base layer after
@@ -300,12 +302,12 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
 - Light and dark themes switch with `data-theme="light"` or `data-theme="dark"` on `<html>`, the
   attribute the export's tokens key on, defaulting to the system preference; the `theme` URL
   parameter, the Settings screen and the header's theme toggle override it.
-- The logo, favicons, app icons and web manifest come from the export's `assets/`. Claude Design
-  embeds a C2PA provenance manifest in every SVG (`<metadata>` plus an `http://c2pa.org/manifest`
-  namespace) and PNG (a `caBX` chunk), about 6–8 KB per file, more than a small icon's image data.
-  The export keeps them, since it is never hand-edited; the web build strips them when it copies the
-  assets, so the shipped files carry image data only and no external URL reaches the dist URL
-  allowlist ([build-packaging.md §4](build-packaging.md#4-ci-workflows)).
+- The favicons, app icons and web manifest come from the export's `assets/`. Claude Design embeds a
+  C2PA provenance manifest in every SVG (`<metadata>` plus an `http://c2pa.org/manifest` namespace)
+  and PNG (a `caBX` chunk), about 6–8 KB per file, more than a small icon's image data. The vendored
+  files keep them, as the export ships them; the web build strips them, and any comment in an SVG,
+  when it copies the assets, so the shipped files carry image data only and no external URL reaches
+  the dist URL allowlist ([build-packaging.md §4](build-packaging.md#4-ci-workflows)).
 
 ## 9. Demo Build
 

@@ -175,8 +175,7 @@ portrait on a phone without horizontal scrolling.
   ([../security.md §7](../security.md#7-browser-only-history-and-privacy)), an "include label"
   option (off by default), Download image, Copy summary and, where the Web Share API is available,
   Share ([flows.md §8](flows.md#8-sharing)). A Continuous result is one direction block, its
-  headline with its qualifiers and no peak, as the export's share panel draws it
-  ([share-panel.md](../../design_system/components/share-panel.md)). The HTTP loaded
+  headline with its qualifiers and no peak, as the export's share panel draws it. The HTTP loaded
   responsiveness and the quality scores stay off the share image and the copied summary.
 - **Download JSON**, **Delete** and **Run again** (same settings). Delete removes the result from
   history at once and shows an undo toast for 8 s (§8), as on History; the page then shows "Result
@@ -236,8 +235,8 @@ parameters collapse into a disclosure.
 - **Trend chart** (uPlot) over the filtered results: small multiples of download and upload (log
   scale) and idle latency (linear). Results whose status is not `complete` are drawn as hollow
   markers, with a legend entry. Axes follow the date filter and the data, with minimum spans; a
-  single result shows as a labeled marker with "Trends appear from the second result." See
-  [components/charts.md § Trend chart axes](../../design_system/components/charts.md#trend-chart-axes).
+  single result shows as a labeled marker with "Trends appear from the second result." The axes
+  follow the export's trend chart rules (`web/src/components/history/trendAxes.ts`).
 - **Selection bar** once rows are selected: the selection count, Compare (exactly two), Delete
   selected (with an undo toast), Clear selection.
 - **Compare two results**, in a focus-trapped dialog: side-by-side metrics with the change per

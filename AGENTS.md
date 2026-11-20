@@ -15,7 +15,9 @@ release is in [`docs/release.md`](docs/release.md#how-to-release).
   accuracy harness (feature `harness`). `deployments/`: the Dockerfile and the deployment
   examples.
 - Spec: [`docs/features/`](docs/features/README.md). `docs/engineering/` holds runbooks,
-  `docs/research/` prior art, `docs/design_system/` the Claude Design export.
+  `docs/research/` prior art. The Claude Design export is out of the repository until the next
+  one; `web/design/` vendors the files the app ships from it
+  ([`docs/README.md`](docs/README.md#design-export)).
 
 ### Never hand-edit
 
@@ -24,7 +26,7 @@ release is in [`docs/release.md`](docs/release.md#how-to-release).
 - `.mk/{docker,help,pre-commit,web,parity,rust,rust-release,image}.mk`: from make-common (`make mk-common-update`);
   repo-local snippets are the other `.mk/` files. Never add recipes to `Makefile` itself.
 - The vendored skills in `skills-lock.json` (hashed).
-- `docs/design_system/`: the Claude Design export, replaced whole by the next one
+- `web/design/`: vendored from the Claude Design export, replaced by the next one
   ([`docs/README.md`](docs/README.md#design-export)).
 - `.parity-baseline`: only through `make demo-parity-update` or `make demo-parity-accept REASON=`.
 
@@ -45,7 +47,7 @@ make rust-test-image   # BITGAUGE_TEST_IMPL=rust: image under netguard and strac
 make rust-release-dist  # the SPA once, the static release binaries, then checksums.txt
 make image-build-test   # the shipped prebuilt image from dist/, then the full tier (dhi.io)
 make harness-ci        # BITGAUGE_TEST_IMPL=rust: accuracy harness, CI tier (Docker, dhi.io, netem)
-make demo-parity       # compare the design kit's prototype with the Vue demo (on demand)
+make demo-parity       # kit prototype vs the Vue demo: disabled until the next design export
 make audit-deps        # npm audit and cargo-deny (network)
 ```
 
@@ -71,7 +73,7 @@ every file. Beyond that, run what the hooks cannot:
   `make harness-ci BITGAUGE_TEST_IMPL=rust`
   ([runbook](docs/engineering/accuracy-harness.md)).
 - `web/src/demo/**`: `make web-build`, then `scripts/check-dist-demo-free.sh web/dist`.
-- Demo parity runs on demand only ([runbook](docs/engineering/demo-parity.md)).
+- Demo parity is disabled until the next design export ([runbook](docs/engineering/demo-parity.md)).
 - A `Cargo.toml` or `deny.toml` change, or a rust-common pin bump, needs the network: cargo fetches
   the git dependency and cargo-deny its advisories. To work on a shared crate locally, point each
   crate at `../rust-common/crates/<name>` in an uncommitted

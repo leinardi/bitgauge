@@ -1,6 +1,6 @@
 # Design System Upstream Notes
 
-The design export in `docs/design_system/` is never edited in this repository
+The design export is never edited in this repository, and is out of it until the next one
 ([docs/README.md](../README.md#design-export)). When the demo parity triage decides that the export
 is the side to change (a triage cluster's `upstream` action in `.parity-triage.json`), or when the
 Vue app needs a value the export draws only as a literal with no token (the `design-system-guard`

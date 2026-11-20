@@ -31,9 +31,10 @@ import { defineConfig } from 'vitest/config'
 // worker. The floor only applies below three CPUs.
 const testWorkers = Math.max(2, availableParallelism() - 1)
 
-// The Claude Design export (docs/design_system), read in place: its tokens and fonts through the
-// @design alias, its icons and manifest by the plugin below. It is never copied into web/.
-const designDir = fileURLToPath(new URL('../docs/design_system/', import.meta.url))
+// The design export's tokens, element defaults, fonts, icons and manifest, vendored in web/design
+// (frontend.md section 8): the tokens and fonts through the @design alias, the icons and manifest
+// by the plugin below.
+const designDir = fileURLToPath(new URL('design/', import.meta.url))
 
 // The export's root assets, served from the base path itself (architecture.md section 3).
 const rootAssets = ['favicon.svg', 'favicon-16.png', 'favicon-32.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'icon-512-maskable.png', 'site.webmanifest']
@@ -119,10 +120,6 @@ export default defineConfig({
   // The server substitutes the base path into index.html at startup (architecture.md section 3),
   // so asset URLs stay relative to it.
   base: './',
-  server: {
-    // The tokens and fonts are read from the export, outside web/.
-    fs: { allow: [fileURLToPath(new URL('.', import.meta.url)), designDir] },
-  },
   build: {
     outDir: 'dist',
     rolldownOptions: {

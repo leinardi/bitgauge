@@ -40,10 +40,11 @@ PARITY_DEMO_PORT=18090 PARITY_PROTO_PORT=18091 make demo-parity-servers \
   >/tmp/qa/stacks/demo.log 2>&1 &
 ```
 
-That builds the demo and serves it on `18090`, with the design kit's prototype on `18091` to
-compare against; it prints both URLs. When fanning out, each agent needs a demo origin of its own:
-build once (`npm --prefix web run build:demo`) and serve `web/dist-demo` once per agent, from
-`web/`:
+That builds the demo and serves it on `18090`, with the design kit's prototype on `18091` to compare
+against; it prints both URLs. Until the next design export is imported the prototype side has
+nothing to serve: build and serve the demo alone, as below. When fanning out, each agent needs a
+demo origin of its own: build once (`npm --prefix web run build:demo`) and serve `web/dist-demo`
+once per agent, from `web/`:
 
 ```bash
 npx vite preview --outDir dist-demo --host 127.0.0.1 --port 18092 --strictPort &

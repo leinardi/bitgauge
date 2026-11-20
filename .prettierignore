@@ -2,5 +2,5 @@
 *.iml
 .idea/*
 
-# The design export is never hand-edited.
-docs/design_system/
+# Vendored from the design export, never hand-edited (docs/README.md).
+web/design/

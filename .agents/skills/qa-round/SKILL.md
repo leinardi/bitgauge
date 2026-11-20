@@ -77,7 +77,8 @@ surface is looked at in this matrix, and layout is swept at all of it:
 Compare everything against three sources, never against what the app shows elsewhere:
 
 - the spec in `docs/features/` (cite the file and line in each finding),
-- the design kit's prototype in `docs/design_system/ui_kits/app/`,
+- the design kit's prototype, once the next design export is in the repository
+  ([docs/README.md](../../../docs/README.md#design-export)),
 - the real state: `GET /api/v1/info` and the other routes with `curl` (contract in
   `api/openapi.yaml`), the `/metrics` counters, the server's debug log, the result's Download JSON
   and the browser's IndexedDB.
@@ -166,7 +167,7 @@ under **Suggested plan split**. No planning yet: only which findings go together
   findings than that make another plan.
 - Split by the kind of work and the skills it needs: server, wire and security work
   (`server-invariants`, `wire-compat`), engine work (`measurement-engine`) and
-  app presentation (`vue-page-patterns`, `design-system-guard`, `demo-parity`) apart.
+  app presentation (`vue-page-patterns`) apart.
 - Keep one model in one plan: findings that share a cause or a reading (a result status, a
   qualifier, a notice) land together, so the app never disagrees with itself between plans.
 - Order the plans: highs and the work other findings depend on go first, and say which findings

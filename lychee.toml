@@ -2,11 +2,9 @@
 # top-level exclude of .pre-commit-config.yaml leaves unlinted. The paths are regular expressions
 # matched against the path.
 #
-# The skills vendored byte for byte (pinned upstream in skills-lock.json) and the design export
-# (never hand-edited). Installed dependencies and build output are skipped by name.
+# The skills vendored byte for byte (pinned upstream in skills-lock.json). Installed dependencies and build output are skipped by name.
 exclude_path = [
   "(^|/)node_modules/",
   "^(\\./)?target/",
   "^(\\./)?\\.agents/skills/(fallow|vue-best-practices|vue-router-best-practices|vue-testing-best-practices)/",
-  "^(\\./)?docs/design_system/",
 ]

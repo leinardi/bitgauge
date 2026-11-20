@@ -17,43 +17,19 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// The scenario table against the UI kit: one scenario per Test-screen state the kit's App.jsx
-// lists, the Continuous preset's included, one per loaded-latency case of its panel, and the run its Result detail shows; and each scripted scenario plays out in the real engine without an engine failure.
-// The panel's Responsiveness cases each give their path B state on a played LAN run, and its
-// compatibility layers reach GET /info.
+// Each scripted scenario plays out in the real engine without an engine failure; the panel's
+// Responsiveness cases each give their path B state on a played LAN run, and its compatibility
+// layers reach GET /info.
 
-import kitApp from '@design/ui_kits/app/App.jsx?raw'
 import { describe, expect, it } from 'vitest'
 
 import { commandOf, DEFAULTS, restore } from '@/demo/choice'
 import { chooseScenario, demoInfo } from '@/demo/control'
 import { scenarioInfo } from '@/demo/fixtures'
-import { DEMO_RESPONSIVENESS, type DemoResponsiveness } from '@/demo/responsiveness'
+import type { DemoResponsiveness } from '@/demo/responsiveness'
 import { DEMO_SCENARIOS, type DemoScenario, type DemoScenarioName, isScenarioName } from '@/demo/scenarios'
 import { continuousEnded, demoSession, ended, start } from '@/demo/test/play'
 import type { Result } from '@/engine/messages'
-
-/** The names in the kit's `const TEST_STATES = [...]`. */
-function kitStates(): string[] {
-  const list = /const TEST_STATES = \[([^\]]*)\]/.exec(kitApp)?.[1]
-  if (list === undefined) {
-    throw new Error('App.jsx no longer declares TEST_STATES')
-  }
-  return [...list.matchAll(/["']([^"']+)["']/g)].map((match) => match[1] ?? '')
-}
-
-/** The panel's loaded-latency cases: the WebSocket closing after idle latency, and each LL_GAPS reason. */
-function kitLoadedCases(): string[] {
-  const gaps = /const LL_GAPS = \[(.*)\];/.exec(kitApp)?.[1]
-  if (gaps === undefined || !kitApp.includes('value={d.wsClose}')) {
-    throw new Error('App.jsx no longer declares LL_GAPS and the wsClose control')
-  }
-  const reasons = [...gaps.matchAll(/\[["']([a-z-]+)["'], ["'][^"']*["']\]/g)].map((match) => match[1] ?? '').filter((reason) => reason !== 'none')
-  return ['ws-close', ...reasons.map((reason) => `ll-${reason}`)]
-}
-
-/** The run of the kit's Result detail (ResultDetail.jsx), a state of no panel control. */
-const RESULT_DETAIL = 'upload-gap'
 
 const NAMES = Object.keys(DEMO_SCENARIOS) as DemoScenarioName[]
 
@@ -63,11 +39,6 @@ const NAMES = Object.keys(DEMO_SCENARIOS) as DemoScenarioName[]
 const PLAY_TIMEOUT_MS = 30_000
 
 describe('the demo scenarios', () => {
-  it('cover exactly the kit states, its loaded-latency cases and its Result detail', () => {
-    expect(kitLoadedCases()).toHaveLength(5)
-    expect([...NAMES].sort()).toEqual([...kitStates(), ...kitLoadedCases(), RESULT_DETAIL].sort())
-  })
-
   it('accept only their own names', () => {
     expect(isScenarioName('complete')).toBe(true)
     expect(isScenarioName('continuous')).toBe(true)
@@ -113,11 +84,6 @@ async function result(responsiveness: DemoResponsiveness): Promise<Result> {
 }
 
 describe('the Responsiveness cases', () => {
-  it('offer the kit’s five options, in its order and words', () => {
-    const options = /const RESP_OPTS = \[(.*)\];/.exec(kitApp)?.[1] ?? ''
-    expect([...options.matchAll(/\[["']([^"']+)["'], ["']([^"']+)["']\]/g)].map((match) => [match[1], match[2]])).toEqual(DEMO_RESPONSIVENESS.map(([value, words]) => [value, words]))
-  })
-
   it.each([
     ['ok', { state: 'measured', protocol: 'h2' }, { state: 'measured', protocol: 'h2' }],
     ['uncertain', { state: 'uncertain', protocol: 'h2' }, { state: 'uncertain', protocol: 'h2' }],

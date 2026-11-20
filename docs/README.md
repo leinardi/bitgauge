@@ -1,12 +1,12 @@
 # BitGauge Documentation
 
 Two documentation trees with distinct ownership, plus one for running the project and one for the
-prior art behind the design:
+prior art behind the design. The visual contract is the design export
+([Design Export](#design-export)).
 
 | Tree | Owns | Authority |
 | --- | --- | --- |
 | [`features/`](features/README.md) | Product spec, measurement methodology, wire protocol, compatibility, architecture, technical stack, security model, UI behavior, roadmap | Product and technical contract. Technical decisions are **locked** in [`features/technical-stack/decisions.md`](features/technical-stack/decisions.md); that file wins over any summary elsewhere. |
-| [`design_system/`](design_system/README.md) | Brand, tokens, component contracts, UI kits, previews | Visual contract from the Claude Design export, including the `ui_kits/app/` prototype. Where it disagrees with `features/ui/` on behavior, the spec wins. The export is never hand-edited ([Design Export](#design-export)). |
 | [`engineering/`](engineering/README.md) | How the project is run rather than what it does: harness runbooks, checklists, audits | Working notes, not a contract. Nothing here constrains the product. |
 | [`research/`](research/README.md) | How other speed tests work and which ideas BitGauge takes | Background, ideas only. Where it disagrees with `features/`, `features/` wins. |
 
@@ -15,16 +15,23 @@ How releases are made: [`release.md`](release.md). The record of the port from G
 
 ## Design Export
 
-`design_system/` is the Claude Design export, copied in unchanged. Its own
-[`README.md`](design_system/README.md) and `SKILL.md` describe the design system; the rules for
-keeping it in this repository live here, because every file in that tree is overwritten by the next
-export.
+The visual contract comes from the Claude Design export: brand, tokens, component contracts and
+the `ui_kits/app/` prototype. The export is not in the repository for now: Claude Design is moving
+to artifacts, and the next export is imported when it is available. Until then:
+
+- The files the web app ships from the last export are vendored unchanged in `web/design/`:
+  `colors_and_type.css`, `base.css` and `assets/` (fonts, icons, web manifest)
+  ([frontend.md §8](features/technical-stack/frontend.md#8-theming-hook)).
+- The tooling that read the rest of it is disabled: the demo parity harness
+  ([runbook](engineering/demo-parity.md)) and the `design-system-guard`, `demo-parity` and
+  `parity-triage` skills, kept in `.agents/skills-disabled/`.
+- Changes the export still needs are written down in
+  [`engineering/design-system-upstream.md`](engineering/design-system-upstream.md).
 
 ### Provenance Rule
 
-**Never hand-edit files under `design_system/`.** The tree is regenerated from the Claude Design
-project on every export, so a local edit is silently lost on the next sync. A change goes into the
-Claude Design project first and arrives here with the next export. The export carries no spec
+**Never hand-edit the export or the files vendored from it in `web/design/`.** A change goes into
+the Claude Design project first and arrives here with the next export. The export carries no spec
 pages: the product spec lives only in [`features/`](features/README.md).
 
 ### Precedence
@@ -41,11 +48,14 @@ pages: the product spec lives only in [`features/`](features/README.md).
   [`features/ui/i18n-a11y.md`](features/ui/i18n-a11y.md); a token that fails them is fixed in
   Claude Design, not overridden in code.
 
-### Syncing a New Export
+### Importing a New Export
 
-1. Replace `design_system/` with the export.
-2. Check that every relative link in `docs/` still resolves (`pre-commit run lychee --all-files`), then
-   commit the export.
+1. Copy the export to `design_system/` and refresh `web/design/` from it, or point the build back
+   at it.
+2. Move the three skills back to `.agents/skills/` and check the parity harness against the new
+   kit.
+3. Check that every relative link in `docs/` still resolves (`pre-commit run lychee --all-files`),
+   then commit the export.
 
 ## Reading Order
 
@@ -58,4 +68,4 @@ pages: the product spec lives only in [`features/`](features/README.md).
    the data flow.
 6. [`features/technical-stack/decisions.md`](features/technical-stack/decisions.md): locked
    technical decisions.
-7. [`design_system/README.md`](design_system/README.md): visual language, when touching UI.
+7. [Design Export](#design-export): where the visual language comes from, when touching UI.

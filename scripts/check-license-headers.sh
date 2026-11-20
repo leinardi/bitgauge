@@ -76,7 +76,6 @@ EXEMPT_PREFIXES=(
 	".agents/skills/vue-best-practices/"
 	".agents/skills/vue-router-best-practices/"
 	".agents/skills/vue-testing-best-practices/"
-	"docs/design_system/"
 	"web/src/components/ui/"
 )
 EXEMPT_PATHS=(

@@ -60,8 +60,8 @@ those, so grep the other pages for every value you change.
 
 The spec lives only in `docs/features/`; the design export carries no spec page.
 
-- Never hand-edit the export: it is replaced on every export
-  ([provenance rule](../../../docs/README.md#provenance-rule)).
+- Never hand-edit the export or the files vendored from it in `web/design/`: they are replaced
+  by the next export ([provenance rule](../../../docs/README.md#provenance-rule)).
 - `docs/features/ui/` is canonical for behavior, the export for visuals.
 
 ## 6. Form

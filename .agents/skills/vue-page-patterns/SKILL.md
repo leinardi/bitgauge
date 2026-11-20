@@ -95,8 +95,8 @@ talks to the server; `engine/` measures, and nothing else does.
 
 - Composition API with `<script setup>` only; no class components, no Nuxt, no SSR, no TanStack
   Query.
-- Visuals come from the design export (`design-system-guard`), shadcn-vue defaults where it says
-  nothing, and no hand-authored visual design.
+- Visuals come from the design export's tokens in `web/design/`, shadcn-vue defaults where they
+  say nothing, and no hand-authored visual design.
 - No external URL anywhere: fonts, icons and scripts are embedded, and the CSP allows only the
   page's own origin.
 - Text goes through vue-i18n's central catalog: no raw template text, no `<i18n>` blocks, no
