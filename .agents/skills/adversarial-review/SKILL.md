@@ -16,7 +16,6 @@ You are a hostile reviewer. Assume the change is **wrong until proven right**: i
 bug, breaks an invariant, or drifts from the spec. Your job is to find the specific input,
 state, or path where it fails — not to praise it, not to restyle it. A review that finds
 nothing is only credible after you have actively tried to break the change and failed. This
-nothing is only credible after you have actively tried to break the change and failed. This
 skill is the mindset; the spec and the domain skills own the rules. Read `AGENTS.md` first (its
 "Project rules" are the invariants below), then the spec pages and skills for the changed paths.
 
@@ -60,14 +59,16 @@ past them:
 - **Spec first, inverted.** Code that implements a sensible behavior the docs do not specify, or
   tooling that encodes one (a threshold in a test, a default in a script), is a finding even when
   every gate is green. The fix is a docs change first, not a comment.
-- **State by another name.** A cache, a memo, a `sync.Map`, a "last seen" per IP or a counter
-  keyed by anything client-supplied is state across requests. It must be in the in-memory
-  inventory of [architecture.md §6](../../../docs/features/architecture.md#6-in-memory-state-inventory)
-  and bounded; otherwise it is a finding.
+- **State by another name.** A cache, a memo, a `static` or `OnceLock` holding a map, a "last
+  seen" per IP or a counter keyed by anything client-supplied is state across requests. It must
+  be in the in-memory inventory of
+  [architecture.md §6](../../../docs/features/architecture.md#6-in-memory-state-inventory) and
+  bounded; otherwise it is a finding.
 - **Outbound through the side door.** A URL in a string, a `<link>`, a font, a source map, an
   example config or a test fixture that ends up in `web/dist` or the image; a hostname resolved
-  through a call forbidigo does not list (`net.ResolveTCPAddr`, `net.Listen` on a name rather than
-  an address); a dependency that phones home. Lint sees names and imports, not behavior.
+  through a call the root `clippy.toml` does not list (`tokio::net::TcpListener::bind` on a name
+  rather than an address; `server-invariants` §2 lists the gaps); a dependency that phones home.
+  Lint sees names and imports, not behavior.
 - **Engine purity by relocation.** Measurement logic moved into a component, a composable or a
   store passes the engine's import rule while breaking it.
 - **Dishonest numbers by omission.** A number exported or shown without its `status`,
@@ -86,8 +87,8 @@ Beyond the generic passes (logic, nil and empty input, aliasing, errors, concurr
 security), run these with a "how would I make this fail" framing, and name one concrete failing
 input per candidate. Angles that bite here: an upload body with no size cap or not drained
 before the response; a per-request allocation on the download path; a rate-limit table without
-its bound; an engine timer or fetch that bypasses the injected clock or transport; `%v` where
-`%w` was needed.
+its bound; an engine timer or fetch that bypasses the injected clock or transport; an error
+turned into a string where its `source()` was needed.
 
 - **Contract drift:** a JSON field, endpoint, probe path, config key, environment variable,
   message type or number changed without every consumer and spec page that states it (*Docs and

@@ -10,8 +10,8 @@ actions of [gh-composite-actions](https://github.com/leinardi/gh-composite-actio
 [build-packaging.md §4](features/technical-stack/build-packaging.md#4-ci-workflows), is why it is
 shaped that way.
 
-**There has been no release yet.** Before the first dispatch, dry runs included, do the
-[one-time setup](#one-time-setup).
+The [one-time setup](#one-time-setup) is done for this repository; a fork or a new repository
+does it before its first dispatch, dry runs included.
 
 ## What a Release Produces
 

@@ -13,15 +13,14 @@ limits bound that, but do not prevent it.
 
 ## Supported Versions
 
-There has been no release yet.
-
 | Version | Supported |
 | --- | --- |
-| none released | — |
+| the latest release | yes |
+| any older release | no |
 
-Once releases exist, only the latest release receives security fixes; older releases are not
-patched. A published version never changes: a fix, base-image fixes included, ships as a new
-release ([docs/release.md](docs/release.md#tags)).
+Only the latest release receives security fixes; older releases are not patched. A published
+version never changes: a fix, base-image fixes included, ships as a new release
+([docs/release.md](docs/release.md#tags)).
 
 ## Reporting a Vulnerability
 

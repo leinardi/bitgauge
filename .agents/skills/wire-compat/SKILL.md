@@ -54,7 +54,8 @@ Docs, spec and router list exactly these six, with these methods: `GET /api/v1/d
   §11](../../../docs/features/wire-protocol.md#11-openapi-outline), plus root `/metrics` (tag
   `operations`, OpenMetrics text, answered by `src/metrics/endpoint.rs`). `/api/v1/ws` is a `GET`
   with a `101`; OpenAPI does not model its messages. Compat routes never appear here.
-- **Router:** review compares its routes with the spec's paths; no test does.
+- **Router:** `src/server/tests/openapi.rs` pins every native route and the default
+  `metrics.path` to the spec's paths, method by method, both ways.
   `src/handlers/tests/contract.rs` holds the JSON to the `Info`, `UploadTelemetry` and
   `Error` schemas; the `api-types-generate` hook and `web.yaml`'s `types-drift` catch a stale
   `types.gen.ts`.
@@ -199,8 +200,9 @@ The native `POST /api/v1/upload` answers `200` with exactly this object
   "bytes": 122880, "startMs": 123456750, "durationMs": 1000 }
 ```
 
-- Exactly these seven keys. The docs meta-test (`UPLOAD_KEYS`) fails when a page under
-  `docs/features` shows another set; the OpenAPI `UploadTelemetry` schema must be identical.
+- Exactly these seven keys. No test checks the key set a page under `docs/features` shows: grep
+  them for the object (`spec-change` §1). The OpenAPI `UploadTelemetry` schema must be identical;
+  `src/handlers/tests/contract.rs` holds the handler's JSON to it.
 - `bucketMs` is always 100, with no coarsening; `firstBucket = floor(startMs / 100)`; `buckets` has
   at most 1201 entries (1200 cells of the 120 s lifetime, plus one when it starts mid-cell);
   `Σ buckets == bytes`, which equals the request's `Content-Length`.

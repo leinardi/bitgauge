@@ -2,9 +2,8 @@
 
 > A self-hosted, browser-based network speed test for LAN, homelab and VPN links.
 >
-> **Status: implemented, not yet released.** The specification was approved on 2026-10-12 and the
-> product is built against it; the first release waits for its manual accuracy runs and release
-> setup ([docs/release.md](docs/release.md)).
+> **Status: released.** Each release attaches the static binaries and publishes the signed image;
+> how one is cut is in [docs/release.md](docs/release.md).
 
 BitGauge measures the link between a browser and a server you run yourself: a NAS on the LAN, a
 homelab box behind Wi-Fi, or your home server reached over a VPN from a phone. It is built to give
@@ -84,8 +83,8 @@ Put it behind your reverse proxy for TLS and HTTP/2: runnable
 [Traefik](deployments/examples/traefik/README.md), [Caddy](deployments/examples/caddy/README.md)
 and [nginx](deployments/examples/nginx/README.md) examples sit beside it, and the proxy
 requirements are in [docs/features/deployment-example.md](docs/features/deployment-example.md).
-No image is published until the first release; verify one before you trust it with the commands
-in [SECURITY.md](SECURITY.md#verifying-a-release).
+Verify an image before you trust it, with the commands in
+[SECURITY.md](SECURITY.md#verifying-a-release).
 
 ## Documentation
 

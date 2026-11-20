@@ -92,7 +92,7 @@ The rules see only the names they list and only this package. Each row passes li
 | Sockets not on the list | `tokio::net::TcpSocket::connect`, `nix::sys::socket::connect` or `sendto` (nix is a dependency, for signals and sockets) | netguard `egress`; syscall layer |
 | Writes outside the listed names | `std::fs::copy`, `hard_link`, `set_permissions`, a `nix` or `libc` open | syscall layer, `docker diff`, the read-only root |
 | Lookups through allowed functions | `tokio::net::TcpListener::bind("host.lan:80")`, which resolves inside tokio | netguard `dns` |
-| Subprocesses | `std::process::Command` | `strace -f` follows children; the image has no shell |
+| Subprocesses not on the list | a `fork` or `exec*` through `libc` (`Command::new` is banned above) | `strace -f` follows children; the image has no shell |
 | Logging | `tracing::debug!(headers = ?req.headers())` | review against §10 only |
 
 Test code (`#[cfg(test)]`, `tests/`, the `meta` and `testenv` crates) is out of scope by design:
