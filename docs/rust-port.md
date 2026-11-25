@@ -253,8 +253,11 @@ locally; toolchain bumps update the Makefile's settings, not the fetched default
 
 Code the sibling ports also carry is a dependency on
 [leinardi/rust-common](https://github.com/leinardi/rust-common) instead, a git dependency pinned
-by release tag (`tag = "v3.0.0"`, with `version = "3.0"`) in `[workspace.dependencies]`; its files
-carry rust-common's headers, not this ledger's.
+by release tag (`tag`, with `version` the tag's `<major>.<minor>`) in `[workspace.dependencies]`;
+its files carry rust-common's headers, not this ledger's. `make rust-pin-bump TAG=vX.Y.Z` moves
+the pin and the line below.
+
+The current pin is `v3.0.0`. <!-- rust-pin-current -->
 
 | Crate | Replaces | What BitGauge parameterises |
 | --- | --- | --- |
