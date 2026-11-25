@@ -36,6 +36,7 @@ use http_body_util::{BodyExt, Full, StreamBody};
 use hyper::body::Incoming;
 use hyper::upgrade::Upgraded;
 use hyper_util::rt::TokioIo;
+use service_kit::tower_service::Service;
 use tokio::sync::Notify;
 use tokio::time::Instant;
 use tokio_tungstenite::WebSocketStream;
@@ -43,7 +44,6 @@ use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::tungstenite::handshake::derive_accept_key;
 use tokio_tungstenite::tungstenite::protocol::frame::coding::CloseCode;
 use tokio_tungstenite::tungstenite::protocol::{CloseFrame, Role};
-use tower_service::Service;
 
 use crate::server::Lifecycle;
 use crate::server::upgrade::{SocketShutdown, spawn_socket_task};

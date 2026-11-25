@@ -66,7 +66,7 @@ const PRODUCTION_METHOD_BANS: &[&str] = &[
     "std::time::SystemTime::now",
     "std::time::Instant::now",
     "jiff::Timestamp::now",
-    "jiff::Zoned::now",
+    "jiff::ZonedDateTime::now",
     "std::process::Command::new",
     "tokio::process::Command::new",
 ];

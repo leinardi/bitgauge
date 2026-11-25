@@ -580,7 +580,7 @@ pub(crate) fn push_limits(out: &mut String, limits: &[String], cannot_prove: &st
 #[must_use]
 pub fn dir(root: &Path, prefix: &str, started: Timestamp, env_id: &str) -> PathBuf {
     let stamp = started
-        .to_zoned(TimeZone::UTC)
+        .to_zoned_datetime(TimeZone::UTC)
         .strftime("%Y%m%dT%H%M%SZ")
         .to_string();
     root.join(format!("{prefix}-{stamp}-{env_id}"))

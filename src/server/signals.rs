@@ -30,7 +30,7 @@ use std::io;
 use std::thread;
 
 use nix::sys::signal::{SigSet, Signal, raise};
-use tokio_util::sync::CancellationToken;
+use service_kit::tokio_util::sync::CancellationToken;
 
 /// The signals that stop the server.
 fn shutdown_signals() -> SigSet {

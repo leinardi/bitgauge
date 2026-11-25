@@ -31,7 +31,7 @@ use std::time::Duration;
 
 use tokio::runtime::{Builder, Runtime};
 use tracing::Dispatch;
-use tracing_subscriber::fmt::MakeWriter;
+use tracing_setup::tracing_subscriber::fmt::MakeWriter;
 
 use crate::buildinfo;
 use crate::cli::{self, Command, Parsed};

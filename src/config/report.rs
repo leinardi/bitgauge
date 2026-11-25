@@ -25,7 +25,7 @@ use tracing::callsite::{DefaultCallsite, Identifier};
 use tracing::field::{FieldSet, Value, display};
 use tracing::metadata::Kind;
 use tracing::{Dispatch, Event, Level, Metadata};
-use tracing_subscriber::fmt::MakeWriter;
+use tracing_setup::tracing_subscriber::fmt::MakeWriter;
 
 use super::decode::FIELDS;
 use super::effective::{EffectiveValue, effective};

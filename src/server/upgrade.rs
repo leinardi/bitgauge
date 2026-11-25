@@ -34,7 +34,7 @@ use std::future::Future;
 
 use hyper::upgrade::Upgraded;
 use hyper_util::rt::TokioIo;
-use tokio_util::sync::CancellationToken;
+use service_kit::tokio_util::sync::CancellationToken;
 
 use super::Lifecycle;
 

@@ -74,7 +74,7 @@ and binary, without `#[cfg(test)]`. Test infrastructure has its own rules.
     `create_dir*`, `remove*`, `rename`); `std::net::TcpStream::connect*` and
     `tokio::net::TcpStream::connect`; `UdpSocket::bind`; `ToSocketAddrs::to_socket_addrs` and
     `tokio::net::lookup_host`; `SystemTime::now`, `std::time::Instant::now`,
-    `jiff::Timestamp::now`, `jiff::Zoned::now`; `std::process::Command::new` and
+    `jiff::Timestamp::now`, `jiff::ZonedDateTime::now`; `std::process::Command::new` and
     `tokio::process::Command::new`;
   - `disallowed-macros`: `print*`, `eprint*`, `dbg`;
   - `allow-unwrap-in-tests`, `allow-expect-in-tests`;
@@ -257,7 +257,14 @@ by release tag (`tag`, with `version` the tag's `<major>.<minor>`) in `[workspac
 its files carry rust-common's headers, not this ledger's. `make rust-pin-bump TAG=vX.Y.Z` moves
 the pin and the line below.
 
-The current pin is `v3.0.0`. <!-- rust-pin-current -->
+The current pin is `v4.0.0`. <!-- rust-pin-current -->
+
+A crate whose types cross rust-common's API comes through rust-common's re-export, never a
+declaration of BitGauge's own: tokio-util and tower-service as `service_kit::tokio_util` and
+`service_kit::tower_service`, tracing-subscriber as `tracing_setup::tracing_subscriber`. Two copies
+compile apart and fail at the boundary with E0277 or E0308; `meta/tests/rust_common_boundary.rs`
+holds each to one package, and CI runs it before the build. prometheus-client stays BitGauge's
+own declaration: service-kit's `process-metrics`, which would bring rust-common's copy, is off.
 
 | Crate | Replaces | What BitGauge parameterises |
 | --- | --- | --- |
