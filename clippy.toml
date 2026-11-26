@@ -63,7 +63,7 @@ disallowed-methods = [
     { path = "std::time::SystemTime::now", reason = "use tokio::time::Instant through the injected Clock" },
     { path = "std::time::Instant::now", reason = "use tokio::time::Instant through the injected Clock" },
     { path = "jiff::Timestamp::now", reason = "use tokio::time::Instant through the injected Clock", allow-invalid = true },
-    { path = "jiff::Zoned::now", reason = "use tokio::time::Instant through the injected Clock", allow-invalid = true },
+    { path = "jiff::ZonedDateTime::now", reason = "use tokio::time::Instant through the injected Clock", allow-invalid = true },
     # No child process: the server spawns nothing.
     { path = "std::process::Command::new", reason = "the server spawns no process" },
     { path = "tokio::process::Command::new", reason = "the server spawns no process", allow-invalid = true },

@@ -188,7 +188,8 @@ async fn the_client_ip_stage_stores_the_derived_client() {
             .extensions_mut()
             .insert(crate::server::Peer(peer.parse().expect("a peer")));
         let mut stack = stack.clone();
-        let answer: Result<_, Infallible> = tower_service::Service::call(&mut stack, request).await;
+        let answer: Result<_, Infallible> =
+            service_kit::tower_service::Service::call(&mut stack, request).await;
         assert_eq!(
             answer.expect("an answer").status(),
             StatusCode::OK,
@@ -216,7 +217,8 @@ async fn a_request_without_a_peer_carries_no_client() {
     );
     let mut stack = chain(router, &Config::default(), None);
     let request = Request::get("/").body(Body::empty()).expect("a request");
-    let answer: Result<_, Infallible> = tower_service::Service::call(&mut stack, request).await;
+    let answer: Result<_, Infallible> =
+        service_kit::tower_service::Service::call(&mut stack, request).await;
     assert_eq!(answer.expect("an answer").status(), StatusCode::OK);
     assert_eq!(*seen.lock().expect("lock"), Some(None));
 }

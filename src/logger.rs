@@ -28,7 +28,7 @@ use std::str::FromStr;
 
 use tracing::{Dispatch, Level};
 use tracing_setup::Options;
-use tracing_subscriber::fmt::MakeWriter;
+use tracing_setup::tracing_subscriber::fmt::MakeWriter;
 
 /// The `log.format` values.
 pub const FORMATS: [&str; 2] = [FORMAT_TEXT, FORMAT_JSON];

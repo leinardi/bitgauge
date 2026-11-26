@@ -44,8 +44,8 @@ use futures_util::FutureExt as _;
 use http::header::{CACHE_CONTROL, CONNECTION, CONTENT_LENGTH};
 use http::{HeaderMap, Method, Response, StatusCode};
 use http_body::{Body as HttpBody, Frame, SizeHint};
+use service_kit::tower_service::Service;
 use tokio::time::Instant;
-use tower_service::Service;
 
 use super::Peer;
 use super::classify::{Classifier, Group, base_of, set_headers};

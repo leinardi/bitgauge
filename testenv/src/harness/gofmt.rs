@@ -503,7 +503,7 @@ fn num_error(function: &str, text: &str, reason: &str) -> String {
 #[must_use]
 pub fn rfc3339(instant: Timestamp) -> String {
     instant
-        .to_zoned(TimeZone::UTC)
+        .to_zoned_datetime(TimeZone::UTC)
         .strftime("%Y-%m-%dT%H:%M:%SZ")
         .to_string()
 }

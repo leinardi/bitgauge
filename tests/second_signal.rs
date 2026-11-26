@@ -35,8 +35,8 @@ use std::time::Duration;
 use bitgauge::server::signals::{block_shutdown_signals, spawn_signal_thread};
 use nix::sys::signal::{Signal, kill};
 use nix::unistd::Pid;
+use service_kit::tokio_util::sync::CancellationToken;
 use std::os::unix::process::ExitStatusExt as _;
-use tokio_util::sync::CancellationToken;
 
 const CHILD: &str = "BITGAUGE_SIGNAL_CHILD";
 

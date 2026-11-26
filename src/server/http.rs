@@ -34,8 +34,8 @@ use http::{Request, Response};
 use http_body::Body;
 use hyper::body::Incoming;
 use service_kit::http::{BoxError, Lifecycle, Outcome, ServerConfig};
+use service_kit::tower_service::Service;
 use tokio::net::TcpListener;
-use tower_service::Service;
 
 use crate::handlers::Abort;
 

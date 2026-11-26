@@ -36,10 +36,10 @@ use http::{HeaderMap, Method, Request, StatusCode};
 use http_body_util::{BodyExt as _, Full};
 use hyper::body::Incoming;
 use hyper_util::rt::TokioIo;
+use service_kit::tower_service::Service as _;
 use tokio::net::TcpListener;
 use tokio::task::JoinHandle;
 use tokio::time::Instant;
-use tower_service::Service as _;
 
 use crate::buildinfo;
 use crate::clientip::{Deriver, Labeler};

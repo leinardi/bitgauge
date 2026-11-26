@@ -132,7 +132,10 @@ counts as `fix:`), so avoid a word ending in `feat` or `fix` right before a colo
   `leinardi/rust-common`, a git dependency pinned by its release tag in
   `[workspace.dependencies]` ([Shared Crates](docs/rust-port.md#shared-crates)). A behaviour
   BitGauge needs differently is a parameter there, never a fork or copy here; a fix to shared code
-  lands in rust-common first and reaches BitGauge by a pin bump. BitGauge's intended differences
+  lands in rust-common first and reaches BitGauge by a pin bump (`make rust-pin-bump TAG=vX.Y.Z`).
+  A crate whose types cross rust-common's API comes through its re-export
+  ([Shared Crates](docs/rust-port.md#shared-crates); `meta/tests/rust_common_boundary.rs`).
+  BitGauge's intended differences
   from the siblings:
   - the root `clippy.toml` bans file writes, connects, name lookups and the print macros beside the
     wall-clock reads the siblings ban too, and `deny.toml` bans HTTP clients, stores and RPC, since

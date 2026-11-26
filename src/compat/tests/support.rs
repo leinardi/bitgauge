@@ -32,7 +32,7 @@ use axum::Router;
 use bytes::Bytes;
 use http::{Method, Request, Response, Version};
 use http_body::{Body as HttpBody, Frame};
-use tower_service::Service as _;
+use service_kit::tower_service::Service as _;
 
 use crate::clientip::Client;
 use crate::clock::TokioClock;

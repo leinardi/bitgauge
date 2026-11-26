@@ -30,7 +30,7 @@ use http::header::{
     IF_NONE_MATCH,
 };
 use http::{Method, Request, Response, StatusCode};
-use tower_service::Service as _;
+use service_kit::tower_service::Service as _;
 
 use super::files::{RangeError, Ranges, parse_range};
 use super::{Files, ROOT_ASSETS, Spa, not_found};
